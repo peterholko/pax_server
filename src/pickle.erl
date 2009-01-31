@@ -1,0 +1,347 @@
+%%%% Copyright (C) 2005-2008 Wager Labs, SA
+%%%%
+%%%% THE WORK (AS DEFINED BELOW) IS PROVIDED UNDER THE TERMS OF THIS 
+%%%% CREATIVE COMMONS PUBLIC LICENSE ("CCPL" OR "LICENSE"). THE WORK IS 
+%%%% PROTECTED BY COPYRIGHT AND/OR OTHER APPLICABLE LAW. ANY USE OF 
+%%%% THE WORK OTHER THAN AS AUTHORIZED UNDER THIS LICENSE OR COPYRIGHT 
+%%%% LAW IS PROHIBITED.
+%%%%
+%%%% BY EXERCISING ANY RIGHTS TO THE WORK PROVIDED HERE, YOU ACCEPT 
+%%%% AND AGREE TO BE BOUND BY THE TERMS OF THIS LICENSE. TO THE EXTENT 
+%%%% THIS LICENSE MAY BE CONSIDERED TO BE A CONTRACT, THE LICENSOR GRANTS 
+%%%% YOU THE RIGHTS CONTAINED HERE IN CONSIDERATION OF YOUR ACCEPTANCE 
+%%%% OF SUCH TERMS AND CONDITIONS.
+%%%%
+%%%% Please see LICENSE for full legal details and the following URL
+%%%% for a human-readable explanation:
+%%%%
+%%%% http://creativecommons.org/licenses/by-nc-sa/3.0/us/
+%%%%
+
+-module(pickle).
+
+-export([pickle/2, unpickle/2]).
+-export([byte/0, short/0, sshort/0, 
+         int/0, sint/0, long/0, slong/0]).
+-export([list/2, choice/2, optional/1, wrap/2,
+         tuple/1, record/2, binary/1, wstring/0]).
+-export([string/0]).
+
+%-include_lib("eunit/include/eunit.hrl").
+
+%%% Pickle and unpickle. We accumulate into a list.
+
+pickle({Pickler, _}, Value) ->
+    lists:reverse(Pickler([], Value)).
+
+unpickle({_, Pickler}, Bin) ->
+    element(1, Pickler(Bin)).
+
+%%% Byte
+
+byte() -> 
+    {fun write_byte/2, fun read_byte/1}.
+
+write_byte(Acc, Byte) -> 
+    [<<Byte:8>>|Acc].
+
+read_byte(Bin) -> 
+    io:fwrite("Status - read_byte Bin: ~w~n", [Bin]),
+    <<Byte:8, Rest/binary>> = Bin,
+    io:fwrite("Status - read_byte Byte: ~w~n", [Byte]),
+    io:fwrite("Status - read_byte Rest: ~w~n", [Rest]),
+    {Byte, Rest}.
+
+%%% Unsigned short
+
+short() -> 
+    {fun write_short/2, fun read_short/1}.
+
+write_short(Acc, Word) -> 
+    [<<Word:16>>|Acc].
+
+read_short(Bin) -> 
+    <<Word:16, Rest/binary>> = Bin,
+    {Word, Rest}.
+
+%%% Signed short
+
+sshort() -> 
+    {fun write_sshort/2, fun read_sshort/1}.
+
+write_sshort(Acc, Word) -> 
+    [<<Word:16/signed>>|Acc].
+
+read_sshort(Bin) -> 
+    <<Word:16/signed, Rest/binary>> = Bin,
+    {Word, Rest}.
+
+%%% Unsigned int
+
+int() -> 
+    {fun write_int/2, fun read_int/1}.
+
+write_int(Acc, Word) -> 
+    [<<Word:32>>|Acc].
+
+read_int(Bin) -> 
+    <<Word:32, Rest/binary>> = Bin,
+    {Word, Rest}.
+
+%%% Signed int
+
+sint() -> 
+    {fun write_sint/2, fun read_sint/1}.
+
+write_sint(Acc, Word) -> 
+    [<<Word:32/signed>>|Acc].
+
+read_sint(Bin) -> 
+    <<Word:32/signed, Rest/binary>> = Bin,
+    {Word, Rest}.
+
+%%% Unsigned long
+
+long() -> 
+    {fun write_long/2, fun read_long/1}.
+
+write_long(Acc, Word) -> 
+    [<<Word:64>>|Acc].
+
+read_long(Bin) -> 
+    <<Word:64, Rest/binary>> = Bin,
+    {Word, Rest}.
+
+%%% Signed long
+
+slong() -> 
+    {fun write_slong/2, fun read_slong/1}.
+
+write_slong(Acc, Word) -> 
+    [<<Word:64/signed>>|Acc].
+
+read_slong(Bin) -> 
+    <<Word:64/signed, Rest/binary>> = Bin,
+    {Word, Rest}.
+
+%%% List. We supply a pickler for list length 
+%%% as well as a pickler for list elements.
+
+list(Len, Elem) ->
+    {fun(Acc, List) -> write_list(Len, Elem, Acc, List) end, 
+     fun(Bin) -> read_list(Len, Elem, Bin) end }.
+
+write_list({Len, _}, {Elem, _}, Acc, List) ->
+    Acc1 = Len(Acc, length(List)),
+    Fun = fun(A, Acc2) -> Elem(Acc2, A) end,
+    lists:foldr(Fun, Acc1, List).
+
+read_list({_, Len}, {_, Elem}, Bin) ->
+    {N, Bin1} = Len(Bin),
+    read_list(N, [], Elem, Bin1).
+
+read_list(0, Acc, _, Bin) -> {Acc, Bin};
+read_list(N, Acc, Elem, Bin) ->
+    {E, Bin1} = Elem(Bin),
+    read_list(N - 1, [E|Acc], Elem, Bin1).
+
+%%% Alternative selection. This could probably use some
+%%% deeper thinking. We take a pickler for the tag
+%%% as well as a tuple of two functions. The first one
+%%% returns the tag value and a pickler based on the supplied
+%%% value. The second one selects a pickler based on a tag value.
+
+choice(Tag, Choice) ->
+    {fun(Acc, Value) -> write_choice(Tag, Choice, Acc, Value) end,
+     fun(Bin) -> read_choice(Tag, Choice, Bin) end }.
+
+write_choice({Tag, _}, {Choice, _}, Acc, Value) 
+  when is_function(Tag), 
+       is_function(Choice) ->
+    {T, {Pickler, _}} = Choice(Value),
+    Acc1 = Tag(Acc, T),
+    Pickler(Acc1, Value).
+
+read_choice({_, Tag}, {_, Choice}, Bin) 
+  when is_function(Tag), 
+       is_function(Choice) ->
+    {T, Bin1} = Tag(Bin),
+    {_, Pickler} = Choice(T),
+    Pickler(Bin1).
+
+%%% Optional value. Use 'none' to indicate no value.
+
+optional(Pickler) ->
+    {fun(Acc, Value) -> write_optional(Pickler, Acc, Value) end,
+     fun(Bin) -> read_optional(Pickler, Bin) end}.
+
+write_optional(_, Acc, none) ->
+    [<<0>>|Acc];
+
+write_optional({Pickler, _}, Acc, Value) ->
+    Pickler([<<1>>|Acc], Value).
+
+read_optional({_, Pickler}, Bin) ->
+    <<Opt:8, Bin1/binary>> = Bin,
+    case Opt of 
+        0 -> {none, Bin1};
+        _ -> Pickler(Bin1)
+    end.
+
+%%% Wrapper. Take a pickler and a wrapper tuple of two functions
+%%% where the first one is used to convert the value before 
+%%% pickling and the second one after unpickling.
+
+wrap(Wrap, Pickler) ->
+    {fun(Acc, Value) -> write_wrap(Wrap, Pickler, Acc, Value) end,
+     fun(Bin) -> read_wrap(Wrap, Pickler, Bin) end}.
+
+write_wrap({Wrap, _}, {Pickler, _}, Acc, Value) ->
+    Pickler(Acc, Wrap(Value)).
+
+read_wrap({_, Wrap}, {_, Pickler}, Bin) ->
+    {Value, Bin1} = Pickler(Bin),
+    {Wrap(Value), Bin1}.
+
+%%% Erlang does not support enumerations but I want to have
+%%% {cow, sheep, horse} as well as [{cow, 10}, {sheep, 100}]
+%%% and be able to marshal these back and forth. Enumerated 
+%%% values start from 1 for the tuple case.
+
+prep_enum_tuple(Enum)
+  when is_tuple(Enum) ->
+    prep_enum_tuple(Enum, size(Enum), [], []).
+
+prep_enum_tuple(_, 0, Acc1, Acc2) ->
+    {Acc1, Acc2};
+
+prep_enum_tuple(Enum, N, Acc1, Acc2) ->
+    prep_enum_tuple(Enum, N - 1, 
+                    [{element(N, Enum), N}|Acc1],
+                    [{N, element(N, Enum)}|Acc2]).
+
+prep_enum_list(Enum) 
+  when is_list(Enum) ->
+                                                % expect a list of {tag, #value} pairs
+    Inv = fun({Key, Val}) -> {Val, Key} end,
+    InvEnum = lists:map(Inv, Enum),
+    {Enum, InvEnum}.
+
+wrap_enum(Enum) 
+  when is_tuple(Enum) ->
+    wrap_enum_1(prep_enum_tuple(Enum));
+
+wrap_enum(Enum) 
+  when is_list(Enum) ->
+    wrap_enum_1(prep_enum_list(Enum)).
+
+wrap_enum_1({List1, List2}) ->
+    F = fun(A, B) -> A < B end,
+    %% gb_trees needs an ordered list
+    Dict1 = lists:sort(F, List1),
+    Dict2 = lists:sort(F, List2),
+    Tree1 = gb_trees:from_orddict(Dict1),
+    Tree2 = gb_trees:from_orddict(Dict2),
+    {fun(Key) -> gb_trees:get(Key, Tree1) end,
+     fun(Key) -> gb_trees:get(Key, Tree2) end}.       
+
+enum(Enum, Pickler) ->
+    wrap(wrap_enum(Enum), Pickler).
+
+%%% Tuple. Uses a tuple of picklers of the same size.
+
+tuple(Picklers) 
+  when is_tuple(Picklers) ->
+    wrap({fun tuple_to_list/1, 
+          fun list_to_tuple/1}, 
+         tuple_0(tuple_to_list(Picklers))).
+
+%%% Record. We rely on Erlang records being tuples
+%%% and just add the record tag as the first element
+%%% when unpickling the record.
+
+record(Tag, Picklers) 
+  when is_tuple(Picklers) ->
+    wrap({fun(Record) -> record_to_list(Tag, Record) end,
+          fun(List) -> list_to_record(Tag, List) end}, 
+         tuple_0(tuple_to_list(Picklers))).
+
+write_tuple_0([], Acc, _) ->
+    Acc;
+
+write_tuple_0([{Pickler, _}|Rest], Acc, [Value|Tuple]) ->
+    write_tuple_0(Rest, Pickler(Acc, Value), Tuple).
+
+read_tuple_0(Picklers, Bin) ->
+    read_tuple_0(Picklers, Bin, []).
+
+read_tuple_0([], Bin, Acc) ->
+    {lists:reverse(Acc), Bin};
+
+read_tuple_0([{_, Pickler}|Rest], Bin, Acc) ->
+    {Value, Bin1} = Pickler(Bin),
+    read_tuple_0(Rest, Bin1, [Value|Acc]).
+
+%%% It's convenient to be able to convert the tuple
+%%% to a list first as there's no erlang:prepend_element/2.
+
+tuple_0(Picklers) 
+  when is_list(Picklers) ->
+    {fun(Acc, Value) -> write_tuple_0(Picklers, Acc, Value) end,
+     fun(Bin) -> read_tuple_0(Picklers, Bin) end}.
+
+record_to_list(Tag, Record) 
+  when is_atom(Tag) ->
+    lists:nthtail(1, tuple_to_list(Record)).
+
+list_to_record(Tag, List) 
+  when is_atom(Tag), 
+       is_list(List) ->
+    list_to_tuple([Tag|List]).
+
+%%% Binary
+
+binary(Size) -> 
+    %io:fwrite("Status - binary() size: ~w~n", [Size]),
+    {fun (Acc, Bin) -> write_binary(Size, Acc, Bin) end, 
+     fun (Bin) -> read_binary(Size, Bin) end}.
+
+write_binary({Size, _}, Acc, undefined) -> 
+    Size(Acc, 0);
+
+write_binary({Size, _}, Acc, Bin) -> 
+    Acc1 = Size(Acc, size(Bin)),
+    [Bin|Acc1].
+
+read_binary({_, Size}, Bin) -> 
+    io:fwrite("Status - read_binary() Bin: ~w~n", [Bin]),
+    {N, Bin1} = Size(Bin),
+    <<Value:N/binary, Bin2/binary>> = Bin1,
+    io:fwrite("Status - read_binary() Value: ~w~n", [Value]),
+    io:fwrite("Status - read_binary() Bin2: ~w~n", [Bin2]),
+    {Value, Bin2}.
+
+%%% Wide string, little-endian style
+
+wstring() ->
+    {fun write_wstring/2, 
+     fun read_wstring/1}.
+
+write_wstring(Acc, []) ->
+    [<<0:16>>|Acc];
+
+write_wstring(Acc, [H|T]) ->
+    write_wstring([<<H:16>>|Acc], T).
+
+read_wstring(Bin) ->
+    read_wstring(Bin, []).
+
+read_wstring(<<0:16, Bin/binary>>, Acc) ->
+    {lists:reverse(Acc), Bin};
+
+read_wstring(<<X:16, Bin/binary>>, Acc) ->
+    read_wstring(Bin, [X|Acc]).
+
+string() ->    
+    binary(short()).
+
