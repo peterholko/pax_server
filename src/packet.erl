@@ -18,7 +18,7 @@
 %%
 %% Exported Functions
 %%
--export([read/1, send/2, send_policy/1, send_clocksync/1, send_ping/1]).
+-export([read/1, send/2, send_policy/1, send_clocksync/1]).
 
 %%
 %% Local Functions
@@ -51,6 +51,9 @@ direction() ->
 tile() ->
     byte().
 
+coords() ->
+    tuple({x(), y()}).
+
 login() ->
     record(login, {
              name(),
@@ -80,10 +83,11 @@ perception() ->
                         }).
 
 tiles() ->
-    list(short(), byte()).
+    list(short(), tile()).
 
 map() ->
     record(map, {
+                 coords(),
                  tiles()
                 }).
 
@@ -92,6 +96,10 @@ map() ->
 %% API Functions
 %%
 
+read(?CMD_POLICYREQUEST) ->
+	io:fwrite("packet: CMD_POLICYREQUEST.~n"),
+    policy_request;
+
 read(<<?CMD_LOGIN, Bin/binary>>) ->
 	io:fwrite("packet: read() - Read Data accepted: ~w~n", [Bin]),
     unpickle(login(), Bin);
@@ -99,17 +107,13 @@ read(<<?CMD_LOGIN, Bin/binary>>) ->
 read(<<?CMD_MOVE, Bin/binary>>) ->
 	unpickle(move(), Bin);
 
-read(<<?CMD_PING>>) ->
-	io:fwrite("packet: read() - clocksync~n"),
-	ping;
-
 read(<<?CMD_CLOCKSYNC>>) ->
 	io:fwrite("packet: read() - clocksync~n"),
 	clocksync;
 
-read(?CMD_POLICYREQUEST) ->
-	io:fwrite("packet: CMD_POLICYREQUEST.~n"),
-    policy_request.
+read(<<?CMD_CLIENTREADY>>) ->
+	io:fwrite("packet: read() - clientready~n"),
+	clientready.
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];
@@ -192,24 +196,3 @@ send_clocksync(Socket) ->
                                       ])
     end.
 
-send_ping(Socket) ->
-    {MegaSec, Sec, MicroSec} = erlang:now(),
-    CurrentMS = (MegaSec * 1000000000) + (Sec * 1000) + (MicroSec div 1000), 
-    io:format("packet: send_ping() -  ~p~n", [CurrentMS]),
-    case catch gen_tcp:send(Socket, <<?CMD_PING, CurrentMS:64>>) of
-        ok ->
-            ok;
-        {error, closed} ->
-            ok;
-        {error,econnaborted} ->
-            ok;
-        Any ->
-            error_logger:error_report([
-                                       {message, "gen_tcp:send_ping error"},
-                                       {module, ?MODULE}, 
-                                       {line, ?LINE},
-                                       {socket, Socket}, 
-                                       {port_info, erlang:port_info(Socket, connected)},
-                                       {error, Any}
-                                      ])
-    end.

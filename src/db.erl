@@ -94,10 +94,10 @@ example_tables() ->
      {connection, 2, none, none},
      {connection, 3, none, none},
      {connection, 4, none, none},
-     {character, 1, 5,5,0, none},
-     {character, 2, 10,10,0, none},
-     {character, 3, 5,10,0, none},
-     {character, 4, 10,5,0, none},
+     {character, 1, 2,2,0, none},
+     {character, 2, 15,15,0, none},
+     {character, 3, 2,5,0, none},
+     {character, 4, 5,2,0, none},
      {character, 5, 20,20,0, none}
     ].
 

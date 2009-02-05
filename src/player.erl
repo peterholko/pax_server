@@ -92,21 +92,21 @@ handle_cast('LOGOUT', Data) ->
 handle_cast({'SEND_PERCEPTION', NewPerceptionWithCoords}, Data) ->
   	LastPerception = Data#module_data.perception,
     
-    io:fwrite("player: NewPerceptionWithCoords ~w~n", [NewPerceptionWithCoords]),
+    %io:fwrite("player: NewPerceptionWithCoords ~w~n", [NewPerceptionWithCoords]),
     
     NewPerception = remove_coords(NewPerceptionWithCoords, []),
     
     if 
         LastPerception =:= NewPerception ->
-            NewData = Data,
-            io:fwrite("Perception Unchanged. ~n");
+            NewData = Data;
+            %io:fwrite("Perception Unchanged. ~n");
        
 		true ->
             NewData = Data#module_data {perception = NewPerception },
             R = #perception {characters = NewPerceptionWithCoords },
-            forward_to_client(R, NewData),
+            forward_to_client(R, NewData)
             
-            io:fwrite("Perception Modified. ~w~n", [NewPerception])   
+            %io:fwrite("Perception Modified. ~w~n", [NewPerception])   
    	end,
     
     {noreply, NewData};   
@@ -173,7 +173,7 @@ remove_coords([], PerceptionList) ->
 remove_coords([PerceptionWithCoords | Rest], PerceptionList) ->
     {CharId, CharX, CharY, CharAction} = PerceptionWithCoords,
     NewPerceptionList = [{CharId, CharAction} | PerceptionList],
-    io:fwrite("player: NewPerceptionList. ~w~n", [NewPerceptionList]),
+    %io:fwrite("player: NewPerceptionList. ~w~n", [NewPerceptionList]),
     
     remove_coords(Rest, NewPerceptionList).
 

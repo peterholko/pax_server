@@ -25,13 +25,15 @@
 
 -record(client, {
           server_pid = none,
-          player_pid = none
+          player_pid = none,
+          clock_sync = none,
+          ready = none
          }).
 
 %%
 %% Exported Functions
 %%
--export([start/0, client/0]).
+-export([start/0]).
 
 %%
 %% API Functions
@@ -48,10 +50,7 @@ start() ->
     % Load map data
     io:fwrite("Loading map data...~n"),    
     {ok, MapPid} = map:start(),
-    
-    gen_server:call(global:whereis_name(map_pid), {'GET_TILES', 2,2}),
-    
-    
+       
     % Create game loop
     io:fwrite("Starting game loop...~n"),  
     {ok, GamePid} = game:start(),    
@@ -100,9 +99,9 @@ handle_client(Socket, Client) ->
                             policy_request ->
                                 process_policy_request(Client, Socket);
                             clocksync ->
-                                process_clocksync(Client, Socket);
-                            ping ->
-                                process_ping(Client, Socket)                                                            
+                                process_clocksync(Client, Socket);    
+                            clientready ->
+                                process_clientready(Client, Socket)
            				end,
             inet:setopts(Socket,[{active, once}]),
 			handle_client(Socket, NewClient);
@@ -131,11 +130,7 @@ process_login(Client, Socket, Name, Pass) ->
             ok = packet:send(Socket, #player_id{ id = PlayerId }),
             
             gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID}),
-            %io:fwrite("server: process_login - CharacterPID -> ~w~n", [global:whereis_name({character, PlayerId})]),
-            CharX = gen_server:call(global:whereis_name({character, PlayerId}), {'GET_X'}),
-            CharY = gen_server:call(global:whereis_name({character, PlayerId}), {'GET_Y'}),
-            
-            
+
             
 			%io:fwrite("server: process_login - PlayerX -> ~w~n", [CharX]),
     		NewClient = Client#client{ player_pid = PlayerPID },
@@ -146,6 +141,23 @@ process_login(Client, Socket, Name, Pass) ->
 
 process_logout(Client, _Socket) ->
     gen_server:cast(Client#client.player_pid, 'LOGOUT'),
+	Client.
+
+process_clocksync(Client, Socket) ->
+    io:fwrite("server: process_clocksync~n"),
+    ok = packet:send_clocksync(Socket),
+	Client.
+
+process_clientready(Client, Socket) ->
+    io:fwrite("server: process_ping~n"),
+    PlayerPID = Client#client.player_pid,    
+    PlayerId = gen_server:call(PlayerPID, 'ID'),    
+    
+    PlayerCharX = gen_server:call(global:whereis_name({character, PlayerId}), {'GET_X'}),
+    PlayerCharY = gen_server:call(global:whereis_name({character, PlayerId}), {'GET_Y'}),    
+    
+    {BlockX, BlockY, TileList} = gen_server:call(global:whereis_name(map_pid), {'GET_MAP_BLOCK', PlayerCharX, PlayerCharY}),
+	ok = packet:send(Socket, #map{coords = {BlockX, BlockY}, tiles = TileList}),
 	Client.
 
 process_move(Client, _Socket, DirectionNumber) ->
@@ -173,46 +185,3 @@ process_move(Client, _Socket, DirectionNumber) ->
 process_policy_request(Client, Socket) ->
     ok = packet:send_policy(Socket),
 	Client.
-
-process_clocksync(Client, Socket) ->
-    io:fwrite("server: process_clocksync~n"),
-    ok = packet:send_clocksync(Socket),
-	Client.
-
-process_ping(Client, Socket) ->
-    io:fwrite("server: process_ping~n"),
-    ok = packet:send_ping(Socket),
-	Client.
-
-
-
-%% Test Client
-client() ->
-    %Host = "localhost",
-    %Host = "68.144.157.3",
-    Host = "209.20.74.140",
-    {ok, Socket} =        
-	gen_tcp:connect(Host, 2345,
-			[binary, {packet, 0},
-             		 {nodelay, true}]),
-
-	%Nick = [len(NameStr) | NameStr],
-	%Pass = [len(PassStr) | PassStr],
-
-    %Login = [Nick | Pass],
-	%Msg = [1 | Login],
-	
-    %ok = gen_tcp:send(Socket, list_to_binary(Msg)),
-    ok = gen_tcp:send(Socket, <<1,0,4,116,101,115,116,0,6,49,50,51,49,50,51>>),
-    
-    receive_packet(Socket).
-
-receive_packet(Socket) ->
-    receive
-    	Any ->
-				io:format("Time: ~p Client received binary~n",[now()]),
-				receive_packet(Socket);
-		{tcp_closed, Socket} ->
-				io:fwrite("Client: Socket disconnected.~n"),
-				receive_packet(Socket)
-	end.

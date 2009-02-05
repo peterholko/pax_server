@@ -27,21 +27,21 @@
 -record(logout, {
 				 }).
 
--define (CMD_MOVE, 3).
+-define(CMD_CLOCKSYNC, 3).
+-define(CMD_CLIENTREADY, 4).
 
--record(move, { 
-               direction
-                }).
-
--define (CMD_CLOCKSYNC, 4).
-
--define (CMD_PING, 5).
-
--define(CMD_PLAYER_ID, 31).
+-define(CMD_PLAYER_ID, 5).
 
 -record(player_id, {
 					id
 				 }).
+
+-define(CMD_MAP, 39).
+
+-record(map, {
+              coords, %coordinates of the top left corner of the block of tiles
+              tiles
+             }).
 
 -define(CMD_PERCEPTION, 40).
 
@@ -49,8 +49,8 @@
 					characters
 				 }).
 
--define(CMD_MAP, 41).
+-define (CMD_MOVE, 42).
 
--record(map, {
-              tiles
-             }).
+-record(move, { 
+               direction
+                }).

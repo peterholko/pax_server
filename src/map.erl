@@ -45,21 +45,24 @@ stop(ProcessId)
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
-handle_call({'GET_TILES', CenterX, CenterY}, _From, Data) ->
+handle_call({'GET_MAP_BLOCK', CoordX, CoordY}, _From, Data) ->
     MapData = Data#module_data.map,
     
-    io:fwrite("map - get_tiles -> MapData: ~w~n", [MapData]),
+    %io:fwrite("map - get_tiles -> MapData: ~w~n", [MapData]),
     
-    MinX = CenterX - 2,
-    MinY = CenterY - 2,
-    CornerX = CenterX + 1,
-    CornerY = CenterX + 1,
+    CornerX = (CoordX div ?MAP_BLOCK_WIDTH) * ?MAP_BLOCK_WIDTH,
+    CornerY = (CoordY div ?MAP_BLOCK_HEIGHT) * ?MAP_BLOCK_HEIGHT,    
     
-    TileList = tiles_y(MinY, MinX, CornerY, CornerX, CornerY, CornerX, [], MapData),
+    MaxX = CornerX + ?MAP_BLOCK_WIDTH,
+    MaxY = CornerY + ?MAP_BLOCK_HEIGHT,
+    
+    io:fwrite("map - CornerX: ~w CornerY: ~w~n", [CornerX, CornerY]),
+    
+    TileList = tiles_y(MaxY, MaxX, CornerY, CornerX, CornerY, CornerX, [], MapData),
     
     io:fwrite("map - get_tiles -> TileList: ~w~n", [TileList]),
-    
-	{reply, 0, Data};
+        
+	{reply, {CornerX, CornerY, TileList}, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
@@ -89,33 +92,33 @@ populate(Max, Max, Data, _) ->
 populate(N, Max, Data, S) ->
      [Head | Rest] = io:get_line(S, ''),
      NewData = array:set(N, Head, Data),
-     io:fwrite("populate - head: ~w newdata: ~w~n", [Head, NewData]),
+     %io:fwrite("populate - head: ~w newdata: ~w~n", [Head, NewData]),
      populate(N + 1, Max, NewData, S).
       
-tiles_y(MinY, _, _, CornerX, MinY, CornerX, TileList, _) ->
+tiles_y(MaxY, _, _, CornerX, MaxY, CornerX, TileList, _) ->
     TileList;
 
-tiles_y(MinY, MinX, CornerY, CornerX, IndexY, IndexX, TileList, MapData) ->
+tiles_y(MaxY, MaxX, CornerY, CornerX, IndexY, IndexX, TileList, MapData) ->
     
-    io:fwrite("tiles_y: ~w ~w MinX:~w~n", [IndexY, IndexX, MinX]),
+    %io:fwrite("tiles_y: ~w ~w MinX:~w~n", [IndexY, IndexX, MaxX]),
     
     Index = (IndexY * ?MAP_HEIGHT) + IndexX,
-    NewMinX = (IndexY * ?MAP_HEIGHT) + MinX,
+    NewMaxX = (IndexY * ?MAP_HEIGHT) + MaxX,
     
-    NewTileList = tiles_x(NewMinX, Index, TileList, MapData),    
+    NewTileList = tiles_x(NewMaxX, Index, TileList, MapData),    
     
-    tiles_y(MinY, MinX, CornerY, CornerX, IndexY - 1, CornerX, NewTileList, MapData).
+    tiles_y(MaxY, MaxX, CornerY, CornerX, IndexY + 1, CornerX, NewTileList, MapData).
 
 
-tiles_x(MinX, MinX, TileList, _) ->
+tiles_x(MaxX, MaxX, TileList, _) ->
     TileList;
 
-tiles_x(MinX, Index, TileList, MapData) ->
+tiles_x(MaxX, Index, TileList, MapData) ->
     
     Tile = array:get(Index, MapData),   
-    io:fwrite("tiles_x: ~w ~w ~w~n", [Tile, MinX, Index]),
+    %io:fwrite("tiles_x: ~w ~w ~w~n", [Tile, MaxX, Index]),
     
-    tiles_x(MinX, Index - 1, [Tile | TileList], MapData).
+    tiles_x(MaxX, Index + 1, [Tile | TileList], MapData).
 
 
 
