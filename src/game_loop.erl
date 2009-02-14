@@ -19,14 +19,14 @@
 %%
 
 loop(Iteration, CurrentTick, GamePID) ->            
-	PlayerList = gen_server:call(GamePID, 'GET_PLAYER_LIST'),
-	CharacterList = gen_server:call(GamePID, 'GET_CHAR_LIST'),
+	EntityList = gen_server:call(GamePID, 'GET_ENTITIES'),
+	ArmyList = gen_server:call(GamePID, 'GET_ARMIES'),
 
     %Process character actions
-    process_actions(CharacterList),
+    %process_actions(CharacterList),
     
     %Build simple perception
-	perceptions(PlayerList, CharacterList),
+	perceptions(EntityList, ArmyList),
     %{MegaSec, Sec, MicroSec} = erlang:now(),
     CurrentMS = util:now_to_milliseconds(erlang:now()),
     NextTick = CurrentTick + 50,
@@ -70,45 +70,40 @@ perceptions([], []) ->
 perceptions([], _) ->
     ok;
   
-perceptions(PlayerList, CharacterList) ->
-    [Player | Rest] = PlayerList,   
+perceptions(EntityList, ArmyList) ->
+    [Entity | Rest] = EntityList,   
     
-    build_perception(Player, CharacterList, []),
+    build_perception(Entity, ArmyList, []),
     
-    perceptions(Rest, CharacterList).
+    perceptions(Rest, ArmyList).
     
-build_perception(Player, [], Perception) ->
-    PlayerPID = Player#player_process.process,
-    
-    gen_server:cast(PlayerPID, {'SEND_PERCEPTION', Perception});    
+build_perception(Entity, [], Perception) ->
+    PlayerId = Entity#entity.player_id,
+    gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_PERCEPTION', Perception});    
 
-build_perception(Player, CharacterList, Perception) ->
-    PlayerId = Player#player_process.player_id,
-    
-    PlayerCharX = gen_server:call(global:whereis_name({character, PlayerId}), {'GET_X'}),
-    PlayerCharY = gen_server:call(global:whereis_name({character, PlayerId}), {'GET_Y'}),
-    
-    [CharPID | Rest] = CharacterList,
-       
-    CharX = gen_server:call(CharPID, {'GET_X'}),
-    CharY = gen_server:call(CharPID, {'GET_Y'}),
-    
-    DiffX = PlayerCharX - CharX,
-    DiffY = PlayerCharY - CharY,
+build_perception(Entity, ArmyList, Perception) ->
+	
+	EntityX = Entity#entity.x,
+	EntityY = Entity#entity.y,
+        
+    [Army | Rest] = ArmyList,
+	{ArmyID, ArmyX, ArmyY, State} = Army,
+   
+    DiffX = EntityX - ArmyX,
+    DiffY = EntityY - ArmyY,
     
     Diff = (DiffX * DiffX) + (DiffY * DiffY),
        
     if
-        Diff < 100 ->
-            TargetPlayerId = gen_server:call(CharPID, {'GET_PLAYER_ID'}),
-            TargetPlayerAction = gen_server:call(CharPID, {'GET_ACTION_ID'}),
-			NewPerception = [{TargetPlayerId, CharX, CharY, TargetPlayerAction} | Perception];
+        Diff < 25 ->
+			
+			NewPerception = [{ArmyID, State, ArmyX, ArmyY} | Perception];
 		true ->
             NewPerception = Perception,
 			ok
 	end,        
     
-    build_perception(Player, Rest, NewPerception). 
+    build_perception(Entity, Rest, NewPerception). 
 	                                                
                                              
   

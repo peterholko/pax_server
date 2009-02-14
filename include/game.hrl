@@ -5,7 +5,16 @@
 
 -record(game_info, {
                     players = [],
-                    characters = [],
+                    entities = [],
+                    armies = [],
+                    cities = [],
                     npcs = [],
                     objects = []
                     }).
+
+-record(entity, {
+                 id,
+                 x,
+                 y,
+                 player_id              
+                 }).

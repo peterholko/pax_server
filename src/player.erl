@@ -8,6 +8,7 @@
 %% Include files
 %%
 
+-include("game.hrl").
 -include("packet.hrl").
 -include("schema.hrl").
 
@@ -17,7 +18,7 @@
 -export([init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--export([start/1, stop/1, stop/2]).
+-export([start/1, stop/1, stop/2, get_explored_map/1]).
 
 %-export([create/4]).
 
@@ -27,7 +28,6 @@
 
 -record(module_data, {
           player_id,
-          character_pid,
           socket = none, 
           perception = [],      
           self
@@ -40,7 +40,7 @@
 start(Name) 
   when is_binary(Name) ->
     
-    %% make sure we exist
+    %% make sure player exist
     case db:index_read(player, Name, #player.name) of
         [PlayerInfo] ->
             PlayerId = PlayerInfo#player.id,
@@ -53,8 +53,7 @@ init([ID])
   when is_integer(ID) ->
     process_flag(trap_exit, true),
     ok = create_runtime(ID, self()),
-    {ok, CharacterPID} = character:start(ID),
-    {ok, #module_data{ player_id = ID, character_pid = CharacterPID, self = self() }}.
+    {ok, #module_data{ player_id = ID, self = self() }}.
 
 stop(ProcessId) 
   when is_pid(ProcessId) ->
@@ -84,8 +83,6 @@ handle_cast('LOGOUT', Data) ->
     gen_server:cast(GamePID, {'DELETE_PLAYER', Data#module_data.player_id}),
     
     %Stop character and player servers
-    CharacterPID = global:whereis_name({character, Data#module_data.player_id}),
-    spawn(fun() -> character:stop(CharacterPID) end),
     spawn(fun() -> player:stop(Self) end),
     {noreply, Data};
 
@@ -146,6 +143,42 @@ handle_info(Info, Data) ->
 code_change(_OldVsn, Data, _Extra) ->
     {ok, Data}.
 
+get_explored_map(PlayerId) ->       
+    StoredExploredMap = db:read(explored_map, PlayerId),
+    EntityList = entity:entity_list(PlayerId), 
+    
+    ExploredMap = stored_explored_map(StoredExploredMap, []),
+    TotalExploredMap = entity_explored_map(EntityList, ExploredMap),
+	TotalExploredMap.
+
+stored_explored_map([], ExploredMap) ->
+  	ExploredMap;  
+
+stored_explored_map(StoredExploredMap, ExploredMap) ->
+  	[StoredItem | Rest ] = StoredExploredMap,
+	
+	Block = gen_server:call(global:whereis_name(map_pid), 
+												{'GET_MAP_BLOCK', 
+												StoredItem#explored_map.block_x, 
+												StoredItem#explored_map.block_y}),
+	NewExploredMap = [Block | ExploredMap],
+
+	stored_explored_map(Rest, NewExploredMap).
+	
+entity_explored_map([], ExploredMap) ->
+    ExploredMap;    
+    
+entity_explored_map(EntityList, ExploredMap) ->   
+    [Entity | Rest] = EntityList,
+  
+    Block = gen_server:call(global:whereis_name(map_pid), {'GET_MAP_BLOCK', Entity#entity.x, Entity#entity.y}),
+
+    NewExploredMap = [Block | ExploredMap],
+    
+    entity_explored_map(Rest, NewExploredMap).
+
+
+
 %%
 %% Local Functions
 %%
@@ -171,8 +204,8 @@ remove_coords([], PerceptionList) ->
     PerceptionList;
 
 remove_coords([PerceptionWithCoords | Rest], PerceptionList) ->
-    {CharId, CharX, CharY, CharAction} = PerceptionWithCoords,
-    NewPerceptionList = [{CharId, CharAction} | PerceptionList],
+    {Id, State, X, Y} = PerceptionWithCoords,
+    NewPerceptionList = [{Id, State} | PerceptionList],
     %io:fwrite("player: NewPerceptionList. ~w~n", [NewPerceptionList]),
     
     remove_coords(Rest, NewPerceptionList).

@@ -5,6 +5,6 @@
 -define(MAP_NUMTILES, 2500).
 -define(MAP_WIDTH, 50).
 -define(MAP_HEIGHT, 50).
--define(MAP_BLOCK_WIDTH, 10).
--define(MAP_BLOCK_HEIGHT, 10).
+-define(MAP_BLOCK_WIDTH, 7).
+-define(MAP_BLOCK_HEIGHT, 7).
 -define(MAP_FILENAME, "map.bin").

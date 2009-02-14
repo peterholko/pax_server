@@ -94,7 +94,7 @@ handle_client(Socket, Client) ->
                         		process_login(Client, Socket, Name, Pass);   
                     		#logout{} ->
                         		process_logout(Client, Socket);
-                            #move{ direction = Direction} ->
+                            #move{ coords = Direction} ->
                                 process_move(Client, Socket, Direction);                            
                             policy_request ->
                                 process_policy_request(Client, Socket);
@@ -129,8 +129,8 @@ process_login(Client, Socket, Name, Pass) ->
             io:fwrite("server: process_login - PlayerPID -> ~w~n", [PlayerPID]),
             ok = packet:send(Socket, #player_id{ id = PlayerId }),
             
-            gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID}),
-
+            EntityList = entity:entity_list(PlayerId),
+            gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID, EntityList}),
             
 			%io:fwrite("server: process_login - PlayerX -> ~w~n", [CharX]),
     		NewClient = Client#client{ player_pid = PlayerPID },
@@ -149,15 +149,12 @@ process_clocksync(Client, Socket) ->
 	Client.
 
 process_clientready(Client, Socket) ->
-    io:fwrite("server: process_ping~n"),
     PlayerPID = Client#client.player_pid,    
     PlayerId = gen_server:call(PlayerPID, 'ID'),    
     
-    PlayerCharX = gen_server:call(global:whereis_name({character, PlayerId}), {'GET_X'}),
-    PlayerCharY = gen_server:call(global:whereis_name({character, PlayerId}), {'GET_Y'}),    
-    
-    {BlockX, BlockY, TileList} = gen_server:call(global:whereis_name(map_pid), {'GET_MAP_BLOCK', PlayerCharX, PlayerCharY}),
-	ok = packet:send(Socket, #map{coords = {BlockX, BlockY}, tiles = TileList}),
+	Blocks = player:get_explored_map(PlayerId),
+    io:fwrite("server: process_client_ready() -> ~w~n", [Blocks]),
+	ok = packet:send(Socket, #map{blocks = Blocks}),
 	Client.
 
 process_move(Client, _Socket, DirectionNumber) ->

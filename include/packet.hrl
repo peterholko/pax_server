@@ -39,8 +39,7 @@
 -define(CMD_MAP, 39).
 
 -record(map, {
-              coords, %coordinates of the top left corner of the block of tiles
-              tiles
+              blocks
              }).
 
 -define(CMD_PERCEPTION, 40).
@@ -52,5 +51,5 @@
 -define (CMD_MOVE, 42).
 
 -record(move, { 
-               direction
+               coords
                 }).

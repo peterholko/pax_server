@@ -7,6 +7,7 @@
 %% Include files
 %%
 -include("common.hrl").
+-include("schema.hrl").
 
 %%
 %% Exported Functions
@@ -29,10 +30,10 @@ start() ->
 	gen_server:start({global, map_pid}, map, [], []).
 
 init([]) ->
-   
+  
     EmptyMapData = array:new([{size, ?MAP_NUMTILES}, {default, 0}, {fixed, true}]),
 	{ok, S} = file:open(?MAP_FILENAME, read),
-    FilledMapData = populate(0 , ?MAP_NUMTILES, EmptyMapData, S),   
+    FilledMapData = populate(0 , ?MAP_NUMTILES, EmptyMapData, S),  
     {ok, #module_data{ map = FilledMapData, self = self() }}.
 
 terminate(_Reason, Data) ->
@@ -82,6 +83,14 @@ handle_info(Info, Data) ->
 
 code_change(_OldVsn, Data, _Extra) ->
     {ok, Data}.
+
+
+
+
+
+
+
+
 %%
 %% Local Functions
 %%

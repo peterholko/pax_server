@@ -24,8 +24,11 @@ start() ->
 	gen_server:start({global, game_pid}, game, [], []).
 
 init([]) ->
-  Data = #game_info { players = []},
-  {ok, Data}.
+    %% Load armies, cities
+    Armies = db:select_armies(),
+	Cities = db:select_cities(),
+	Data = #game_info {armies = Armies, cities = Cities},
+	{ok, Data}.
 
 terminate(_Reason, Data) ->
     ok.
@@ -33,45 +36,39 @@ terminate(_Reason, Data) ->
 handle_cast(stop, Data) ->
     {stop, normal, Data};
 
-%handle_cast({'START', TurnTime}, Data) ->
-%	game_loop:loop(TurnTime, 0, self()),
-%    {noreply, Data};
-
-handle_cast({'ADD_PLAYER', PlayerId, ProcessId}, Data) ->
+handle_cast({'ADD_PLAYER', PlayerId, ProcessId, NewEntities}, Data) ->
 	NewPlayer = #player_process{player_id = PlayerId, process = ProcessId},
-    NewCharacterPID = global:whereis_name({character, PlayerId}),
+
+   	EntityList = Data#game_info.entities,
+	NewEntityList = entity:add_entities(EntityList, NewEntities),	
 
     PlayerList = Data#game_info.players,
 	NewPlayerList = [NewPlayer|PlayerList],    
 	
-	CharacterList = Data#game_info.characters,
-	NewCharacterList = [NewCharacterPID|CharacterList],
-
 	NewData = Data#game_info {
             		players = NewPlayerList,
-                    characters = NewCharacterList
+					entities = NewEntities
            			},
     {noreply, NewData};
 
 handle_cast({'DELETE_PLAYER', PlayerId}, Data) ->
 		
-	CharacterPID = global:whereis_name({character, PlayerId}),
-	NewCharacterList = lists:delete(CharacterPID, Data#game_info.characters),
-
 	NewPlayerList = lists:keydelete(PlayerId, 2, Data#game_info.players),
     io:fwrite("game - DELETE_PLAYER() PlayerId: ~w~n", [PlayerId]),
     io:fwrite("game - DELETE_PLAYER() NewPlayerList: ~w~n", [NewPlayerList]),
 	NewData = Data#game_info {
-            		players = NewPlayerList,
-					characters = NewCharacterList
+            		players = NewPlayerList
            			},
 	{noreply, NewData}.
 
-handle_call('GET_PLAYER_LIST', _From, Data) ->
+handle_call('GET_PLAYERS', _From, Data) ->
 	{reply, Data#game_info.players, Data};
 
-handle_call('GET_CHAR_LIST', _From, Data) ->
-	{reply, Data#game_info.characters, Data};
+handle_call('GET_ARMIES', _From, Data) ->
+	{reply, Data#game_info.armies, Data};
+
+handle_call('GET_ENTITIES', _From, Data) ->
+	{reply, Data#game_info.entities, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
@@ -99,4 +96,4 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 %% Local Functions
 %%
-
+	

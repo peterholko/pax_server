@@ -61,7 +61,7 @@ login() ->
             }).
 
 move() ->
-    record(move, { direction() }).
+    record(move, { coords() }).
 
 bad() ->
     record(bad, {
@@ -82,13 +82,15 @@ perception() ->
                         characters()
                         }).
 
-tiles() ->
-    list(short(), tile()).
+block() ->
+    tuple({byte(), byte(), list(short(), byte())}).
+
+blocks() ->
+      list(short(), block()). 
 
 map() ->
     record(map, {
-                 coords(),
-                 tiles()
+					blocks()
                 }).
 
 
