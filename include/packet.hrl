@@ -8,48 +8,53 @@
 
 -define(CMD_BAD, 255).
 
--record(bad, {
-					cmd, 
-					error = ?ERR_UNKNOWN
-				 }).
-
-
+-record(bad, {cmd,
+              error = ?ERR_UNKNOWN}).
 
 -define(CMD_LOGIN, 1).
 
--record(login, {
-					name,
-					pass
-				 }).
+-record(login, {name,
+                pass}).
 
 -define(CMD_LOGOUT, 2).
 
--record(logout, {
-				 }).
+-record(logout, {}).
 
 -define(CMD_CLOCKSYNC, 3).
 -define(CMD_CLIENTREADY, 4).
 
 -define(CMD_PLAYER_ID, 5).
 
--record(player_id, {
-					id
-				 }).
+-record(player_id, {id}).
 
--define(CMD_MAP, 39).
+-define(CMD_EXPLORED_MAP, 39).
 
--record(map, {
-              blocks
-             }).
+-record(map, {tiles}).
 
 -define(CMD_PERCEPTION, 40).
 
--record(perception, {
-					characters
-				 }).
+-record(perception, {entities,
+                     tiles}).
 
 -define (CMD_MOVE, 42).
 
--record(move, { 
-               coords
+-record(move, {id,
+               x,
+               y
                 }).
+
+-define (CMD_ATTACK, 43).
+
+-record(attack, {id,
+                 target_id
+                 }).
+
+-define (CMD_REQUEST_INFO, 50).
+
+-record(request_info, {type,
+                       id
+                      }).
+
+-define (CMD_INFO, 51).
+
+-record(info, {info_list}).

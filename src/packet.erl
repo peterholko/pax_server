@@ -31,6 +31,15 @@ pass() ->
     string().
 
 player() ->
+    int().
+
+id() ->
+    int().
+
+state() ->
+    short().
+
+type() ->
     short().
 
 x() ->
@@ -39,59 +48,54 @@ x() ->
 y() ->
     short().
 
-action() ->
-    short().
+entity() ->
+    tuple({id(), player(), type(), state(), x(), y()}).
 
-character() ->
-    tuple({player(), x(), y(), action()}).
-
-direction() ->
-    byte().
+entities() ->
+    list(short(), entity()).
 
 tile() ->
-    byte().
+    tuple({int(), byte()}).
 
-coords() ->
-    tuple({x(), y()}).
+tiles() ->
+	list(int(), tile()). 
+
+info_list() ->
+    list(int(), string()).    
 
 login() ->
-    record(login, {
-             name(),
-             pass()
-            }).
+    record(login, {name(),
+                   pass()}).
 
 move() ->
-    record(move, { coords() }).
+    record(move, {id(),
+                  x(),
+                  y()}).
 
 bad() ->
-    record(bad, {
-             byte(),
-             byte()
-            }).
+    record(bad, {byte(),
+                 byte()}).
 
 player_id() ->
-    record(player_id, {
-             player()
-            }).
-
-characters() ->
-    list(byte(), character()).
+    record(player_id, {player()}).
 
 perception() ->
-    record(perception, {
-                        characters()
-                        }).
-
-block() ->
-    tuple({byte(), byte(), list(short(), byte())}).
-
-blocks() ->
-      list(short(), block()). 
+    record(perception, {entities(),
+                        tiles()}).
 
 map() ->
-    record(map, {
-					blocks()
-                }).
+    record(map, {tiles()}).
+
+attack() ->
+    record(attack, {id(),
+                    id()}).
+
+request_info() ->
+    record(request_info, {short(),
+                          id()}).
+
+info() ->
+    record(info, {info_list()}).
 
 
 %%
@@ -106,16 +110,22 @@ read(<<?CMD_LOGIN, Bin/binary>>) ->
 	io:fwrite("packet: read() - Read Data accepted: ~w~n", [Bin]),
     unpickle(login(), Bin);
 
-read(<<?CMD_MOVE, Bin/binary>>) ->
-	unpickle(move(), Bin);
-
 read(<<?CMD_CLOCKSYNC>>) ->
 	io:fwrite("packet: read() - clocksync~n"),
 	clocksync;
 
 read(<<?CMD_CLIENTREADY>>) ->
 	io:fwrite("packet: read() - clientready~n"),
-	clientready.
+	clientready;
+
+read(<<?CMD_MOVE, Bin/binary>>) ->
+	unpickle(move(), Bin);
+
+read(<<?CMD_ATTACK, Bin/binary>>) ->
+	unpickle(attack(), Bin);
+
+read(<<?CMD_INFO, Bin/binary>>) ->
+	unpickle(request_info(), Bin).
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];
@@ -127,7 +137,10 @@ write(R) when is_record(R, perception) ->
     [?CMD_PERCEPTION|pickle(perception(), R)];
 
 write(R) when is_record(R, map) ->
-    [?CMD_MAP|pickle(map(), R)].
+    [?CMD_EXPLORED_MAP|pickle(map(), R)];
+
+write(R) when is_record(R, map) ->
+    [?CMD_INFO|pickle(info(), R)].
 
 send(Socket, Data) ->
     io:format("packet: send() - Data ->  ~p~n", [Data]),

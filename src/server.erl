@@ -45,6 +45,7 @@ start() ->
     io:fwrite("Creating schema and loading db data..."),
     db:create_schema(),
     db:start(),
+    db:reset_game_tables(),
     db:reset_tables(),
     
     % Load map data
@@ -55,7 +56,7 @@ start() ->
     io:fwrite("Starting game loop...~n"),  
     {ok, GamePid} = game:start(),    
 	TotalMS = util:now_to_milliseconds(erlang:now()), 
-    spawn(fun() -> game_loop:loop(0, TotalMS, global:whereis_name(game_pid)) end),
+    spawn(fun() -> game_loop:loop(TotalMS, global:whereis_name(game_pid)) end),
      
     {ok, ListenSocket} = gen_tcp:listen(2345, [binary, {packet, 0},  
 					 			 {reuseaddr, true},
@@ -93,15 +94,15 @@ handle_client(Socket, Client) ->
                 			#login{ name = Name, pass = Pass} ->
                         		process_login(Client, Socket, Name, Pass);   
                     		#logout{} ->
-                        		process_logout(Client, Socket);
-                            #move{ coords = Direction} ->
-                                process_move(Client, Socket, Direction);                            
+                        		process_logout(Client, Socket);                        
                             policy_request ->
                                 process_policy_request(Client, Socket);
                             clocksync ->
                                 process_clocksync(Client, Socket);    
                             clientready ->
-                                process_clientready(Client, Socket)
+                                process_clientready(Client, Socket);
+                            Event ->
+                                process_event(Client, Socket, Event)                            
            				end,
             inet:setopts(Socket,[{active, once}]),
 			handle_client(Socket, NewClient);
@@ -129,8 +130,8 @@ process_login(Client, Socket, Name, Pass) ->
             io:fwrite("server: process_login - PlayerPID -> ~w~n", [PlayerPID]),
             ok = packet:send(Socket, #player_id{ id = PlayerId }),
             
-            EntityList = entity:entity_list(PlayerId),
-            gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID, EntityList}),
+            ArmiesPid = gen_server:call(PlayerPID, 'GET_ARMIES_PID'),
+            gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID, ArmiesPid}),
             
 			%io:fwrite("server: process_login - PlayerX -> ~w~n", [CharX]),
     		NewClient = Client#client{ player_pid = PlayerPID },
@@ -143,6 +144,10 @@ process_logout(Client, _Socket) ->
     gen_server:cast(Client#client.player_pid, 'LOGOUT'),
 	Client.
 
+process_policy_request(Client, Socket) ->
+    ok = packet:send_policy(Socket),
+	Client.
+
 process_clocksync(Client, Socket) ->
     io:fwrite("server: process_clocksync~n"),
     ok = packet:send_clocksync(Socket),
@@ -152,33 +157,19 @@ process_clientready(Client, Socket) ->
     PlayerPID = Client#client.player_pid,    
     PlayerId = gen_server:call(PlayerPID, 'ID'),    
     
-	Blocks = player:get_explored_map(PlayerId),
-    io:fwrite("server: process_client_ready() -> ~w~n", [Blocks]),
-	ok = packet:send(Socket, #map{blocks = Blocks}),
-	Client.
+	ExploredMap = player:get_explored_map(PlayerId),
+    io:fwrite("server: process_client_ready() -> ~w~n", [ExploredMap]),
+	ok = packet:send(Socket, #map{tiles = ExploredMap}),
+    
+    NewClient = Client#client{ ready = true },
+	NewClient.
 
-process_move(Client, _Socket, DirectionNumber) ->
-    
-    %requires check if player is logged in
-    
-    case DirectionNumber of
-        0 ->
-            Direction = move_north;
-        1 ->
-    		Direction = move_east;
-        2 ->
-            Direction = move_south;
-        3 ->
-            Direction = move_west;
-        _ ->
-            Direction = none
+process_event(Client, Socket, Event) ->
+    if
+        Client#client.ready == true ->
+            gen_server:cast(Client#client.player_pid, Event);
+        true ->
+			gen_server:cast(Client#client.player_pid, 'LOGOUT')
     end,
-    
-    PlayerPID = Client#client.player_pid,    
-    PlayerId = gen_server:call(PlayerPID, 'ID'),
-    gen_server:cast(global:whereis_name({character, PlayerId}), {'SET_ACTION', Direction}),
-    Client.    
-
-process_policy_request(Client, Socket) ->
-    ok = packet:send_policy(Socket),
 	Client.
+   

@@ -25,12 +25,18 @@ start() ->
 
 init([]) ->
     %% Load armies, cities
-    Armies = db:select_armies(),
-	Cities = db:select_cities(),
-	Data = #game_info {armies = Armies, cities = Cities},
+    ArmyIds = db:select_armies(),
+	CityIds = db:select_cities(),
+    
+    lists:foreach(fun({ArmyId, PlayerId}) -> army:start(ArmyId, PlayerId) end, ArmyIds),
+    lists:foreach(fun({CityId, PlayerId}) -> city:start(CityId, PlayerId) end, CityIds), 
+    ArmyPids = lists:foldr(fun({X,_}, Pids) -> [global:whereis_name({army, X}) | Pids] end, [], ArmyIds),
+	CityPids = lists:foldr(fun({Y,_}, Pids) -> [global:whereis_name({city, Y}) | Pids] end, [], CityIds),
+    
+	Data = #game_info {armies = ArmyPids, cities = CityPids},
 	{ok, Data}.
 
-terminate(_Reason, Data) ->
+terminate(_Reason, _) ->
     ok.
 
 handle_cast(stop, Data) ->
@@ -40,26 +46,55 @@ handle_cast({'ADD_PLAYER', PlayerId, ProcessId, NewEntities}, Data) ->
 	NewPlayer = #player_process{player_id = PlayerId, process = ProcessId},
 
    	EntityList = Data#game_info.entities,
-	NewEntityList = entity:add_entities(EntityList, NewEntities),	
+	NewEntityList = lists:append(NewEntities, EntityList),	
 
     PlayerList = Data#game_info.players,
 	NewPlayerList = [NewPlayer|PlayerList],    
 	
 	NewData = Data#game_info {
             		players = NewPlayerList,
-					entities = NewEntities
+					entities = NewEntityList
            			},
     {noreply, NewData};
 
-handle_cast({'DELETE_PLAYER', PlayerId}, Data) ->
-		
+handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
+	io:fwrite("game - delete_player - ProcessId: ~w~n", [ProcessId]),
+    ArmiesPid = gen_server:call(ProcessId, 'GET_ARMIES_PID'),
+    NewEntityList = Data#game_info.entities -- ArmiesPid,    
 	NewPlayerList = lists:keydelete(PlayerId, 2, Data#game_info.players),
-    io:fwrite("game - DELETE_PLAYER() PlayerId: ~w~n", [PlayerId]),
-    io:fwrite("game - DELETE_PLAYER() NewPlayerList: ~w~n", [NewPlayerList]),
 	NewData = Data#game_info {
-            		players = NewPlayerList
+            		players = NewPlayerList,
+                    entities = NewEntityList
            			},
-	{noreply, NewData}.
+    io:fwrite("game - delete_player ~n"),
+	{noreply, NewData};
+
+handle_cast({'ADD_EVENT', Pid, Type, EventTick}, Data) ->
+    io:fwrite("game - add_event ~n"),
+    EventId = counter:increment(event),
+    CurrentTick = Data#game_info.tick,
+    Events = Data#game_info.events,
+    NewEvents = [{EventId, Pid, Type, CurrentTick + EventTick} | Events],
+    NewData = Data#game_info { events = NewEvents},  
+    
+    {noreply, NewData};
+
+handle_cast({'DELETE_EVENT', EventId}, Data) ->
+    EventList = Data#game_info.events,
+    NewEventList = lists:keydelete(EventId, 1, EventList),
+    NewData = Data#game_info {events = NewEventList},
+    {noreply, NewData};
+
+handle_cast({'CLEAR_EVENTS', Pid}, Data) ->
+    EventList = Data#game_info.events,
+    NewEventList = lists:keydelete(Pid, 2, EventList),
+    NewData = Data#game_info {events = NewEventList},
+    {noreply, NewData};
+
+handle_cast('NEXT_TICK', Data) ->
+    NextTick = Data#game_info.tick + 1,
+    NewData = Data#game_info { tick = NextTick},
+    {noreply, NewData}.
 
 handle_call('GET_PLAYERS', _From, Data) ->
 	{reply, Data#game_info.players, Data};
@@ -67,8 +102,20 @@ handle_call('GET_PLAYERS', _From, Data) ->
 handle_call('GET_ARMIES', _From, Data) ->
 	{reply, Data#game_info.armies, Data};
 
+handle_call('GET_CITIES', _From, Data) ->
+	{reply, Data#game_info.cities, Data};
+
+handle_call('GET_OBJECTS', _From, Data) ->
+    {reply, Data#game_info.armies ++ Data#game_info.cities, Data};
+
 handle_call('GET_ENTITIES', _From, Data) ->
 	{reply, Data#game_info.entities, Data};
+
+handle_call('GET_EVENTS', _From, Data) ->
+	{reply, Data#game_info.events, Data};    
+
+handle_call('GET_TICK', _From, Data) ->
+    {reply, Data#game_info.tick, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
@@ -96,4 +143,8 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 %% Local Functions
 %%
-	
+    
+    
+    
+
+

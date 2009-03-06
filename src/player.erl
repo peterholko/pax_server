@@ -29,7 +29,10 @@
 -record(module_data, {
           player_id,
           socket = none, 
-          perception = [],      
+          last_perception = [],
+          perception = [],
+          explored_map = [], 
+          discovered_tiles = [],     
           self
          }).
 
@@ -53,7 +56,12 @@ init([ID])
   when is_integer(ID) ->
     process_flag(trap_exit, true),
     ok = create_runtime(ID, self()),
-    {ok, #module_data{ player_id = ID, self = self() }}.
+    {ok, #module_data{ player_id = ID, 
+                       perception = [], 
+                       last_perception = [],
+                       explored_map = [],
+                       discovered_tiles = [], 
+                       self = self() }}.
 
 stop(ProcessId) 
   when is_pid(ProcessId) ->
@@ -77,36 +85,112 @@ handle_cast('LOGOUT', Data) ->
     Self = self(),
     io:fwrite("player - logout.~n"),
     
+    %Save explored map to disk
+    save_explored_map(Data#module_data.player_id, Data#module_data.explored_map),
+    
     %Delete from game
     GamePID = global:whereis_name(game_pid),
     io:fwrite("player - LOGOUT  GamePID: ~w~n", [GamePID]),
-    gen_server:cast(GamePID, {'DELETE_PLAYER', Data#module_data.player_id}),
+  	gen_server:cast(GamePID, {'DELETE_PLAYER', Data#module_data.player_id, Data#module_data.self}),
     
     %Stop character and player servers
-    spawn(fun() -> player:stop(Self) end),
+    spawn(fun() -> timer:sleep(1000), io:fwrite("spawn - stop player process: ~w~n", [Self]), player:stop(Self) end),
     {noreply, Data};
 
-handle_cast({'SEND_PERCEPTION', NewPerceptionWithCoords}, Data) ->
-  	LastPerception = Data#module_data.perception,
-    
-    %io:fwrite("player: NewPerceptionWithCoords ~w~n", [NewPerceptionWithCoords]),
-    
-    NewPerception = remove_coords(NewPerceptionWithCoords, []),
+handle_cast({'ADD_PERCEPTION', NewPerceptionData}, Data) ->
+    Perception = Data#module_data.perception,
+    NewPerception = lists:append(NewPerceptionData, Perception),
+    %io:fwrite("player - ADD_PERCEPTION  Perception: ~w~n", [NewPerception]),
+    UniquePerception = NewPerception,
+    %io:fwrite("player - ADD_PERCEPTION  UniquePerception: ~w~n", [UniquePerception]),
+    NewData = Data#module_data {perception = UniquePerception},
+    io:fwrite("memory: ~w~n", [erlang:memory(ets)]),
+    {noreply, NewData};    
+
+handle_cast({'SEND_PERCEPTION'}, Data) ->
+  	LastPerception = Data#module_data.last_perception,
+    NewPerception = Data#module_data.perception,
     
     if 
         LastPerception =:= NewPerception ->
-            NewData = Data;
+            NewData = Data#module_data{perception = []};
             %io:fwrite("Perception Unchanged. ~n");
        
 		true ->
-            NewData = Data#module_data {perception = NewPerception },
-            R = #perception {characters = NewPerceptionWithCoords },
+            NewData = Data#module_data {last_perception = NewPerception, perception = [] },
+            R = #perception {entities = NewPerception,
+                             tiles = Data#module_data.discovered_tiles
+                            },
             forward_to_client(R, NewData)
             
             %io:fwrite("Perception Modified. ~w~n", [NewPerception])   
    	end,
     
-    {noreply, NewData};   
+    {noreply, NewData}; 
+
+handle_cast({'SET_DISCOVERED_TILES', _, EntityX, EntityY}, Data) ->
+	TileIndexList = map:get_surrounding_tiles(EntityX, EntityY),
+    io:fwrite("player - DISCOVERED_TILES  TileIndexList: ~w~n", [TileIndexList]),
+    TileList = gen_server:call(global:whereis_name(map_pid), {'GET_EXPLORED_MAP', TileIndexList}),
+    ExploredMap = Data#module_data.explored_map,
+    NewExploredMap = ExploredMap ++ TileList,
+    NewData = Data#module_data { explored_map = NewExploredMap, discovered_tiles = TileList },
+      
+    {noreply, NewData};
+
+handle_cast(_ = #move{ id = ArmyId, x = X, y = Y}, Data) ->
+    [Player] = db:read(player, Data#module_data.player_id), 
+    
+    case lists:member(ArmyId, Player#player.armies) of
+		true -> 
+            gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_MOVE', X, Y});           
+		false ->
+            none
+   	end,
+    
+    {noreply, Data};
+
+handle_cast(_ = #attack{ id = ArmyId, target_id = TargetId}, Data) ->
+    [Player] = db:read(player, Data#module_data.player_id),
+
+    case db:read(army, TargetId) of
+        [_] ->    
+    		Guard = (lists:member(ArmyId, Player#player.armies)) and
+            		(Player#player.id =/= TargetId),
+			if
+        		Guard ->		 
+            		gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_ATTACK', TargetId});
+        		true ->
+          			ok		
+		   	end;
+        _ ->
+          ok
+	end,
+
+    {noreply, Data};
+
+handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
+    
+    InfoList = [],
+    
+    case Type of 
+        ?OBJECT_ARMY ->
+            case db:read(army, Id) of
+                [_] ->
+                    InfoList = gen_server:call(global:whereis_name({army, Id}, {'GET_INFO'}));
+				_ ->
+					ok
+			end;                        
+        ?OBJECT_CITY ->
+            case db:read(city, Id) of
+                [_] ->
+                    InfoList = gen_server:call(global:whereis_name({city, Id}, {'GET_INFO'}));
+				_ ->
+					ok
+			end 
+    end, 
+    
+	{noreply, Data};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data};
@@ -119,6 +203,20 @@ handle_call('ID', _From, Data) ->
 
 handle_call('SOCKET', _From, Data) ->
     {reply, Data#module_data.socket, Data};
+
+handle_call('GET_ARMIES', _From, Data) ->
+    [Player] = db:read(player, Data#module_data.player_id), 
+    {reply, Player#player.armies, Data};
+
+handle_call('GET_ARMIES_PID', _From, Data) ->
+    [Player] = db:read(player, Data#module_data.player_id),
+    Armies = Player#player.armies,
+        
+    F = fun(ArmyId, Rest) -> [global:whereis_name({army, ArmyId}) | Rest] end,
+    
+    ArmiesPid = lists:foldl(F, [], Armies),
+	io:fwrite("player - GET_ARMIES_PID  ArmiesPid: ~w~n", [ArmiesPid]),    
+    {reply, ArmiesPid, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
@@ -142,43 +240,7 @@ handle_info(Info, Data) ->
 
 code_change(_OldVsn, Data, _Extra) ->
     {ok, Data}.
-
-get_explored_map(PlayerId) ->       
-    StoredExploredMap = db:read(explored_map, PlayerId),
-    EntityList = entity:entity_list(PlayerId), 
-    
-    ExploredMap = stored_explored_map(StoredExploredMap, []),
-    TotalExploredMap = entity_explored_map(EntityList, ExploredMap),
-	TotalExploredMap.
-
-stored_explored_map([], ExploredMap) ->
-  	ExploredMap;  
-
-stored_explored_map(StoredExploredMap, ExploredMap) ->
-  	[StoredItem | Rest ] = StoredExploredMap,
 	
-	Block = gen_server:call(global:whereis_name(map_pid), 
-												{'GET_MAP_BLOCK', 
-												StoredItem#explored_map.block_x, 
-												StoredItem#explored_map.block_y}),
-	NewExploredMap = [Block | ExploredMap],
-
-	stored_explored_map(Rest, NewExploredMap).
-	
-entity_explored_map([], ExploredMap) ->
-    ExploredMap;    
-    
-entity_explored_map(EntityList, ExploredMap) ->   
-    [Entity | Rest] = EntityList,
-  
-    Block = gen_server:call(global:whereis_name(map_pid), {'GET_MAP_BLOCK', Entity#entity.x, Entity#entity.y}),
-
-    NewExploredMap = [Block | ExploredMap],
-    
-    entity_explored_map(Rest, NewExploredMap).
-
-
-
 %%
 %% Local Functions
 %%
@@ -200,16 +262,27 @@ forward_to_client(Event, Data) ->
             ok
     end.
 
-remove_coords([], PerceptionList) ->
-    PerceptionList;
+get_explored_map(PlayerId) ->
+  	FileName = "map" ++ integer_to_list(PlayerId) ++ ".dets",
+	{_,DetsFile} = dets:open_file(FileName,[{type, set}]),
+	dets:delete_all_objects(DetsFile),
 
-remove_coords([PerceptionWithCoords | Rest], PerceptionList) ->
-    {Id, State, X, Y} = PerceptionWithCoords,
-    NewPerceptionList = [{Id, State} | PerceptionList],
-    %io:fwrite("player: NewPerceptionList. ~w~n", [NewPerceptionList]),
+	ExploredTileIndex = dets:foldl(fun({X}, List) -> [X | List] end, [], DetsFile),
+    dets:close(FileName),
+    io:fwrite("player - get_explored_map  ExploredTileIndex: ~w~n", [ExploredTileIndex]),
+  	ExploredMap = gen_server:call(global:whereis_name(map_pid), {'GET_EXPLORED_MAP', ExploredTileIndex}),
     
-    remove_coords(Rest, NewPerceptionList).
+    ExploredMap.
 
-
-
+save_explored_map(PlayerId, ExploredMap) ->
+    FileName = "map" ++ integer_to_list(PlayerId) ++ ".dets",
+    {_,DetsFile} = dets:open_file(FileName,[{type, set}]),
+    
+    F = fun(Element) ->
+             	{TileIndex, _} = Element,   
+                dets:insert(DetsFile, {TileIndex}) 
+        end,
+    
+    lists:foreach(F, ExploredMap),
+    dets:close(FileName).
     

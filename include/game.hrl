@@ -4,12 +4,14 @@
                      }).
 
 -record(game_info, {
+                    tick = 0,
                     players = [],
                     entities = [],
                     armies = [],
                     cities = [],
                     npcs = [],
-                    objects = []
+                    objects = [],
+                    events = []
                     }).
 
 -record(entity, {

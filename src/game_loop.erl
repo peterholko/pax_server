@@ -7,62 +7,64 @@
 %% Include files
 %%
 
+-include("common.hrl").
 -include("game.hrl").
 
 %%
 %% Exported Functions
 %%
--export([loop/3]).
+-export([loop/2]).
 
 %%
 %% API Functions
 %%
 
-loop(Iteration, CurrentTick, GamePID) ->            
-	EntityList = gen_server:call(GamePID, 'GET_ENTITIES'),
-	ArmyList = gen_server:call(GamePID, 'GET_ARMIES'),
-
-    %Process character actions
-    %process_actions(CharacterList),
+loop(LastTime, GamePID) ->
+    
+    CurrentTick = gen_server:call(GamePID, 'GET_TICK'),
+	EntityList = gen_server:call(GamePID, 'GET_ENTITIES'),    
+	ObjectList = gen_server:call(GamePID, 'GET_OBJECTS'),
+	EventList = gen_server:call(GamePID, 'GET_EVENTS'),
+    PlayerList = gen_server:call(GamePID, 'GET_PLAYERS'),
+    
+    %Process events
+    process_events(GamePID, CurrentTick, EventList),
     
     %Build simple perception
-	perceptions(EntityList, ArmyList),
-    %{MegaSec, Sec, MicroSec} = erlang:now(),
-    CurrentMS = util:now_to_milliseconds(erlang:now()),
-    NextTick = CurrentTick + 50,
-	SleepTime = NextTick - CurrentMS,
-    %io:fwrite("SleepTime: ~w~n", [SleepTime]),
-    %io:fwrite("SleepTime: ~w : CurrentMicroseconds: ~w : CurrentTick ~w~n", [SleepTime, CurrentMS, CurrentTick]),
-	%io:fwrite("PlayerList: ~w~n", [PlayerList]),
+	perceptions(EntityList, ObjectList),
+
+    %Send perceptions
+    send_perceptions(PlayerList),
+    
+    CurrentTime = util:now_to_milliseconds(erlang:now()),
+    NextTime = LastTime + ?GAME_LOOP,
+	SleepTime = NextTime - CurrentTime,
+
+    gen_server:cast(GamePID, 'NEXT_TICK'),
+    %io:fwrite("loop - SleepTime: ~w~n", [SleepTime]),
     timer:sleep(SleepTime),
-	loop(Iteration + 1, NextTick, GamePID).
+	loop(NextTime, GamePID).
 %%
 %% Local Functions
 %%
 
-process_actions([]) ->
+process_events(_, _, []) ->
     ok;
 
-process_actions(CharacterList) ->
-    [CharPID | Rest] = CharacterList,
+process_events(GamePID, CurrentTick, EventList) ->
+    io:fwrite("game_loop - EventList: ~w CurrentTick: ~w~n", [EventList, CurrentTick]),
+    [Event | Rest] = EventList,
+    {EventId, Pid, Type, EventTick} = Event,
     
-    Action = gen_server:call(CharPID, {'GET_ACTION'}),
+    if
+        CurrentTick =:= EventTick ->
+            gen_server:cast(Pid, {'PROCESS_EVENT', Type}),
+        	gen_server:cast(GamePID, {'DELETE_EVENT', EventId});
+        true ->
+            ok
+    end,
     
-    case Action of 
-        move_north ->
-            gen_server:cast(CharPID, {'MOVE', north});
-        move_south ->
-        	gen_server:cast(CharPID, {'MOVE', south});
-        move_west ->
-            gen_server:cast(CharPID, {'MOVE', west});
-        move_east ->
-            gen_server:cast(CharPID, {'MOVE', east});        
-        none ->
-     		ok
-    end,    
-    
-    process_actions(Rest).
-
+    process_events(GamePID, CurrentTick, Rest).
 
 perceptions([], []) ->
     ok;
@@ -70,40 +72,52 @@ perceptions([], []) ->
 perceptions([], _) ->
     ok;
   
-perceptions(EntityList, ArmyList) ->
-    [Entity | Rest] = EntityList,   
+perceptions(EntityList, ObjectList) ->
+    [EntityPid | Rest] = EntityList,   
     
-    build_perception(Entity, ArmyList, []),
+    {EntityId, 
+     EntityPlayerId, 
+     EntityType, 
+     EntityState, 
+     EntityX, 
+     EntityY} = gen_server:call(EntityPid, {'GET_STATE'}),
     
-    perceptions(Rest, ArmyList).
+    EntityPlayerId = gen_server:call(EntityPid, {'GET_PLAYER_ID'}),
     
-build_perception(Entity, [], Perception) ->
-    PlayerId = Entity#entity.player_id,
-    gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_PERCEPTION', Perception});    
+    build_perception({EntityX, EntityY, EntityPlayerId}, ObjectList, []),
+    
+    perceptions(Rest, ObjectList).
+    
+build_perception(EntityInfo, [], Perception) ->
+    {_, _, EntityPlayerId} = EntityInfo,
+    gen_server:cast(global:whereis_name({player, EntityPlayerId}), {'ADD_PERCEPTION', Perception});    
 
-build_perception(Entity, ArmyList, Perception) ->
-	
-	EntityX = Entity#entity.x,
-	EntityY = Entity#entity.y,
-        
-    [Army | Rest] = ArmyList,
-	{ArmyID, ArmyX, ArmyY, State} = Army,
+build_perception(EntityInfo, ObjectList, Perception) ->
+    {EntityX, EntityY, _} = EntityInfo,    
+    
+    [ObjectPid | Rest] = ObjectList,
+	{Id, PlayerId, Type, State, X, Y} = gen_server:call(ObjectPid, {'GET_STATE'}),
    
-    DiffX = EntityX - ArmyX,
-    DiffY = EntityY - ArmyY,
+    DiffX = EntityX - X,
+    DiffY = EntityY - Y,
     
     Diff = (DiffX * DiffX) + (DiffY * DiffY),
        
     if
-        Diff < 25 ->
+        Diff < 50 ->
 			
-			NewPerception = [{ArmyID, State, ArmyX, ArmyY} | Perception];
+			NewPerception = [{Id, PlayerId, Type, State, X, Y} | Perception];
 		true ->
-            NewPerception = Perception,
-			ok
+            NewPerception = Perception
 	end,        
-    
-    build_perception(Entity, Rest, NewPerception). 
-	                                                
-                                             
+
+    build_perception(EntityInfo, Rest, NewPerception). 
+
+send_perceptions([]) ->
+    ok;
+
+send_perceptions(PlayerList) ->
+    [Player | Rest] = PlayerList,
+    gen_server:cast(Player#player_process.process, {'SEND_PERCEPTION'}),
+    send_perceptions(Rest).
   

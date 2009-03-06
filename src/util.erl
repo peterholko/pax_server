@@ -7,14 +7,27 @@
 %% Include files
 %%
 
+-include("common.hrl").
+-include("schema.hrl").
+
 %%
 %% Exported Functions
 %%
--export([is_process_alive/1, now_to_milliseconds/1]).
+-export([unique_list/1,
+         is_process_alive/1, 
+         now_to_milliseconds/1,
+         reset_explored_map/0
+        ]).
 
 %%
 %% API Functions
 %%
+
+unique_list(L) ->
+    %T = ets:new(temp,[set]),
+    %L1 = lists:filter(fun(X) -> ets:insert_new(T, {X,1}) end, L),
+    %ets:delete(T),
+    L.
 
 is_process_alive(Pid) 
   when is_pid(Pid) ->
@@ -23,3 +36,41 @@ is_process_alive(Pid)
 now_to_milliseconds({Megasec, Sec, Microsec}) ->
     Milliseconds = (Megasec * 1000000000) + (Sec * 1000) + (Microsec div 1000),
     Milliseconds.
+
+reset_explored_map() ->
+    Players = db:select_all_players(),
+    Armies = db:select_all_armies(),
+    
+    F1 = fun(PlayerInfo) ->
+                PlayerId = PlayerInfo#player.id,
+  				FileName = "map" ++ integer_to_list(PlayerId) ++ ".dets",
+				{_,DetsFile} = dets:open_file(FileName,[{type, set}]),
+                dets:delete_all_objects(DetsFile),
+                dets:close(FileName)
+        end,   
+    
+    lists:foreach(F1, Players),    
+    
+    F2 = fun(Element) ->
+                PlayerId = Element#army.player_id,
+                X = Element#army.x,
+                Y = Element#army.y,
+                TileIndexList = map:get_surrounding_tiles(X, Y),
+                TileList = gen_server:call(global:whereis_name(map_pid), {'GET_EXPLORED_MAP', TileIndexList}),
+  				FileName = "map" ++ integer_to_list(PlayerId) ++ ".dets",
+				{_,DetsFile} = dets:open_file(FileName,[{type, set}]),
+                
+    			F3 = fun(TileInfo) ->
+             			{TileIndex, _} = TileInfo,   
+                		dets:insert(DetsFile, {TileIndex}) 
+        		end,
+              
+    			lists:foreach(F3, TileList),
+        		dets:close(FileName)
+        end,
+    
+    lists:foreach(F2, Armies).
+
+
+    
+	

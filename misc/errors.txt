@@ -1,0 +1,30 @@
+Status - read_binary() Bin2: <<0,6,49,50,51,49,50,51>>
+Status - read_binary() Bin: <<0,6,49,50,51,49,50,51>>
+Status - read_binary() Value: <<49,50,51,49,50,51>>
+Status - read_binary() Bin2: <<>>
+login:login - Name: <<116,101,115,116>>
+login:login - Pass: <<49,50,51,49,50,51>>
+db:index_read - T: player
+db:index_read - V: <<116,101,115,116>>
+db:index_read - K: 3
+db:index_read - Value: [{player,1,<<116,101,115,116>>,<<49,50,51,49,50,51>>,0,false,1}]
+login:login - PlayerInfo: [{player,1,<<116,101,115,116>>,<<49,50,51,49,50,51>>,0,false,1}]
+login:login - PlayerInfo2: {player,1,<<116,101,115,116>>,<<49,50,51,49,50,51>>,0,false,1}
+login: is_bad_password - Match: true
+
+=ERROR REPORT==== 31-Jan-2009::23:06:53 ===
+Error in process <0.325.0> on node 'erlide@gameover' with exit value: {function_clause,[{login,login,[{player,1,<<4 bytes>>,<<6 bytes>>,0,false,1},{connection,1,<0.326.0>,none},unknown_error,[<<4 bytes>>,<<6 bytes>>,<0.325.0>]]},{login,login,2},{server,process_login,4},{server,handle_client,2}]}
+
+login: login - Result: {ok,<0.326.0>}
+server: process_login - ok.
+server: process_login - PlayerPID -> <0.326.0>
+packet: send() - Data ->  {player_id,1}
+packet: send() -  <<5,0,1>>
+server: process_login - self() -> <0.35.0>
+server: process_login - Client#client.player_pid -> {client,<0.35.0>,<0.326.0>,none,none}
+Status: Data accepted: <<3>>
+packet: read() - clocksync
+server: process_clocksync
+packet: send_clocksync() -  1233468413859
+packet: send() - Data ->  {perception,[{1,2,2,0}]}
+packet: send() -  <<40,1,0,1,0,2,0,2,0,0>>

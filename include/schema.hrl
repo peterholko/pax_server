@@ -1,3 +1,6 @@
+-record(counter, {type, 
+                  value}).
+
 -record(player, {id,
 				name,
 				password,
@@ -14,21 +17,38 @@
                	player_id,
                	x,
                	y,
-				state = none,			
+                dest_x,
+              	dest_y,
+                target,
+				state = 0,			
          	    hero = none,
             	units = none}).
+
+-record(hero, {id,
+               army_id,
+               level}).
+
+-record(unit, {id,
+               army_id,
+               type_id,
+               size,
+               hp}).
+
+-record(unit_type, {id,
+                    name,
+                    level,
+                    attack,
+                    defense,
+					max_hp,
+                    speed,
+                    cost}).
 
 -record(city, { id,
                	player_id,
                	x,
                	y, 
-               	state = none}).
+               	state = 0}).
 
--record(explored_map, {
-                       player_id,
-                       block_x,
-                       block_y       
-                       }).
 
 
 

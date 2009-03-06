@@ -8,3 +8,18 @@
 -define(MAP_BLOCK_WIDTH, 7).
 -define(MAP_BLOCK_HEIGHT, 7).
 -define(MAP_FILENAME, "map.bin").
+
+-define(STATE_NONE, 0).
+-define(STATE_MOVE, 1).
+-define(STATE_ATTACK, 2).
+-define(STATE_COMBAT, 3).
+
+-define(EVENT_NONE, 0).
+-define(EVENT_MOVE, 1).
+-define(EVENT_ATTACK, 2).
+
+-define(GAME_LOOP, 200).
+
+-define(OBJECT_TILE, 0).
+-define(OBJECT_ARMY, 1).
+-define(OBJECT_CITY, 2).
