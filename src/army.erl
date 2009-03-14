@@ -117,8 +117,7 @@ handle_call({'GET_INFO'}, _From, Data) ->
 	{reply, Data#module_data.player_id, Data};
 
 handle_call({'GET_STATE'}, _From, Data) ->
-    [Army] = db:read(army, Data#module_data.army_id),
-    
+    [Army] = db:dirty_read(army, Data#module_data.army_id),
 	{reply, {Army#army.id, Army#army.player_id, 0, Army#army.state, Army#army.x, Army#army.y}, Data};
 
 handle_call({'GET_ARMY_ID'}, _From, Data) ->

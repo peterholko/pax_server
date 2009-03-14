@@ -100,11 +100,8 @@ handle_cast('LOGOUT', Data) ->
 handle_cast({'ADD_PERCEPTION', NewPerceptionData}, Data) ->
     Perception = Data#module_data.perception,
     NewPerception = lists:append(NewPerceptionData, Perception),
-    %io:fwrite("player - ADD_PERCEPTION  Perception: ~w~n", [NewPerception]),
-    UniquePerception = NewPerception,
-    %io:fwrite("player - ADD_PERCEPTION  UniquePerception: ~w~n", [UniquePerception]),
+    UniquePerception = util:unique_list(NewPerception),
     NewData = Data#module_data {perception = UniquePerception},
-    io:fwrite("memory: ~w~n", [erlang:memory(ets)]),
     {noreply, NewData};    
 
 handle_cast({'SEND_PERCEPTION'}, Data) ->
@@ -265,8 +262,6 @@ forward_to_client(Event, Data) ->
 get_explored_map(PlayerId) ->
   	FileName = "map" ++ integer_to_list(PlayerId) ++ ".dets",
 	{_,DetsFile} = dets:open_file(FileName,[{type, set}]),
-	dets:delete_all_objects(DetsFile),
-
 	ExploredTileIndex = dets:foldl(fun({X}, List) -> [X | List] end, [], DetsFile),
     dets:close(FileName),
     io:fwrite("player - get_explored_map  ExploredTileIndex: ~w~n", [ExploredTileIndex]),

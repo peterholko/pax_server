@@ -49,8 +49,7 @@ handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
 handle_call({'GET_STATE'}, _From, Data) ->
-    [City] = db:read(city, Data#module_data.city_id),
-    
+    [City] = db:dirty_read(city, Data#module_data.city_id),
 	{reply, {City#city.id, City#city.player_id, 1, City#city.state, City#city.x, City#city.y}, Data};
 
 handle_call({'GET_CITY_ID'}, _From, Data) ->

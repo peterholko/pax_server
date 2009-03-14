@@ -24,10 +24,10 @@
 %%
 
 unique_list(L) ->
-    %T = ets:new(temp,[set]),
-    %L1 = lists:filter(fun(X) -> ets:insert_new(T, {X,1}) end, L),
-    %ets:delete(T),
-    L.
+    T = ets:new(temp,[set]),
+    L1 = lists:filter(fun(X) -> ets:insert_new(T, {X,1}) end, L),
+    ets:delete(T),
+    L1.
 
 is_process_alive(Pid) 
   when is_pid(Pid) ->

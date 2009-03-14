@@ -16,7 +16,9 @@
 %%
 %% Exported Functions
 %%
--export([create_schema/0, start/0, write/1, read/2, delete/2, index_read/3,
+-export([create_schema/0, start/0, 
+         write/1, read/2, delete/2, index_read/3,
+         dirty_write/1, dirty_read/2, dirty_delete/2,
          reset_game_tables/0, reset_tables/0, select_armies/0,
 		 select_cities/0, select_all_armies/0, select_all_players/0,
          do/1
@@ -31,14 +33,14 @@ create_schema() ->
     mnesia:delete_schema([node()]),
     mnesia:create_schema([node()]),
     mnesia:start(),
-    {atomic, ok} = mnesia:create_table(player, [{attributes, record_info(fields, player)}]),
-    {atomic, ok} = mnesia:create_table(connection, [{attributes, record_info(fields, connection)}]),
-    {atomic, ok} = mnesia:create_table(army, [{attributes, record_info(fields, army)}]),
-    {atomic, ok} = mnesia:create_table(unit, [{attributes, record_info(fields, unit)}]),
-    {atomic, ok} = mnesia:create_table(unit_type, [{attributes, record_info(fields, unit_type)}]),
-    {atomic, ok} = mnesia:create_table(hero, [{attributes, record_info(fields, hero)}]),
-	{atomic, ok} = mnesia:create_table(city, [{attributes, record_info(fields, city)}]),
-    {atomic, ok} = mnesia:create_table(counter, [{attributes, record_info(fields, counter)}]),
+    {atomic, ok} = mnesia:create_table(player, [{disc_copies, [node()]}, {attributes, record_info(fields, player)}]),
+    {atomic, ok} = mnesia:create_table(connection, [{disc_copies, [node()]}, {attributes, record_info(fields, connection)}]),
+    {atomic, ok} = mnesia:create_table(army, [{disc_copies, [node()]}, {attributes, record_info(fields, army)}]),
+    {atomic, ok} = mnesia:create_table(unit, [{disc_copies, [node()]}, {attributes, record_info(fields, unit)}]),
+    {atomic, ok} = mnesia:create_table(unit_type, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_type)}]),
+    {atomic, ok} = mnesia:create_table(hero, [{disc_copies, [node()]}, {attributes, record_info(fields, hero)}]),
+	{atomic, ok} = mnesia:create_table(city, [{disc_copies, [node()]}, {attributes, record_info(fields, city)}]),
+    {atomic, ok} = mnesia:create_table(counter, [{disc_copies, [node()]}, {attributes, record_info(fields, counter)}]),
     
     mnesia:add_table_index(player, name),
     mnesia:stop().
@@ -70,6 +72,15 @@ index_read(T, V, K) ->
     {atomic, Value} = mnesia:transaction(F),
     io:fwrite("db:index_read - Value: ~w~n", [Value]),
 	Value.
+
+dirty_read(T, K) ->
+    mnesia:dirty_read(T, K).
+
+dirty_write(R) ->
+    mnesia:dirty_write(R).
+
+dirty_delete(T, K) ->
+    mnesia:dirty_delete(T, K). 
 
 select_armies() ->
     do(qlc:q([{X#army.id, X#army.player_id} || X <- mnesia:table(army)])).
@@ -115,9 +126,9 @@ example_tables() ->
      {connection, 2, none, none},
      {connection, 3, none, none},
      {connection, 4, none, none},
-     {city, 1, 1, 3, 4, 0},
-     {city, 2, 2, 1, 5, 0},
-     {city, 3, 3, 7, 4, 0},
+     {city, 11, 1, 3, 4, 0},
+     {city, 12, 2, 1, 5, 0},
+     {city, 13, 3, 7, 4, 0},
      {army, 1, 1, 2,  2, 0, 0, none, 0, [1], [1]},
      {army, 2, 1, 5,  5, 0, 0, none, 0, none, none},
      {army, 3, 2, 8,  2, 0, 0, none, 0, none, none},

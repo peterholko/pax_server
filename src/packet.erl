@@ -63,6 +63,12 @@ tiles() ->
 info_list() ->
     list(int(), string()).    
 
+buildings() ->
+    list(short(), int()).
+
+
+% packet records
+
 login() ->
     record(login, {name(),
                    pass()}).
@@ -96,6 +102,9 @@ request_info() ->
 
 info() ->
     record(info, {info_list()}).
+
+info_city() ->
+    record(info_city, {buildings()}).
 
 
 %%

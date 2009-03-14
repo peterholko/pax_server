@@ -40,21 +40,26 @@
 
 -record(move, {id,
                x,
-               y
-                }).
+               y}).
 
 -define (CMD_ATTACK, 43).
 
 -record(attack, {id,
-                 target_id
-                 }).
+                 target_id}).
 
 -define (CMD_REQUEST_INFO, 50).
 
 -record(request_info, {type,
-                       id
-                      }).
+                       id}).
 
 -define (CMD_INFO, 51).
 
 -record(info, {info_list}).
+
+-define (CMD_INFO_ARMY, 52).
+
+-record(info_army, {})
+
+-define (CMD_INFO_CITY, 53).
+
+-record(info_city, {buildings}).
