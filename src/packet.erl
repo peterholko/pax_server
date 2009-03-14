@@ -42,11 +42,17 @@ state() ->
 type() ->
     short().
 
+size() ->
+	int().
+
 x() ->
     short().
 
 y() ->
     short().
+
+level() ->
+	short().
 
 entity() ->
     tuple({id(), player(), type(), state(), x(), y()}).
@@ -62,6 +68,15 @@ tiles() ->
 
 info_list() ->
     list(int(), string()).    
+
+hero() ->
+	tuple({id(), level()}).
+
+unit() ->
+	tuple({id(), type(), size()}).
+
+units() ->
+	list(short(), unit()).
 
 buildings() ->
     list(short(), int()).
@@ -102,6 +117,10 @@ request_info() ->
 
 info() ->
     record(info, {info_list()}).
+
+info_army() ->
+	record(info_army, {hero(),
+					   units()}).
 
 info_city() ->
     record(info_city, {buildings()}).
@@ -148,8 +167,11 @@ write(R) when is_record(R, perception) ->
 write(R) when is_record(R, map) ->
     [?CMD_EXPLORED_MAP|pickle(map(), R)];
 
-write(R) when is_record(R, map) ->
-    [?CMD_INFO|pickle(info(), R)].
+write(R) when is_record(R, info) ->
+    [?CMD_INFO|pickle(info(), R)];
+
+write(R) when is_record(R, info_army) ->
+	[?CMD_INFO_ARMY|pickle(info_army(), R)].
 
 send(Socket, Data) ->
     io:format("packet: send() - Data ->  ~p~n", [Data]),

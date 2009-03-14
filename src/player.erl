@@ -172,15 +172,10 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
     
     case Type of 
         ?OBJECT_ARMY ->
-            case db:read(army, Id) of
-                [_] ->
-                    InfoList = gen_server:call(global:whereis_name({army, Id}, {'GET_INFO'}));
-				_ ->
-					ok
-			end;                        
+			Info = gen_server:call(global:whereis_name({army, Id}, {'GET_INFO', Data#module_data.player_id}));                     
         ?OBJECT_CITY ->
             case db:read(city, Id) of
-                [_] ->
+                [CityInfo] ->
                     InfoList = gen_server:call(global:whereis_name({city, Id}, {'GET_INFO'}));
 				_ ->
 					ok

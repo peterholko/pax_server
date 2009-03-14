@@ -10,6 +10,7 @@
 
 -include("common.hrl").
 -include("schema.hrl").
+-include("packet.hrl").
 
 %%
 %% Exported Functions
@@ -113,8 +114,21 @@ handle_cast({'PROCESS_EVENT', EventType}, Data) ->
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
-handle_call({'GET_INFO'}, _From, Data) ->
-	{reply, Data#module_data.player_id, Data};
+handle_call({'GET_INFO', PlayerId}, _From, Data) ->
+	
+	case db:read(army, Data#module_data.army_id) of
+		[Army] ->
+			if 
+				Army#army.player_id =:= PlayerId ->
+					Info = unit:unit_info(Data#module_data.army_id);
+				true ->
+					ok
+			end;
+		_ ->
+			ok
+	end,
+
+	{reply, Info , Data};
 
 handle_call({'GET_STATE'}, _From, Data) ->
     [Army] = db:dirty_read(army, Data#module_data.army_id),
