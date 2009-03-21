@@ -40,6 +40,8 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(unit_type, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_type)}]),
     {atomic, ok} = mnesia:create_table(hero, [{disc_copies, [node()]}, {attributes, record_info(fields, hero)}]),
 	{atomic, ok} = mnesia:create_table(city, [{disc_copies, [node()]}, {attributes, record_info(fields, city)}]),
+    {atomic, ok} = mnesia:create_table(building_type, [{disc_copies, [node()]}, {attributes, record_info(fields, building_type)}]),
+    {atomic, ok} = mnesia:create_table(unit_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_queue)}]),
     {atomic, ok} = mnesia:create_table(counter, [{disc_copies, [node()]}, {attributes, record_info(fields, counter)}]),
     
     mnesia:add_table_index(player, name),
@@ -105,7 +107,10 @@ do(Q) ->
 
 %% Table Data
 game_tables() ->
-    [{unit_type, 1, "Footsolider", 1, 1, 2, 1, 5, 10}].
+    [{unit_type, 1, "Footsolider", 1, 1, 2, 1, 5, 10},
+     {unit_type, 2, "Archer", 2, 2, 1, 1, 5, 10},
+     {building_type, 1, "Barrack", 1},
+     {building_type, 2, "Training Grounds", 1}].
 
 reset_game_tables() ->
     mnesia:clear_table(player),
@@ -118,26 +123,26 @@ reset_game_tables() ->
 
 example_tables() ->
     [
-     {player, 1, <<"test">>, <<"123123">>, 0, false, [1,2], none},
-     {player, 2, <<"test2">>, <<"123123">>, 0, false, [3], none},
-     {player, 3, <<"test3">>, <<"123123">>, 0, false, [4], none},
-     {player, 4, <<"test4">>, <<"123123">>, 0, false, [5], none},
+     {player, 1, <<"test">>, <<"123123">>, 0, false, [1,2], []},
+     {player, 2, <<"test2">>, <<"123123">>, 0, false, [3], []},
+     {player, 3, <<"test3">>, <<"123123">>, 0, false, [4], []},
+     {player, 4, <<"test4">>, <<"123123">>, 0, false, [5], []},
      {connection, 1, none, none},
      {connection, 2, none, none},
      {connection, 3, none, none},
      {connection, 4, none, none},
-     {city, 11, 1, 3, 4, 0},
-     {city, 12, 2, 1, 5, 0},
-     {city, 13, 3, 7, 4, 0},
-     {army, 1, 1, 2,  2, 0, 0, none, 0, [1], [1]},
-     {army, 2, 1, 5,  5, 0, 0, none, 0, none, none},
-     {army, 3, 2, 8,  2, 0, 0, none, 0, none, none},
-     {army, 4, 3, 10,10, 0, 0, none, 0, none, none},
-     {army, 5, 4, 15, 2, 0, 0, none, 0, none, none},
-     {army, 6, 5, 25,25, 0, 0, none, 0, none, none},
+     {city, 11, 1, 3, 4, 0, [10]},
+     {city, 12, 2, 1, 5, 0, []},
+     {city, 13, 3, 7, 4, 0, []},
+     {army, 1, 1, 2,  2, 0, 0, none, 0, 1, [1]},
+     {army, 2, 1, 5,  5, 0, 0, none, 0, 0, []},
+     {army, 3, 2, 8,  2, 0, 0, none, 0, 0, []},
+     {army, 4, 3, 10,10, 0, 0, none, 0, 0, []},
+     {army, 5, 4, 15, 2, 0, 0, none, 0, 0, []},
+     {army, 6, 5, 25,25, 0, 0, none, 0, 0, []},
      {hero, 1, 1, 1},
      {unit, 1, 1, 1, 100, 1},
-     {unit, 2, 2, 1, 10, 1},
+     {unit, 2, 1, 2, 10, 1},
      {unit, 3, 5, 1, 50, 1},
      {unit, 4, 6, 1, 25, 1}
     ].

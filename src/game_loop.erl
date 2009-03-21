@@ -38,10 +38,18 @@ loop(LastTime, GamePID) ->
     
     CurrentTime = util:now_to_milliseconds(erlang:now()),
     NextTime = LastTime + ?GAME_LOOP,
-	SleepTime = NextTime - CurrentTime,
+	CalcSleepTime = NextTime - CurrentTime,
 
     gen_server:cast(GamePID, 'NEXT_TICK'),
-    %io:fwrite("loop - SleepTime: ~w~n", [SleepTime]),
+    
+    if
+        CalcSleepTime =< 0 ->
+            io:fwrite("loop - SleepTime: ~w~n", [CalcSleepTime]),
+            SleepTime = 1;
+        true ->
+            SleepTime = CalcSleepTime            
+	end,
+        
     timer:sleep(SleepTime),
 	loop(NextTime, GamePID).
 %%

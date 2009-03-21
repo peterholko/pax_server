@@ -21,8 +21,8 @@
               	dest_y,
                 target,
 				state = 0,			
-         	    hero = none,
-            	units = none}).
+         	    hero = 0,
+            	units = []}).
 
 -record(hero, {id,
                army_id,
@@ -47,7 +47,19 @@
                	player_id,
                	x,
                	y, 
-               	state = 0}).
+               	state = 0,
+                buildings = []}).
+
+-record(building_type, {id,
+                        name,
+                        type}).
+
+-record(unit_queue, {player_id,
+                     building_type,
+                     unit_type,
+                     unit_amount,
+                     start_time,
+                     build_time}).
 
 
 

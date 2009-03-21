@@ -19,6 +19,7 @@
 %%%%
 
 -module(pickle).
+-include_lib("eunit/include/eunit.hrl").
 
 -export([pickle/2, unpickle/2]).
 -export([byte/0, short/0, sshort/0, 
@@ -27,7 +28,7 @@
          tuple/1, record/2, binary/1, wstring/0]).
 -export([string/0]).
 
-%-include_lib("eunit/include/eunit.hrl").
+
 
 %%% Pickle and unpickle. We accumulate into a list.
 
@@ -134,13 +135,14 @@ list(Len, Elem) ->
 write_list({Len, _}, {Elem, _}, Acc, List) ->
     Acc1 = Len(Acc, length(List)),
     Fun = fun(A, Acc2) -> Elem(Acc2, A) end,
-    lists:foldr(Fun, Acc1, List).
+    lists:foldl(Fun, Acc1, List).
 
 read_list({_, Len}, {_, Elem}, Bin) ->
     {N, Bin1} = Len(Bin),
     read_list(N, [], Elem, Bin1).
 
-read_list(0, Acc, _, Bin) -> {Acc, Bin};
+read_list(0, Acc, _, Bin) -> 
+    {lists:reverse(Acc), Bin};
 read_list(N, Acc, Elem, Bin) ->
     {E, Bin1} = Elem(Bin),
     read_list(N - 1, [E|Acc], Elem, Bin1).
@@ -345,3 +347,20 @@ read_wstring(<<X:16, Bin/binary>>, Acc) ->
 string() ->    
     binary(short()).
 
+%%% Test
+
+-define(pickle(Value, Pickler),
+        fun() ->
+                ?assertEqual(Value, 
+                             unpickle(Pickler,
+                                      list_to_binary(pickle(Pickler, 
+                                                            Value))))
+        end()).
+
+byte_test() ->
+    X = 16#ff,
+    ?pickle(X, byte()).
+
+list_test() ->
+    X = "Wazzup!",
+    ?pickle(X, list(int(), byte())).

@@ -111,7 +111,7 @@ handle_client(Socket, Client) ->
 			io:fwrite("server: Socket disconnected.~n"),
             io:fwrite("server: handle_client - self() -> ~w~n", [self()]),
             io:fwrite("server: handle_client - Client#client.player_pid -> ~w~n", [Client#client.player_pid]),
-            gen_server:cast(Client#client.player_pid, 'LOGOUT'),
+            gen_server:call(Client#client.player_pid, 'LOGOUT'),
     		handle_client(Socket, Client);
     
         {packet, Packet} ->
@@ -123,7 +123,8 @@ handle_client(Socket, Client) ->
 process_login(Client, Socket, Name, Pass) ->
     case login:login(Name, Pass, self()) of
         {error, Error} ->
-            ok = packet:send(Socket, #bad{ cmd = ?CMD_LOGIN, error = Error});
+            ok = packet:send(Socket, #bad{ cmd = ?CMD_LOGIN, error = Error}),
+        	Client;
         {ok, PlayerPID} ->
             io:fwrite("server: process_login - ok.~n"),
             PlayerId = gen_server:call(PlayerPID, 'ID'),
@@ -141,7 +142,7 @@ process_login(Client, Socket, Name, Pass) ->
     end.	
 
 process_logout(Client, _Socket) ->
-    gen_server:cast(Client#client.player_pid, 'LOGOUT'),
+    ok = gen_server:call(Client#client.player_pid, 'LOGOUT'),
 	Client.
 
 process_policy_request(Client, Socket) ->
@@ -169,7 +170,7 @@ process_event(Client, Socket, Event) ->
         Client#client.ready == true ->
             gen_server:cast(Client#client.player_pid, Event);
         true ->
-			gen_server:cast(Client#client.player_pid, 'LOGOUT')
+			ok = gen_server:call(Client#client.player_pid, 'LOGOUT')
     end,
 	Client.
    

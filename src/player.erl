@@ -65,6 +65,7 @@ init([ID])
 
 stop(ProcessId) 
   when is_pid(ProcessId) ->
+    io:fwrite("player - stop player process: ~w~n", [ProcessId]),
     gen_server:cast(ProcessId, stop).
 
 stop(ProcessId, Reason) 
@@ -80,22 +81,6 @@ handle_cast('DISCONNECT', Data) ->
 handle_cast({'SOCKET', Socket}, Data) ->
     Data1 = Data#module_data{ socket = Socket },
     {noreply, Data1};
-
-handle_cast('LOGOUT', Data) ->
-    Self = self(),
-    io:fwrite("player - logout.~n"),
-    
-    %Save explored map to disk
-    save_explored_map(Data#module_data.player_id, Data#module_data.explored_map),
-    
-    %Delete from game
-    GamePID = global:whereis_name(game_pid),
-    io:fwrite("player - LOGOUT  GamePID: ~w~n", [GamePID]),
-  	gen_server:cast(GamePID, {'DELETE_PLAYER', Data#module_data.player_id, Data#module_data.self}),
-    
-    %Stop character and player servers
-    spawn(fun() -> timer:sleep(1000), io:fwrite("spawn - stop player process: ~w~n", [Self]), player:stop(Self) end),
-    {noreply, Data};
 
 handle_cast({'ADD_PERCEPTION', NewPerceptionData}, Data) ->
     Perception = Data#module_data.perception,
@@ -167,19 +152,37 @@ handle_cast(_ = #attack{ id = ArmyId, target_id = TargetId}, Data) ->
     {noreply, Data};
 
 handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
-    
-    InfoList = [],
-    
+        
     case Type of 
         ?OBJECT_ARMY ->
-			Info = gen_server:call(global:whereis_name({army, Id}, {'GET_INFO', Data#module_data.player_id}));                     
+			case gen_server:call(global:whereis_name({army, Id}), {'GET_INFO', Data#module_data.player_id}) of
+                {detailed, HeroInfo, UnitsInfo} ->
+                    R = #info_army { hero = HeroInfo, units = UnitsInfo},
+                    forward_to_client(R, Data);
+                {generic, ArmyInfo} ->
+                    ArmyInfo;
+                {none} ->
+                    ok
+            end;
         ?OBJECT_CITY ->
-            case db:read(city, Id) of
-                [CityInfo] ->
-                    InfoList = gen_server:call(global:whereis_name({city, Id}, {'GET_INFO'}));
-				_ ->
-					ok
-			end 
+            case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
+                {detailed, BuildingInfo} ->
+                    R = #info_city { buildings = BuildingInfo},
+                    forward_to_client(R, Data);
+                {generic, CityInfo} ->
+                    CityInfo;
+                {none} ->
+                    ok
+            end;
+        ?OBJECT_BUILDING ->
+            io:fwrite("player - building:get_info ~n"),
+            case building:get_info(Id, Data#module_data.player_id) of
+                {unit_queue, BuildingType, QueueUnits} ->
+                    R = #info_unit_queue { building_type = BuildingType, queue_units = QueueUnits},
+                    forward_to_client(R, Data);
+                {none} ->
+                    ok
+            end                
     end, 
     
 	{noreply, Data};
@@ -189,6 +192,23 @@ handle_cast(stop, Data) ->
 
 handle_cast({stop, Reason}, Data) ->
     {stop, Reason, Data}.
+
+handle_call('LOGOUT', _From, Data) ->
+    Self = self(),
+    io:fwrite("player - logout.~n"),
+    
+    %Save explored map to disk
+    save_explored_map(Data#module_data.player_id, Data#module_data.explored_map),
+    
+    %Delete from game
+    GamePID = global:whereis_name(game_pid),
+    io:fwrite("player - LOGOUT  GamePID: ~w~n", [GamePID]),
+  	gen_server:cast(GamePID, {'DELETE_PLAYER', Data#module_data.player_id, Data#module_data.self}),
+    
+	%Stop character and player servers
+    spawn(fun() -> timer:sleep(100), io:fwrite("spawn - stop player process: ~w~n", [Self]), player:stop(Self) end),   
+    
+    {reply, ok, Data};
 
 handle_call('ID', _From, Data) ->
     {reply, Data#module_data.player_id, Data};

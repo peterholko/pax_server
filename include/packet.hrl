@@ -52,3 +52,7 @@
 
 -define (CMD_INFO_CITY, 53).
 -record(info_city, {buildings}).
+
+-define (CMD_INFO_UNIT_QUEUE, 55).
+-record(info_unit_queue, {building_type,
+                          queue_units}).

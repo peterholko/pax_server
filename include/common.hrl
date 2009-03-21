@@ -23,3 +23,8 @@
 -define(OBJECT_TILE, 0).
 -define(OBJECT_ARMY, 1).
 -define(OBJECT_CITY, 2).
+-define(OBJECT_BUILDING, 3).
+
+-define(BUILDING_UNIT_LAND, 1).
+-define(BUILDING_UNIT_SEA, 2).
+-define(BUILDING_UNIT_AIR, 3).

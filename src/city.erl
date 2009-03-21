@@ -48,6 +48,24 @@ stop(ProcessId)
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
+handle_call({'GET_INFO', PlayerId}, _From, Data) ->
+	
+	case db:read(city, Data#module_data.city_id) of
+		[City] ->
+            io:fwrite("city - City: ~w~n", [City]),
+			if 
+				City#city.player_id =:= PlayerId ->
+					CityInfo = {detailed, City#city.buildings};
+				true ->
+					CityInfo = {generic, City#city.player_id}
+			end;
+		_ ->
+			CityInfo = {none}
+	end,
+
+    io:fwrite("city - CityInfo: ~w~n", [CityInfo]),
+	{reply, CityInfo , Data};
+
 handle_call({'GET_STATE'}, _From, Data) ->
     [City] = db:dirty_read(city, Data#module_data.city_id),
 	{reply, {City#city.id, City#city.player_id, 1, City#city.state, City#city.x, City#city.y}, Data};

@@ -10,7 +10,7 @@
 
 -include("common.hrl").
 -include("schema.hrl").
--include("packet.hrl").
+
 
 %%
 %% Exported Functions
@@ -118,17 +118,20 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
 	
 	case db:read(army, Data#module_data.army_id) of
 		[Army] ->
+            io:fwrite("army - Army: ~w~n", [Army]),
 			if 
 				Army#army.player_id =:= PlayerId ->
-					Info = unit:unit_info(Data#module_data.army_id);
+					UnitInfo = unit:unit_info(Data#module_data.army_id),
+                    ArmyInfo = {detailed, Army#army.hero, UnitInfo};
 				true ->
-					ok
+					ArmyInfo = {generic, Army#army.player_id}
 			end;
 		_ ->
-			ok
+			ArmyInfo = {none}
 	end,
 
-	{reply, Info , Data};
+    io:fwrite("army - ArmyInfo: ~w~n", [ArmyInfo]),
+	{reply, ArmyInfo , Data};
 
 handle_call({'GET_STATE'}, _From, Data) ->
     [Army] = db:dirty_read(army, Data#module_data.army_id),
