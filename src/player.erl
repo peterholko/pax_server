@@ -157,7 +157,7 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
         ?OBJECT_ARMY ->
 			case gen_server:call(global:whereis_name({army, Id}), {'GET_INFO', Data#module_data.player_id}) of
                 {detailed, HeroInfo, UnitsInfo} ->
-                    R = #info_army { hero = HeroInfo, units = UnitsInfo},
+                    R = #info_army { id = Id, hero = HeroInfo, units = UnitsInfo},
                     forward_to_client(R, Data);
                 {generic, ArmyInfo} ->
                     ArmyInfo;
@@ -166,23 +166,18 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
             end;
         ?OBJECT_CITY ->
             case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
-                {detailed, BuildingInfo} ->
-                    R = #info_city { buildings = BuildingInfo},
+                {detailed, BuildingInfo, LandQueue, SeaQueue, AirQueue} ->
+                    R = #info_city { id = Id, 
+                                     buildings = BuildingInfo, 
+                                     land_queue = LandQueue,
+                                     sea_queue = SeaQueue,
+                                     air_queue = AirQueue },
                     forward_to_client(R, Data);
                 {generic, CityInfo} ->
                     CityInfo;
                 {none} ->
                     ok
-            end;
-        ?OBJECT_BUILDING ->
-            io:fwrite("player - building:get_info ~n"),
-            case building:get_info(Id, Data#module_data.player_id) of
-                {unit_queue, BuildingType, QueueUnits} ->
-                    R = #info_unit_queue { building_type = BuildingType, queue_units = QueueUnits},
-                    forward_to_client(R, Data);
-                {none} ->
-                    ok
-            end                
+            end               
     end, 
     
 	{noreply, Data};

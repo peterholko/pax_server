@@ -44,9 +44,9 @@ start() ->
     % Create schema and load db data
     io:fwrite("Creating schema and loading db data..."),
     db:create_schema(),
-    db:start(),
-    db:reset_game_tables(),
-    db:reset_tables(),
+	db:start(),
+	db:reset_game_tables(),
+	db:reset_tables(),
     
     % Load map data
     io:fwrite("Loading map data...~n"),    

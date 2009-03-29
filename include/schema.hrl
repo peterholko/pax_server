@@ -24,15 +24,26 @@
          	    hero = 0,
             	units = []}).
 
+
+
 -record(hero, {id,
                army_id,
                level}).
 
--record(unit, {id,
+-record(army_unit, {id,
                army_id,
                type_id,
                size,
                hp}).
+
+-record(city_unit, {id,
+               city_id,
+               type_id,
+               size,
+               hp,
+               active,
+               start_time,
+               end_time}).
 
 -record(unit_type, {id,
                     name,
@@ -48,13 +59,16 @@
                	x,
                	y, 
                	state = 0,
-                buildings = []}).
+                buildings = [],
+                units = []}).
 
 -record(building_type, {id,
                         name,
                         type}).
 
--record(unit_queue, {player_id,
+-record(unit_queue, {id,
+                     player_id,
+                     city_id,
                      building_type,
                      unit_type,
                      unit_amount,

@@ -14,7 +14,7 @@
 %%
 %% Exported Functions
 %%
--export([units_speed/1, unit_info/1]).
+%-export([units_speed/1, unit_info/1]).
 
 %%
 %% API Functions

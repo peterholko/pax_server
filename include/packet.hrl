@@ -47,12 +47,13 @@
 -record(info, {info_list}).
 
 -define (CMD_INFO_ARMY, 52).
--record(info_army, {hero,
+-record(info_army, {id,
+                    hero,
 					units}).
 
 -define (CMD_INFO_CITY, 53).
--record(info_city, {buildings}).
-
--define (CMD_INFO_UNIT_QUEUE, 55).
--record(info_unit_queue, {building_type,
-                          queue_units}).
+-record(info_city, {id,
+                    buildings,
+                    land_queue,
+                    sea_queue,
+                    air_queue}).

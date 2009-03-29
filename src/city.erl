@@ -8,7 +8,9 @@
 %% Include files
 %%
 
+-include("common.hrl").
 -include("schema.hrl").
+-include_lib("stdlib/include/qlc.hrl").
 
 %%
 %% Exported Functions
@@ -55,7 +57,12 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             io:fwrite("city - City: ~w~n", [City]),
 			if 
 				City#city.player_id =:= PlayerId ->
-					CityInfo = {detailed, City#city.buildings};
+                    
+                    LandQueue = get_queue(Data#module_data.player_id, ?BUILDING_UNIT_LAND),
+                    SeaQueue = get_queue(Data#module_data.player_id, ?BUILDING_UNIT_SEA),
+                    AirQueue = get_queue(Data#module_data.player_id, ?BUILDING_UNIT_AIR),
+                    
+					CityInfo = {detailed, City#city.buildings, LandQueue, SeaQueue, AirQueue};
 				true ->
 					CityInfo = {generic, City#city.player_id}
 			end;
@@ -68,7 +75,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
 
 handle_call({'GET_STATE'}, _From, Data) ->
     [City] = db:dirty_read(city, Data#module_data.city_id),
-	{reply, {City#city.id, City#city.player_id, 1, City#city.state, City#city.x, City#city.y}, Data};
+	{reply, {City#city.id, City#city.player_id, ?OBJECT_CITY, City#city.state, City#city.x, City#city.y}, Data};
 
 handle_call({'GET_CITY_ID'}, _From, Data) ->
 	{reply, Data#module_data.city_id, Data};
@@ -97,6 +104,57 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 %% Local Functions
 %%
+
+
+
+
+
+
+
+
+
+
+check_queue([], _, _) ->
+    [];
+
+check_queue(Queue, PlayerId, BuildingType) ->
+    [UnitQueue | _] = Queue,
+    {UnitQueueId, UnitType, UnitAmount, StartTime, BuildTime} = UnitQueue,
+    
+    io:fwrite("city - check_queue: ~w~n", [UnitQueue]),
+    
+    CurrentTime = util:now_to_milliseconds(erlang:now()),
+    FinishTime = StartTime + BuildTime,
+    
+    if
+        CurrentTime >= FinishTime ->
+            remove_unit_queue(UnitQueueId),
+            add_unit(UnitType, UnitAmount),
+        	NewQueue = db_queue_info(PlayerId, BuildingType);
+        true ->
+            NewQueue = Queue,
+            ok
+    end,
+    
+    NewQueue.
+
+remove_unit_queue(UnitQueueId) ->
+    db:delete(unit_queue, UnitQueueId).
+
+add_unit(UnitType, UnitAmount) ->
+    ok.
+
+get_queue(PlayerId, BuildingType) -> 
+    Queue = db_queue_info(PlayerId, BuildingType),
+	NewQueue = check_queue(Queue, PlayerId, BuildingType),
+    NewQueue.
+
+db_queue_info(PlayerId, BuildingType) ->
+	db:do(qlc:q([{X#unit_queue.id,
+                  X#unit_queue.unit_type, X#unit_queue.unit_amount, 
+                  X#unit_queue.start_time, X#unit_queue.build_time} || X <- mnesia:table(unit_queue),
+                                                                       X#unit_queue.player_id =:= PlayerId,
+                                                                       X#unit_queue.building_type =:= BuildingType])).
 
 
             

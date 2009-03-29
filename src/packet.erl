@@ -84,10 +84,13 @@ units() ->
 buildings() ->
     list(short(), int()).
 
-building_type() ->
-    byte().
+queue_id() ->
+    id().
 
-queue_unit_amount() ->
+unit_type() ->
+    id().
+
+unit_amount() ->
     int().
 
 start_time() ->
@@ -96,11 +99,17 @@ start_time() ->
 build_time() ->
     int().
 
-queue_unit() ->
-    tuple({id(), queue_unit_amount(), start_time(), build_time()}).
+unit_queue() ->
+    tuple({queue_id(), unit_type(), unit_amount(), start_time(), build_time()}).
 
-queue_units() ->
-    list(building_type(), queue_unit()).
+land_queue() ->
+    list(byte(), unit_queue()).
+
+sea_queue() ->
+    list(byte(), unit_queue()).
+
+air_queue() ->
+    list(byte(), unit_queue()).
 
 % packet records
 
@@ -139,15 +148,17 @@ info() ->
     record(info, {info_list()}).
 
 info_army() ->
-	record(info_army, {hero(),
+	record(info_army, {id(),
+                       hero(),
 					   units()}).
 
 info_city() ->
-    record(info_city, {buildings()}).
+    record(info_city, {id(),
+                       buildings(),
+                       land_queue(),
+                       sea_queue(),
+                       air_queue()}).
 
-info_unit_queue() ->
-    record(info_unit_queue, {building_type(),
-                             queue_units()}).
 
 %%
 %% API Functions
@@ -197,10 +208,7 @@ write(R) when is_record(R, info_army) ->
 	[?CMD_INFO_ARMY|pickle(info_army(), R)];
 
 write(R) when is_record(R, info_city) ->
-	[?CMD_INFO_CITY|pickle(info_city(), R)];
-
-write(R) when is_record(R, info_unit_queue) ->
-    [?CMD_INFO_UNIT_QUEUE|pickle(info_unit_queue(), R)].
+	[?CMD_INFO_CITY|pickle(info_city(), R)].
 
 send(Socket, Data) ->
     io:format("packet: send() - Data ->  ~p~n", [Data]),
