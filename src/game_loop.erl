@@ -36,7 +36,7 @@ loop(LastTime, GamePID) ->
     %Send perceptions
     send_perceptions(PlayerList),
     
-    CurrentTime = util:now_to_milliseconds(erlang:now()),
+    CurrentTime = util:get_time(),
     NextTime = LastTime + ?GAME_LOOP,
 	CalcSleepTime = NextTime - CurrentTime,
 

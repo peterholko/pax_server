@@ -20,6 +20,8 @@
 
 -export([start/2, stop/1]).
 
+-export([db_queue_unit/3]).
+
 -record(module_data, {
           city_id,  
           player_id, 
@@ -50,19 +52,34 @@ stop(ProcessId)
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
+handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize}, _From, Data) ->
+    
+    
+    
+    case db:read(city, Data#module_data.city_id) of
+        [City] ->
+            if
+                City#city.player_id =:= PlayerId ->
+                    db_queue_unit(Data#module_data.city_id, UnitType, UnitSize),
+                    Result = {city, queued_unit};
+                true ->
+                    Result = {city, error}
+            end;
+        _ ->
+            Result = {city, error}
+    end,   
+    
+    {reply, Result, Data};
+
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->
 	
 	case db:read(city, Data#module_data.city_id) of
 		[City] ->
             io:fwrite("city - City: ~w~n", [City]),
 			if 
-				City#city.player_id =:= PlayerId ->
-                    
-                    LandQueue = get_queue(Data#module_data.player_id, ?BUILDING_UNIT_LAND),
-                    SeaQueue = get_queue(Data#module_data.player_id, ?BUILDING_UNIT_SEA),
-                    AirQueue = get_queue(Data#module_data.player_id, ?BUILDING_UNIT_AIR),
-                    
-					CityInfo = {detailed, City#city.buildings, LandQueue, SeaQueue, AirQueue};
+				City#city.player_id =:= PlayerId ->  
+                    UnitInfo = db_unit_info(Data#module_data.city_id),                    
+					CityInfo = {detailed, City#city.buildings, UnitInfo};
 				true ->
 					CityInfo = {generic, City#city.player_id}
 			end;
@@ -105,57 +122,37 @@ code_change(_OldVsn, Data, _Extra) ->
 %% Local Functions
 %%
 
+db_unit_info(CityId) ->
+	db:do(qlc:q([{X#city_unit.id, Y#unit_type.id, X#city_unit.size, 
+                  X#city_unit.start_time, X#city_unit.end_time} || X <- mnesia:table(city_unit),
+															 X#city_unit.city_id =:= CityId,
+                                                             Y <- mnesia:table(unit_type),
+                                                             X#city_unit.type_id =:= Y#unit_type.id])).
 
-
-
-
-
-
-
-
-
-check_queue([], _, _) ->
-    [];
-
-check_queue(Queue, PlayerId, BuildingType) ->
-    [UnitQueue | _] = Queue,
-    {UnitQueueId, UnitType, UnitAmount, StartTime, BuildTime} = UnitQueue,
-    
-    io:fwrite("city - check_queue: ~w~n", [UnitQueue]),
-    
-    CurrentTime = util:now_to_milliseconds(erlang:now()),
-    FinishTime = StartTime + BuildTime,
+db_queue_unit(CityId, UnitType, UnitSize) ->
+    %TODO: Wrap in transaction
+    CurrentTime = util:get_time_seconds(),
+    UnitsInfo = db_unit_info(CityId), 
+    SortedUnits = lists:keysort(5, UnitsInfo),    
+    LastUnit = lists:last(SortedUnits),  
+	{_, _, _, _, EndTime} = LastUnit,
     
     if
-        CurrentTime >= FinishTime ->
-            remove_unit_queue(UnitQueueId),
-            add_unit(UnitType, UnitAmount),
-        	NewQueue = db_queue_info(PlayerId, BuildingType);
+        EndTime > CurrentTime ->
+            StartTime = EndTime;
         true ->
-            NewQueue = Queue,
-            ok
+            StartTime = CurrentTime
     end,
     
-    NewQueue.
-
-remove_unit_queue(UnitQueueId) ->
-    db:delete(unit_queue, UnitQueueId).
-
-add_unit(UnitType, UnitAmount) ->
-    ok.
-
-get_queue(PlayerId, BuildingType) -> 
-    Queue = db_queue_info(PlayerId, BuildingType),
-	NewQueue = check_queue(Queue, PlayerId, BuildingType),
-    NewQueue.
-
-db_queue_info(PlayerId, BuildingType) ->
-	db:do(qlc:q([{X#unit_queue.id,
-                  X#unit_queue.unit_type, X#unit_queue.unit_amount, 
-                  X#unit_queue.start_time, X#unit_queue.build_time} || X <- mnesia:table(unit_queue),
-                                                                       X#unit_queue.player_id =:= PlayerId,
-                                                                       X#unit_queue.building_type =:= BuildingType])).
-
-
+    Unit = #city_unit {id = counter:increment(unit), 
+                       city_id = CityId,
+                       type_id = UnitType,
+                       size = UnitSize,
+                       start_time = StartTime,
+                       end_time = StartTime + 1000},
+    
+    db:write(Unit).
+                       
+                       
             
 

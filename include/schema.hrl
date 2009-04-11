@@ -41,7 +41,6 @@
                type_id,
                size,
                hp,
-               active,
                start_time,
                end_time}).
 

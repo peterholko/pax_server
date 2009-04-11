@@ -13,9 +13,10 @@
 %%
 %% Exported Functions
 %%
--export([unique_list/1,
+-export([get_time/0,
+         get_time_seconds/0,
+         unique_list/1,
          is_process_alive/1, 
-         now_to_milliseconds/1,
          reset_explored_map/0
         ]).
 
@@ -33,9 +34,15 @@ is_process_alive(Pid)
   when is_pid(Pid) ->
     rpc:call(node(Pid), erlang, is_process_alive, [Pid]).
 
-now_to_milliseconds({Megasec, Sec, Microsec}) ->
+get_time() ->
+    {Megasec, Sec, Microsec} = erlang:now(),
     Milliseconds = (Megasec * 1000000000) + (Sec * 1000) + (Microsec div 1000),
     Milliseconds.
+
+get_time_seconds() ->
+    {Megasec, Sec, Microsec} = erlang:now(),
+    Seconds = (Megasec * 1000000) + Sec,
+    Seconds.
 
 reset_explored_map() ->
     Players = db:select_all_players(),

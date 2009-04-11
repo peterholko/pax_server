@@ -55,7 +55,7 @@ start() ->
     % Create game loop
     io:fwrite("Starting game loop...~n"),  
     {ok, GamePid} = game:start(),    
-	TotalMS = util:now_to_milliseconds(erlang:now()), 
+	TotalMS = util:get_time(), 
     spawn(fun() -> game_loop:loop(TotalMS, global:whereis_name(game_pid)) end),
      
     {ok, ListenSocket} = gen_tcp:listen(2345, [binary, {packet, 0},  
@@ -131,9 +131,6 @@ process_login(Client, Socket, Name, Pass) ->
             io:fwrite("server: process_login - PlayerPID -> ~w~n", [PlayerPID]),
             ok = packet:send(Socket, #player_id{ id = PlayerId }),
             
-            ArmiesPid = gen_server:call(PlayerPID, 'GET_ARMIES_PID'),
-            gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID, ArmiesPid}),
-            
 			%io:fwrite("server: process_login - PlayerX -> ~w~n", [CharX]),
     		NewClient = Client#client{ player_pid = PlayerPID },
             io:fwrite("server: process_login - self() -> ~w~n", [self()]),
@@ -161,6 +158,9 @@ process_clientready(Client, Socket) ->
 	ExploredMap = player:get_explored_map(PlayerId),
     io:fwrite("server: process_client_ready() -> ~w~n", [ExploredMap]),
 	ok = packet:send(Socket, #map{tiles = ExploredMap}),
+            
+    ArmiesPid = gen_server:call(PlayerPID, 'GET_ARMIES_PID'),
+    gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID, ArmiesPid}),    
     
     NewClient = Client#client{ ready = true },
 	NewClient.

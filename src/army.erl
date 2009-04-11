@@ -121,7 +121,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             io:fwrite("army - Army: ~w~n", [Army]),
 			if 
 				Army#army.player_id =:= PlayerId ->
-					UnitInfo = unit:unit_info(Data#module_data.army_id),
+					UnitInfo = db_unit_info(Data#module_data.army_id),
                     ArmyInfo = {detailed, Army#army.hero, UnitInfo};
 				true ->
 					ArmyInfo = {generic, Army#army.player_id}
@@ -257,7 +257,16 @@ do_attack(ArmyId, PlayerId, ArmyPid) ->
             ArmySpeed = get_army_speed(ArmyId),
 			gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ArmyPid, ?EVENT_ATTACK, speed_to_ticks(ArmySpeed)})
 
-	end.      
+	end.   
+
+
+get_army_speed(ArmyId) ->
+    %UnitsSpeed = unit:units_speed(ArmyId),
+    5.
+    %lists:max(UnitsSpeed).
+
+speed_to_ticks(Speed) ->
+    Speed * (1000 div ?GAME_LOOP).
 
 db_event_move(ArmyId, NewX, NewY) ->
     io:fwrite("army - db_event_move~n"),
@@ -324,12 +333,11 @@ db_state_none(ArmyId) ->
 		end,
 	mnesia:transaction(F). 
 
-get_army_speed(ArmyId) ->
-    %UnitsSpeed = unit:units_speed(ArmyId),
-    UnitsSpeed = 5.
-    %lists:max(UnitsSpeed).
+db_unit_info(ArmyId) ->	
+	db:do(qlc:q([{X#army_unit.id, Y#unit_type.id, X#army_unit.size} || X <- mnesia:table(army_unit),
+															 X#army_unit.army_id =:= ArmyId,
+                                                             Y <- mnesia:table(unit_type),
+                                                             X#army_unit.type_id =:= Y#unit_type.id])).
 
-speed_to_ticks(Speed) ->
-    Speed * (1000 div ?GAME_LOOP).
     
     

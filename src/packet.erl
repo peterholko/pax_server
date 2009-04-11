@@ -45,9 +45,6 @@ type() ->
 type_name() -> 
     list(short(), byte()).
 
-size() ->
-	int().
-
 x() ->
     short().
 
@@ -75,41 +72,32 @@ info_list() ->
 hero() ->
 	id().
 
-unit() ->
-	tuple({id(), type_name(), size()}).
-
-units() ->
-	list(short(), unit()).
-
-buildings() ->
-    list(short(), int()).
-
-queue_id() ->
-    id().
+unit_size() ->
+	int().
 
 unit_type() ->
-    id().
-
-unit_amount() ->
-    int().
+    short().
 
 start_time() ->
     int().
 
-build_time() ->
+end_time() ->
     int().
 
-unit_queue() ->
-    tuple({queue_id(), unit_type(), unit_amount(), start_time(), build_time()}).
+army_unit() ->
+	tuple({id(), unit_type(), unit_size()}).
 
-land_queue() ->
-    list(byte(), unit_queue()).
+army_units() ->
+	list(short(), army_unit()).
 
-sea_queue() ->
-    list(byte(), unit_queue()).
+buildings() ->
+    list(short(), int()).
 
-air_queue() ->
-    list(byte(), unit_queue()).
+city_unit() ->
+    tuple({id(), unit_type(), unit_size(), start_time(), end_time()}).
+
+city_units() ->
+    list(short(), city_unit()).
 
 % packet records
 
@@ -150,14 +138,17 @@ info() ->
 info_army() ->
 	record(info_army, {id(),
                        hero(),
-					   units()}).
+					   army_units()}).
 
 info_city() ->
     record(info_city, {id(),
                        buildings(),
-                       land_queue(),
-                       sea_queue(),
-                       air_queue()}).
+                       city_units()}).
+
+city_queue_unit() ->
+    record(city_queue_unit, {id(),
+                             unit_type(),
+                             unit_size()}).
 
 
 %%
@@ -187,7 +178,10 @@ read(<<?CMD_ATTACK, Bin/binary>>) ->
 	unpickle(attack(), Bin);
 
 read(<<?CMD_REQUEST_INFO, Bin/binary>>) ->
-	unpickle(request_info(), Bin).
+	unpickle(request_info(), Bin);
+
+read(<<?CMD_CITY_QUEUE_UNIT, Bin/binary>>) ->
+	unpickle(city_queue_unit(), Bin).
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];
