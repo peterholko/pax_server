@@ -40,7 +40,9 @@
 %%
 
 start() ->
+    spawn(fun() -> init() end).    
     
+init() ->
     % Create schema and load db data
     io:fwrite("Creating schema and loading db data..."),
     db:create_schema(),

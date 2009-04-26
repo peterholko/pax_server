@@ -168,10 +168,11 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
             end;
         ?OBJECT_CITY ->
             case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
-                {detailed, BuildingInfo, UnitsInfo} ->
+                {detailed, BuildingInfo, UnitsInfo, UnitsQueueInfo} ->
                     R = #info_city { id = Id, 
                                      buildings = BuildingInfo, 
-                                     units = UnitsInfo},
+                                     units = UnitsInfo,
+                                     units_queue = UnitsQueueInfo},
                     forward_to_client(R, Data);
                 {generic, CityInfo} ->
                     CityInfo;
@@ -193,6 +194,27 @@ handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = Unit
     end,                       
     
 	{noreply, Data};
+
+handle_cast(_ = #transfer_unit{unit_id = UnitId, source_id = SourceId, source_type = SourceType, target_id = TargetId, target_type = TargetType}, Data) ->
+    
+    SourceAtom = object:get_object_atom(SourceType),
+    TargetAtom = object:get_object_atom(TargetType),
+    
+	case gen_server:call(global:whereis_name({SourceAtom, SourceId}), {'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}) of
+        {unit_transfer, success} ->
+            RequestSourceInfo = #request_info{ type = SourceType, id = SourceId},
+            gen_server:cast(self(), RequestSourceInfo),            
+            
+            RequestTargetInfo = #request_info{ type = TargetType, id = TargetId},
+            gen_server:cast(self(), RequestTargetInfo);   
+        	
+        {unit_transfer, incorrect_army} ->
+            ok;
+        {unit_transfer, no_unit} ->
+            ok
+    end,   
+    
+    {noreply, Data};
     
 handle_cast(stop, Data) ->
     {stop, normal, Data};

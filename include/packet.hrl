@@ -54,9 +54,17 @@
 -define (CMD_INFO_CITY, 53).
 -record(info_city, {id,
                     buildings,
-                    units}).
+                    units,
+                    units_queue}).
 
 -define (CMD_CITY_QUEUE_UNIT, 60).
 -record(city_queue_unit, {id,
                           unit_type,
                           unit_size}).
+
+-define (CMD_TRANSFER_UNIT, 61).
+-record(transfer_unit, {unit_id,
+                        source_id,
+                        source_type,
+                        target_id,
+                        target_type}).

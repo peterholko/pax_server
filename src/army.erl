@@ -10,7 +10,7 @@
 
 -include("common.hrl").
 -include("schema.hrl").
-
+-include_lib("stdlib/include/qlc.hrl").
 
 %%
 %% Exported Functions
@@ -114,6 +114,11 @@ handle_cast({'PROCESS_EVENT', EventType}, Data) ->
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
+handle_call({'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}, _From, Data) ->
+    
+    TransferUnitInfo = unit:transfer(Data#module_data.army_id, UnitId, TargetId, TargetAtom),
+	{reply, TransferUnitInfo , Data};
+
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->
 	
 	case db:read(army, Data#module_data.army_id) of
@@ -121,8 +126,12 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             io:fwrite("army - Army: ~w~n", [Army]),
 			if 
 				Army#army.player_id =:= PlayerId ->
-					UnitInfo = db_unit_info(Data#module_data.army_id),
-                    ArmyInfo = {detailed, Army#army.hero, UnitInfo};
+					UnitsInfo = unit:db_units_info(Data#module_data.army_id),
+                    
+                    %Convert record to tuple packet form
+                    UnitsInfoTuple = unit:units_tuple(UnitsInfo),                    
+                    
+                    ArmyInfo = {detailed, Army#army.hero, UnitsInfoTuple};
 				true ->
 					ArmyInfo = {generic, Army#army.player_id}
 			end;
@@ -137,11 +146,14 @@ handle_call({'GET_STATE'}, _From, Data) ->
     [Army] = db:dirty_read(army, Data#module_data.army_id),
 	{reply, {Army#army.id, Army#army.player_id, ?OBJECT_ARMY, Army#army.state, Army#army.x, Army#army.y}, Data};
 
-handle_call({'GET_ARMY_ID'}, _From, Data) ->
+handle_call({'GET_ID'}, _From, Data) ->
 	{reply, Data#module_data.army_id, Data};
 
 handle_call({'GET_PLAYER_ID'}, _From, Data) ->
 	{reply, Data#module_data.player_id, Data};
+
+handle_call({'GET_TYPE'}, _From, Data) ->
+    {reply, ?OBJECT_ARMY, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
@@ -333,11 +345,4 @@ db_state_none(ArmyId) ->
 		end,
 	mnesia:transaction(F). 
 
-db_unit_info(ArmyId) ->	
-	db:do(qlc:q([{X#army_unit.id, Y#unit_type.id, X#army_unit.size} || X <- mnesia:table(army_unit),
-															 X#army_unit.army_id =:= ArmyId,
-                                                             Y <- mnesia:table(unit_type),
-                                                             X#army_unit.type_id =:= Y#unit_type.id])).
-
-    
     

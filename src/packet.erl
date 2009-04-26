@@ -72,6 +72,9 @@ info_list() ->
 hero() ->
 	id().
 
+unit_id() ->
+    id().
+
 unit_size() ->
 	int().
 
@@ -84,20 +87,33 @@ start_time() ->
 end_time() ->
     int().
 
-army_unit() ->
-	tuple({id(), unit_type(), unit_size()}).
+unit() ->
+	tuple({unit_id(), unit_type(), unit_size()}).
 
-army_units() ->
-	list(short(), army_unit()).
+unit_queue() ->
+    tuple({unit_id(), unit_type(), unit_size(), start_time(), end_time()}).
+
+units() ->
+	list(short(), unit()).
 
 buildings() ->
     list(short(), int()).
 
-city_unit() ->
-    tuple({id(), unit_type(), unit_size(), start_time(), end_time()}).
+units_queue() ->
+    list(short(), unit_queue()).
 
-city_units() ->
-    list(short(), city_unit()).
+source_id() ->
+    id().
+
+source_type() ->
+    type().
+
+target_id() ->
+    id().
+
+target_type() ->
+    type().
+
 
 % packet records
 
@@ -138,18 +154,25 @@ info() ->
 info_army() ->
 	record(info_army, {id(),
                        hero(),
-					   army_units()}).
+					   units()}).
 
 info_city() ->
     record(info_city, {id(),
                        buildings(),
-                       city_units()}).
+                       units(),
+                       units_queue()}).
 
 city_queue_unit() ->
     record(city_queue_unit, {id(),
                              unit_type(),
                              unit_size()}).
 
+transfer_unit() ->
+    record(transfer_unit, {unit_id(),
+                           source_id(),
+                           source_type(),
+                           target_id(),
+                           target_type()}).
 
 %%
 %% API Functions
@@ -181,7 +204,10 @@ read(<<?CMD_REQUEST_INFO, Bin/binary>>) ->
 	unpickle(request_info(), Bin);
 
 read(<<?CMD_CITY_QUEUE_UNIT, Bin/binary>>) ->
-	unpickle(city_queue_unit(), Bin).
+	unpickle(city_queue_unit(), Bin);
+
+read(<<?CMD_TRANSFER_UNIT, Bin/binary>>) ->
+	unpickle(transfer_unit(), Bin).
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];

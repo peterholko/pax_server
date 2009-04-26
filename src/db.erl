@@ -36,16 +36,17 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(player, [{disc_copies, [node()]}, {attributes, record_info(fields, player)}]),
     {atomic, ok} = mnesia:create_table(connection, [{disc_copies, [node()]}, {attributes, record_info(fields, connection)}]),
     {atomic, ok} = mnesia:create_table(army, [{disc_copies, [node()]}, {attributes, record_info(fields, army)}]),
-    {atomic, ok} = mnesia:create_table(army_unit, [{disc_copies, [node()]}, {attributes, record_info(fields, army_unit)}]),
+    {atomic, ok} = mnesia:create_table(unit, [{disc_copies, [node()]}, {attributes, record_info(fields, unit)}]),
     {atomic, ok} = mnesia:create_table(unit_type, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_type)}]),
     {atomic, ok} = mnesia:create_table(hero, [{disc_copies, [node()]}, {attributes, record_info(fields, hero)}]),
 	{atomic, ok} = mnesia:create_table(city, [{disc_copies, [node()]}, {attributes, record_info(fields, city)}]),
-    {atomic, ok} = mnesia:create_table(city_unit, [{disc_copies, [node()]}, {attributes, record_info(fields, city_unit)}]),
     {atomic, ok} = mnesia:create_table(building_type, [{disc_copies, [node()]}, {attributes, record_info(fields, building_type)}]),
     {atomic, ok} = mnesia:create_table(unit_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_queue)}]),
     {atomic, ok} = mnesia:create_table(counter, [{disc_copies, [node()]}, {attributes, record_info(fields, counter)}]),
-    
+     
     mnesia:add_table_index(player, name),
+    mnesia:add_table_index(unit, entity_id),
+    mnesia:add_table_index(unit_queue, city_id),
     mnesia:stop().
 
 start() ->
@@ -142,12 +143,12 @@ example_tables() ->
      {army, 5, 4, 15, 2, 0, 0, none, 0, 0, []},
      {army, 6, 5, 25,25, 0, 0, none, 0, 0, []},
      {hero, 1, 1, 1},
-     {army_unit, 1, 1, 1, 100, 1},
-     {army_unit, 2, 1, 2, 10, 1},
-     {army_unit, 3, 5, 1, 50, 1},
-     {army_unit, 4, 6, 1, 25, 1},
-     {city_unit, 1, 11, 1, 100, 1, 1238802911, 1238809911},
-     {city_unit, 2, 11, 2, 500, 1, 1238809911, 1238819911}
+     {unit, 1, 1, 1, 1, 100, 1},
+     {unit, 2, 1, 1, 2, 10, 1},
+     {unit, 3, 5, 1, 1, 50, 1},
+     {unit, 4, 6, 1, 1, 25, 1},
+     {unit, 5, 11, 2, 1, 100, 1},
+     {unit, 6, 11, 2, 2, 500, 1}
     ].
 
 reset_tables() ->

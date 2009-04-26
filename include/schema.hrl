@@ -30,9 +30,10 @@
                army_id,
                level}).
 
--record(army_unit, {id,
-               army_id,
-               type_id,
+-record(unit, {id,
+               entity_id,
+               entity_type,
+               type,
                size,
                hp}).
 
@@ -66,13 +67,11 @@
                         type}).
 
 -record(unit_queue, {id,
-                     player_id,
                      city_id,
-                     building_type,
                      unit_type,
-                     unit_amount,
+                     unit_size,
                      start_time,
-                     build_time}).
+                     end_time}).
 
 
 
