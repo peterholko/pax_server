@@ -22,7 +22,7 @@
                 target,
 				state = 0,			
          	    hero = 0,
-            	units = []}).
+              	battle}).
 
 
 
@@ -37,21 +37,14 @@
                size,
                hp}).
 
--record(city_unit, {id,
-               city_id,
-               type_id,
-               size,
-               hp,
-               start_time,
-               end_time}).
-
 -record(unit_type, {id,
                     name,
                     level,
                     attack,
                     defense,
-					max_hp,
                     speed,
+					max_hp,
+                    movement,
                     cost}).
 
 -record(city, { id,
@@ -72,6 +65,10 @@
                      unit_size,
                      start_time,
                      end_time}).
+
+-record(battle, {id,
+                 armies = []}).
+
 
 
 

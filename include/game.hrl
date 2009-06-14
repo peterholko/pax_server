@@ -10,6 +10,7 @@
                     armies = [],
                     cities = [],
                     npcs = [],
+                    battles = [],
                     objects = [],
                     events = []
                     }).

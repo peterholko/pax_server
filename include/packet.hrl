@@ -48,7 +48,6 @@
 
 -define (CMD_INFO_ARMY, 52).
 -record(info_army, {id,
-                    hero,
 					units}).
 
 -define (CMD_INFO_CITY, 53).
@@ -68,3 +67,26 @@
                         source_type,
                         target_id,
                         target_type}).
+
+-define (CMD_BATTLE_JOINED, 70).
+-record(battle_joined, {battle_id,
+						armies}).
+
+-define (CMD_BATTLE_ADD_ARMY, 71).
+-record(battle_add_army, {battle_id,
+						  army}).
+
+-define (CMD_BATTLE_DAMAGE, 72).
+-record(battle_damage, {battle_id,
+						source_id,
+						target_id,
+						damage}).
+
+-define (CMD_BATTLE_TARGET, 73).
+-record(battle_target, {battle_id,
+						source_army_id,
+                        source_unit_id,
+                        target_army_id,
+                        target_unit_id}).
+
+

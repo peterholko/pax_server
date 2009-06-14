@@ -26,5 +26,5 @@ Status: Data accepted: <<3>>
 packet: read() - clocksync
 server: process_clocksync
 packet: send_clocksync() -  1233468413859
-packet: send() - Data ->  {perception,[{1,2,2,0}]}
-packet: send() -  <<40,1,0,1,0,2,0,2,0,0>>
+		packet: send() - Data ->  {perception,[{1,2,2,0}]}
+		packet: send() -  <<40,1,0,1,0,2,0,2,0,0>>

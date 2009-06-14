@@ -13,12 +13,14 @@
 -define(STATE_MOVE, 1).
 -define(STATE_ATTACK, 2).
 -define(STATE_COMBAT, 3).
+-define(STATE_DEAD, 4).
 
 -define(EVENT_NONE, 0).
 -define(EVENT_MOVE, 1).
 -define(EVENT_ATTACK, 2).
+-define(EVENT_UNIT_ROUND, 3).
 
--define(GAME_LOOP, 200).
+-define(GAME_LOOP_TICK, 200).
 
 -define(OBJECT_TILE, 0).
 -define(OBJECT_ARMY, 1).
@@ -28,3 +30,6 @@
 -define(BUILDING_UNIT_LAND, 1).
 -define(BUILDING_UNIT_SEA, 2).
 -define(BUILDING_UNIT_AIR, 3).
+
+-define(ARMY_DEAD, 0).
+-define(ARMY_ALIVE, 1).
