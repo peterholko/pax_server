@@ -20,7 +20,7 @@
 
 get_object_atom(?OBJECT_ARMY) -> army;
 get_object_atom(?OBJECT_CITY) -> city;
-get_object_atom(Number) -> none.
+get_object_atom(_) -> none.
 
 %%
 %% Local Functions

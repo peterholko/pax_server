@@ -14,43 +14,60 @@
 %%
 %% Exported Functions
 %%
--export([transfer/4, units_tuple/1, units_queue_tuple/1, db_units_info/1]).
+-export([init_units/2, get_unit/2,
+		 units_id/1, units_tuple/1, units_queue_tuple/1]).
 
 %%
 %% API Functions
 %%
-transfer(EntityId, UnitId, TargetId, TargetAtom) ->
-  
-    case db:read(unit, UnitId) of
-        [Unit] ->
-            if
-                EntityId =:= Unit#unit.entity_id ->
-					TargetPlayerId = gen_server:call(global:whereis_name({TargetAtom, TargetId}), {'GET_ID'}),
-                    db_transfer_unit(Unit, TargetId),
-                	TransferUnitInfo = {unit_transfer, success};
-                true ->
-                    TransferUnitInfo = {unit_transfer, incorrect_army}
-            end;
-        _ ->
-            TransferUnitInfo = {unit_transfer, no_unit}
-    end,
 
-	TransferUnitInfo.
+init_units([], DictUnits) ->
+    DictUnits;
+
+init_units(ListUnits, DictUnits) ->
+    [Unit | Rest] = ListUnits,
+    NewDictUnits = dict:store(Unit#unit.id, Unit, DictUnits),
+	init_units(Rest, NewDictUnits).
+
+get_unit(UnitId, Units) ->
+    UnitResult = dict:is_key(UnitId, Units),
+    
+    if
+        UnitResult ->         
+            Unit = dict:fetch(UnitId, Units);
+        true ->
+            Unit = false
+    end,
+    Unit.
+
+units_id([]) ->
+    [];
+    
+units_id(Units) ->
+    F = fun(Unit, UnitList) ->
+                UnitId = Unit#unit.id,
+                [UnitId | UnitList]
+        end,
+    
+    lists:foldl(F, [], Units).
 
 
 units_tuple([]) ->
     [];
 
 units_tuple(Units) ->
-    F = fun(Unit, UnitList) ->
-                UnitTuple = {Unit#unit.id, Unit#unit.type, Unit#unit.size},
-                [UnitTuple | UnitList]
-        end,
-    
-    lists:foldl(F, [], Units).
+	
+	F = fun({UnitId, Unit}, UnitList) ->
+				io:fwrite("unit - units_tuple: ~w~n", [Unit]),
+				UnitTuple = {UnitId, Unit#unit.type, Unit#unit.size},
+				[UnitTuple | UnitList]
+		end,
+	
+	UnitsList = dict:to_list(Units),
+	lists:foldl(F, [], UnitsList).
 
 units_queue_tuple([]) ->
-    [];
+	[];
 units_queue_tuple(UnitsQueue) ->
     
     F = fun(UnitQueue, UnitQueueList) ->
@@ -64,14 +81,3 @@ units_queue_tuple(UnitsQueue) ->
     
     lists:foldl(F, [], UnitsQueue).
 
-db_transfer_unit(Unit, TargetId) ->
-    
-    F = fun() ->                
-			NewUnit = Unit#unit{entity_id = TargetId},
-            mnesia:write(NewUnit)
-        end,
-
-	mnesia:transaction(F). 
-
-db_units_info(EntityId) ->
-	db:index_read(unit, EntityId, #unit.entity_id).

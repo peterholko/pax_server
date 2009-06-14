@@ -20,8 +20,6 @@
 
 -export([start/1, stop/1, stop/2, get_explored_map/1]).
 
-%-export([create/4]).
-
 %%
 %% Records
 %%
@@ -95,20 +93,44 @@ handle_cast({'SEND_PERCEPTION'}, Data) ->
     
     if 
         LastPerception =:= NewPerception ->
-            NewData = Data#module_data{perception = []};
-            %io:fwrite("Perception Unchanged. ~n");
-       
+            NewData = Data#module_data{perception = []};       
 		true ->
             NewData = Data#module_data {last_perception = NewPerception, perception = [] },
             R = #perception {entities = NewPerception,
                              tiles = Data#module_data.discovered_tiles
                             },
-            forward_to_client(R, NewData)
+            forward_to_client(R, NewData),
             
-            %io:fwrite("Perception Modified. ~w~n", [NewPerception])   
+            io:fwrite("Perception Modified. ~w~n", [NewPerception])   
    	end,
     
     {noreply, NewData}; 
+
+handle_cast({'SEND_BATTLE_JOINED', BattleId, Armies}, Data) ->	
+	
+	R = #battle_joined {battle_id = BattleId,
+						armies = Armies},
+	
+	forward_to_client(R, Data),
+    {noreply, Data}; 
+
+handle_cast({'SEND_BATTLE_ADD_ARMY', BattleId, ArmyInfo}, Data) ->
+	
+	R = #battle_add_army {battle_id = BattleId,
+						  army = ArmyInfo},
+	
+	forward_to_client(R, Data),
+	{noreply, Data};
+
+handle_cast({'SEND_BATTLE_DAMAGE', BattleId, SourceId, TargetId, Damage}, Data) ->
+	
+	R = #battle_damage {battle_id = BattleId,
+						source_id = SourceId,
+						target_id = TargetId,
+						damage = Damage},
+	
+	forward_to_client(R, Data),
+	{noreply, Data};
 
 handle_cast({'SET_DISCOVERED_TILES', _, EntityX, EntityY}, Data) ->
 	TileIndexList = map:get_surrounding_tiles(EntityX, EntityY),
@@ -155,17 +177,16 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
         
     case Type of 
         ?OBJECT_ARMY ->
-			case gen_server:call(global:whereis_name({army, Id}), {'GET_INFO', Data#module_data.player_id}) of
-                {detailed, HeroInfo, UnitsInfo} ->
-                    R = #info_army { id = Id, 
-                                     hero = HeroInfo, 
-                                     units = UnitsInfo},
-                    forward_to_client(R, Data);
-                {generic, ArmyInfo} ->
-                    ArmyInfo;
-                {none} ->
-                    ok
-            end;
+			{ArmyId, PlayerId, UnitsInfo} = gen_server:call(global:whereis_name({army, Id}), {'GET_INFO'}),			
+			
+			if
+				Data#module_data.player_id =:= PlayerId ->
+					R = #info_army {id = ArmyId,
+									units = UnitsInfo},
+					forward_to_client(R, Data);
+				true ->
+					PlayerId
+			end;
         ?OBJECT_CITY ->
             case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
                 {detailed, BuildingInfo, UnitsInfo, UnitsQueueInfo} ->
@@ -201,20 +222,40 @@ handle_cast(_ = #transfer_unit{unit_id = UnitId, source_id = SourceId, source_ty
     TargetAtom = object:get_object_atom(TargetType),
     
 	case gen_server:call(global:whereis_name({SourceAtom, SourceId}), {'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}) of
-        {unit_transfer, success} ->
+        {transfer_unit, success} ->
             RequestSourceInfo = #request_info{ type = SourceType, id = SourceId},
             gen_server:cast(self(), RequestSourceInfo),            
             
             RequestTargetInfo = #request_info{ type = TargetType, id = TargetId},
             gen_server:cast(self(), RequestTargetInfo);   
         	
-        {unit_transfer, incorrect_army} ->
-            ok;
-        {unit_transfer, no_unit} ->
-            ok
+        {transfer_unit, error} ->
+            %TODO Add error message
+            io:fwrite("player - transfer unit - failed~n");
+        
+        {receive_unit, error} ->
+            io:fwrite("player - receive unit - failed~n")
+            
     end,   
     
     {noreply, Data};
+
+handle_cast(_ = #battle_target{battle_id = BattleId, 
+							   source_army_id = SourceArmyId,
+							   source_unit_id = SourceUnitId, 
+							   target_army_id = TargetArmyId,
+							   target_unit_id = TargetUnitId}, Data) ->
+    
+    case gen_server:call(global:whereis_name({battle, BattleId}), {'ADD_TARGET', SourceArmyId, SourceUnitId, TargetArmyId, TargetUnitId}) of
+        {battle_target, success} ->
+            ok;
+        {battle_target, error} ->
+            %TODO Add error message
+            ok
+    end,
+    
+    {noreply, Data};
+    
     
 handle_cast(stop, Data) ->
     {stop, normal, Data};

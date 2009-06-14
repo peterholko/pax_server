@@ -21,9 +21,12 @@
 -export([start/2, stop/1]).
 
 -record(module_data, {
-          army_id,    
+          army,  
+          units,       
           player_id, 
-          self
+          self,
+          save_army = false,
+          save_units = []
          }).
 
 %%
@@ -31,16 +34,25 @@
 %%
 
 start(ArmyId, PlayerId) ->
-	gen_server:start({global, {army, ArmyId}}, army, [ArmyId, PlayerId], []).
+	case db:read(army, ArmyId) of
+		[Army] ->
+			gen_server:start({global, {army, ArmyId}}, army, [Army, PlayerId], []);
+		Any ->
+            {error, Any}
+	end.
 
-init([ArmyId, PlayerId]) 
-  when is_integer(ArmyId),
+init([Army, PlayerId]) 
+  when is_tuple(Army),
        is_integer(PlayerId) ->
     process_flag(trap_exit, true),
-    io:fwrite("army - army_id: ~w player_id: ~w~n", [ArmyId, PlayerId]),
-    {ok, #module_data{ army_id = ArmyId, player_id = PlayerId, self = self() }}.
-
-
+    
+    io:fwrite("army - army_id: ~w player_id: ~w~n", [Army#army.id, PlayerId]),  
+    
+    ListUnits = db:index_read(unit, Army#army.id, #unit.entity_id),
+    DictUnits = dict:new(),
+    NewDictUnits = unit:init_units(ListUnits, DictUnits),
+    
+    {ok, #module_data{army = Army, units = NewDictUnits, player_id = PlayerId, self = self()}}.
 
 terminate(_Reason, _) ->
     ok.
@@ -52,102 +64,203 @@ stop(ProcessId)
 handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
     io:fwrite("army - set_state_move ~n"),
     
-    [Army] = db:read(army, Data#module_data.army_id),
-    ArmySpeed = get_army_speed(Data#module_data.army_id),
+    Army = Data#module_data.army,
+    ArmySpeed = get_army_speed(Army#army.id),
     
     if
-        Army#army.state =/= ?STATE_MOVE ->
+        (Army#army.state =/= ?STATE_MOVE) and (Army#army.state =/= ?STATE_COMBAT) ->
+			io:fwrite("army - ArmyId: ~w ArmyState: ~w expression: ~w~n", [Army#army.id, Army#army.state, (Army#army.state =/= ?STATE_MOVE) and (Army#army.state =/= ?STATE_COMBAT)]),
             gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
-        	gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_MOVE, speed_to_ticks(ArmySpeed)});
+        	gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)});
         true ->
             ok
     end,         
     
-    db_state_move(Data#module_data.army_id, DestX, DestY),  
+    NewArmy = state_move(Army, DestX, DestY),  
+    NewData = Data#module_data {army = NewArmy, save_army = true},
     
-    {noreply, Data};
+    {noreply, NewData};
 
 handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     io:fwrite("army - set_state_attack ~n"),
-    [Army] = db:read(army, Data#module_data.army_id),   
-    ArmySpeed = get_army_speed(Data#module_data.army_id),
+    
+    Army = Data#module_data.army,
+    ArmySpeed = get_army_speed(Army#army.id),
     
    	if
-        Army#army.state =/= ?STATE_ATTACK ->
+        (Army#army.state =/= ?STATE_ATTACK) and (Army#army.state =/= ?STATE_COMBAT)->
             gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
-        	gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_ATTACK, speed_to_ticks(ArmySpeed)});
+        	gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)});
         true ->
             ok
     end,         
     
     
-    db_state_attack(Data#module_data.army_id, TargetId), 
+    NewArmy = state_attack(Data#module_data.army, TargetId),
+    NewData = Data#module_data {army = NewArmy, save_army = true},
     
-    {noreply, Data};
+    {noreply, NewData};
 
-handle_cast({'SET_STATE_COMBAT'}, Data) ->
-    
-    gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
-    db_state_combat(Data#module_data.army_id),
-    
-    {noreply, Data};
+handle_cast({'SET_STATE_COMBAT', BattleId}, Data) ->
+	Army = Data#module_data.army,
+	
+    gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),	
+	
+    NewArmy = state_combat(Army, BattleId),
+   	NewData = Data#module_data {army = NewArmy, save_army = true},
+	
+    {noreply, NewData};
 
 handle_cast({'SET_STATE_NONE'}, Data) ->
 
-	db_state_none(Data#module_data.army_id),
+	NewArmy = state_none(Data#module_data.army),
+   	NewData = Data#module_data {army = NewArmy, save_army = true},    
+    
+	{noreply, NewData};	
 
-	{noreply, Data};	
-
-handle_cast({'PROCESS_EVENT', EventType}, Data) ->
+handle_cast({'PROCESS_EVENT', _, EventType}, Data) ->
     
     case EventType of
 		?EVENT_MOVE ->
-            do_move(Data#module_data.army_id, Data#module_data.player_id, Data#module_data.self);
+            NewArmy = do_move(Data#module_data.army, Data#module_data.self),
+            NewData = Data#module_data {army = NewArmy};
         ?EVENT_ATTACK ->
-            do_attack(Data#module_data.army_id, Data#module_data.player_id, Data#module_data.self);
+            NewArmy = do_attack(Data#module_data.army, Data#module_data.self),
+            NewData = Data#module_data {army = NewArmy};
         ?EVENT_NONE ->
-            ok
+            NewData = Data
     end,      
     
-    {noreply, Data};
+    {noreply, NewData};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
+handle_call({'DAMAGE_UNIT', UnitId, Damage}, _From, Data) ->
+
+    Units = Data#module_data.units,
+    Unit = unit:get_unit(UnitId, Units),
+    
+    if
+        Unit =/= none ->
+            
+            [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
+    		TotalHp = Unit#unit.size * UnitType#unit_type.max_hp,
+            Army = Data#module_data.army,
+                                          
+            io:fwrite("Army ~w - Damage: ~w~n", [Army#army.id, Damage]),
+            
+            if
+                Damage >= TotalHp ->
+					io:fwrite("Army ~w - Unit Destroyed.~n", [Army#army.id]),
+                    NewUnits = dict:erase(UnitId, Units);
+                true ->
+                    Killed = Damage div UnitType#unit_type.max_hp,
+                    
+					io:fwrite("Army ~w - Units killed: ~w~n", [Army#army.id, Killed]),
+					
+                    NewSize = Unit#unit.size - Killed,
+                    NewUnit = Unit#unit {size = NewSize},
+					
+					io:fwrite("Army ~w - Units size: ~w~n", [Army#army.id, NewSize]),
+					
+                    NewUnits = dict:store(UnitId, NewUnit, Units)
+            end,
+        						
+        	NewData = Data#module_data {units = NewUnits};
+        true ->
+            NewData = Data
+    end,   
+    
+	ArmyStatus = get_army_status(Data),
+	
+	{reply, ArmyStatus, NewData};
+
 handle_call({'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}, _From, Data) ->
     
-    TransferUnitInfo = unit:transfer(Data#module_data.army_id, UnitId, TargetId, TargetAtom),
-	{reply, TransferUnitInfo , Data};
+    io:fwrite("army - transfer unit.~n"),
+    
+    Units = Data#module_data.units,
+    UnitResult = dict:is_key(UnitId, Units),
+    
+    if
+        UnitResult =/= false ->
+            Unit = dict:fetch(UnitId, Units),
+            
+            case gen_server:call(global:whereis_name({TargetAtom, TargetId}), {'RECEIVE_UNIT', Unit, Data#module_data.player_id}) of
+                {receive_unit, success} ->
+                    NewUnits = dict:erase(UnitId, Units),
+                    NewData = Data#module_data {units = NewUnits, save_army = true},
+                    TransferUnitInfo = {transfer_unit, success};
+                Error ->
+                    TransferUnitInfo = Error,
+                    NewData = Data
+            end;
+        true ->
+            TransferUnitInfo = {transfer_unit, error},
+            NewData = Data
+    end,         		
+    
+	{reply, TransferUnitInfo , NewData};
+                
+handle_call({'RECEIVE_UNIT', Unit, PlayerId}, _From, Data) ->
+    
+    io:fwrite("army - receive unit.~n"),
+    
+    Army = Data#module_data.army,
+    Units = Data#module_data.units,
+    
+    if
+        PlayerId =:= Data#module_data.player_id ->
+            %Check to see if unit already exists
+            UnitResult = dict:is_key(Unit#unit.id, Units),
+                        
+            if
+                UnitResult =:= false ->
+                    
+                    NewUnit = Unit#unit {entity_id = Army#army.id},
+                    NewUnits = dict:store(Unit#unit.id, NewUnit, Units),
+                    NewData = Data#module_data {units = NewUnits, save_army = true},
+            		ReceiveUnitInfo = {receive_unit, success};
+                
+                true ->
+    				NewData = Data,
+                    ReceiveUnitInfo = {receive_unit, error}
+            end;               
+        true ->
+			NewData = Data,
+            ReceiveUnitInfo = {receive_unit, error}
+    end,
+    
+    {reply, ReceiveUnitInfo, NewData};    
 
-handle_call({'GET_INFO', PlayerId}, _From, Data) ->
+handle_call({'GET_INFO'}, _From, Data) ->
 	
-	case db:read(army, Data#module_data.army_id) of
-		[Army] ->
-            io:fwrite("army - Army: ~w~n", [Army]),
-			if 
-				Army#army.player_id =:= PlayerId ->
-					UnitsInfo = unit:db_units_info(Data#module_data.army_id),
-                    
-                    %Convert record to tuple packet form
-                    UnitsInfoTuple = unit:units_tuple(UnitsInfo),                    
-                    
-                    ArmyInfo = {detailed, Army#army.hero, UnitsInfoTuple};
-				true ->
-					ArmyInfo = {generic, Army#army.player_id}
-			end;
-		_ ->
-			ArmyInfo = {none}
-	end,
+    Army = Data#module_data.army,    
+    Units = Data#module_data.units,
+                   
+    %Convert record to tuple packet form
+    UnitsInfoTuple = unit:units_tuple(Units),
+	ArmyInfo = {Army#army.id, Army#army.player_id, UnitsInfoTuple},
 
     io:fwrite("army - ArmyInfo: ~w~n", [ArmyInfo]),
 	{reply, ArmyInfo , Data};
 
+handle_call({'GET_UNITS'}, _From, Data) ->
+    {reply, Data#module_data.units, Data};
+
+handle_call({'GET_UNIT', UnitId}, _From, Data) ->
+    Units = Data#module_data.units,
+    Unit = unit:get_unit(UnitId, Units),
+    {reply, Unit, Data};
+
 handle_call({'GET_STATE'}, _From, Data) ->
-    [Army] = db:dirty_read(army, Data#module_data.army_id),
+    Army = Data#module_data.army,
 	{reply, {Army#army.id, Army#army.player_id, ?OBJECT_ARMY, Army#army.state, Army#army.x, Army#army.y}, Data};
 
 handle_call({'GET_ID'}, _From, Data) ->
-	{reply, Data#module_data.army_id, Data};
+    Army = Data#module_data.army,
+	{reply, Army#army.id, Data};
 
 handle_call({'GET_PLAYER_ID'}, _From, Data) ->
 	{reply, Data#module_data.player_id, Data};
@@ -173,20 +286,50 @@ handle_info(Info, Data) ->
 
 code_change(_OldVsn, Data, _Extra) ->
     {ok, Data}.
+	
 %%
 %% Local Functions
 %%
 
-do_move(ArmyId, PlayerId, ArmyPid) ->
-    [Army] = db:read(army, ArmyId),
+do_move(Army, ArmyPid) ->    
+	{NewArmyX, NewArmyY} = move(Army#army.id, Army#army.player_id, Army#army.x, Army#army.y, Army#army.dest_x, Army#army.dest_y),
+    gen_server:cast(global:whereis_name({player, Army#army.player_id}), {'SET_DISCOVERED_TILES', Army#army.id, NewArmyX, NewArmyY}),
     
-    ArmyX = Army#army.x,
-    ArmyY = Army#army.y,
-    DestX = Army#army.dest_x,
-    DestY = Army#army.dest_y,
+	if	
+        (NewArmyX =:= Army#army.dest_x) and (NewArmyY =:= Army#army.dest_y) ->
+            NewArmy = state_none(Army, NewArmyX, NewArmyY);
+		true ->
+            ArmySpeed = get_army_speed(Army#army.id),
+			gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)}),
+	        NewArmy = event_move(Army, NewArmyX, NewArmyY)
+	end,
     
-    DiffX =  DestX - ArmyX,
-    DiffY =  DestY - ArmyY,
+	NewArmy.
+
+do_attack(Army, ArmyPid) ->    
+    {_, _, _, _, TargetX, TargetY} = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE'}),
+	{NewArmyX, NewArmyY} = move(Army#army.id, Army#army.player_id, Army#army.x, Army#army.y, TargetX, TargetY),
+    
+	if	
+        (NewArmyX =:= TargetX) and (NewArmyY =:= TargetY) -> 
+			
+			BattleId = counter:increment(battle),
+            battle:create(BattleId),
+			gen_server:cast(global:whereis_name({battle, BattleId}), {'SETUP', Army#army.id, Army#army.target}),
+			gen_server:cast(global:whereis_name({army, Army#army.target}), {'SET_STATE_COMBAT', BattleId}),
+			
+            NewArmy = state_combat(Army, BattleId, NewArmyX, NewArmyY);
+		true ->
+            ArmySpeed = get_army_speed(Army#army.id),
+			gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)}),
+			NewArmy = event_move(Army, NewArmyX, NewArmyY)
+	end,
+    
+    NewArmy.
+
+move(ArmyId, PlayerId, ArmyX, ArmyY, DestX, DestY) ->
+    DiffX = DestX - ArmyX,
+    DiffY = DestY - ArmyY,
     
     if
         DiffX > 0 ->
@@ -194,8 +337,7 @@ do_move(ArmyId, PlayerId, ArmyPid) ->
         DiffX < 0 ->
             NewArmyX = ArmyX - 1;
         true ->
-            NewArmyX = ArmyX,
-            ok
+            NewArmyX = ArmyX
 	end,
 
     if
@@ -204,72 +346,11 @@ do_move(ArmyId, PlayerId, ArmyPid) ->
         DiffY < 0 ->
             NewArmyY = ArmyY - 1;
         true ->
-            NewArmyY = ArmyY,
-            ok
+            NewArmyY = ArmyY
     end,
-          
-    Guard1 = (NewArmyX =:= DestX) and (NewArmyY =:= DestY),
-    
-    io:fwrite("army - do_move - NewArmyX: ~w ArmyX: ~w NewArmyY: ~w ArmyY: ~w Guard1: ~w~n", [NewArmyX, ArmyX, NewArmyY, ArmyY, Guard1]),
+              
     gen_server:cast(global:whereis_name({player, PlayerId}), {'SET_DISCOVERED_TILES', ArmyId, NewArmyX, NewArmyY}),
-    
-	if	
-        Guard1 ->
-            db_state_none(ArmyId, NewArmyX, NewArmyY);
-		true ->
-            db_event_move(ArmyId, NewArmyX, NewArmyY),
-            ArmySpeed = get_army_speed(ArmyId),
-			gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ArmyPid, ?EVENT_MOVE, speed_to_ticks(ArmySpeed)})
-
-	end.
-
-do_attack(ArmyId, PlayerId, ArmyPid) ->
-    [Army] = db:read(army, ArmyId),
-    
-    ArmyX = Army#army.x,
-    ArmyY = Army#army.y,
-    TargetId = Army#army.target,
-    
-    {_, _, _, _, TargetX, TargetY} = gen_server:call(global:whereis_name({army, TargetId}), {'GET_STATE'}),
-    
-    DiffX = TargetX - ArmyX,
-    DiffY = TargetY - ArmyY,
-    
-    if
-        DiffX > 0 ->
-            NewArmyX = ArmyX + 1;
-        DiffX < 0 ->
-            NewArmyX = ArmyX - 1;
-        true ->
-            NewArmyX = ArmyX,
-            ok
-	end,
-
-    if
-        DiffY > 0 ->
-            NewArmyY = ArmyY + 1;
-        DiffY < 0 ->
-            NewArmyY = ArmyY - 1;
-        true ->
-            NewArmyY = ArmyY,
-            ok
-    end,
-          
-    Guard1 = (NewArmyX =:= TargetX) and (NewArmyY =:= TargetY),
-    
-    io:fwrite("army - do_attack - NewArmyX: ~w NewArmyY: ~w~n", [NewArmyX, NewArmyY]),
-    gen_server:cast(global:whereis_name({player, PlayerId}), {'SET_DISCOVERED_TILES', ArmyId, NewArmyX, NewArmyY}),
-    
-	if	
-        Guard1 ->
-            gen_server:cast(global:whereis_name({army, TargetId}), {'SET_STATE_COMBAT'}),
-            db_state_combat(ArmyId, NewArmyX, NewArmyY);
-		true ->
-            db_event_move(ArmyId, NewArmyX, NewArmyY),
-            ArmySpeed = get_army_speed(ArmyId),
-			gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ArmyPid, ?EVENT_ATTACK, speed_to_ticks(ArmySpeed)})
-
-	end.   
+	{NewArmyX, NewArmyY}.
 
 
 get_army_speed(ArmyId) ->
@@ -278,71 +359,59 @@ get_army_speed(ArmyId) ->
     %lists:max(UnitsSpeed).
 
 speed_to_ticks(Speed) ->
-    Speed * (1000 div ?GAME_LOOP).
+    Speed * (1000 div ?GAME_LOOP_TICK).
 
-db_event_move(ArmyId, NewX, NewY) ->
+event_move(Army, NewX, NewY) ->
     io:fwrite("army - db_event_move~n"),
-    F = fun() ->
-                [Army] = mnesia:read(army, ArmyId, write),
-                NewArmy = Army#army{x = NewX, 
-                                    y = NewY},
-                mnesia:write(NewArmy)
-		end,
-	mnesia:transaction(F).    
+	Army#army{x = NewX,
+              y = NewY}.  
 
-db_state_move(ArmyId, DestX, DestY) ->
-    F = fun() ->
-                [Army] = mnesia:read(army, ArmyId, write),
-                NewArmy = Army#army{dest_x = DestX, 
-                                    dest_y = DestY,
-                                    state = ?STATE_MOVE},
-                mnesia:write(NewArmy)
-		end,
-	mnesia:transaction(F).
+state_move(Army, DestX, DestY) ->
+    Army#army{dest_x = DestX, 
+    	      dest_y = DestY,
+              state = ?STATE_MOVE}.
 
-db_state_attack(ArmyId, TargetId) ->
-    F = fun() ->
-                [Army] = mnesia:read(army, ArmyId, write),
-                NewArmy = Army#army{state = ?STATE_ATTACK,
-                                    target = TargetId},
-                mnesia:write(NewArmy)
-		end,
-	mnesia:transaction(F). 
 
-db_state_combat(ArmyId) ->
-    F = fun() ->
-                [Army] = mnesia:read(army, ArmyId, write),
-                NewArmy = Army#army{state = ?STATE_COMBAT},
-                mnesia:write(NewArmy)
-		end,
-	mnesia:transaction(F). 
+state_attack(Army, TargetId) ->
+    Army#army{state = ?STATE_ATTACK,
+              target = TargetId}.
 
-db_state_combat(ArmyId, X, Y) ->
-    F = fun() ->
-                [Army] = mnesia:read(army, ArmyId, write),
-                NewArmy = Army#army{state = ?STATE_COMBAT,
-                                    x = X,
-                                    y = Y},
-                mnesia:write(NewArmy)
-		end,
-	mnesia:transaction(F). 
 
-db_state_none(ArmyId, X, Y) ->
-    F = fun() ->
-                [Army] = mnesia:read(army, ArmyId, write),
-                NewArmy = Army#army{state = ?STATE_NONE,
-                                    x = X,
-                                    y = Y},
-                mnesia:write(NewArmy)
-		end,
-	mnesia:transaction(F).   
+state_combat(Army, BattleId) ->
+    Army#army{state = ?STATE_COMBAT,
+			  battle = BattleId}.
 
-db_state_none(ArmyId) ->
-    F = fun() ->
-                [Army] = mnesia:read(army, ArmyId, write),
-                NewArmy = Army#army{state = ?STATE_NONE},
-                mnesia:write(NewArmy)
-		end,
-	mnesia:transaction(F). 
+state_combat(Army, BattleId, X, Y) ->
+	Army#army{state = ?STATE_COMBAT,
+			  battle = BattleId,
+			  x = X,
+              y = Y}.
 
+state_none(Army, X, Y) ->
+    Army#army{state = ?STATE_NONE,
+              x = X,
+              y = Y}.
+
+state_none(Army) ->
+    Army#army{state = ?STATE_NONE}. 
+
+get_army_status(Data) ->
+	
+	NumUnits = dict:size(Data#module_data.units),
+	
+	if
+		NumUnits =:= 0 ->
+			ArmyStatus = ?ARMY_DEAD;
+		true ->
+			ArmyStatus = ?ARMY_ALIVE
+	end,
+
+	ArmyStatus.
+						 
+						
+						
+						
+
+			
+			
     

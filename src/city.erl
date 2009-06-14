@@ -20,12 +20,13 @@
 
 -export([start/2, stop/1]).
 
--export([db_queue_unit/3]).
-
 -record(module_data, {
-          city_id,  
+          city, 
+          units, 
+          units_queue,
           player_id, 
-          self
+          self,
+          save_city = false
          }).
 
 %%
@@ -33,14 +34,26 @@
 %%
 
 start(CityId, PlayerId) ->
-	gen_server:start({global, {city, CityId}}, city, [CityId, PlayerId], []).
+    case db:read(city, CityId) of 
+        [City] ->
+            gen_server:start({global, {city, CityId}}, city, [City, PlayerId], []);
+		Any ->
+    		{error, Any}
+    end.
 
-init([CityId, PlayerId]) 
-  when is_integer(CityId),
+init([City, PlayerId]) 
+  when is_tuple(City),
        is_integer(PlayerId) ->
     process_flag(trap_exit, true),
-    io:fwrite("city - city_id: ~w player_id: ~w~n", [CityId, PlayerId]),
-    {ok, #module_data{ city_id = CityId, player_id = PlayerId, self = self() }}.
+    
+    io:fwrite("city - city_id: ~w player_id: ~w~n", [City#city.id, PlayerId]),
+    ListUnits = db:index_read(unit, City#city.id, #unit.entity_id),
+    DictUnits = dict:new(),
+    NewDictUnits = unit:init_units(ListUnits, DictUnits),
+	
+    UnitQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
+    
+    {ok, #module_data{ city = City, units = NewDictUnits, units_queue = UnitQueue, player_id = PlayerId, self = self() }}.
 
 terminate(_Reason, _) ->
     ok.
@@ -49,64 +62,131 @@ stop(ProcessId)
   when is_pid(ProcessId) ->
     gen_server:cast(ProcessId, stop).
 
+handle_cast({'ADD_UNIT', Unit}, Data) ->
+    
+    Units = Data#module_data.units,
+    NewUnits = [Unit | Units],
+    NewData = Data#module_data {units = NewUnits},
+    
+    {noreply, NewData};
+
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
 handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize}, _From, Data) ->
     
-    case db:read(city, Data#module_data.city_id) of
-        [City] ->
-            if
-                City#city.player_id =:= PlayerId ->
-                    db_queue_unit(Data#module_data.city_id, UnitType, UnitSize),
-                    Result = {city, queued_unit};
-                true ->
-                    Result = {city, error}
-            end;
-        _ ->
-            Result = {city, error}
-    end,   
+    City = Data#module_data.city,
+    UnitsQueue = Data#module_data.units_queue,
     
-    {reply, Result, Data};
+    if
+        City#city.player_id =:= PlayerId ->
+            NewUnitsQueue = queue_unit(City#city.id, UnitsQueue, UnitType, UnitSize),
+            NewData = Data#module_data { units_queue = NewUnitsQueue},
+            Result = {city, queued_unit};
+        true ->
+            NewData = Data,
+            Result = {city, error}
+	end,
+    
+    {reply, Result, NewData};
 
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->
-	
-	case db:read(city, Data#module_data.city_id) of
-		[City] ->
-            io:fwrite("city - City: ~w~n", [City]),
-			if 
-				City#city.player_id =:= PlayerId ->
-                    
-                    %Check if any units are completed
-                    UnitsQueueInfo = get_unit_queue(Data#module_data.city_id),
-                    UnitsInfo = unit:db_units_info(Data#module_data.city_id),             
-                    
-                    %Convert record to tuple packet form
-                    UnitsInfoTuple = unit:units_tuple(UnitsInfo),
-                    UnitsQueueInfoTuple = unit:units_queue_tuple(UnitsQueueInfo),
-                    
-					CityInfo = {detailed, City#city.buildings, UnitsInfoTuple, UnitsQueueInfoTuple};
-				true ->
-					CityInfo = {generic, City#city.player_id}
-			end;
-		_ ->
-			CityInfo = {none}
+
+    City = Data#module_data.city,
+
+	if 
+		City#city.player_id =:= PlayerId ->  
+            %Get UnitsQueue and Units
+            UnitsQueue = Data#module_data.units_queue,
+            Units = Data#module_data.units,
+            
+            %Check if any units are completed
+            {NewUnitsQueue, UnitsToAdd} = check_queue(UnitsQueue),
+            
+            %Add any units from the queue
+            NewUnits = add_units_from_queue(Units, UnitsToAdd),
+            
+            %Assign any changes to module data
+            NewData = Data#module_data {units = NewUnits, units_queue = NewUnitsQueue},
+            
+            %Convert record to tuple packet form
+            UnitsTuple = unit:units_tuple(NewUnits),
+            UnitsQueueTuple = unit:units_queue_tuple(NewUnitsQueue),
+                              
+			CityInfo = {detailed, City#city.buildings, UnitsTuple, UnitsQueueTuple};
+		true ->
+            NewData = Data,
+			CityInfo = {generic, City#city.player_id}
 	end,
 
     io:fwrite("city - CityInfo: ~w~n", [CityInfo]),
-	{reply, CityInfo , Data};
+	{reply, CityInfo , NewData};
 
 handle_call({'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}, _From, Data) ->
     
-    TransferUnitInfo = unit:transfer(Data#module_data.city_id, UnitId, TargetId, TargetAtom),
-	{reply, TransferUnitInfo , Data};
+    io:fwrite("city - transfer unit.~n"),
+    
+    Units = Data#module_data.units,
+    UnitResult = dict:is_key(UnitId, Units),
+    
+    if
+        UnitResult =/= false ->
+            Unit = dict:fetch(UnitId, Units),
+			
+            case gen_server:call(global:whereis_name({TargetAtom, TargetId}), {'RECEIVE_UNIT', Unit, Data#module_data.player_id}) of
+                {receive_unit, success} ->
+                    NewUnits = dict:erase(UnitId, Units),
+                    NewData = Data#module_data {units = NewUnits, save_city = true},
+                    TransferUnitInfo = {transfer_unit, success};
+                Error ->
+                    TransferUnitInfo = Error,
+                    NewData = Data
+            end;
+        true ->
+            TransferUnitInfo = {transfer_unit, error},
+            NewData = Data
+    end,         		
+    
+	{reply, TransferUnitInfo , NewData};
+                
+handle_call({'RECEIVE_UNIT', Unit, PlayerId}, _From, Data) ->
+    
+    io:fwrite("city - receive unit.~n"),
+    
+    City = Data#module_data.city,
+    Units = Data#module_data.units,
+    
+    if
+        PlayerId =:= Data#module_data.player_id ->
+            %Check to see if unit already exists
+            UnitResult = dict:is_key(Unit#unit.id, Units),
+            
+            if
+                UnitResult =:= false ->
+                    
+                    NewUnit = Unit#unit {entity_id = City#city.id},
+                    NewUnits = dict:store(Unit#unit.id, NewUnit, Units),
+                    NewData = Data#module_data {units = NewUnits, save_city = true},
+            		ReceiveUnitInfo = {receive_unit, success};
+                
+                true ->
+    				NewData = Data,
+                    ReceiveUnitInfo = {receive_unit, error}
+            end;               
+        true ->
+			NewData = Data,
+            ReceiveUnitInfo = {receive_unit, error}
+    end,
+    
+    {reply, ReceiveUnitInfo, NewData};   
 
 handle_call({'GET_STATE'}, _From, Data) ->
-    [City] = db:dirty_read(city, Data#module_data.city_id),
+    City = Data#module_data.city,
 	{reply, {City#city.id, City#city.player_id, ?OBJECT_CITY, City#city.state, City#city.x, City#city.y}, Data};
 
 handle_call({'GET_ID'}, _From, Data) ->
-	{reply, Data#module_data.city_id, Data};
+    City = Data#module_data.city,
+	{reply, City#city.id, Data};
 
 handle_call({'GET_PLAYER_ID'}, _From, Data) ->
 	{reply, Data#module_data.player_id, Data};
@@ -136,6 +216,20 @@ code_change(_OldVsn, Data, _Extra) ->
 %% Local Functions
 %%
   
+queue_unit(CityId, UnitsQueue, UnitType, UnitSize) ->
+    CurrentTime = util:get_time_seconds(),
+	StartTime = get_queue_unit_time(UnitsQueue, CurrentTime),   
+	io:fwrite("city - db_queue_unit - StartTime: ~w~n", [StartTime]),
+    
+	UnitQueue = #unit_queue {id = counter:increment(unit_queue),
+                             city_id = CityId,
+                             unit_type = UnitType,
+                             unit_size = UnitSize,
+                             start_time = StartTime,
+                             end_time = StartTime + 30},
+    
+    [UnitQueue | UnitsQueue].
+
 get_queue_unit_time([], CurrentTime) ->
     CurrentTime;
 
@@ -153,22 +247,19 @@ get_queue_unit_time(QueueInfo, CurrentTime) ->
     end,
     StartTime.
 
-get_unit_queue(CityId) ->
-    UnitsQueueInfo = db_units_queue_info(CityId),
-    check_queue(UnitsQueueInfo).
-
 check_queue([]) ->
-    [];
+    {[], []};
 
 check_queue(QueueInfo) ->
     CurrentTime = util:get_time_seconds(),
 
+    io:fwrite("city - check_queue - CurrentTime: ~w~n", [CurrentTime]),  
+    
     F = fun(UnitQueue, UnitsToRemove) ->
                 EndTime = UnitQueue#unit_queue.end_time,
                 
                 if
-                    EndTime =< CurrentTime ->
-                        db_move_unit_queue(UnitQueue),
+                    EndTime =< CurrentTime ->    
                         io:fwrite("city - check_queue - UnitQueue: ~w~n", [UnitQueue]),    
                         NewUnitsToRemove = [UnitQueue | UnitsToRemove];
                     true ->
@@ -182,48 +273,28 @@ check_queue(QueueInfo) ->
     
     NewQueueInfo = QueueInfo -- UnitsToRemove,
     io:fwrite("city - check_queue - UnitsRemoved: ~w~n", [UnitsToRemove]),    
-    NewQueueInfo.
+    {NewQueueInfo, UnitsToRemove}.  
 
-db_units_queue_info(CityId) ->
-    db:index_read(unit_queue, CityId, #unit_queue.city_id).
+add_units_from_queue(Units, []) ->
+    Units;
 
-db_queue_unit(CityId, UnitType, UnitSize) ->
-
-	F = fun() ->
-    			CurrentTime = util:get_time_seconds(),
-    			QueueInfo = mnesia:index_read(unit_queue, CityId, #unit_queue.city_id),
+add_units_from_queue(Units, UnitsToAdd)->
     
-    			StartTime = get_queue_unit_time(QueueInfo, CurrentTime),   
-                io:fwrite("city - db_queue_unit - StartTime: ~w~n", [StartTime]),
+    [UnitQueue | Rest] = UnitsToAdd,
     
-    			UnitQueue = #unit_queue {id = counter:increment(unit_queue), 
-                      					 city_id = CityId,
-                      					 unit_type = UnitType,
-                      					 unit_size = UnitSize,
-										 start_time = StartTime,
-                      					 end_time = StartTime + 30},
-                mnesia:write(UnitQueue)
-        end,
-
-	mnesia:transaction(F).
-
-db_move_unit_queue(UnitQueue) ->
+    Unit = #unit {id = counter:increment(unit),
+                  entity_id = UnitQueue#unit_queue.city_id,
+                  entity_type = ?OBJECT_CITY,
+                  type = UnitQueue#unit_queue.unit_type,
+                  size = UnitQueue#unit_queue.unit_size},
     
-    F = fun() ->
-                mnesia:delete(unit_queue, UnitQueue#unit_queue.id, write),
-                
-                Unit = #unit {id = counter:increment(unit),
-                              entity_id = UnitQueue#unit_queue.city_id,
-                              entity_type = ?OBJECT_CITY,
-                              type = UnitQueue#unit_queue.unit_type,
-                              size = UnitQueue#unit_queue.unit_size},
-                
-                mnesia:write(Unit)
-        end,
+	NewUnits = dict:store(Unit#unit.id, Unit, Units),
+    add_units_from_queue(NewUnits, Rest).
     
-    mnesia:transaction(F).
 
-                
+
+
+          
                         
 
 

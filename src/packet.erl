@@ -18,7 +18,7 @@
 %%
 %% Exported Functions
 %%
--export([read/1, send/2, send_policy/1, send_clocksync/1]).
+-export([read/1, send/2, send_policy/1, send_clocksync/1, battle_joined_test/0, army_info_test/0]).
 
 %%
 %% Local Functions
@@ -114,6 +114,29 @@ target_id() ->
 target_type() ->
     type().
 
+battle_id() ->
+    id().
+
+source_army_id() ->
+	id().
+
+source_unit_id() ->
+	id().
+
+target_army_id() ->
+	id().
+
+target_unit_id() ->
+	id().
+
+armies() ->
+	list(short(), army()).
+
+army() ->
+	tuple({id(), player(), units()}).
+
+damage() ->
+	int().
 
 % packet records
 
@@ -153,7 +176,6 @@ info() ->
 
 info_army() ->
 	record(info_army, {id(),
-                       hero(),
 					   units()}).
 
 info_city() ->
@@ -173,6 +195,27 @@ transfer_unit() ->
                            source_type(),
                            target_id(),
                            target_type()}).
+
+battle_joined() ->
+	record(battle_joined, {battle_id(),
+						   armies()}).
+
+battle_add_army() ->
+	record(battle_add_army, {battle_id(),
+							 army()}).
+
+battle_target() ->
+    record(battle_target, {battle_id(),
+						   source_army_id(),
+						   source_unit_id(),
+                           target_army_id(),
+                           target_unit_id()}).
+
+battle_damage() ->
+	record(battle_damage, {battle_id(),
+						   source_id(),
+						   target_id(),
+						   damage()}).
 
 %%
 %% API Functions
@@ -207,7 +250,10 @@ read(<<?CMD_CITY_QUEUE_UNIT, Bin/binary>>) ->
 	unpickle(city_queue_unit(), Bin);
 
 read(<<?CMD_TRANSFER_UNIT, Bin/binary>>) ->
-	unpickle(transfer_unit(), Bin).
+	unpickle(transfer_unit(), Bin);
+
+read(<<?CMD_BATTLE_TARGET, Bin/binary>>) ->
+	unpickle(battle_target(), Bin).
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];
@@ -228,7 +274,13 @@ write(R) when is_record(R, info_army) ->
 	[?CMD_INFO_ARMY|pickle(info_army(), R)];
 
 write(R) when is_record(R, info_city) ->
-	[?CMD_INFO_CITY|pickle(info_city(), R)].
+	[?CMD_INFO_CITY|pickle(info_city(), R)];
+
+write(R) when is_record(R, battle_joined) ->
+	[?CMD_BATTLE_JOINED|pickle(battle_joined(), R)];
+
+write(R) when is_record(R, battle_add_army) ->
+	[?CMD_BATTLE_ADD_ARMY|pickle(battle_add_army(), R)].
 
 send(Socket, Data) ->
     io:format("packet: send() - Data ->  ~p~n", [Data]),
@@ -280,9 +332,10 @@ send_policy(Socket) ->
 send_clocksync(Socket) ->
     {MegaSec, Sec, MicroSec} = erlang:now(),
     CurrentMS = (MegaSec * 1000000000) + (Sec * 1000) + (MicroSec div 1000), 
-    io:format("packet: send_clocksync() -  ~p~n", [CurrentMS]),
+    io:format("packet: send_clocksync() -  ~p~n", [<<?CMD_CLOCKSYNC, CurrentMS:64>>]),
     case catch gen_tcp:send(Socket, <<?CMD_CLOCKSYNC, CurrentMS:64>>) of
         ok ->
+
             ok;
         {error, closed} ->
             ok;
@@ -299,3 +352,13 @@ send_clocksync(Socket) ->
                                       ])
     end.
 
+%%%%
+army_info_test() ->
+	R = #info_army { id = 1, units = []},
+	Bin = write(R),
+	io:fwrite("R: ~w~n", [Bin]).
+
+battle_joined_test() ->
+	R = {battle_joined,1,[{2,1,[{1,2,3}]}]},
+	Bin = write(R),
+	io:fwrite("R: ~w~n", [Bin]).

@@ -46,9 +46,9 @@ init() ->
     % Create schema and load db data
     io:fwrite("Creating schema and loading db data..."),
     db:create_schema(),
-	db:start(),
-	db:reset_game_tables(),
+	ok = db:start(),
 	db:reset_tables(),
+    db:reset_game_tables(),
     
     % Load map data
     io:fwrite("Loading map data...~n"),    
@@ -154,17 +154,24 @@ process_clocksync(Client, Socket) ->
 	Client.
 
 process_clientready(Client, Socket) ->
-    PlayerPID = Client#client.player_pid,    
-    PlayerId = gen_server:call(PlayerPID, 'ID'),    
     
-	ExploredMap = player:get_explored_map(PlayerId),
-    io:fwrite("server: process_client_ready() -> ~w~n", [ExploredMap]),
-	ok = packet:send(Socket, #map{tiles = ExploredMap}),
+    if
+        Client#client.ready =/= true ->
+            PlayerPID = Client#client.player_pid,    
+    		PlayerId = gen_server:call(PlayerPID, 'ID'),    
+    
+			ExploredMap = player:get_explored_map(PlayerId),
+    		io:fwrite("server: process_client_ready() -> ~w~n", [ExploredMap]),
+			ok = packet:send(Socket, #map{tiles = ExploredMap}),
             
-    ArmiesPid = gen_server:call(PlayerPID, 'GET_ARMIES_PID'),
-    gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID, ArmiesPid}),    
+    		ArmiesPid = gen_server:call(PlayerPID, 'GET_ARMIES_PID'),
+    		gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID, ArmiesPid}),    
     
-    NewClient = Client#client{ ready = true },
+    		NewClient = Client#client{ ready = true };
+        true ->
+            NewClient = Client
+    end,
+    
 	NewClient.
 
 process_event(Client, Socket, Event) ->

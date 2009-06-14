@@ -37,7 +37,7 @@ loop(LastTime, GamePID) ->
     send_perceptions(PlayerList),
     
     CurrentTime = util:get_time(),
-    NextTime = LastTime + ?GAME_LOOP,
+    NextTime = LastTime + ?GAME_LOOP_TICK,
 	CalcSleepTime = NextTime - CurrentTime,
 
     gen_server:cast(GamePID, 'NEXT_TICK'),
@@ -60,13 +60,13 @@ process_events(_, _, []) ->
     ok;
 
 process_events(GamePID, CurrentTick, EventList) ->
-    io:fwrite("game_loop - EventList: ~w CurrentTick: ~w~n", [EventList, CurrentTick]),
+    %io:fwrite("game_loop - EventList: ~w CurrentTick: ~w~n", [EventList, CurrentTick]),
     [Event | Rest] = EventList,
-    {EventId, Pid, Type, EventTick} = Event,
+    {EventId, Pid, Type, EventData, EventTick} = Event,
     
     if
         CurrentTick =:= EventTick ->
-            gen_server:cast(Pid, {'PROCESS_EVENT', Type}),
+            gen_server:cast(Pid, {'PROCESS_EVENT', EventData, Type}),
         	gen_server:cast(GamePID, {'DELETE_EVENT', EventId});
         true ->
             ok
