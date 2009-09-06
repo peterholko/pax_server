@@ -27,33 +27,24 @@
 %%
 
 get_surrounding_tiles(X, Y) ->
-    io:fwrite("player - get_surrounding_tiles x: ~w y: ~w~n",[X,Y]),
-    CenterIndex = Y * ?MAP_HEIGHT + X,
-       
-    T0 = CenterIndex - ?MAP_WIDTH - 1,
-    T1 = CenterIndex - ?MAP_WIDTH,
-    T2 = CenterIndex - ?MAP_WIDTH + 1,
-    T3 = CenterIndex - 1,
-    T4 = CenterIndex,
-    T5 = CenterIndex + 1,
-    T6 = CenterIndex + ?MAP_WIDTH - 1,
-    T7 = CenterIndex + ?MAP_WIDTH,
-    T8 = CenterIndex + ?MAP_WIDTH + 1,
-    
-    TileList = [T0, T1, T2, T3, T4, T5, T6, T7, T8],
+    io:fwrite("map - get_surrounding_tiles x: ~w y: ~w~n",[X,Y]),
+	Tiles2D = surrounding_tiles_2D(X, Y, 1),
+	io:fwrite("map - get_surrounding_tiles Tiles2D: ~w~n",[Tiles2D]),
+	TileList = surrounding_tiles(Tiles2D),
+	io:fwrite("map - get_surrounding_tiles TileList: ~w~n",[TileList]),
 	TileList.
 
 start() ->
 	gen_server:start({global, map_pid}, map, [], []).
 
 init([]) ->
-  
+  	
     EmptyMapData = array:new([{size, ?MAP_NUMTILES}, {default, 0}, {fixed, true}]),
 	{ok, S} = file:open(?MAP_FILENAME, read),
     FilledMapData = populate(0 , ?MAP_NUMTILES, EmptyMapData, S),  
     {ok, #module_data{ map = FilledMapData, self = self() }}.
 
-terminate(_Reason, Data) ->
+terminate(_Reason, _) ->
     ok.
 
 stop(ProcessId) 
@@ -62,25 +53,6 @@ stop(ProcessId)
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
-
-handle_call({'GET_MAP_BLOCK', CoordX, CoordY}, _From, Data) ->
-    MapData = Data#module_data.map,
-    
-    %io:fwrite("map - get_tiles -> MapData: ~w~n", [MapData]),
-    
-    CornerX = (CoordX div ?MAP_BLOCK_WIDTH) * ?MAP_BLOCK_WIDTH,
-    CornerY = (CoordY div ?MAP_BLOCK_HEIGHT) * ?MAP_BLOCK_HEIGHT,    
-    
-    MaxX = CornerX + ?MAP_BLOCK_WIDTH,
-    MaxY = CornerY + ?MAP_BLOCK_HEIGHT,
-    
-    io:fwrite("map - CornerX: ~w CornerY: ~w~n", [CornerX, CornerY]),
-    
-    TileList = tiles_y(MaxY, MaxX, CornerY, CornerX, CornerY, CornerX, [], MapData),
-    
-    io:fwrite("map - get_tiles -> TileList: ~w~n", [TileList]),
-        
-	{reply, {CornerX, CornerY, TileList}, Data};
 
 handle_call({'GET_EXPLORED_MAP', TileIndexList}, _From, Data) ->
     MapData = Data#module_data.map,   
@@ -108,12 +80,6 @@ code_change(_OldVsn, Data, _Extra) ->
     {ok, Data}.
 
 
-
-
-
-
-
-
 %%
 %% Local Functions
 %%
@@ -127,31 +93,6 @@ populate(N, Max, Data, S) ->
      %io:fwrite("populate - head: ~w newdata: ~w~n", [Head, NewData]),
      populate(N + 1, Max, NewData, S).
       
-tiles_y(MaxY, _, _, CornerX, MaxY, CornerX, TileList, _) ->
-    TileList;
-
-tiles_y(MaxY, MaxX, CornerY, CornerX, IndexY, IndexX, TileList, MapData) ->
-    
-    %io:fwrite("tiles_y: ~w ~w MinX:~w~n", [IndexY, IndexX, MaxX]),
-    
-    Index = (IndexY * ?MAP_HEIGHT) + IndexX,
-    NewMaxX = (IndexY * ?MAP_HEIGHT) + MaxX,
-    
-    NewTileList = tiles_x(NewMaxX, Index, TileList, MapData),    
-    
-    tiles_y(MaxY, MaxX, CornerY, CornerX, IndexY + 1, CornerX, NewTileList, MapData).
-
-
-tiles_x(MaxX, MaxX, TileList, _) ->
-    TileList;
-
-tiles_x(MaxX, Index, TileList, MapData) ->
-    
-    Tile = array:get(Index, MapData),   
-    %io:fwrite("tiles_x: ~w ~w ~w~n", [Tile, MaxX, Index]),
-    
-    tiles_x(MaxX, Index + 1, [Tile | TileList], MapData).
-
 get_map_tiles([], MapList, _) ->
     MapList;
 
@@ -159,7 +100,7 @@ get_map_tiles(TileIndexList, MapList, MapData) ->
     [TileIndex | Rest] = TileIndexList,   
     
     if
-        TileIndex > 0 ->
+        TileIndex >= 0 ->
         	Tile = array:get(TileIndex, MapData),    
 			NewMapList = [{TileIndex, Tile} | MapList];
         true ->
@@ -168,27 +109,67 @@ get_map_tiles(TileIndexList, MapList, MapData) ->
 
 	get_map_tiles(Rest, NewMapList , MapData).
     
+convert_coords(X, Y) ->
+	Y * ?MAP_HEIGHT + X.
 
-test_tiles_y(IndexX, _, _, _) ->
-    ok;
+is_valid_coords(X, Y) ->
+	GuardX = (X >= 0) and (X < ?MAP_WIDTH),
+	GuardY = (Y >= 0) and (Y < ?MAP_HEIGHT),
 
-test_tiles_y(IndexX, IndexY, BlockSize, TileList) ->
-    
-   NewTileList = test_tiles_x(IndexX, BlockSize, TileList),
-   
-   test_tiles_y(IndexX, IndexY + 1, BlockSize, NewTileList).
-
-test_tiles_x(BlockSize, BlockSize, TileList) ->
-    TileList;
-
-test_tiles_x(Index, BlockSize, TileList) ->
-    
-    if
-        Index > 0,
-        Index < ?MAP_NUMTILES ->
-     		NewTileList = [Index | TileList];
+	if
+		(GuardX and GuardY) ->
+			Result = true;
 		true ->
-			NewTileList = TileList
+			Result = false
 	end,
-    
-    test_tiles_x(Index + 1, BlockSize, NewTileList).  
+	
+	Result.
+
+surrounding_tiles_2D(X, Y, ViewRange) ->
+	MinX = X - ViewRange,
+	MinY = Y - ViewRange,
+	MaxX = X + ViewRange + 1,
+	MaxY = Y + ViewRange + 1,
+	tiles_y_2D(MinX, MinY, MaxX, MaxY, []).
+
+tiles_y_2D(_, MaxY, _, MaxY, Tiles) ->
+	Tiles;
+
+tiles_y_2D(X, Y, MaxX, MaxY, Tiles) ->
+	
+	%io:fwrite("tiles_y_2D - x: ~w y: ~w MaxX: ~w MaxY: ~w Tiles: ~w~n", [X, Y, MaxX, MaxY, Tiles]),
+	NewTiles = tiles_x_2D(X, Y, MaxX, MaxY, Tiles),
+	tiles_y_2D(X, Y + 1, MaxX, MaxY, NewTiles).
+
+tiles_x_2D(MaxX, _, MaxX, _, Tiles) ->
+	Tiles;
+
+tiles_x_2D(X, Y, MaxX, MaxY, Tiles) ->
+	Tile = {X, Y},
+	NewTiles = [Tile | Tiles],
+	%io:fwrite("tiles_x_2D - x: ~w y: ~w MaxX: ~w MaxY: ~w NewTiles: ~w~n", [X, Y, MaxX, MaxY, NewTiles]),
+	tiles_x_2D(X + 1, Y, MaxX, MaxY, NewTiles).
+						  	
+surrounding_tiles(Tiles2D) ->
+	
+    F = fun(Tile2D, Tiles) ->
+				
+				{X, Y} = Tile2D,
+				ValidTile = is_valid_coords(X, Y),
+				
+				if
+					ValidTile ->
+						Tile = convert_coords(X, Y),
+						NewTiles = [Tile | Tiles];
+					true ->
+						NewTiles = Tiles
+				end,
+				
+				NewTiles
+        end,
+	
+	lists:foldl(F, [], Tiles2D).
+				
+
+
+
