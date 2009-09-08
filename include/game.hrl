@@ -15,9 +15,9 @@
                     events = []
                     }).
 
--record(entity, {
-                 id,
-                 x,
-                 y,
-                 player_id              
-                 }).
+-record(state, { id,
+				 player_id,
+                 type,
+                 state,
+                 x,              
+                 y}).

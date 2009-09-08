@@ -106,9 +106,9 @@ handle_cast({'SEND_PERCEPTION'}, Data) ->
     
     {noreply, NewData}; 
 
-handle_cast({'SEND_BATTLE_JOINED', BattleId, Armies}, Data) ->	
+handle_cast({'SEND_BATTLE_INFO', BattleId, Armies}, Data) ->	
 	
-	R = #battle_joined {battle_id = BattleId,
+	R = #battle_info {battle_id = BattleId,
 						armies = Armies},
 	
 	forward_to_client(R, Data),
@@ -199,7 +199,16 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
                     CityInfo;
                 {none} ->
                     ok
-            end               
+            end;
+		?OBJECT_BATTLE ->
+			case gen_server:call(global:whereis_name({battle, Id}), {'GET_INFO', Data#module_data.player_id}) of
+				{detailed, BattleId, Armies} ->
+					R = #battle_info { battle_id = BattleId,
+									   armies = Armies},
+					forward_to_client(R, Data);
+				{generic, BattleId} ->
+					BattleId
+			end
     end, 
     
 	{noreply, Data};

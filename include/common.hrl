@@ -26,6 +26,7 @@
 -define(OBJECT_ARMY, 1).
 -define(OBJECT_CITY, 2).
 -define(OBJECT_BUILDING, 3).
+-define(OBJECT_BATTLE, 4).
 
 -define(BUILDING_UNIT_LAND, 1).
 -define(BUILDING_UNIT_SEA, 2).
@@ -33,3 +34,5 @@
 
 -define(ARMY_DEAD, 0).
 -define(ARMY_ALIVE, 1).
+
+-define(PLAYER_NONE, -1).

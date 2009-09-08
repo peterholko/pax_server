@@ -67,7 +67,9 @@
                      end_time}).
 
 -record(battle, {id,
-                 armies = []}).
+                 armies = [],
+				 x,
+				 y}).
 
 
 

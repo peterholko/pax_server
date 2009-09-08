@@ -68,8 +68,8 @@
                         target_id,
                         target_type}).
 
--define (CMD_BATTLE_JOINED, 70).
--record(battle_joined, {battle_id,
+-define (CMD_BATTLE_INFO, 70).
+-record(battle_info, {battle_id,
 						armies}).
 
 -define (CMD_BATTLE_ADD_ARMY, 71).

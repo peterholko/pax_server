@@ -97,6 +97,18 @@ handle_cast({'CLEAR_EVENTS', Pid}, Data) ->
     NewData = Data#game_info {events = NewEventList},
     {noreply, NewData};
 
+handle_cast({'ADD_BATTLE', BattlePid}, Data) ->
+	BattleList = Data#game_info.battles,
+	NewBattleList = [BattlePid | BattleList],
+	NewData = Data#game_info { battles = NewBattleList},
+	{noreply, NewData};
+
+handle_cast({'DELETE_BATTLE', BattlePid}, Data) ->
+	BattleList = Data#game_info.battles,
+	NewBattleList = lists:delete(BattlePid, BattleList),
+	NewData = Data#game_info { battles = NewBattleList},
+	{noreply, NewData};
+
 handle_cast('NEXT_TICK', Data) ->
     NextTick = Data#game_info.tick + 1,
     NewData = Data#game_info { tick = NextTick},
@@ -116,10 +128,13 @@ handle_call('GET_CITIES', _From, Data) ->
 	{reply, Data#game_info.cities, Data};
 
 handle_call('GET_OBJECTS', _From, Data) ->
-    {reply, Data#game_info.armies ++ Data#game_info.cities, Data};
+    {reply, Data#game_info.armies ++ Data#game_info.cities ++ Data#game_info.battles, Data};
 
 handle_call('GET_ENTITIES', _From, Data) ->
 	{reply, Data#game_info.entities, Data};
+
+handle_call('GET_BATTLES', _From, Data) ->
+	{reply, Data#game_info.battles, Data};
 
 handle_call('GET_EVENTS', _From, Data) ->
 	{reply, Data#game_info.events, Data};    

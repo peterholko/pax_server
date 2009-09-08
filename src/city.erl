@@ -8,6 +8,7 @@
 %% Include files
 %%
 
+-include("game.hrl").
 -include("common.hrl").
 -include("schema.hrl").
 -include_lib("stdlib/include/qlc.hrl").
@@ -182,7 +183,15 @@ handle_call({'RECEIVE_UNIT', Unit, PlayerId}, _From, Data) ->
 
 handle_call({'GET_STATE'}, _From, Data) ->
     City = Data#module_data.city,
-	{reply, {City#city.id, City#city.player_id, ?OBJECT_CITY, City#city.state, City#city.x, City#city.y}, Data};
+	
+	State = #state {id = City#city.id,
+					player_id = City#city.player_id,
+					type = ?OBJECT_CITY,
+					state = City#city.state,
+					x = City#city.x,
+					y = City#city.y},
+	
+	{reply, State, Data};
 
 handle_call({'GET_ID'}, _From, Data) ->
     City = Data#module_data.city,

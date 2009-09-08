@@ -74,6 +74,9 @@ process_events(GamePID, CurrentTick, EventList) ->
     
     process_events(GamePID, CurrentTick, Rest).
 
+
+
+
 perceptions([], []) ->
     ok;
 
@@ -83,16 +86,9 @@ perceptions([], _) ->
 perceptions(EntityList, ObjectList) ->
     [EntityPid | Rest] = EntityList,   
     
-    {EntityId, 
-     EntityPlayerId, 
-     EntityType, 
-     EntityState, 
-     EntityX, 
-     EntityY} = gen_server:call(EntityPid, {'GET_STATE'}),
-    
-    EntityPlayerId = gen_server:call(EntityPid, {'GET_PLAYER_ID'}),
-    
-    build_perception({EntityX, EntityY, EntityPlayerId}, ObjectList, []),
+	EntityState = gen_server:call(EntityPid, {'GET_STATE'}),
+	
+    build_perception({EntityState#state.x, EntityState#state.y, EntityState#state.player_id}, ObjectList, []),
     
     perceptions(Rest, ObjectList).
     
@@ -104,17 +100,22 @@ build_perception(EntityInfo, ObjectList, Perception) ->
     {EntityX, EntityY, _} = EntityInfo,    
     
     [ObjectPid | Rest] = ObjectList,
-	{Id, PlayerId, Type, State, X, Y} = gen_server:call(ObjectPid, {'GET_STATE'}),
+	State = gen_server:call(ObjectPid, {'GET_STATE'}),
    
-    DiffX = EntityX - X,
-    DiffY = EntityY - Y,
+    DiffX = EntityX - State#state.x,
+    DiffY = EntityY - State#state.y,
     
     Diff = (DiffX * DiffX) + (DiffY * DiffY),
        
     if
         Diff < 50 ->
 			
-			NewPerception = [{Id, PlayerId, Type, State, X, Y} | Perception];
+			NewPerception = [{State#state.id, 
+							  State#state.player_id, 
+							  State#state.type, 
+							  State#state.state, 
+							  State#state.x, 
+							  State#state.y} | Perception];
 		true ->
             NewPerception = Perception
 	end,        

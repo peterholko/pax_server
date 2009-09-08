@@ -39,10 +39,10 @@ start() ->
 
 init([]) ->
   	
-    EmptyMapData = array:new([{size, ?MAP_NUMTILES}, {default, 0}, {fixed, true}]),
-	{ok, S} = file:open(?MAP_FILENAME, read),
-    FilledMapData = populate(0 , ?MAP_NUMTILES, EmptyMapData, S),  
-    {ok, #module_data{ map = FilledMapData, self = self() }}.
+	map_port:start(),
+	map_port:load(),
+	
+    {ok, #module_data{ self = self() }}.
 
 terminate(_Reason, _) ->
     ok.
@@ -101,7 +101,7 @@ get_map_tiles(TileIndexList, MapList, MapData) ->
     
     if
         TileIndex >= 0 ->
-        	Tile = array:get(TileIndex, MapData),    
+        	Tile = map_port:get(TileIndex),
 			NewMapList = [{TileIndex, Tile} | MapList];
         true ->
     		NewMapList = MapList

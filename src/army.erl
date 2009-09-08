@@ -8,6 +8,7 @@
 %% Include files
 %%
 
+-include("game.hrl").
 -include("common.hrl").
 -include("schema.hrl").
 -include_lib("stdlib/include/qlc.hrl").
@@ -256,7 +257,15 @@ handle_call({'GET_UNIT', UnitId}, _From, Data) ->
 
 handle_call({'GET_STATE'}, _From, Data) ->
     Army = Data#module_data.army,
-	{reply, {Army#army.id, Army#army.player_id, ?OBJECT_ARMY, Army#army.state, Army#army.x, Army#army.y}, Data};
+	
+	State = #state { id = Army#army.id, 
+					 player_id = Army#army.player_id, 
+					 type = ?OBJECT_ARMY,
+					 state = Army#army.state,
+					 x = Army#army.x,
+					 y = Army#army.y},
+	
+	{reply, State, Data};
 
 handle_call({'GET_ID'}, _From, Data) ->
     Army = Data#module_data.army,
@@ -307,14 +316,14 @@ do_move(Army, ArmyPid) ->
 	NewArmy.
 
 do_attack(Army, ArmyPid) ->    
-    {_, _, _, _, TargetX, TargetY} = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE'}),
-	{NewArmyX, NewArmyY} = move(Army#army.id, Army#army.player_id, Army#army.x, Army#army.y, TargetX, TargetY),
+    TargetState = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE'}),
+	{NewArmyX, NewArmyY} = move(Army#army.id, Army#army.player_id, Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
     
 	if	
-        (NewArmyX =:= TargetX) and (NewArmyY =:= TargetY) -> 
+        (NewArmyX =:= TargetState#state.x) and (NewArmyY =:= TargetState#state.y) -> 
 			
 			BattleId = counter:increment(battle),
-            battle:create(BattleId),
+            battle:create(BattleId, TargetState#state.x, TargetState#state.y),
 			gen_server:cast(global:whereis_name({battle, BattleId}), {'SETUP', Army#army.id, Army#army.target}),
 			gen_server:cast(global:whereis_name({army, Army#army.target}), {'SET_STATE_COMBAT', BattleId}),
 			

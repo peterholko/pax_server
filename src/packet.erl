@@ -196,9 +196,9 @@ transfer_unit() ->
                            target_id(),
                            target_type()}).
 
-battle_joined() ->
-	record(battle_joined, {battle_id(),
-						   armies()}).
+battle_info() ->
+	record(battle_info, {battle_id(),
+						 armies()}).
 
 battle_add_army() ->
 	record(battle_add_army, {battle_id(),
@@ -276,11 +276,14 @@ write(R) when is_record(R, info_army) ->
 write(R) when is_record(R, info_city) ->
 	[?CMD_INFO_CITY|pickle(info_city(), R)];
 
-write(R) when is_record(R, battle_joined) ->
-	[?CMD_BATTLE_JOINED|pickle(battle_joined(), R)];
+write(R) when is_record(R, battle_info) ->
+	[?CMD_BATTLE_INFO|pickle(battle_info(), R)];
 
 write(R) when is_record(R, battle_add_army) ->
-	[?CMD_BATTLE_ADD_ARMY|pickle(battle_add_army(), R)].
+	[?CMD_BATTLE_ADD_ARMY|pickle(battle_add_army(), R)];
+
+write(R) when is_record(R, battle_damage) ->
+	[?CMD_BATTLE_DAMAGE|pickle(battle_damage(), R)].
 
 send(Socket, Data) ->
     io:format("packet: send() - Data ->  ~p~n", [Data]),
