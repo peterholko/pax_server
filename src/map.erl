@@ -15,7 +15,7 @@
 -export([init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--export([get_surrounding_tiles/2, start/0, stop/1]).
+-export([get_explored_map/1, get_surrounding_tiles/2, start/0, stop/1]).
 
 -record(module_data, {
           map,   
@@ -25,6 +25,9 @@
 %%
 %% API Functions
 %%
+
+get_explored_map(TileIndexList) ->
+	gen_server:call(global:whereis_name(map_pid), {'GET_EXPLORED_MAP', TileIndexList}).
 
 get_surrounding_tiles(X, Y) ->
     io:fwrite("map - get_surrounding_tiles x: ~w y: ~w~n",[X,Y]),

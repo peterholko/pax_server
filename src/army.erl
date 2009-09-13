@@ -324,7 +324,7 @@ do_attack(Army, ArmyPid) ->
 			
 			BattleId = counter:increment(battle),
             battle:create(BattleId, TargetState#state.x, TargetState#state.y),
-			gen_server:cast(global:whereis_name({battle, BattleId}), {'SETUP', Army#army.id, Army#army.target}),
+			battle:setup(BattleId, Army#army.id, Army#army.target),
 			gen_server:cast(global:whereis_name({army, Army#army.target}), {'SET_STATE_COMBAT', BattleId}),
 			
             NewArmy = state_combat(Army, BattleId, NewArmyX, NewArmyY);

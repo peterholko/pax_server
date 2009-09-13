@@ -135,7 +135,7 @@ handle_cast({'SEND_BATTLE_DAMAGE', BattleId, SourceId, TargetId, Damage}, Data) 
 handle_cast({'SET_DISCOVERED_TILES', _, EntityX, EntityY}, Data) ->
 	TileIndexList = map:get_surrounding_tiles(EntityX, EntityY),
     io:fwrite("player - DISCOVERED_TILES  TileIndexList: ~w~n", [TileIndexList]),
-    TileList = gen_server:call(global:whereis_name(map_pid), {'GET_EXPLORED_MAP', TileIndexList}),
+	TileList = map:get_explored_map(TileIndexList),
     ExploredMap = Data#module_data.explored_map,
     NewExploredMap = ExploredMap ++ TileList,
     NewData = Data#module_data { explored_map = NewExploredMap, discovered_tiles = TileList },
@@ -358,9 +358,8 @@ get_explored_map(PlayerId) ->
 	{_,DetsFile} = dets:open_file(FileName,[{type, set}]),
 	ExploredTileIndex = dets:foldl(fun({X}, List) -> [X | List] end, [], DetsFile),
     dets:close(FileName),
-    io:fwrite("player - get_explored_map  ExploredTileIndex: ~w~n", [ExploredTileIndex]),
-  	ExploredMap = gen_server:call(global:whereis_name(map_pid), {'GET_EXPLORED_MAP', ExploredTileIndex}),
-    
+    io:fwrite("player - get_explored_map  ExploredTileIndex: ~w~n", [ExploredTileIndex]),	
+	ExploredMap = map:get_explored_map(ExploredTileIndex),
     ExploredMap.
 
 save_explored_map(PlayerId, ExploredMap) ->

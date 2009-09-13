@@ -43,19 +43,24 @@ start() ->
     spawn(fun() -> init() end).    
     
 init() ->
+
+	% Start up log4erl
+	application:start(log4erl),
+	log4erl:conf("conf/log4erl.conf"),
+	
     % Create schema and load db data
-    io:fwrite("Creating schema and loading db data..."),
+	log4erl:warn("Creating schema and loading db data..."), 
     db:create_schema(),
 	ok = db:start(),
 	db:reset_tables(),
     db:reset_game_tables(),
     
     % Load map data
-    io:fwrite("Loading map data...~n"),    
-    {ok, MapPid} = map:start(),
+	log4erl:warn("Loading map data..."),  
+    %{ok, MapPid} = map:start(),
        
     % Create game loop
-    io:fwrite("Starting game loop...~n"),  
+	log4erl:warn("Starting game loop...") ,
     {ok, GamePid} = game:start(),    
 	TotalMS = util:get_time(), 
     spawn(fun() -> game_loop:loop(TotalMS, global:whereis_name(game_pid)) end),
@@ -65,7 +70,7 @@ init() ->
 								 {active, once},
                                  {nodelay, true}]),
     Client = #client{ server_pid = self() },
-    io:fwrite("Server listening...~n"),
+	log4erl:warn("Server listening...~n"),
     do_accept(ListenSocket, Client).
 
 %%

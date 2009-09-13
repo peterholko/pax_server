@@ -19,7 +19,7 @@
 -export([init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--export([create/3, start/1, stop/1]).
+-export([create/3, start/1, setup/3, stop/1]).
 
 -record(module_data, {players,
 					  armies,
@@ -43,6 +43,9 @@ create(BattleId, X, Y) ->
 
 start(BattleId) ->
 	gen_server:start({global, {battle, BattleId}}, battle, [BattleId], []).
+
+setup(BattleId, AttackerId, DefenderId) ->
+	gen_server:cast(global:whereis_name({battle, BattleId}), {'SETUP', AttackerId, DefenderId}).
 
 init([BattleId, X, Y])
   when is_integer(BattleId) ->
@@ -71,6 +74,10 @@ terminate(_Reason, _) ->
 stop(ProcessId) 
   when is_pid(ProcessId) ->
     gen_server:cast(ProcessId, stop).
+
+%%
+%% OTP handlers
+%%
 
 handle_cast({'SETUP', AttackerId, DefenderId}, Data) ->
 	
