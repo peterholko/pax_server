@@ -15,13 +15,13 @@ BEAMS=$(ERLS:.erl=.beam)
 # to the end of the line and continue on the next line
 
 # Edit the lines below
-#MODS = army battle city counter db entity  \
-#       game_loop game login map object \
-#       packet pickle player server test \
-#	   unit util
+MODS = army battle city counter db entity  \
+       game_loop game login map object \
+       packet pickle player server test \
+	   unit util
 
 BEAMS = $(ERLS:.erl=.beam)
-MODS = $(BEAMS:.beam=)
+#MODS = $(BEAMS:.beam=)
 
 all:	compile
 
