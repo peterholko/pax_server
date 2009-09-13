@@ -214,8 +214,8 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
 	{noreply, Data};
 
 handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = UnitSize}, Data) ->
-    
-    case gen_server:call(global:whereis_name({city, Id}), {'QUEUE_UNIT', Data#module_data.player_id, UnitType, UnitSize}) of
+	case city:queue_unit(Id, Data#module_data.player_id, UnitType, UnitSize) of
+    %case gen_server:call(global:whereis_name({city, Id}), {'QUEUE_UNIT', Data#module_data.player_id, UnitType, UnitSize}) of
         {city, queued_unit} ->
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = Id},
             gen_server:cast(self(), RequestInfo);

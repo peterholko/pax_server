@@ -19,7 +19,7 @@
 -export([init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--export([start/2, stop/1]).
+-export([start/2, stop/1, queue_unit/4]).
 
 -record(module_data, {
           city, 
@@ -63,6 +63,13 @@ stop(ProcessId)
   when is_pid(ProcessId) ->
     gen_server:cast(ProcessId, stop).
 
+queue_unit(CityId, PlayerId, UnitType, UnitSize) ->
+	gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_UNIT', PlayerId, UnitType, UnitSize}).
+
+%%
+%% OTP handlers
+%%
+
 handle_cast({'ADD_UNIT', Unit}, Data) ->
     
     Units = Data#module_data.units,
@@ -81,7 +88,7 @@ handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize}, _From, Data) ->
     
     if
         City#city.player_id =:= PlayerId ->
-            NewUnitsQueue = queue_unit(City#city.id, UnitsQueue, UnitType, UnitSize),
+            NewUnitsQueue = add_unit_to_queue(City#city.id, UnitsQueue, UnitType, UnitSize),
             NewData = Data#module_data { units_queue = NewUnitsQueue},
             Result = {city, queued_unit};
         true ->
@@ -225,7 +232,7 @@ code_change(_OldVsn, Data, _Extra) ->
 %% Local Functions
 %%
   
-queue_unit(CityId, UnitsQueue, UnitType, UnitSize) ->
+add_unit_to_queue(CityId, UnitsQueue, UnitType, UnitSize) ->
     CurrentTime = util:get_time_seconds(),
 	StartTime = get_queue_unit_time(UnitsQueue, CurrentTime),   
 	io:fwrite("city - db_queue_unit - StartTime: ~w~n", [StartTime]),
