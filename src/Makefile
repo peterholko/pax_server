@@ -27,9 +27,9 @@ all:	compile
 
 compile: ${MODS:%=%.beam}
 
-%.beam: %.erl
-	@echo ">>" compiling: $<
-	@$(ERLC) $<
+#%.beam: %.erl
+#	@echo ">>" compiling: $<
+#	@$(ERLC) $<
 
 clean:
 	rm -rf ../ebin/*.beam erl_crash.dump
