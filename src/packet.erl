@@ -36,6 +36,9 @@ player() ->
 id() ->
     int().
 
+tile_index() ->
+	int().
+
 state() ->
     short().
 
@@ -54,6 +57,9 @@ y() ->
 level() ->
 	short().
 
+improvement_type() ->
+	byte().
+
 entity() ->
     tuple({id(), player(), type(), state(), x(), y()}).
 
@@ -61,10 +67,16 @@ entities() ->
     list(short(), entity()).
 
 tile() ->
-    tuple({int(), byte()}).
+    tuple({tile_index(), byte()}).
 
 tiles() ->
 	list(int(), tile()). 
+
+improvement() ->
+	tuple({tile_index(), byte()}).	
+
+improvements() ->
+	list(short(), improvement()).
 
 info_list() ->
     list(int(), string()).    
@@ -158,7 +170,8 @@ player_id() ->
 
 perception() ->
     record(perception, {entities(),
-                        tiles()}).
+                        tiles(),
+						improvements()}).
 
 map() ->
     record(map, {tiles()}).
@@ -217,6 +230,11 @@ battle_damage() ->
 						   target_id(),
 						   damage()}).
 
+build_improvement() ->
+	record(build_improvement, {improvement_type(),
+							   tile_index(),
+							   source_army_id()}).
+
 %%
 %% API Functions
 %%
@@ -253,7 +271,10 @@ read(<<?CMD_TRANSFER_UNIT, Bin/binary>>) ->
 	unpickle(transfer_unit(), Bin);
 
 read(<<?CMD_BATTLE_TARGET, Bin/binary>>) ->
-	unpickle(battle_target(), Bin).
+	unpickle(battle_target(), Bin);
+
+read(<<?CMD_BUILD_IMPROVEMENT, Bin/binary>>) ->
+	unpickle(build_improvement(), Bin).
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];

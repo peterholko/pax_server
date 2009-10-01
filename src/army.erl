@@ -357,8 +357,7 @@ move(ArmyId, PlayerId, ArmyX, ArmyY, DestX, DestY) ->
         true ->
             NewArmyY = ArmyY
     end,
-              
-    gen_server:cast(global:whereis_name({player, PlayerId}), {'SET_DISCOVERED_TILES', ArmyId, NewArmyX, NewArmyY}),
+                  
 	{NewArmyX, NewArmyY}.
 
 

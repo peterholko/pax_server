@@ -30,7 +30,8 @@
           last_perception = [],
           perception = [],
           explored_map = [], 
-          discovered_tiles = [],     
+          discovered_tiles = [],  
+		  discovered_improvements = [],		    
           self
          }).
 
@@ -59,6 +60,7 @@ init([ID])
                        last_perception = [],
                        explored_map = [],
                        discovered_tiles = [], 
+					   discovered_improvements = [],
                        self = self() }}.
 
 stop(ProcessId) 
@@ -97,7 +99,8 @@ handle_cast({'SEND_PERCEPTION'}, Data) ->
 		true ->
             NewData = Data#module_data {last_perception = NewPerception, perception = [] },
             R = #perception {entities = NewPerception,
-                             tiles = Data#module_data.discovered_tiles
+                             tiles = Data#module_data.discovered_tiles,
+							 improvements = Data#module_data.discovered_improvements
                             },
             forward_to_client(R, NewData),
             
@@ -138,7 +141,11 @@ handle_cast({'SET_DISCOVERED_TILES', _, EntityX, EntityY}, Data) ->
 	TileList = map:get_explored_map(TileIndexList),
     ExploredMap = Data#module_data.explored_map,
     NewExploredMap = ExploredMap ++ TileList,
-    NewData = Data#module_data { explored_map = NewExploredMap, discovered_tiles = TileList },
+	NewDiscoveredImprovements = improvements:get_improvements(TileList),
+	
+    NewData = Data#module_data { explored_map = NewExploredMap, 
+								 discovered_tiles = TileList,
+								 discovered_improvements = NewDiscoveredImprovements},
       
     {noreply, NewData};
 
@@ -264,6 +271,10 @@ handle_cast(_ = #battle_target{battle_id = BattleId,
     end,
     
     {noreply, Data};
+
+handle_cast(_ = #build_improvement{improvement_type = ImprovementType, tile_index = TileIndex, source_army_id = ArmyId}, Data) ->
+
+	
     
     
 handle_cast(stop, Data) ->

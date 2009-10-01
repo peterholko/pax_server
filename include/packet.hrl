@@ -28,7 +28,8 @@
 
 -define(CMD_PERCEPTION, 40).
 -record(perception, {entities,
-                     tiles}).
+                     tiles,
+					 improvements}).
 
 -define (CMD_MOVE, 42).
 -record(move, {id,
@@ -88,5 +89,10 @@
                         source_unit_id,
                         target_army_id,
                         target_unit_id}).
+
+-define(CMD_BUILD_IMPROVEMENT, 100).
+-record(build_improvement, {improvement_type,
+							tile_index,
+							source_army_id}).
 
 
