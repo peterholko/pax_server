@@ -163,7 +163,7 @@ handle_cast({'REMOVE_OBSERVED_BY', EntityId, EntityPid}, Data) ->
 	
 	{noreply, NewData};
 
-handle_cast({'UPDATE_PERCEPTION'}, Data) ->
+handle_cast('UPDATE_PERCEPTION', Data) ->
 	
 	Army = Data#module_data.army,	
 	subscription(Army#army.id, self(), Army#army.x, Army#army.y, Data#module_data.visible, Data#module_data.observed_by),

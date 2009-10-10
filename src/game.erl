@@ -199,7 +199,7 @@ code_change(_OldVsn, Data, _Extra) ->
 entities_perception(Entities) ->
 	
 	F = fun({_EntityId, EntityPid}) ->
-			gen_server:call(EntityPid, {'UPDATE_PERCEPTION'})
+			gen_server:cast(EntityPid, 'UPDATE_PERCEPTION')
 		end,
 	
 	lists:foreach(F, Entities).
