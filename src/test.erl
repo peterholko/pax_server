@@ -23,7 +23,10 @@ run() ->
                                                     {packet,0}]),
     gen_tcp:send(Sock,?CMD_POLICYREQUEST),
     Policy = gen_tcp:recv(Sock,0),
-	io:fwrite("~w~n", [Policy]),	
+	io:fwrite("Test @@ ~w~n", [Policy]),
+	gen_tcp:send(Sock, <<?CMD_LOGIN, "test", "123123">>),
+	Login = gen_tcp:recv(Sock,0),
+	io:fwrite("Test @@ ~w~n", [Login]),
     gen_tcp:close(Sock).
 
 %%
