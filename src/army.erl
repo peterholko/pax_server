@@ -163,6 +163,13 @@ handle_cast({'REMOVE_OBSERVED_BY', EntityId, EntityPid}, Data) ->
 	
 	{noreply, NewData};
 
+handle_cast({'UPDATE_PERCEPTION'}, Data) ->
+	
+	Army = Data#module_data.army,	
+	subscription(Army#army.id, self(), Army#army.x, Army#army.y, Data#module_data.visible, Data#module_data.observed_by),
+
+	{noreply, Data};
+
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
@@ -401,6 +408,18 @@ move(ArmyX, ArmyY, DestX, DestY) ->
 
 subscription(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleList, ObservedByList) ->
 						
+	NewVisibleList = remove_visible_list(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleList),
+	NewObservedByList = remove_observed_by_list(ArmyId, ArmyPid, ArmyX, ArmyY, ObservedByList),
+	
+	ObjectList = gen_server:call(global:whereis_name(game_pid), {'GET_OBJECTS'}),
+	
+	VisibleCandidateList = ObjectList -- NewVisibleList, 
+	ObservedByCandidateList = ObjectList -- NewObservedByList,	
+
+	add_visible_list(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleCandidateList),
+	add_observed_by_list(ArmyId, ArmyPid, ArmyX, ArmyY, ObservedByCandidateList).
+
+remove_visible_list(ArmyId, ArmyPid, ArmyX, ArmyY, Visible) ->	
 	F = fun({EntityId, EntityPid}, VisibleList) ->				
 				Distance = calc_distance(ArmyX, ArmyY, EntityPid),
 				
@@ -415,8 +434,9 @@ subscription(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleList, ObservedByList) ->
 				NewVisibleList
 		end,				
 	
-    NewVisibleList = lists:foldl(F, VisibleList, VisibleList),
+    lists:foldl(F, Visible, Visible).
 
+remove_observed_by_list(ArmyId, ArmyPid, ArmyX, ArmyY, ObservedBy) ->
 	F = fun({EntityId, EntityPid}, ObservedByList) ->				
 				Distance = calc_distance(ArmyX, ArmyY, EntityPid),
 				
@@ -424,20 +444,16 @@ subscription(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleList, ObservedByList) ->
 					Distance >= 50 ->
 						NewObservedByList = lists:delete({EntityId, EntityPid}, ObservedByList),
 						gen_server:cast(ArmyPid, {'REMOVE_OBSERVED_BY', EntityId, EntityPid}),	
-						gen_server:cast(EntityPid, {'REMOVE_VISIBLE', EntityId, EntityPid});										
+						gen_server:cast(EntityPid, {'REMOVE_VISIBLE', ArmyId, ArmyPid});										
 					true ->
 						NewObservedByList = ObservedByList
 				end,
 				NewObservedByList
 		end,				
 	
-    NewObservedByList = lists:foldl(F, ObservedByList, ObservedByList),
-	
-	ObjectList = gen_server:call(global:whereis_name(game_pid), {'GET_OBJECTS'}),
-	
-	VisibleCandidateList = ObjectList -- NewVisibleList, 
-	ObservedByCandidateList = ObjectList -- NewObservedByList,	
+    lists:foldl(F, ObservedBy, ObservedBy).
 
+add_visible_list(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleCandidateList) ->
 	F2 = fun({EntityId, EntityPid}) ->
 				 Distance = calc_distance(ArmyX, ArmyY, EntityPid),				 
 				 
@@ -450,8 +466,9 @@ subscription(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleList, ObservedByList) ->
 				 end
 		 end,
 	
-	lists:foreach(F2, VisibleCandidateList),
+	lists:foreach(F2, VisibleCandidateList).
 
+add_observed_by_list(ArmyId, ArmyPid, ArmyX, ArmyY, ObservedByCandidateList) ->
 	F2 = fun({EntityId, EntityPid}) ->
 				 Distance = calc_distance(ArmyX, ArmyY, EntityPid),				 
 				 

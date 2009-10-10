@@ -57,11 +57,13 @@ init() ->
     
     % Load map data
 	log4erl:info("Loading map data..."),  
-    {ok, MapPid} = map:start(),
+    {ok, _MapPid} = map:start(),
        
     % Create game loop
-	log4erl:info("Starting game loop...") ,
-    {ok, GamePid} = game:start(),    
+	log4erl:info("Starting game process...") ,
+    {ok, _GamePid} = game:start(),
+	{ok} = game:setup_perception(),	
+	
 	TotalMS = util:get_time(), 
     spawn(fun() -> game_loop:loop(TotalMS, global:whereis_name(game_pid)) end),
      

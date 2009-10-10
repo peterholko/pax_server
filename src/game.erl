@@ -13,7 +13,7 @@
 %%
 %% Exported Functions
 %%
--export([start/0, init/1, handle_call/3, handle_cast/2, 
+-export([start/0, setup_perception/0, init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
 %%
@@ -22,6 +22,9 @@
 
 start() ->
 	gen_server:start({global, game_pid}, game, [], []).
+
+setup_perception() ->
+	gen_server:call({global, game_pid}, 'SETUP_PERCEPTION').
 
 init([]) ->
     %% Load armies, cities
@@ -128,6 +131,12 @@ handle_cast('NEXT_TICK', Data) ->
     NewData = Data#game_info { tick = NextTick},
     {noreply, NewData}.
 
+handle_call('SETUP_PERCEPTION', _From, Data) ->
+	
+	entities_perception(Data#game_info.armies),
+		
+	{reply, ok, Data};
+
 handle_call({'IS_PLAYER_ONLINE', PlayerId}, _From, Data) ->	
 	Result = lists:keymember(PlayerId, 2, Data#game_info.players),
 	{reply, Result, Data};
@@ -186,7 +195,14 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 %% Local Functions
 %%
-    
+   
+entities_perception(Entities) ->
+	
+	F = fun({_EntityId, EntityPid}) ->
+			gen_server:call(EntityPid, {'UPDATE_PERCEPTION'})
+		end,
+	
+	lists:foreach(F, Entities).
     
     
 
