@@ -380,8 +380,14 @@ get_initial_perception(PlayerId) ->
 		
 	ArmyVisibleList = entity_visible_list(Armies, army),
 	CityVisibleList = entity_visible_list(Cities, city),
+	
+	io:fwrite("ArmyVisibleList: ~w~n", [ArmyVisibleList]),
+	io:fwrite("CityVisibleList: ~w~n", [CityVisibleList]),
+	
 	EntireVisibleList = ArmyVisibleList ++ CityVisibleList,
 	UniqueVisibleList = lists:usort(EntireVisibleList),
+	
+	io:fwrite("UniqueVisibleList: ~w~n", [UniqueVisibleList]),
 	
 	F = fun({ObjectId, ObjectPid}, PerceptionList) ->
 				State = gen_server:call(ObjectPid, {'GET_STATE', ObjectId}),
@@ -400,7 +406,7 @@ entity_visible_list(EntityList, EntityType) ->
 											  
 	F = fun(EntityId, EveryVisibleList) ->
 				VisibleList = gen_server:call(global:whereis_name({EntityType, EntityId}), {'GET_VISIBLE_LIST'}),
-				[VisibleList | EveryVisibleList]
+				VisibleList ++ EveryVisibleList
 		end,
 	
 	lists:foldl(F, [], EntityList).
