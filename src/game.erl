@@ -38,6 +38,8 @@ init([]) ->
     Armies = lists:foldr(fun({ArmyId,_}, Armies) -> [{ArmyId, global:whereis_name({army, ArmyId})} | Armies] end, [], ArmyIds),
 	Cities = lists:foldr(fun({CityId,_}, Cities) -> [{CityId, global:whereis_name({city, CityId})} | Cities] end, [], CityIds),
 	Battles = lists:foldr(fun(BattleId, Battles) -> [{BattleId, global:whereis_name({battle, BattleId})} | Battles] end, [], BattleIds),
+	
+	improvement:start(),
     
 	Data = #game_info {armies = Armies, cities = Cities, battles = Battles},
 	{ok, Data}.
