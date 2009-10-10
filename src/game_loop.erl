@@ -21,9 +21,7 @@
 
 loop(LastTime, GamePID) ->
     
-    CurrentTick = gen_server:call(GamePID, 'GET_TICK'),
-	EntityList = gen_server:call(GamePID, 'GET_ENTITIES'),    
-	ObjectList = gen_server:call(GamePID, 'GET_OBJECTS'),
+    CurrentTick = gen_server:call(GamePID, 'GET_TICK'), 	
 	EventList = gen_server:call(GamePID, 'GET_EVENTS'),
     PlayerList = gen_server:call(GamePID, 'GET_PLAYERS'),
     
