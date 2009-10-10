@@ -51,7 +51,6 @@ units_id(Units) ->
     
     lists:foldl(F, [], Units).
 
-
 units_tuple([]) ->
     [];
 

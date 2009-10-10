@@ -153,7 +153,7 @@ handle_call({'ADD_TARGET', SourceArmyId, SourceUnitId, TargetArmyId, TargetUnitI
     
     {reply, TargetInfo, NewData};
 
-handle_call({'GET_STATE'}, _From, Data) ->
+handle_call({'GET_STATE', _BattleId}, _From, Data) ->
 	
 	State = #state { id = Data#module_data.battle_id,
 					 player_id = ?PLAYER_NONE,

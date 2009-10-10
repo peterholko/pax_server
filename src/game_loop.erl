@@ -31,7 +31,7 @@ loop(LastTime, GamePID) ->
     process_events(GamePID, CurrentTick, EventList),
     
     %Build simple perception
-	perceptions(EntityList, ObjectList),
+	%perceptions(EntityList, ObjectList),
 
     %Send perceptions
     send_perceptions(PlayerList),
@@ -108,8 +108,7 @@ build_perception(EntityInfo, ObjectList, Perception) ->
     Diff = (DiffX * DiffX) + (DiffY * DiffY),
        
     if
-        Diff < 50 ->
-			
+        Diff < 50 ->			
 			NewPerception = [{State#state.id, 
 							  State#state.player_id, 
 							  State#state.type, 

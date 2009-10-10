@@ -168,9 +168,8 @@ process_clientready(Client, Socket) ->
 			ExploredMap = player:get_explored_map(PlayerId),
     		io:fwrite("server: process_client_ready() -> ~w~n", [ExploredMap]),
 			ok = packet:send(Socket, #map{tiles = ExploredMap}),
-            
-    		ArmiesPid = gen_server:call(PlayerPID, 'GET_ARMIES_PID'),
-    		gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID, ArmiesPid}),    
+                		
+    		gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID}),    
     
     		NewClient = Client#client{ ready = true };
         true ->

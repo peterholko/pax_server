@@ -9,11 +9,14 @@
 -define(MAP_BLOCK_HEIGHT, 7).
 -define(MAP_FILENAME, "map.bin").
 
+-define(STATE_NO_VISION, -1).
 -define(STATE_NONE, 0).
 -define(STATE_MOVE, 1).
 -define(STATE_ATTACK, 2).
 -define(STATE_COMBAT, 3).
 -define(STATE_DEAD, 4).
+-define(STATE_CONSTRUCTING, 5).
+-define(STATE_COMPLETE, 6).
 
 -define(EVENT_NONE, 0).
 -define(EVENT_MOVE, 1).
@@ -27,6 +30,7 @@
 -define(OBJECT_CITY, 2).
 -define(OBJECT_BUILDING, 3).
 -define(OBJECT_BATTLE, 4).
+-define(OBJECT_IMPROVEMENT, 5).
 
 -define(BUILDING_UNIT_LAND, 1).
 -define(BUILDING_UNIT_SEA, 2).

@@ -26,12 +26,13 @@
 
 -record(module_data, {
           player_id,
-          socket = none, 
+          socket = none,  		  
           last_perception = [],
           perception = [],
           explored_map = [], 
           discovered_tiles = [],  
-		  discovered_improvements = [],		    
+		  object_perception = [],	
+		  update_perception = false,	    
           self
          }).
 
@@ -51,16 +52,19 @@ start(Name)
             {error, Any}
     end.
 
-init([ID]) 
-  when is_integer(ID) ->
+init([Id]) 
+  when is_integer(Id) ->
     process_flag(trap_exit, true),
-    ok = create_runtime(ID, self()),
-    {ok, #module_data{ player_id = ID, 
+    ok = create_runtime(Id, self()),
+		
+	ObjectPerception = get_initial_perception(Id),	
+	
+    {ok, #module_data{ player_id = Id, 
+					   object_perception = ObjectPerception,
                        perception = [], 
                        last_perception = [],
                        explored_map = [],
-                       discovered_tiles = [], 
-					   discovered_improvements = [],
+                       discovered_tiles = [], 						   				  
                        self = self() }}.
 
 stop(ProcessId) 
@@ -82,29 +86,29 @@ handle_cast({'SOCKET', Socket}, Data) ->
     Data1 = Data#module_data{ socket = Socket },
     {noreply, Data1};
 
-handle_cast({'ADD_PERCEPTION', NewPerceptionData}, Data) ->
-    Perception = Data#module_data.perception,
-    NewPerception = lists:append(NewPerceptionData, Perception),
-    UniquePerception = util:unique_list(NewPerception),
-    NewData = Data#module_data {perception = UniquePerception},
-    {noreply, NewData};    
+handle_cast({'UPDATE_PERCEPTION'}, Data) ->		
+	{noreply, Data#module_data { update_perception = true} };
+
+handle_cast({'ADD_PERCEPTION', NewPerceptionData}, Data) ->	
+    %Perception = Data#module_data.perception,
+    %NewPerception = lists:append(NewPerceptionData, Perception),
+    %UniquePerception = util:unique_list(NewPerception),
+    %NewData = Data#module_data {perception = UniquePerception},
+	
+    {noreply, Data};    
 
 handle_cast({'SEND_PERCEPTION'}, Data) ->
-  	LastPerception = Data#module_data.last_perception,
-    NewPerception = Data#module_data.perception,
     
     if 
-        LastPerception =:= NewPerception ->
-            NewData = Data#module_data{perception = []};       
-		true ->
-            NewData = Data#module_data {last_perception = NewPerception, perception = [] },
-            R = #perception {entities = NewPerception,
-                             tiles = Data#module_data.discovered_tiles,
-							 improvements = Data#module_data.discovered_improvements
+        Data#module_data.update_perception =:= true ->            
+            NewData = Data#module_data {object_perception = [], update_perception = false },
+            R = #perception {entities = Data#module_data.object_perception,
+                             tiles = Data#module_data.discovered_tiles
                             },
-            forward_to_client(R, NewData),
-            
-            io:fwrite("Perception Modified. ~w~n", [NewPerception])   
+            forward_to_client(R, NewData),            
+            io:fwrite("Perception Modified.~n");
+		true ->
+			NewData = Data
    	end,
     
     {noreply, NewData}; 
@@ -141,11 +145,9 @@ handle_cast({'SET_DISCOVERED_TILES', _, EntityX, EntityY}, Data) ->
 	TileList = map:get_explored_map(TileIndexList),
     ExploredMap = Data#module_data.explored_map,
     NewExploredMap = ExploredMap ++ TileList,
-	NewDiscoveredImprovements = improvements:get_improvements(TileList),
 	
     NewData = Data#module_data { explored_map = NewExploredMap, 
-								 discovered_tiles = TileList,
-								 discovered_improvements = NewDiscoveredImprovements},
+								 discovered_tiles = TileList},
       
     {noreply, NewData};
 
@@ -272,7 +274,7 @@ handle_cast(_ = #battle_target{battle_id = BattleId,
     
     {noreply, Data};
 
-handle_cast(_ = #build_improvement{improvement_type = ImprovementType, tile_index = TileIndex, source_army_id = ArmyId}, Data) ->
+%handle_cast(_ = #build_improvement{improvement_type = ImprovementType, tile_index = TileIndex, source_army_id = ArmyId}, Data) ->
 
 	
     
@@ -307,18 +309,24 @@ handle_call('SOCKET', _From, Data) ->
     {reply, Data#module_data.socket, Data};
 
 handle_call('GET_ARMIES', _From, Data) ->
-    [Player] = db:read(player, Data#module_data.player_id), 
+    [Player] = db:dirty_read(player, Data#module_data.player_id), 
     {reply, Player#player.armies, Data};
 
-handle_call('GET_ARMIES_PID', _From, Data) ->
-    [Player] = db:read(player, Data#module_data.player_id),
+handle_call('GET_ARMIES_ID_PID', _From, Data) ->
+    [Player] = db:dirty_read(player, Data#module_data.player_id),
     Armies = Player#player.armies,
         
-    F = fun(ArmyId, Rest) -> [global:whereis_name({army, ArmyId}) | Rest] end,
-    
-    ArmiesPid = lists:foldl(F, [], Armies),
-	io:fwrite("player - GET_ARMIES_PID  ArmiesPid: ~w~n", [ArmiesPid]),    
-    {reply, ArmiesPid, Data};
+    F = fun(ArmyId, Rest) -> [{ArmyId, global:whereis_name({army, ArmyId})} | Rest] end,
+    ArmiesIdPid = lists:foldl(F, [], Armies),	
+    {reply, ArmiesIdPid, Data};
+
+handle_call('GET_CITIES_ID_PID', _From, Data) ->
+    [Player] = db:dirty_read(player, Data#module_data.player_id),
+    Cities = Player#player.cities,
+        
+    F = fun(CityId, Rest) -> [{CityId, global:whereis_name({city, CityId})} | Rest] end,
+    CitiesIdPid = lists:foldl(F, [], Cities),	
+    {reply, CitiesIdPid, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
@@ -363,6 +371,41 @@ forward_to_client(Event, Data) ->
         true ->
             ok
     end.
+
+get_initial_perception(PlayerId) ->
+	[Player] = db:dirty_read(player, PlayerId),
+	
+	Armies = Player#player.armies,
+	Cities = Player#player.cities,
+		
+	ArmyVisibleList = entity_visible_list(Armies, army),
+	CityVisibleList = entity_visible_list(Cities, city),
+	EntireVisibleList = ArmyVisibleList ++ CityVisibleList,
+	UniqueVisibleList = lists:usort(EntireVisibleList),
+	
+	F = fun({ObjectId, ObjectPid}, PerceptionList) ->
+				State = gen_server:call(ObjectPid, {'GET_STATE', ObjectId}),
+				
+				[State#state.id, 
+				 State#state.player_id, 
+				 State#state.state, 
+				 State#state.type,
+				 State#state.x,
+				 State#state.y | PerceptionList]
+		end,
+	
+	lists:foldl(F, [], UniqueVisibleList).
+	
+entity_visible_list(EntityList, EntityType) ->
+											  
+	F = fun(EntityId, EveryVisibleList) ->
+				VisibleList = gen_server:call(global:whereis_name({EntityType, EntityId}), {'GET_VISIBLE_LIST'}),
+				[VisibleList | EveryVisibleList]
+		end,
+	
+	lists:foldl(F, [], EntityList).
+
+
 
 get_explored_map(PlayerId) ->
   	FileName = "map" ++ integer_to_list(PlayerId) ++ ".dets",

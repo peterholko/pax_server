@@ -7,23 +7,24 @@
 %% Include files
 %%
 
+-include("packet.hrl").
+
 %%
 %% Exported Functions
 %%
--export([start_db/0]).
+-export([run/0]).
 
 %%
 %% API Functions
 %%
 
-start_db() ->
-    % Create schema and load db data
-    io:fwrite("Creating schema and loading db data..."),
-    db:create_schema(),
-	db:start(),
-	db:reset_game_tables(),
-	db:reset_tables().
-
+run() ->
+	{ok,Sock} = gen_tcp:connect("localhost",2345,[{active,false},
+                                                    {packet,0}]),
+    gen_tcp:send(Sock,?CMD_POLICYREQUEST),
+    Policy = gen_tcp:recv(Sock,0),
+	io:fwrite("~w~n", [Policy]),	
+    gen_tcp:close(Sock).
 
 %%
 %% Local Functions

@@ -35,11 +35,11 @@ init([]) ->
     lists:foreach(fun({CityId, PlayerId}) -> city:start(CityId, PlayerId) end, CityIds), 
     lists:foreach(fun(BattleId) -> battle:start(BattleId) end, BattleIds),
     
-    ArmyPids = lists:foldr(fun({X,_}, Pids) -> [global:whereis_name({army, X}) | Pids] end, [], ArmyIds),
-	CityPids = lists:foldr(fun({Y,_}, Pids) -> [global:whereis_name({city, Y}) | Pids] end, [], CityIds),
-	BattlePids = lists:foldr(fun(BattleId, Pids) -> [global:whereis_name({battle, BattleId}) | Pids] end, [], BattleIds),
+    Armies = lists:foldr(fun({ArmyId,_}, Armies) -> [{ArmyId, global:whereis_name({army, ArmyId})} | Armies] end, [], ArmyIds),
+	Cities = lists:foldr(fun({CityId,_}, Cities) -> [{CityId, global:whereis_name({city, CityId})} | Cities] end, [], CityIds),
+	Battles = lists:foldr(fun(BattleId, Battles) -> [{BattleId, global:whereis_name({battle, BattleId})} | Battles] end, [], BattleIds),
     
-	Data = #game_info {armies = ArmyPids, cities = CityPids, battles = BattlePids},
+	Data = #game_info {armies = Armies, cities = Cities, battles = Battles},
 	{ok, Data}.
 
 terminate(_Reason, _) ->
@@ -48,12 +48,20 @@ terminate(_Reason, _) ->
 handle_cast(stop, Data) ->
     {stop, normal, Data};
 
-handle_cast({'ADD_PLAYER', PlayerId, ProcessId, NewEntities}, Data) ->
-	NewPlayer = #player_process{player_id = PlayerId, process = ProcessId},
-
+handle_cast({'ADD_PLAYER', PlayerId, ProcessId}, Data) ->
+	
+	%Toggle perception flag to send first perception
+	gen_server:cast(ProcessId, 'UPDATE_PERCEPTION'),
+	
+	ArmiesIdPid = gen_server:call(ProcessId, 'GET_ARMIES_ID_PID'),
+	CitiesIdPid = gen_server:call(ProcessId, 'GET_CITIES_ID_PID'),
+	
+	NewEntities = ArmiesIdPid ++ CitiesIdPid,
+	
    	EntityList = Data#game_info.entities,
 	NewEntityList = lists:append(NewEntities, EntityList),	
 
+	NewPlayer = #player_process{player_id = PlayerId, process = ProcessId},
     PlayerList = Data#game_info.players,
 	NewPlayerList = [NewPlayer|PlayerList],    
 	
@@ -65,8 +73,12 @@ handle_cast({'ADD_PLAYER', PlayerId, ProcessId, NewEntities}, Data) ->
 
 handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
 	io:fwrite("game - delete_player - ProcessId: ~w~n", [ProcessId]),
-    ArmiesPid = gen_server:call(ProcessId, 'GET_ARMIES_PID'),
-    NewEntityList = Data#game_info.entities -- ArmiesPid,    
+    ArmiesIdPid = gen_server:call(ProcessId, 'GET_ARMIES_ID_PID'),
+	CitiesIdPid = gen_server:call(ProcessId, 'GET_CITIES_ID_PID'),
+		
+	Entities = ArmiesIdPid ++ CitiesIdPid,
+	
+    NewEntityList = Data#game_info.entities -- Entities,    
 	NewPlayerList = lists:keydelete(PlayerId, 2, Data#game_info.players),
 	NewData = Data#game_info {
             		players = NewPlayerList,
@@ -128,7 +140,11 @@ handle_call('GET_CITIES', _From, Data) ->
 	{reply, Data#game_info.cities, Data};
 
 handle_call('GET_OBJECTS', _From, Data) ->
-    {reply, Data#game_info.armies ++ Data#game_info.cities ++ Data#game_info.battles, Data};
+	
+	Improvements = gen_server:call(global:whereis_name(improve_pid), {'GET_IMPROVEMENTS'}),
+	Objects = Data#game_info.armies ++ Data#game_info.cities ++ Data#game_info.battles ++ Improvements,
+	
+    {reply, Objects , Data};
 
 handle_call('GET_ENTITIES', _From, Data) ->
 	{reply, Data#game_info.entities, Data};

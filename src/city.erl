@@ -25,8 +25,13 @@
           city, 
           units, 
           units_queue,
+		  buildings,
+		  buildings_queue,
+		  improvements,
+		  improvements_queue,		  
           player_id, 
           self,
+		  known_list,
           save_city = false
          }).
 
@@ -47,12 +52,20 @@ init([City, PlayerId])
        is_integer(PlayerId) ->
     process_flag(trap_exit, true),
     
-    io:fwrite("city - city_id: ~w player_id: ~w~n", [City#city.id, PlayerId]),
     ListUnits = db:index_read(unit, City#city.id, #unit.entity_id),
     DictUnits = dict:new(),
     NewDictUnits = unit:init_units(ListUnits, DictUnits),
+		
+	ListBuildings = db:index_read(building, City#city.id, #building.city_id),
+	DictBuildings = dict:new(),
+	NewDictBuildings = building:init_buildings(ListBuildings, DictBuildings),	
 	
-    UnitQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
+	ListImprovements = db:index_read(improvement, City#city.id, #improvement.city_id),
+	DictImprovements = dict:new(),
+	NewDictImprovements = 
+	
+	UnitQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
+	BuildingQueue = db:index_Read(building_queue, City#city.id, #building_queue.city_id),
     
     {ok, #module_data{ city = City, units = NewDictUnits, units_queue = UnitQueue, player_id = PlayerId, self = self() }}.
 
@@ -103,7 +116,13 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
     City = Data#module_data.city,
 
 	if 
-		City#city.player_id =:= PlayerId ->  
+		City#city.player_id =:= PlayerId ->
+			
+					
+			
+			
+			
+			
             %Get UnitsQueue and Units
             UnitsQueue = Data#module_data.units_queue,
             Units = Data#module_data.units,
@@ -188,7 +207,7 @@ handle_call({'RECEIVE_UNIT', Unit, PlayerId}, _From, Data) ->
     
     {reply, ReceiveUnitInfo, NewData};   
 
-handle_call({'GET_STATE'}, _From, Data) ->
+handle_call({'GET_STATE', _CityId}, _From, Data) ->
     City = Data#module_data.city,
 	
 	State = #state {id = City#city.id,

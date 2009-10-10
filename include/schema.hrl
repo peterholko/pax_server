@@ -49,21 +49,26 @@
 				 x,
 				 y}).
 
--record(improvement, {tile_index,
+-record(improvement, {id,
+					  tile_index,
 					  city_id,
 					  player_id,
 					  type,
-					  hp}.
-
--record(population, {city_id, 
-					 type,
-					 value,
-					 base_growth}).
+					  state}).
 
 -record(resource, {entity_id,
 				   entity_type,
 				   value,
 				   type}).
+
+-record(building, {id,
+				   city_id,
+				   type}).
+
+-record(population, {city_id, 
+					 type,
+					 value,
+					 base_growth}).
 
 %%% Queue tables %%%
 
@@ -80,9 +85,8 @@
 						 start_time,
 						 end_time}).
 
--record(improvement_queue, {id,
+-record(improvement_queue, {improvement_id,
 							player_id,
-							improvement_type,
 							start_time,
 							end_time}).
 

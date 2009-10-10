@@ -15,7 +15,7 @@
 -export([init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--export([get_explored_map/1, get_surrounding_tiles/2, start/0, stop/1]).
+-export([get_explored_map/1, get_surrounding_tiles/2, start/0, stop/1, convert_coords/1, convert_coords/2]).
 
 -record(module_data, {
           map,   
@@ -53,13 +53,12 @@ terminate(_Reason, _) ->
 stop(ProcessId) 
   when is_pid(ProcessId) ->
     gen_server:cast(ProcessId, stop).
-
+ 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
-handle_call({'GET_EXPLORED_MAP', TileIndexList}, _From, Data) ->
-    MapData = Data#module_data.map,   
-  	MapTiles = get_map_tiles(TileIndexList, [], MapData),
+handle_call({'GET_EXPLORED_MAP', TileIndexList}, _From, Data) ->    
+  	MapTiles = get_map_tiles(TileIndexList, []),
      
     {reply, MapTiles, Data};
 
@@ -96,10 +95,10 @@ populate(N, Max, Data, S) ->
      %io:fwrite("populate - head: ~w newdata: ~w~n", [Head, NewData]),
      populate(N + 1, Max, NewData, S).
       
-get_map_tiles([], MapList, _) ->
+get_map_tiles([], MapList) ->
     MapList;
 
-get_map_tiles(TileIndexList, MapList, MapData) ->
+get_map_tiles(TileIndexList, MapList) ->
     [TileIndex | Rest] = TileIndexList,   
     
     if
@@ -110,10 +109,15 @@ get_map_tiles(TileIndexList, MapList, MapData) ->
     		NewMapList = MapList
     end,
 
-	get_map_tiles(Rest, NewMapList , MapData).
+	get_map_tiles(Rest, NewMapList).
     
 convert_coords(X, Y) ->
 	Y * ?MAP_HEIGHT + X.
+
+convert_coords(TileIndex) ->
+	TileX = TileIndex rem ?MAP_WIDTH,
+	TileY = TileIndex div ?MAP_HEIGHT,
+	{TileX , TileY}.
 
 is_valid_coords(X, Y) ->
 	GuardX = (X >= 0) and (X < ?MAP_WIDTH),
@@ -152,7 +156,8 @@ tiles_x_2D(X, Y, MaxX, MaxY, Tiles) ->
 	NewTiles = [Tile | Tiles],
 	%io:fwrite("tiles_x_2D - x: ~w y: ~w MaxX: ~w MaxY: ~w NewTiles: ~w~n", [X, Y, MaxX, MaxY, NewTiles]),
 	tiles_x_2D(X + 1, Y, MaxX, MaxY, NewTiles).
-						  	
+				
+%% TODO: Combine with above tiles x,y looping
 surrounding_tiles(Tiles2D) ->
 	
     F = fun(Tile2D, Tiles) ->
