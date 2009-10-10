@@ -13,7 +13,7 @@
 %%
 %% Exported Functions
 %%
--export([start/0, setup_perception/0, init/1, handle_call/3, handle_cast/2, 
+-export([start/0, load_entities/0, setup_perception/0, init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
 %%
@@ -23,28 +23,14 @@
 start() ->
 	gen_server:start({global, game_pid}, game, [], []).
 
+load_entities() ->
+	gen_server:call({global, game_pid}, 'LOAD_ENTITIES').
+
 setup_perception() ->
 	gen_server:call({global, game_pid}, 'SETUP_PERCEPTION').
 
-init([]) ->
-    %% Load armies, cities
-    io:fwrite("Loading armies, cities and battles...~n"), 
-    ArmyIds = db:select_armies(),
-	CityIds = db:select_cities(),
-    BattleIds = db:select_battles(),
-        
-    io:fwrite("Starting armies, cities and battles processes...~n"), 
-    lists:foreach(fun({ArmyId, PlayerId}) -> army:start(ArmyId, PlayerId) end, ArmyIds),
-    lists:foreach(fun({CityId, PlayerId}) -> city:start(CityId, PlayerId) end, CityIds), 
-    lists:foreach(fun(BattleId) -> battle:start(BattleId) end, BattleIds),
-    
-    Armies = lists:foldr(fun({ArmyId,_}, Armies) -> [{ArmyId, global:whereis_name({army, ArmyId})} | Armies] end, [], ArmyIds),
-	Cities = lists:foldr(fun({CityId,_}, Cities) -> [{CityId, global:whereis_name({city, CityId})} | Cities] end, [], CityIds),
-	Battles = lists:foldr(fun(BattleId, Battles) -> [{BattleId, global:whereis_name({battle, BattleId})} | Battles] end, [], BattleIds),
-	
-	improvement:start(),
-    
-	Data = #game_info {armies = Armies, cities = Cities, battles = Battles},
+init([]) ->    
+	Data = #game_info {armies = [], cities = [], battles = []},
 	{ok, Data}.
 
 terminate(_Reason, _) ->
@@ -131,10 +117,28 @@ handle_cast('NEXT_TICK', Data) ->
     NewData = Data#game_info { tick = NextTick},
     {noreply, NewData}.
 
+handle_call('LOAD_ENTITIES', _From, Data) ->
+    %% Load armies, cities
+    log4erl:info("Loading armies, cities and battles..."), 
+    ArmyIds = db:select_armies(),
+	CityIds = db:select_cities(),
+    BattleIds = db:select_battles(),
+        
+    log4erl:info("Starting armies, cities and battles processes..."), 
+    lists:foreach(fun({ArmyId, PlayerId}) -> army:start(ArmyId, PlayerId) end, ArmyIds),
+    lists:foreach(fun({CityId, PlayerId}) -> city:start(CityId, PlayerId) end, CityIds), 
+    lists:foreach(fun(BattleId) -> battle:start(BattleId) end, BattleIds),
+    
+    Armies = lists:foldr(fun({ArmyId,_}, Armies) -> [{ArmyId, global:whereis_name({army, ArmyId})} | Armies] end, [], ArmyIds),
+	Cities = lists:foldr(fun({CityId,_}, Cities) -> [{CityId, global:whereis_name({city, CityId})} | Cities] end, [], CityIds),
+	Battles = lists:foldr(fun(BattleId, Battles) -> [{BattleId, global:whereis_name({battle, BattleId})} | Battles] end, [], BattleIds),
+	    
+	NewData = #game_info {armies = Armies, cities = Cities, battles = Battles},
+	{reply, ok, NewData};
+
 handle_call('SETUP_PERCEPTION', _From, Data) ->
-	
-	entities_perception(Data#game_info.armies),
-		
+	log4erl:info("Setup perception..."),
+	entities_perception(Data#game_info.armies),		
 	{reply, ok, Data};
 
 handle_call({'IS_PLAYER_ONLINE', PlayerId}, _From, Data) ->	
@@ -152,8 +156,8 @@ handle_call('GET_CITIES', _From, Data) ->
 
 handle_call('GET_OBJECTS', _From, Data) ->
 	
-	Improvements = gen_server:call(global:whereis_name(improve_pid), 'GET_IMPROVEMENTS'),
-	Objects = Data#game_info.armies ++ Data#game_info.cities ++ Data#game_info.battles ++ Improvements,
+	%Improvements = gen_server:call(global:whereis_name(improve_pid), 'GET_IMPROVEMENTS'),
+	Objects = Data#game_info.armies, % ++ Data#game_info.cities ++ Data#game_info.battles ++ Improvements,
 	
     {reply, Objects , Data};
 

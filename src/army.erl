@@ -411,7 +411,7 @@ subscription(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleList, ObservedByList) ->
 	NewVisibleList = remove_visible_list(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleList),
 	NewObservedByList = remove_observed_by_list(ArmyId, ArmyPid, ArmyX, ArmyY, ObservedByList),
 	
-	ObjectList = gen_server:call(global:whereis_name(game_pid), {'GET_OBJECTS'}),
+	ObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
 	
 	VisibleCandidateList = ObjectList -- NewVisibleList, 
 	ObservedByCandidateList = ObjectList -- NewObservedByList,	
