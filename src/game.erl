@@ -143,7 +143,7 @@ handle_call('GET_CITIES', _From, Data) ->
 
 handle_call('GET_OBJECTS', _From, Data) ->
 	
-	Improvements = gen_server:call(global:whereis_name(improve_pid), {'GET_IMPROVEMENTS'}),
+	Improvements = gen_server:call(global:whereis_name(improve_pid), 'GET_IMPROVEMENTS'),
 	Objects = Data#game_info.armies ++ Data#game_info.cities ++ Data#game_info.battles ++ Improvements,
 	
     {reply, Objects , Data};
