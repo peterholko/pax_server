@@ -163,13 +163,6 @@ handle_cast({'REMOVE_OBSERVED_BY', EntityId, EntityPid}, Data) ->
 	
 	{noreply, NewData};
 
-handle_cast('UPDATE_PERCEPTION', Data) ->
-	
-	Army = Data#module_data.army,	
-	subscription(Army#army.id, self(), Army#army.x, Army#army.y, Data#module_data.visible, Data#module_data.observed_by),
-
-	{noreply, Data};
-
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
@@ -313,8 +306,15 @@ handle_call({'GET_PLAYER_ID'}, _From, Data) ->
 handle_call({'GET_TYPE'}, _From, Data) ->
     {reply, ?OBJECT_ARMY, Data};
 
-handle_call({'GET_VISIBLE_LIST'}, _From, Data) ->
-    {reply, Data#module_data.visible, Data};
+handle_call('GET_VISIBLE', _From, Data) ->
+	{reply, Data#module_data.visible, Data};
+
+handle_call('GET_OBSERVED_BY', _From, Data) ->
+	{reply, Data#module_data.observed_by, Data};
+
+handle_call('GET_SUBSCRIPTION_DATA', _From, Data) ->
+	Army = Data#module_data.army,	
+    {reply, {Army#army.x, Army#army.y, Data#module_data.visible, Data#module_data.observed_by}, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
@@ -347,7 +347,8 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     gen_server:cast(global:whereis_name({player, Army#army.player_id}), {'SET_DISCOVERED_TILES', Army#army.id, NewArmyX, NewArmyY}),
 	
 	%% Update subscription model
-	subscription(Army#army.id, ArmyPid, NewArmyX, NewArmyX, VisibleList, ObservedByList),
+	{ok, SubscriptionPid} = subscription:start(Army#army.id),
+	subscription:update_perception(SubscriptionPid),
     
 	%% Update army's state
 	if	
@@ -406,88 +407,7 @@ move(ArmyX, ArmyY, DestX, DestY) ->
                   
 	{NewArmyX, NewArmyY}.
 
-subscription(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleList, ObservedByList) ->
-						
-	NewVisibleList = remove_visible_list(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleList),
-	NewObservedByList = remove_observed_by_list(ArmyId, ArmyPid, ArmyX, ArmyY, ObservedByList),
-	
-	ObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
-	
-	VisibleCandidateList = ObjectList -- NewVisibleList, 
-	ObservedByCandidateList = ObjectList -- NewObservedByList,	
 
-	add_visible_list(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleCandidateList),
-	add_observed_by_list(ArmyId, ArmyPid, ArmyX, ArmyY, ObservedByCandidateList).
-
-remove_visible_list(ArmyId, ArmyPid, ArmyX, ArmyY, Visible) ->	
-	F = fun({EntityId, EntityPid}, VisibleList) ->				
-				Distance = calc_distance(ArmyX, ArmyY, EntityPid),
-				
-				if
-					Distance >= 50 ->
-						NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
-						gen_server:cast(ArmyPid, {'REMOVE_VISIBLE', EntityId, EntityPid}),										
-						gen_server:cast(EntityPid, {'REMOVE_OBSERVED_BY', ArmyId, ArmyPid});
-					true ->
-						NewVisibleList = VisibleList
-				end,
-				NewVisibleList
-		end,				
-	
-    lists:foldl(F, Visible, Visible).
-
-remove_observed_by_list(ArmyId, ArmyPid, ArmyX, ArmyY, ObservedBy) ->
-	F = fun({EntityId, EntityPid}, ObservedByList) ->				
-				Distance = calc_distance(ArmyX, ArmyY, EntityPid),
-				
-				if
-					Distance >= 50 ->
-						NewObservedByList = lists:delete({EntityId, EntityPid}, ObservedByList),
-						gen_server:cast(ArmyPid, {'REMOVE_OBSERVED_BY', EntityId, EntityPid}),	
-						gen_server:cast(EntityPid, {'REMOVE_VISIBLE', ArmyId, ArmyPid});										
-					true ->
-						NewObservedByList = ObservedByList
-				end,
-				NewObservedByList
-		end,				
-	
-    lists:foldl(F, ObservedBy, ObservedBy).
-
-add_visible_list(ArmyId, ArmyPid, ArmyX, ArmyY, VisibleCandidateList) ->
-	F2 = fun({EntityId, EntityPid}) ->
-				 Distance = calc_distance(ArmyX, ArmyY, EntityPid),				 
-				 
-				 if
-					 Distance < 50 ->
-						gen_server:cast(ArmyPid, {'ADD_VISIBLE', EntityId, EntityPid}),
-						gen_server:cast(EntityPid, {'ADD_OBSERVED_BY', ArmyId, ArmyPid});	
-					 true ->
-						 ok
-				 end
-		 end,
-	
-	lists:foreach(F2, VisibleCandidateList).
-
-add_observed_by_list(ArmyId, ArmyPid, ArmyX, ArmyY, ObservedByCandidateList) ->
-	F2 = fun({EntityId, EntityPid}) ->
-				 Distance = calc_distance(ArmyX, ArmyY, EntityPid),				 
-				 
-				 if
-					 Distance < 50 ->
-						gen_server:cast(ArmyPid, {'ADD_OBSERVED_BY', EntityId, EntityPid}),
-						gen_server:cast(EntityPid, {'ADD_VISIBLE', ArmyId, ArmyPid});	
-					 true ->
-						 ok
-				 end
-		 end,
-	
-	lists:foreach(F2, ObservedByCandidateList).
-					 	
-calc_distance(ArmyX, ArmyY, EntityPid) ->
-	EntityState = gen_server:call(EntityPid, {'GET_STATE', 1}),
-	DiffX = ArmyX - EntityState#state.x,
-	DiffY = ArmyY - EntityState#state.y,
-	DiffX * DiffX + DiffY * DiffY.
 
 get_army_speed(ArmyId) ->
     %UnitsSpeed = unit:units_speed(ArmyId),

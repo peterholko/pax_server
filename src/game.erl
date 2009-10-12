@@ -138,7 +138,7 @@ handle_call('LOAD_ENTITIES', _From, Data) ->
 
 handle_call('SETUP_PERCEPTION', _From, Data) ->
 	log4erl:info("Setup perception..."),
-	entities_perception(Data#game_info.armies),		
+	entities_perception(Data#game_info.armies, Data#game_info.armies),		
 	{reply, ok, Data};
 
 handle_call({'IS_PLAYER_ONLINE', PlayerId}, _From, Data) ->	
@@ -200,10 +200,11 @@ code_change(_OldVsn, Data, _Extra) ->
 %% Local Functions
 %%
    
-entities_perception(Entities) ->
-	
-	F = fun({_EntityId, EntityPid}) ->
-			gen_server:cast(EntityPid, 'UPDATE_PERCEPTION')
+entities_perception(Entities, EveryEntity) ->	
+	F = fun({EntityId, EntityPid}) ->
+				{EntityX, EntityY, VisibleList, ObservedByList} = gen_server:call(EntityPid, 'GET_SUBSCRIPTION_DATA'),
+				{ok, SubscriptionPid} = subscription:start(EntityId),									
+				gen_server:call(SubscriptionPid, {'UPDATE_PERCEPTION', EntityId, EntityPid, EntityX, EntityY, EveryEntity, VisibleList, ObservedByList})
 		end,
 	
 	lists:foreach(F, Entities).

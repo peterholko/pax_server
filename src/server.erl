@@ -62,7 +62,7 @@ init() ->
     % Create game loop
 	log4erl:info("Starting game process...") ,
     {ok, _GamePid} = game:start(),
-	ok = game:load_entities(),
+	ok = game:load_entities(),	
 	ok = game:setup_perception(),	
 	
 	TotalMS = util:get_time(), 
