@@ -347,8 +347,9 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     gen_server:cast(global:whereis_name({player, Army#army.player_id}), {'SET_DISCOVERED_TILES', Army#army.id, NewArmyX, NewArmyY}),
 	
 	%% Update subscription model
+	EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
 	{ok, SubscriptionPid} = subscription:start(Army#army.id),
-	subscription:update_perception(SubscriptionPid),
+	subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
     
 	%% Update army's state
 	if	

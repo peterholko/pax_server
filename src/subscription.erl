@@ -27,7 +27,7 @@ start(EntityId) ->
 	gen_server:start({global, {subscription, EntityId}}, subscription, [], []).
 
 update_perception(Pid, EntityId, EntityPid, EntityX, EntityY, EveryObjectList, VisibleList, ObservedByList) ->
-	gen_server:call(Pid, {EntityId, EntityPid, EntityX, EntityY, EveryObjectList, VisibleList, ObservedByList}).
+	gen_server:call(Pid, {'UPDATE_PERCEPTION', EntityId, EntityPid, EntityX, EntityY, EveryObjectList, VisibleList, ObservedByList}).
 
 %% ====================================================================
 %% Server functions

@@ -119,21 +119,23 @@ handle_cast('NEXT_TICK', Data) ->
 
 handle_call('LOAD_ENTITIES', _From, Data) ->
     %% Load armies, cities
-    log4erl:info("Loading armies, cities and battles..."), 
+    log4erl:info("Loading armies, cities and battles..."), 	
     ArmyIds = db:select_armies(),
 	CityIds = db:select_cities(),
     BattleIds = db:select_battles(),
         
-    log4erl:info("Starting armies, cities and battles processes..."), 
-    lists:foreach(fun({ArmyId, PlayerId}) -> army:start(ArmyId, PlayerId) end, ArmyIds),
-    lists:foreach(fun({CityId, PlayerId}) -> city:start(CityId, PlayerId) end, CityIds), 
-    lists:foreach(fun(BattleId) -> battle:start(BattleId) end, BattleIds),
+    log4erl:info("Starting armies, cities and battles processes..."),	
+    lists:foreach(fun({ArmyId, PlayerId}) -> {ok, _Pid} = army:start(ArmyId, PlayerId) end, ArmyIds),
+    lists:foreach(fun({CityId, PlayerId}) -> {ok, _Pid} = city:start(CityId, PlayerId) end, CityIds), 
+    lists:foreach(fun(BattleId) -> {ok, _Pid} = battle:start(BattleId) end, BattleIds),
+	log4erl:info("Armies, cities and battles processes started."),
     
     Armies = lists:foldr(fun({ArmyId,_}, Armies) -> [{ArmyId, global:whereis_name({army, ArmyId})} | Armies] end, [], ArmyIds),
 	Cities = lists:foldr(fun({CityId,_}, Cities) -> [{CityId, global:whereis_name({city, CityId})} | Cities] end, [], CityIds),
 	Battles = lists:foldr(fun(BattleId, Battles) -> [{BattleId, global:whereis_name({battle, BattleId})} | Battles] end, [], BattleIds),
 	    
-	NewData = #game_info {armies = Armies, cities = Cities, battles = Battles},
+	NewData = Data#game_info {armies = Armies, cities = Cities, battles = Battles},
+	log4erl:info("All entities have been loaded."),	
 	{reply, ok, NewData};
 
 handle_call('SETUP_PERCEPTION', _From, Data) ->
@@ -157,7 +159,7 @@ handle_call('GET_CITIES', _From, Data) ->
 handle_call('GET_OBJECTS', _From, Data) ->
 	
 	%Improvements = gen_server:call(global:whereis_name(improve_pid), 'GET_IMPROVEMENTS'),
-	Objects = Data#game_info.armies, % ++ Data#game_info.cities ++ Data#game_info.battles ++ Improvements,
+	Objects = Data#game_info.armies ++ Data#game_info.cities,% ++ Data#game_info.battles ++ Improvements,
 	
     {reply, Objects , Data};
 
@@ -201,13 +203,15 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
    
 entities_perception(Entities, EveryEntity) ->	
+	log4erl:info("Updating all entities perception."),
 	F = fun({EntityId, EntityPid}) ->
 				{EntityX, EntityY, VisibleList, ObservedByList} = gen_server:call(EntityPid, 'GET_SUBSCRIPTION_DATA'),
 				{ok, SubscriptionPid} = subscription:start(EntityId),									
-				gen_server:call(SubscriptionPid, {'UPDATE_PERCEPTION', EntityId, EntityPid, EntityX, EntityY, EveryEntity, VisibleList, ObservedByList})
+				subscription:update_perception(SubscriptionPid, EntityId, EntityPid, EntityX, EntityY, EveryEntity, VisibleList, ObservedByList)
 		end,
 	
-	lists:foreach(F, Entities).
+	lists:foreach(F, Entities),
+	log4erl:info("All perception updated.").
     
     
 

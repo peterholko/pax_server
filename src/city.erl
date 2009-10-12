@@ -31,7 +31,8 @@
 		  improvements_queue,		  
           player_id, 
           self,
-		  known_list,
+		  visible = [],
+		  observed_by = [],
           save_city = false
          }).
 
@@ -55,17 +56,8 @@ init([City, PlayerId])
     ListUnits = db:index_read(unit, City#city.id, #unit.entity_id),
     DictUnits = dict:new(),
     NewDictUnits = unit:init_units(ListUnits, DictUnits),
-		
-	ListBuildings = db:index_read(building, City#city.id, #building.city_id),
-	DictBuildings = dict:new(),
-	NewDictBuildings = building:init_buildings(ListBuildings, DictBuildings),	
-	
-	ListImprovements = db:index_read(improvement, City#city.id, #improvement.city_id),
-	DictImprovements = dict:new(),
-	NewDictImprovements = 
-	
+			
 	UnitQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
-	BuildingQueue = db:index_Read(building_queue, City#city.id, #building_queue.city_id),
     
     {ok, #module_data{ city = City, units = NewDictUnits, units_queue = UnitQueue, player_id = PlayerId, self = self() }}.
 
@@ -82,6 +74,34 @@ queue_unit(CityId, PlayerId, UnitType, UnitSize) ->
 %%
 %% OTP handlers
 %%
+
+handle_cast({'ADD_VISIBLE', EntityId, EntityPid}, Data) ->
+	VisibleList = Data#module_data.visible,
+	NewVisibleList = [{EntityId, EntityPid} | VisibleList],
+	NewData = Data#module_data { visible = NewVisibleList },
+	
+	{noreply, NewData};
+
+handle_cast({'REMOVE_VISIBLE', EntityId, EntityPid}, Data) ->
+	VisibleList = Data#module_data.visible,
+	NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
+	NewData = Data#module_data { visible = NewVisibleList },
+	
+	{noreply, NewData};
+
+handle_cast({'ADD_OBSERVED_BY', EntityId, EntityPid}, Data) ->
+	ObservedByList = Data#module_data.observed_by,
+	NewObservedByList = [{EntityId, EntityPid} | ObservedByList],
+	NewData = Data#module_data { observed_by = NewObservedByList },
+	
+	{noreply, NewData};
+
+handle_cast({'REMOVE_OBSERVED_BY', EntityId, EntityPid}, Data) ->
+	ObservedByList = Data#module_data.observed_by,
+	NewObservedByList = lists:delete({EntityId, EntityPid}, ObservedByList),
+	NewData = Data#module_data { observed_by = NewObservedByList },
+	
+	{noreply, NewData};
 
 handle_cast({'ADD_UNIT', Unit}, Data) ->
     
@@ -117,12 +137,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
 
 	if 
 		City#city.player_id =:= PlayerId ->
-			
-					
-			
-			
-			
-			
+						
             %Get UnitsQueue and Units
             UnitsQueue = Data#module_data.units_queue,
             Units = Data#module_data.units,
@@ -228,6 +243,16 @@ handle_call({'GET_PLAYER_ID'}, _From, Data) ->
 
 handle_call({'GET_TYPE'}, _From, Data) ->
     {reply, ?OBJECT_CITY, Data};
+
+handle_call('GET_VISIBLE', _From, Data) ->
+	{reply, Data#module_data.visible, Data};
+
+handle_call('GET_OBSERVED_BY', _From, Data) ->
+	{reply, Data#module_data.observed_by, Data};
+
+handle_call('GET_SUBSCRIPTION_DATA', _From, Data) ->
+	City = Data#module_data.city,	
+    {reply, {City#city.x, City#city.y, Data#module_data.visible, Data#module_data.observed_by}, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 

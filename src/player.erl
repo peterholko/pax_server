@@ -405,21 +405,25 @@ get_initial_perception(PlayerId) ->
 entity_visible_list(EntityList, EntityType) ->
 											  
 	F = fun(EntityId, EveryVisibleList) ->
-				VisibleList = gen_server:call(global:whereis_name({EntityType, EntityId}), {'GET_VISIBLE_LIST'}),
+				VisibleList = gen_server:call(global:whereis_name({EntityType, EntityId}), 'GET_VISIBLE'),
 				VisibleList ++ EveryVisibleList
 		end,
 	
 	lists:foldl(F, [], EntityList).
 
-
-
 get_explored_map(PlayerId) ->
+	log4erl:info("Retrieving explored map."),
   	FileName = "map" ++ integer_to_list(PlayerId) ++ ".dets",
-	{_,DetsFile} = dets:open_file(FileName,[{type, set}]),
-	ExploredTileIndex = dets:foldl(fun({X}, List) -> [X | List] end, [], DetsFile),
-    dets:close(FileName),
-    io:fwrite("player - get_explored_map  ExploredTileIndex: ~w~n", [ExploredTileIndex]),	
-	ExploredMap = map:get_explored_map(ExploredTileIndex),
+	case dets:open_file(FileName,[{type, set}]) of
+		{ok, DetsFile} ->
+			ExploredTileIndex = dets:foldl(fun({X}, List) -> [X | List] end, [], DetsFile),
+    		dets:close(FileName),
+    		io:fwrite("player - get_explored_map  ExploredTileIndex: ~w~n", [ExploredTileIndex]),	
+			ExploredMap = map:get_explored_map(ExploredTileIndex);
+		{error, Reason} ->
+			ExploredMap = [],
+			log4erl:error("Could not open explored map files - Reason: ~p", [Reason])
+	end,
     ExploredMap.
 
 save_explored_map(PlayerId, ExploredMap) ->

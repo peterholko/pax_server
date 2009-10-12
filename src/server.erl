@@ -163,11 +163,14 @@ process_clocksync(Client, Socket) ->
 
 process_clientready(Client, Socket) ->
     
+	io:fwrite("server - process_clientready~n"),
     if
         Client#client.ready =/= true ->
+			io:fwrite("server - client.ready =/= true~n"),
             PlayerPID = Client#client.player_pid,    
+			io:fwrite("PlayerPID ~w~n", [PlayerPID]),			
     		PlayerId = gen_server:call(PlayerPID, 'ID'),    
-    
+    		
 			ExploredMap = player:get_explored_map(PlayerId),
     		io:fwrite("server: process_client_ready() -> ~w~n", [ExploredMap]),
 			ok = packet:send(Socket, #map{tiles = ExploredMap}),
@@ -175,7 +178,8 @@ process_clientready(Client, Socket) ->
     		gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID}),    
     
     		NewClient = Client#client{ ready = true };
-        true ->
+        true ->			
+			io:fwrite("server - clientready failed as ready state was true"),
             NewClient = Client
     end,
     
