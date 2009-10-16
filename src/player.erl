@@ -86,7 +86,7 @@ handle_cast({'SOCKET', Socket}, Data) ->
     Data1 = Data#module_data{ socket = Socket },
     {noreply, Data1};
 
-handle_cast({'UPDATE_PERCEPTION'}, Data) ->		
+handle_cast('UPDATE_PERCEPTION', Data) ->		
 	{noreply, Data#module_data { update_perception = true} };
 
 handle_cast({'ADD_PERCEPTION', NewPerceptionData}, Data) ->	
