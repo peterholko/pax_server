@@ -36,6 +36,9 @@ loop(Socket) ->
 					io:fwrite("Sending ?CMD_CLIENTREADY.~n"),		
 					ok = gen_tcp:send(Socket, <<?CMD_CLIENTREADY>>),
 					loop(Socket);
+				<<?CMD_PERCEPTION, Perception/binary>> ->
+					io:fwrite("Perception: ~w~n",[Perception]),
+					loop(Socket);
 				_Any ->
 					io:fwrite("Do not recognize command.~n")
 			end;							
