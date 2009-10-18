@@ -103,8 +103,7 @@ handle_cast({'SEND_PERCEPTION'}, Data) ->
         Data#module_data.update_perception =:= true ->            
             NewData = Data#module_data {object_perception = [], update_perception = false },
             R = #perception {entities = Data#module_data.object_perception,
-                             tiles = Data#module_data.discovered_tiles
-                            },
+                             tiles = Data#module_data.discovered_tiles},
             forward_to_client(R, NewData),            
             io:fwrite("Perception Modified.~n");
 		true ->
@@ -273,11 +272,6 @@ handle_cast(_ = #battle_target{battle_id = BattleId,
     end,
     
     {noreply, Data};
-
-%handle_cast(_ = #build_improvement{improvement_type = ImprovementType, tile_index = TileIndex, source_army_id = ArmyId}, Data) ->
-
-	
-    
     
 handle_cast(stop, Data) ->
     {stop, normal, Data};
