@@ -170,8 +170,7 @@ player_id() ->
 
 perception() ->
     record(perception, {entities(),
-                        tiles(),
-						improvements()}).
+                        tiles()}).
 
 map() ->
     record(map, {tiles()}).

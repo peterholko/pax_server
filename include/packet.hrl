@@ -28,8 +28,7 @@
 
 -define(CMD_PERCEPTION, 40).
 -record(perception, {entities,
-                     tiles,
-					 improvements}).
+                     tiles}).
 
 -define (CMD_MOVE, 42).
 -record(move, {id,
