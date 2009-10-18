@@ -47,10 +47,7 @@ write_byte(Acc, Byte) ->
     [<<Byte:8>>|Acc].
 
 read_byte(Bin) -> 
-    io:fwrite("Status - read_byte Bin: ~w~n", [Bin]),
-    <<Byte:8, Rest/binary>> = Bin,
-    io:fwrite("Status - read_byte Byte: ~w~n", [Byte]),
-    io:fwrite("Status - read_byte Rest: ~w~n", [Rest]),
+    <<Byte:8, Rest/binary>> = Bin,    
     {Byte, Rest}.
 
 %%% Unsigned short
