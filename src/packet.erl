@@ -267,7 +267,18 @@ read(<<?CMD_BATTLE_TARGET, Bin/binary>>) ->
 	unpickle(battle_target(), Bin);
 
 read(<<?CMD_BUILD_IMPROVEMENT, Bin/binary>>) ->
-	unpickle(build_improvement(), Bin).
+	unpickle(build_improvement(), Bin);
+
+%% Test Packets
+
+read(<<?CMD_PLAYER_ID, Bin/binary>>) ->
+	unpickle(player_id(), Bin);
+
+read(<<?CMD_EXPLORED_MAP, Bin/binary>>) ->
+	unpickle(map(), Bin);
+
+read(<<?CMD_PERCEPTION, Bin/binary>>) ->
+	unpickle(perception(), Bin).
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];
