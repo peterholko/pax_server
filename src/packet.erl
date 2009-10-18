@@ -72,12 +72,6 @@ tile() ->
 tiles() ->
 	list(int(), tile()). 
 
-improvement() ->
-	tuple({tile_index(), byte()}).	
-
-improvements() ->
-	list(short(), improvement()).
-
 info_list() ->
     list(int(), string()).    
 

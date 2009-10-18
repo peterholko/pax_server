@@ -102,8 +102,11 @@ handle_cast({'SEND_PERCEPTION'}, Data) ->
     if 
         Data#module_data.update_perception =:= true ->            
             NewData = Data#module_data {object_perception = [], update_perception = false },
+			io:fwrite("entities: ~w~n", [Data#module_data.object_perception]),
+			io:fwrite("discovered tiles: ~w~n", [Data#module_data.discovered_tiles]),			
             R = #perception {entities = Data#module_data.object_perception,
                              tiles = Data#module_data.discovered_tiles},
+			io:fwrite("perception record: ~w~n",[R]),
             forward_to_client(R, NewData),            
             io:fwrite("Perception Modified.~n");
 		true ->
@@ -386,12 +389,12 @@ get_initial_perception(PlayerId) ->
 	F = fun({ObjectId, ObjectPid}, PerceptionList) ->
 				State = gen_server:call(ObjectPid, {'GET_STATE', ObjectId}),
 				
-				[State#state.id, 
+				[{State#state.id, 
 				 State#state.player_id, 
 				 State#state.state, 
 				 State#state.type,
 				 State#state.x,
-				 State#state.y | PerceptionList]
+				 State#state.y} | PerceptionList]
 		end,
 	
 	lists:foldl(F, [], UniqueVisibleList).
