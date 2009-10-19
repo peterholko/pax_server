@@ -346,11 +346,14 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 
 do_move(Army, ArmyPid, VisibleList, ObservedByList) ->    
+	
+	PlayerPID = global:whereis_name({player, Army#army.player_id}),
+	
 	%% Move army coordinates
 	{NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, Army#army.dest_x, Army#army.dest_y),
 	
 	%% Set any newly discovered tiles
-    gen_server:cast(global:whereis_name({player, Army#army.player_id}), {'SET_DISCOVERED_TILES', Army#army.id, NewArmyX, NewArmyY}),
+    gen_server:cast(PlayerPID, {'SET_DISCOVERED_TILES', Army#army.id, NewArmyX, NewArmyY}),
 	
 	%% Update subscription model
 	EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
@@ -358,7 +361,7 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
 	subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
 	
 	%Toggle player's perception has been updated.
-	gen_server:cast(global:whereis_name({player, Data#module_data.player_id}), 'UPDATE_PERCEPTION'),	
+	gen_server:cast(PlayerPID, 'UPDATE_PERCEPTION'),	
     
 	%% Update army's state
 	if	
