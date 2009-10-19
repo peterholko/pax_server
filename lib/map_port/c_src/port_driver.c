@@ -24,7 +24,7 @@ static void port_drv_output(ErlDrvData handle, char *buff, int bufflen)
 {
     port_data* d = (port_data*)handle;
     char fn = buff[0];
-    char *buffer = (char*) alloc(100);
+    char *buffer = (char*) malloc(100);
 
     if (fn == 1) 
 	{
