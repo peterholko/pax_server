@@ -167,7 +167,7 @@ int main()
 		resources = getResources(index);
 		numResources = resources[0];
 		
-		printf("Tile: %d\n", getTileType(index);  
+		printf("Tile: %d\n", getTileType(index));  
 		printf("Resources: ");
 		printf("%d", resources[0]);
 		
