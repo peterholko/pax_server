@@ -137,8 +137,11 @@ handle_cast({'PROCESS_EVENT', _, EventType}, Data) ->
 
 handle_cast({'ADD_VISIBLE', EntityId, EntityPid}, Data) ->
 	VisibleList = Data#module_data.visible,
-	NewVisibleList = [{EntityId, EntityPid} | VisibleList],
+	NewVisibleList = [{EntityId, EntityPid} | VisibleList],		
 	NewData = Data#module_data { visible = NewVisibleList },
+		
+	%Toggle player's perception has been updated.
+	gen_server:cast(global:whereis_name({player, Data#module_data.player_id}), 'UPDATE_PERCEPTION'),		
 	
 	{noreply, NewData};
 
@@ -146,6 +149,9 @@ handle_cast({'REMOVE_VISIBLE', EntityId, EntityPid}, Data) ->
 	VisibleList = Data#module_data.visible,
 	NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
 	NewData = Data#module_data { visible = NewVisibleList },
+	
+	%Toggle player's perception has been updated.
+	gen_server:cast(global:whereis_name({player, Data#module_data.player_id}), 'UPDATE_PERCEPTION'),	
 	
 	{noreply, NewData};
 

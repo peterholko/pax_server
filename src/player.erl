@@ -374,7 +374,10 @@ get_initial_perception(PlayerId) ->
 	
 	Armies = Player#player.armies,
 	Cities = Player#player.cities,
-		
+	
+	build_perception_list(Armies, Cities).
+
+build_perception_list(Armies, Cities) ->	
 	ArmyVisibleList = entity_visible_list(Armies, army),
 	CityVisibleList = entity_visible_list(Cities, city),
 	
