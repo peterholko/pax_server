@@ -393,9 +393,9 @@ build_perception_list(Armies, Cities) ->
 				State = gen_server:call(ObjectPid, {'GET_STATE', ObjectId}),
 				
 				[{State#state.id, 
-				 State#state.player_id, 
-				 State#state.state, 
+				 State#state.player_id, 				  
 				 State#state.type,
+				 State#state.state,
 				 State#state.x,
 				 State#state.y} | PerceptionList]
 		end,
