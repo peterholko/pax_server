@@ -356,6 +356,9 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
 	EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
 	{ok, SubscriptionPid} = subscription:start(Army#army.id),
 	subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
+	
+	%Toggle player's perception has been updated.
+	gen_server:cast(global:whereis_name({player, Data#module_data.player_id}), 'UPDATE_PERCEPTION'),	
     
 	%% Update army's state
 	if	
