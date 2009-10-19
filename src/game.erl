@@ -140,7 +140,7 @@ handle_call('LOAD_ENTITIES', _From, Data) ->
 
 handle_call('SETUP_PERCEPTION', _From, Data) ->
 	log4erl:info("Setup perception..."),
-	entities_perception(Data#game_info.armies, Data#game_info.armies),		
+	entities_perception(Data#game_info.armies ++ Data#game_info.cities, Data#game_info.armies ++ Data#game_info.cities),		
 	{reply, ok, Data};
 
 handle_call({'IS_PLAYER_ONLINE', PlayerId}, _From, Data) ->	

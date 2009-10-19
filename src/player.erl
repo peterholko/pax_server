@@ -26,12 +26,9 @@
 
 -record(module_data, {
           player_id,
-          socket = none,  		  
-          last_perception = [],
-          perception = [],
+          socket = none,  		            
           explored_map = [], 
           discovered_tiles = [],  
-		  object_perception = [],	
 		  update_perception = false,	    
           self
          }).
@@ -57,12 +54,7 @@ init([Id])
     process_flag(trap_exit, true),
     ok = create_runtime(Id, self()),
 		
-	ObjectPerception = get_initial_perception(Id),	
-	
     {ok, #module_data{ player_id = Id, 
-					   object_perception = ObjectPerception,
-                       perception = [], 
-                       last_perception = [],
                        explored_map = [],
                        discovered_tiles = [], 						   				  
                        self = self() }}.
@@ -87,6 +79,7 @@ handle_cast({'SOCKET', Socket}, Data) ->
     {noreply, Data1};
 
 handle_cast('UPDATE_PERCEPTION', Data) ->		
+	log4erl:info("Player update perception"),
 	{noreply, Data#module_data { update_perception = true} };
 
 handle_cast({'ADD_PERCEPTION', NewPerceptionData}, Data) ->	
@@ -100,13 +93,15 @@ handle_cast({'ADD_PERCEPTION', NewPerceptionData}, Data) ->
 handle_cast({'SEND_PERCEPTION'}, Data) ->
     
     if 
-        Data#module_data.update_perception =:= true ->            
-            NewData = Data#module_data {object_perception = [], update_perception = false },
-			io:fwrite("entities: ~w~n", [Data#module_data.object_perception]),
+        Data#module_data.update_perception =:= true -> 
+			
+			ObjectPerception = build_perception(Data#module_data.player_id),			            
 			io:fwrite("discovered tiles: ~w~n", [Data#module_data.discovered_tiles]),			
-            R = #perception {entities = Data#module_data.object_perception,
+            R = #perception {entities = ObjectPerception,
                              tiles = Data#module_data.discovered_tiles},
 			io:fwrite("perception record: ~w~n",[R]),
+			% Reset update perception state
+			NewData = Data#module_data {update_perception = false },
             forward_to_client(R, NewData),            
             io:fwrite("Perception Modified.~n");
 		true ->
@@ -369,15 +364,12 @@ forward_to_client(Event, Data) ->
             ok
     end.
 
-get_initial_perception(PlayerId) ->
+build_perception(PlayerId) ->
 	[Player] = db:dirty_read(player, PlayerId),
 	
 	Armies = Player#player.armies,
 	Cities = Player#player.cities,
-	
-	build_perception_list(Armies, Cities).
-
-build_perception_list(Armies, Cities) ->	
+		
 	ArmyVisibleList = entity_visible_list(Armies, army),
 	CityVisibleList = entity_visible_list(Cities, city),
 	

@@ -39,7 +39,9 @@ loop(Socket) ->
 					io:fwrite("Tiles: ~w~n", [Tiles]),
 					loop(Socket);
 				#perception{entities = Entities, tiles = Tiles} ->
-					io:fwrite("Perception: ~w ~w~n",[Entities, Tiles]),				
+					io:fwrite("Perception: ~w ~w~n",[Entities, Tiles]),
+					Move = #move {id = 2, x = 6, y = 4},
+					packet:send(Socket, Move),
 					loop(Socket);
 				_Any ->
 					io:fwrite("Do not recognize command.~n")

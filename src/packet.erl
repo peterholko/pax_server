@@ -308,7 +308,12 @@ write(R) when is_record(R, battle_add_army) ->
 	[?CMD_BATTLE_ADD_ARMY|pickle(battle_add_army(), R)];
 
 write(R) when is_record(R, battle_damage) ->
-	[?CMD_BATTLE_DAMAGE|pickle(battle_damage(), R)].
+	[?CMD_BATTLE_DAMAGE|pickle(battle_damage(), R)];
+
+% Test packets
+
+write(R) when is_record(R, move) ->
+	[?CMD_MOVE|pickle(move(), R)].
 
 send(Socket, Data) ->
     io:format("packet: send() - Data ->  ~p~n", [Data]),
