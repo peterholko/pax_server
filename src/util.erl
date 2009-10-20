@@ -49,35 +49,34 @@ reset_explored_map() ->
     Armies = db:select_all_armies(),
     
     F1 = fun(PlayerInfo) ->
-                PlayerId = PlayerInfo#player.id,
-  				FileName = "map" ++ integer_to_list(PlayerId) ++ ".dets",
-				{_,DetsFile} = dets:open_file(FileName,[{type, set}]),
-                dets:delete_all_objects(DetsFile),
-                dets:close(FileName)
-        end,   
+                 PlayerId = PlayerInfo#player.id,
+                 FileName = "map" ++ integer_to_list(PlayerId) ++ ".dets",
+                 {_,DetsFile} = dets:open_file(FileName,[{type, set}]),
+                 dets:delete_all_objects(DetsFile),
+                 dets:close(FileName)
+         end,   
     
     lists:foreach(F1, Players),    
     
     F2 = fun(Element) ->
-                PlayerId = Element#army.player_id,
-                X = Element#army.x,
-                Y = Element#army.y,
-                TileIndexList = map:get_surrounding_tiles(X, Y),
-                TileList = gen_server:call(global:whereis_name(map_pid), {'GET_EXPLORED_MAP', TileIndexList}),
-  				FileName = "map" ++ integer_to_list(PlayerId) ++ ".dets",
-				{_,DetsFile} = dets:open_file(FileName,[{type, set}]),
-                
-    			F3 = fun(TileInfo) ->
-             			{TileIndex, _} = TileInfo,   
-                		dets:insert(DetsFile, {TileIndex}) 
-        		end,
-              
-    			lists:foreach(F3, TileList),
-        		dets:close(FileName)
-        end,
+                 PlayerId = Element#army.player_id,
+                 X = Element#army.x,
+                 Y = Element#army.y,
+                 TileIndexList = map:get_surrounding_tiles(X, Y),
+                 TileList = gen_server:call(global:whereis_name(map_pid), {'GET_EXPLORED_MAP', TileIndexList}),
+                 FileName = "map" ++ integer_to_list(PlayerId) ++ ".dets",
+                 {_,DetsFile} = dets:open_file(FileName,[{type, set}]),
+                 
+                 F3 = fun(TileInfo) ->
+                              {TileIndex, _} = TileInfo,   
+                              dets:insert(DetsFile, {TileIndex}) 
+                      end,
+                 
+                 lists:foreach(F3, TileList),
+                 dets:close(FileName)
+         end,
     
     lists:foreach(F2, Armies).
 
 
-    
-	
+

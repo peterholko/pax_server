@@ -48,7 +48,7 @@
 
 -define (CMD_INFO_ARMY, 52).
 -record(info_army, {id,
-					units}).
+                    units}).
 
 -define (CMD_INFO_CITY, 53).
 -record(info_city, {id,
@@ -70,28 +70,28 @@
 
 -define (CMD_BATTLE_INFO, 70).
 -record(battle_info, {battle_id,
-						armies}).
+                      armies}).
 
 -define (CMD_BATTLE_ADD_ARMY, 71).
 -record(battle_add_army, {battle_id,
-						  army}).
+                          army}).
 
 -define (CMD_BATTLE_DAMAGE, 72).
 -record(battle_damage, {battle_id,
-						source_id,
-						target_id,
-						damage}).
+                        source_id,
+                        target_id,
+                        damage}).
 
 -define (CMD_BATTLE_TARGET, 73).
 -record(battle_target, {battle_id,
-						source_army_id,
+                        source_army_id,
                         source_unit_id,
                         target_army_id,
                         target_unit_id}).
 
 -define(CMD_BUILD_IMPROVEMENT, 100).
 -record(build_improvement, {improvement_type,
-							tile_index,
-							source_army_id}).
+                            tile_index,
+                            source_army_id}).
 
 

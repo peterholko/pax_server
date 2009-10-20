@@ -23,7 +23,7 @@ login(Name, Pass, Socket)
   when is_binary(Name),
        is_binary(Pass),
        is_pid(Socket) -> % socket handler process
-  	io:fwrite("login:login - Name: ~w~n", [Name]),
+    io:fwrite("login:login - Name: ~w~n", [Name]),
     io:fwrite("login:login - Pass: ~w~n", [Pass]),
     
     PlayerInfo = db:index_read(player, Name, #player.name),
@@ -42,19 +42,19 @@ login([], _) ->
 login([PlayerInfo], [_Name, Pass,_] = Args)
   when is_record(PlayerInfo, player) ->
     io:fwrite("login:login - PlayerInfo2: ~w~n", [PlayerInfo]),
-   	PlayerId = PlayerInfo#player.id,
+    PlayerId = PlayerInfo#player.id,
     PlayerConn = case db:read(connection, PlayerId) of
-                 [P] ->
-                     P;
-                 _ ->
-                     ok = db:delete(connection, PlayerId),
-                     #connection{ player_id = PlayerId }
-             end,    
+                     [P] ->
+                         P;
+                     _ ->
+                         ok = db:delete(connection, PlayerId),
+                         #connection{ player_id = PlayerId }
+                 end,    
     %% replace dead ids with none
     PlayerConn1 = PlayerConn#connection {
-                socket = fix_pid(PlayerConn#connection.socket),
-                process = fix_pid(PlayerConn#connection.process)
-               },
+                                         socket = fix_pid(PlayerConn#connection.socket),
+                                         process = fix_pid(PlayerConn#connection.process)
+                                        },
     %% check player state and login
     Condition = check_player(PlayerInfo, PlayerConn1, [Pass], 
                              [
@@ -105,10 +105,10 @@ login(PlayerInfo, PlayerConn, player_offline, [Name, _, Socket]) ->
     gen_server:cast(Pid, {'SOCKET', Socket}),
     %% update player connection
     PlayerConn1 = PlayerConn#connection {
-                player_id = ID,
-                process = Pid,
-                socket = Socket
-               },
+                                         player_id = ID,
+                                         process = Pid,
+                                         socket = Socket
+                                        },
     {PlayerInfo, PlayerConn1, {ok, Pid}}.
 
 check_player(PlayerInfo, PlayerConn, Pass, [Guard|Rest]) ->
@@ -141,11 +141,11 @@ is_offline(_, PlayerConn, _) ->
     SocketDown = PlayerConn#connection.socket =:= none,
     PlayerDown = PlayerConn#connection.process =:= none,
     {SocketDown and PlayerDown, player_offline}.    
-    
+
 
 
 fix_pid(none) ->
-	none;
+    none;
 
 fix_pid(Pid)
   when is_pid(Pid) ->

@@ -15,7 +15,7 @@
 %% Exported Functions
 %%
 -export([init_units/2, get_unit/2,
-		 units_id/1, units_tuple/1, units_queue_tuple/1]).
+         units_id/1, units_tuple/1, units_queue_tuple/1]).
 
 %%
 %% API Functions
@@ -27,7 +27,7 @@ init_units([], DictUnits) ->
 init_units(ListUnits, DictUnits) ->
     [Unit | Rest] = ListUnits,
     NewDictUnits = dict:store(Unit#unit.id, Unit, DictUnits),
-	init_units(Rest, NewDictUnits).
+    init_units(Rest, NewDictUnits).
 
 get_unit(UnitId, Units) ->
     UnitResult = dict:is_key(UnitId, Units),
@@ -42,7 +42,7 @@ get_unit(UnitId, Units) ->
 
 units_id([]) ->
     [];
-    
+
 units_id(Units) ->
     F = fun(Unit, UnitList) ->
                 UnitId = Unit#unit.id,
@@ -55,18 +55,18 @@ units_tuple([]) ->
     [];
 
 units_tuple(Units) ->
-	
-	F = fun({UnitId, Unit}, UnitList) ->
-				io:fwrite("unit - units_tuple: ~w~n", [Unit]),
-				UnitTuple = {UnitId, Unit#unit.type, Unit#unit.size},
-				[UnitTuple | UnitList]
-		end,
-	
-	UnitsList = dict:to_list(Units),
-	lists:foldl(F, [], UnitsList).
+    
+    F = fun({UnitId, Unit}, UnitList) ->
+                io:fwrite("unit - units_tuple: ~w~n", [Unit]),
+                UnitTuple = {UnitId, Unit#unit.type, Unit#unit.size},
+                [UnitTuple | UnitList]
+        end,
+    
+    UnitsList = dict:to_list(Units),
+    lists:foldl(F, [], UnitsList).
 
 units_queue_tuple([]) ->
-	[];
+    [];
 units_queue_tuple(UnitsQueue) ->
     
     F = fun(UnitQueue, UnitQueueList) ->

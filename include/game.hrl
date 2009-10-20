@@ -1,7 +1,7 @@
 -record(player_process, {
-                     player_id,
-                     process                 
-                     }).
+                         player_id,
+                         process                 
+                        }).
 
 -record(game_info, {
                     tick = 0,
@@ -12,11 +12,12 @@
                     npcs = [],
                     battles = [],
                     objects = [],
-                    events = []
+                    events = [],
+                    update_perceptions = dict:new(),
                     }).
 
 -record(state, { id,
-				 player_id,
+                 player_id,
                  type,
                  state,
                  x,              

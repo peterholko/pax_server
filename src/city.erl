@@ -22,19 +22,19 @@
 -export([start/2, stop/1, queue_unit/4]).
 
 -record(module_data, {
-          city, 
-          units, 
-          units_queue,
-		  buildings,
-		  buildings_queue,
-		  improvements,
-		  improvements_queue,		  
-          player_id, 
-          self,
-		  visible = [],
-		  observed_by = [],
-          save_city = false
-         }).
+                      city, 
+                      units, 
+                      units_queue,
+                      buildings,
+                      buildings_queue,
+                      improvements,
+                      improvements_queue,		  
+                      player_id, 
+                      self,
+                      visible = [],
+                      observed_by = [],
+                      save_city = false
+                     }).
 
 %%
 %% API Functions
@@ -44,8 +44,8 @@ start(CityId, PlayerId) ->
     case db:read(city, CityId) of 
         [City] ->
             gen_server:start({global, {city, CityId}}, city, [City, PlayerId], []);
-		Any ->
-    		{error, Any}
+        Any ->
+            {error, Any}
     end.
 
 init([City, PlayerId]) 
@@ -56,8 +56,8 @@ init([City, PlayerId])
     ListUnits = db:index_read(unit, City#city.id, #unit.entity_id),
     DictUnits = dict:new(),
     NewDictUnits = unit:init_units(ListUnits, DictUnits),
-			
-	UnitQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
+    
+    UnitQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
     
     {ok, #module_data{ city = City, units = NewDictUnits, units_queue = UnitQueue, player_id = PlayerId, self = self() }}.
 
@@ -69,39 +69,39 @@ stop(ProcessId)
     gen_server:cast(ProcessId, stop).
 
 queue_unit(CityId, PlayerId, UnitType, UnitSize) ->
-	gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_UNIT', PlayerId, UnitType, UnitSize}).
+    gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_UNIT', PlayerId, UnitType, UnitSize}).
 
 %%
 %% OTP handlers
 %%
 
 handle_cast({'ADD_VISIBLE', EntityId, EntityPid}, Data) ->
-	VisibleList = Data#module_data.visible,
-	NewVisibleList = [{EntityId, EntityPid} | VisibleList],
-	NewData = Data#module_data { visible = NewVisibleList },
-	
-	{noreply, NewData};
+    VisibleList = Data#module_data.visible,
+    NewVisibleList = [{EntityId, EntityPid} | VisibleList],
+    NewData = Data#module_data { visible = NewVisibleList },
+    
+    {noreply, NewData};
 
 handle_cast({'REMOVE_VISIBLE', EntityId, EntityPid}, Data) ->
-	VisibleList = Data#module_data.visible,
-	NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
-	NewData = Data#module_data { visible = NewVisibleList },
-	
-	{noreply, NewData};
+    VisibleList = Data#module_data.visible,
+    NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
+    NewData = Data#module_data { visible = NewVisibleList },
+    
+    {noreply, NewData};
 
 handle_cast({'ADD_OBSERVED_BY', EntityId, EntityPid}, Data) ->
-	ObservedByList = Data#module_data.observed_by,
-	NewObservedByList = [{EntityId, EntityPid} | ObservedByList],
-	NewData = Data#module_data { observed_by = NewObservedByList },
-	
-	{noreply, NewData};
+    ObservedByList = Data#module_data.observed_by,
+    NewObservedByList = [{EntityId, EntityPid} | ObservedByList],
+    NewData = Data#module_data { observed_by = NewObservedByList },
+    
+    {noreply, NewData};
 
 handle_cast({'REMOVE_OBSERVED_BY', EntityId, EntityPid}, Data) ->
-	ObservedByList = Data#module_data.observed_by,
-	NewObservedByList = lists:delete({EntityId, EntityPid}, ObservedByList),
-	NewData = Data#module_data { observed_by = NewObservedByList },
-	
-	{noreply, NewData};
+    ObservedByList = Data#module_data.observed_by,
+    NewObservedByList = lists:delete({EntityId, EntityPid}, ObservedByList),
+    NewData = Data#module_data { observed_by = NewObservedByList },
+    
+    {noreply, NewData};
 
 handle_cast({'ADD_UNIT', Unit}, Data) ->
     
@@ -127,17 +127,17 @@ handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize}, _From, Data) ->
         true ->
             NewData = Data,
             Result = {city, error}
-	end,
+    end,
     
     {reply, Result, NewData};
 
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->
-
+    
     City = Data#module_data.city,
-
-	if 
-		City#city.player_id =:= PlayerId ->
-						
+    
+    if 
+        City#city.player_id =:= PlayerId ->
+            
             %Get UnitsQueue and Units
             UnitsQueue = Data#module_data.units_queue,
             Units = Data#module_data.units,
@@ -154,15 +154,15 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             %Convert record to tuple packet form
             UnitsTuple = unit:units_tuple(NewUnits),
             UnitsQueueTuple = unit:units_queue_tuple(NewUnitsQueue),
-                              
-			CityInfo = {detailed, City#city.buildings, UnitsTuple, UnitsQueueTuple};
-		true ->
+            
+            CityInfo = {detailed, City#city.buildings, UnitsTuple, UnitsQueueTuple};
+        true ->
             NewData = Data,
-			CityInfo = {generic, City#city.player_id}
-	end,
-
+            CityInfo = {generic, City#city.player_id}
+    end,
+    
     io:fwrite("city - CityInfo: ~w~n", [CityInfo]),
-	{reply, CityInfo , NewData};
+    {reply, CityInfo , NewData};
 
 handle_call({'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}, _From, Data) ->
     
@@ -174,7 +174,7 @@ handle_call({'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}, _From, Data) ->
     if
         UnitResult =/= false ->
             Unit = dict:fetch(UnitId, Units),
-			
+            
             case gen_server:call(global:whereis_name({TargetAtom, TargetId}), {'RECEIVE_UNIT', Unit, Data#module_data.player_id}) of
                 {receive_unit, success} ->
                     NewUnits = dict:erase(UnitId, Units),
@@ -189,8 +189,8 @@ handle_call({'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}, _From, Data) ->
             NewData = Data
     end,         		
     
-	{reply, TransferUnitInfo , NewData};
-                
+    {reply, TransferUnitInfo , NewData};
+
 handle_call({'RECEIVE_UNIT', Unit, PlayerId}, _From, Data) ->
     
     io:fwrite("city - receive unit.~n"),
@@ -209,14 +209,14 @@ handle_call({'RECEIVE_UNIT', Unit, PlayerId}, _From, Data) ->
                     NewUnit = Unit#unit {entity_id = City#city.id},
                     NewUnits = dict:store(Unit#unit.id, NewUnit, Units),
                     NewData = Data#module_data {units = NewUnits, save_city = true},
-            		ReceiveUnitInfo = {receive_unit, success};
+                    ReceiveUnitInfo = {receive_unit, success};
                 
                 true ->
-    				NewData = Data,
+                    NewData = Data,
                     ReceiveUnitInfo = {receive_unit, error}
             end;               
         true ->
-			NewData = Data,
+            NewData = Data,
             ReceiveUnitInfo = {receive_unit, error}
     end,
     
@@ -224,34 +224,34 @@ handle_call({'RECEIVE_UNIT', Unit, PlayerId}, _From, Data) ->
 
 handle_call({'GET_STATE', _CityId}, _From, Data) ->
     City = Data#module_data.city,
-	
-	State = #state {id = City#city.id,
-					player_id = City#city.player_id,
-					type = ?OBJECT_CITY,
-					state = City#city.state,
-					x = City#city.x,
-					y = City#city.y},
-	
-	{reply, State, Data};
+    
+    State = #state {id = City#city.id,
+                    player_id = City#city.player_id,
+                    type = ?OBJECT_CITY,
+                    state = City#city.state,
+                    x = City#city.x,
+                    y = City#city.y},
+    
+    {reply, State, Data};
 
 handle_call({'GET_ID'}, _From, Data) ->
     City = Data#module_data.city,
-	{reply, City#city.id, Data};
+    {reply, City#city.id, Data};
 
 handle_call({'GET_PLAYER_ID'}, _From, Data) ->
-	{reply, Data#module_data.player_id, Data};
+    {reply, Data#module_data.player_id, Data};
 
 handle_call({'GET_TYPE'}, _From, Data) ->
     {reply, ?OBJECT_CITY, Data};
 
 handle_call('GET_VISIBLE', _From, Data) ->
-	{reply, Data#module_data.visible, Data};
+    {reply, Data#module_data.visible, Data};
 
 handle_call('GET_OBSERVED_BY', _From, Data) ->
-	{reply, Data#module_data.observed_by, Data};
+    {reply, Data#module_data.observed_by, Data};
 
 handle_call('GET_SUBSCRIPTION_DATA', _From, Data) ->
-	City = Data#module_data.city,	
+    City = Data#module_data.city,	
     {reply, {City#city.x, City#city.y, Data#module_data.visible, Data#module_data.observed_by}, Data};
 
 handle_call(Event, From, Data) ->
@@ -275,13 +275,13 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 %% Local Functions
 %%
-  
+
 add_unit_to_queue(CityId, UnitsQueue, UnitType, UnitSize) ->
     CurrentTime = util:get_time_seconds(),
-	StartTime = get_queue_unit_time(UnitsQueue, CurrentTime),   
-	io:fwrite("city - db_queue_unit - StartTime: ~w~n", [StartTime]),
+    StartTime = get_queue_unit_time(UnitsQueue, CurrentTime),   
+    io:fwrite("city - db_queue_unit - StartTime: ~w~n", [StartTime]),
     
-	UnitQueue = #unit_queue {id = counter:increment(unit_queue),
+    UnitQueue = #unit_queue {id = counter:increment(unit_queue),
                              city_id = CityId,
                              unit_type = UnitType,
                              unit_size = UnitSize,
@@ -297,13 +297,13 @@ get_queue_unit_time(QueueInfo, CurrentTime) ->
     io:fwrite("city - get_queue_unit_time - QueueInfo: ~w~n", [QueueInfo]),
     SortedQueueInfo = lists:keysort(5, QueueInfo),    
     LastUnitQueue = lists:last(SortedQueueInfo),  
-	EndTime = LastUnitQueue#unit_queue.end_time,
+    EndTime = LastUnitQueue#unit_queue.end_time,
     
     if
-    	EndTime > CurrentTime ->
-	        StartTime = EndTime;
+        EndTime > CurrentTime ->
+            StartTime = EndTime;
         true ->
-        	StartTime = CurrentTime
+            StartTime = CurrentTime
     end,
     StartTime.
 
@@ -312,7 +312,7 @@ check_queue([]) ->
 
 check_queue(QueueInfo) ->
     CurrentTime = util:get_time_seconds(),
-
+    
     io:fwrite("city - check_queue - CurrentTime: ~w~n", [CurrentTime]),  
     
     F = fun(UnitQueue, UnitsToRemove) ->
@@ -326,7 +326,7 @@ check_queue(QueueInfo) ->
                         NewUnitsToRemove = UnitsToRemove
                 end,
                 
-        		NewUnitsToRemove
+                NewUnitsToRemove
         end,
     
     UnitsToRemove = lists:foldl(F, [], QueueInfo),
@@ -348,17 +348,17 @@ add_units_from_queue(Units, UnitsToAdd)->
                   type = UnitQueue#unit_queue.unit_type,
                   size = UnitQueue#unit_queue.unit_size},
     
-	NewUnits = dict:store(Unit#unit.id, Unit, Units),
+    NewUnits = dict:store(Unit#unit.id, Unit, Units),
     add_units_from_queue(NewUnits, Rest).
-    
 
 
 
-          
-                        
 
 
-                
-                 
-                
+
+
+
+
+
+
 

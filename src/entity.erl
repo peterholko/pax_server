@@ -20,23 +20,23 @@ entity_list(PlayerId) ->
     %Get Player's entities
     Armies = db:select_army(PlayerId),
     Cities = db:select_city(PlayerId),
-                 
+    
     EntityList = lists:append(Armies, Cities),
     EntityList.
 
 add_entities(EntityList, []) ->
-	EntityList;
-  
-add_entities(EntityList, NewEntities) ->
-	
-	[NewEntity | RestEntities ] = NewEntities,
-	NewEntityList = [NewEntity | EntityList],
+    EntityList;
 
-	add_entities(NewEntityList, RestEntities).
+add_entities(EntityList, NewEntities) ->
+    
+    [NewEntity | RestEntities ] = NewEntities,
+    NewEntityList = [NewEntity | EntityList],
+    
+    add_entities(NewEntityList, RestEntities).
 
 %%
 %% Local Functions
 %%
 
 
-	
+

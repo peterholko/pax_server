@@ -20,7 +20,7 @@
          write/1, read/2, delete/2, index_read/3,
          dirty_write/1, dirty_read/2, dirty_delete/2,
          reset_game_tables/0, reset_tables/0, select_armies/0,
-		 select_cities/0, select_battles/0, 
+         select_cities/0, select_battles/0, 
          select_all_armies/0, select_all_players/0,
          do/1
         ]).
@@ -39,18 +39,18 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(army, [{disc_copies, [node()]}, {attributes, record_info(fields, army)}]),
     {atomic, ok} = mnesia:create_table(unit, [{disc_copies, [node()]}, {attributes, record_info(fields, unit)}]),    
     {atomic, ok} = mnesia:create_table(hero, [{disc_copies, [node()]}, {attributes, record_info(fields, hero)}]),
-	{atomic, ok} = mnesia:create_table(city, [{disc_copies, [node()]}, {attributes, record_info(fields, city)}]),
+    {atomic, ok} = mnesia:create_table(city, [{disc_copies, [node()]}, {attributes, record_info(fields, city)}]),
     {atomic, ok} = mnesia:create_table(battle, [{disc_copies, [node()]}, {attributes, record_info(fields, battle)}]),
     {atomic, ok} = mnesia:create_table(unit_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_queue)}]),
     {atomic, ok} = mnesia:create_table(counter, [{disc_copies, [node()]}, {attributes, record_info(fields, counter)}]),
-	{atomic, ok} = mnesia:create_table(improvement, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement)}]),
-	
-	{atomic, ok} = mnesia:create_table(unit_type, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_type)}]),
-	{atomic, ok} = mnesia:create_table(building_type, [{disc_copies, [node()]}, {attributes, record_info(fields, building_type)}]),
-	{atomic, ok} = mnesia:create_table(resource_type, [{disc_copies, [node()]}, {attributes, record_info(fields, resource_type)}]),
-	{atomic, ok} = mnesia:create_table(population_type, [{disc_copies, [node()]}, {attributes, record_info(fields, population_type)}]),
-	{atomic, ok} = mnesia:create_table(improvement_type, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement_type)}]),
-     
+    {atomic, ok} = mnesia:create_table(improvement, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement)}]),
+    
+    {atomic, ok} = mnesia:create_table(unit_type, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_type)}]),
+    {atomic, ok} = mnesia:create_table(building_type, [{disc_copies, [node()]}, {attributes, record_info(fields, building_type)}]),
+    {atomic, ok} = mnesia:create_table(resource_type, [{disc_copies, [node()]}, {attributes, record_info(fields, resource_type)}]),
+    {atomic, ok} = mnesia:create_table(population_type, [{disc_copies, [node()]}, {attributes, record_info(fields, population_type)}]),
+    {atomic, ok} = mnesia:create_table(improvement_type, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement_type)}]),
+    
     mnesia:add_table_index(player, name),
     mnesia:add_table_index(unit, entity_id),
     mnesia:add_table_index(unit_queue, city_id),
@@ -63,22 +63,22 @@ start() ->
 write(R) ->
     F = fun() -> mnesia:write(R) end,
     {atomic, Value} = mnesia:transaction(F),
-	Value.  
+    Value.  
 
 read(T, K) ->
     F = fun() -> mnesia:read(T, K) end,
     {atomic, Value} = mnesia:transaction(F),
-	Value.
+    Value.
 
 delete(T, K) ->
     F = fun() -> mnesia:delete(T, K, write) end,
     {atomic, Value} = mnesia:transaction(F),
-	Value.  
+    Value.  
 
 index_read(T, V, K) ->
     F = fun() ->  mnesia:index_read(T, V, K) end,
     {atomic, Value} = mnesia:transaction(F),
-	Value.
+    Value.
 
 dirty_read(T, K) ->
     mnesia:dirty_read(T, K).
@@ -93,10 +93,10 @@ select_armies() ->
     do(qlc:q([{X#army.id, X#army.player_id} || X <- mnesia:table(army)])).
 
 select_cities() ->
-	do(qlc:q([{X#city.id, X#city.player_id} || X <- mnesia:table(city)])).
+    do(qlc:q([{X#city.id, X#city.player_id} || X <- mnesia:table(city)])).
 
 select_battles() ->
-	do(qlc:q([{X#battle.id} || X <- mnesia:table(battle)])).
+    do(qlc:q([{X#battle.id} || X <- mnesia:table(battle)])).
 
 select_all_armies() ->
     do(qlc:q([X || X <- mnesia:table(army)])).
@@ -122,8 +122,8 @@ game_tables() ->
 
 reset_game_tables() ->
     F = fun() ->
-		foreach(fun mnesia:write/1, game_tables())
-	end,    
+                foreach(fun mnesia:write/1, game_tables())
+        end,    
     mnesia:transaction(F).    
 
 %% Testing
@@ -154,14 +154,14 @@ test_tables() ->
      {unit, 4, 6, 1, 1, 25, 1},
      {unit, 5, 11, 2, 1, 20, 1},
      {unit, 6, 11, 2, 2, 500, 1},
-	 {unit, 7, 2, 1, 2, 20, 1},
-	 {unit, 8, 2, 1, 1, 30, 1},
-	 {unit, 9, 3, 1, 1, 15, 1}
-
+     {unit, 7, 2, 1, 2, 20, 1},
+     {unit, 8, 2, 1, 1, 30, 1},
+     {unit, 9, 3, 1, 1, 15, 1}
+    
     ].
 
 reset_tables() ->
     F = fun() ->
-		foreach(fun mnesia:write/1, test_tables())
-	end,    
+                foreach(fun mnesia:write/1, test_tables())
+        end,    
     mnesia:transaction(F).    

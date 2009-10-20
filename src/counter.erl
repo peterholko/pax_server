@@ -8,14 +8,14 @@
 -export([increment/1, increment/2, reset/1]).
 
 increment(Type) ->
-   	increment(Type, 1).
+    increment(Type, 1).
 
 increment(Type, Value) ->
     mnesia:dirty_update_counter(counter, Type, Value).    
 
 reset(Type) ->
     Counter = #counter{
-      type = Type,
-      value = 0
-     },
+                       type = Type,
+                       value = 0
+                      },
     ok = db:write(Counter).

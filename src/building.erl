@@ -26,7 +26,8 @@ init_buildings([], DictBuildings) ->
 init_buildings(ListBuildings, DictBuildings) ->
     [Building | Rest] = ListBuildings,
     NewDictBuildings = dict:store(Building#building.id, Building, DictBuildings),
-	init_buildings(Rest, NewDictBuildings).
+    init_buildings(Rest, NewDictBuildings).
 
 
-  
+
+

@@ -22,26 +22,26 @@
 -export([start/2, stop/1]).
 
 -record(module_data, {
-          army,  
-          units,       
-          player_id, 
-          self,
-		  visible = [],
-		  observed_by = [],
-          save_army = false
-         }).
+                      army,  
+                      units,       
+                      player_id, 
+                      self,
+                      visible = [],
+                      observed_by = [],
+                      save_army = false
+                     }).
 
 %%
 %% API Functions
 %%
 
 start(ArmyId, PlayerId) ->
-	case db:read(army, ArmyId) of
-		[Army] ->
-			gen_server:start({global, {army, ArmyId}}, army, [Army, PlayerId], []);
-		Any ->
+    case db:read(army, ArmyId) of
+        [Army] ->
+            gen_server:start({global, {army, ArmyId}}, army, [Army, PlayerId], []);
+        Any ->
             {error, Any}
-	end.
+    end.
 
 init([Army, PlayerId]) 
   when is_tuple(Army),
@@ -71,9 +71,9 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
     
     if
         (Army#army.state =/= ?STATE_MOVE) and (Army#army.state =/= ?STATE_COMBAT) ->
-			io:fwrite("army - ArmyId: ~w ArmyState: ~w expression: ~w~n", [Army#army.id, Army#army.state, (Army#army.state =/= ?STATE_MOVE) and (Army#army.state =/= ?STATE_COMBAT)]),
+            io:fwrite("army - ArmyId: ~w ArmyState: ~w expression: ~w~n", [Army#army.id, Army#army.state, (Army#army.state =/= ?STATE_MOVE) and (Army#army.state =/= ?STATE_COMBAT)]),
             gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
-        	gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)});
+            gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)});
         true ->
             ok
     end,         
@@ -89,10 +89,10 @@ handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     Army = Data#module_data.army,
     ArmySpeed = get_army_speed(Army#army.id),
     
-   	if
+    if
         (Army#army.state =/= ?STATE_ATTACK) and (Army#army.state =/= ?STATE_COMBAT)->
             gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
-        	gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)});
+            gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)});
         true ->
             ok
     end,         
@@ -104,26 +104,26 @@ handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     {noreply, NewData};
 
 handle_cast({'SET_STATE_COMBAT', BattleId}, Data) ->
-	Army = Data#module_data.army,
-	
+    Army = Data#module_data.army,
+    
     gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),	
-	
+    
     NewArmy = state_combat(Army, BattleId),
-   	NewData = Data#module_data {army = NewArmy, save_army = true},
-	
+    NewData = Data#module_data {army = NewArmy, save_army = true},
+    
     {noreply, NewData};
 
 handle_cast({'SET_STATE_NONE'}, Data) ->
-
-	NewArmy = state_none(Data#module_data.army),
-   	NewData = Data#module_data {army = NewArmy, save_army = true},    
     
-	{noreply, NewData};	
+    NewArmy = state_none(Data#module_data.army),
+    NewData = Data#module_data {army = NewArmy, save_army = true},    
+    
+    {noreply, NewData};	
 
 handle_cast({'PROCESS_EVENT', _, EventType}, Data) ->
     
     case EventType of
-		?EVENT_MOVE ->
+        ?EVENT_MOVE ->
             NewArmy = do_move(Data#module_data.army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by),
             NewData = Data#module_data {army = NewArmy};
         ?EVENT_ATTACK ->
@@ -136,44 +136,44 @@ handle_cast({'PROCESS_EVENT', _, EventType}, Data) ->
     {noreply, NewData};
 
 handle_cast({'ADD_VISIBLE', EntityId, EntityPid}, Data) ->
-	VisibleList = Data#module_data.visible,
-	NewVisibleList = [{EntityId, EntityPid} | VisibleList],		
-	NewData = Data#module_data { visible = NewVisibleList },
-		
-	%Toggle player's perception has been updated.
-	gen_server:cast(global:whereis_name({player, Data#module_data.player_id}), 'UPDATE_PERCEPTION'),		
-	
-	{noreply, NewData};
+    VisibleList = Data#module_data.visible,
+    NewVisibleList = [{EntityId, EntityPid} | VisibleList],		
+    NewData = Data#module_data { visible = NewVisibleList },
+    
+    %Toggle within game state that player's perception has been updated.
+    gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', Data#module_data.player_id}),	
+    
+    {noreply, NewData};
 
 handle_cast({'REMOVE_VISIBLE', EntityId, EntityPid}, Data) ->
-	VisibleList = Data#module_data.visible,
-	NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
-	NewData = Data#module_data { visible = NewVisibleList },
-	
-	%Toggle player's perception has been updated.
-	gen_server:cast(global:whereis_name({player, Data#module_data.player_id}), 'UPDATE_PERCEPTION'),	
-	
-	{noreply, NewData};
+    VisibleList = Data#module_data.visible,
+    NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
+    NewData = Data#module_data { visible = NewVisibleList },
+    
+    %Toggle within game state that player's perception has been updated.
+    gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', Data#module_data.player_id}),	
+    
+    {noreply, NewData};
 
 handle_cast({'ADD_OBSERVED_BY', EntityId, EntityPid}, Data) ->
-	ObservedByList = Data#module_data.observed_by,
-	NewObservedByList = [{EntityId, EntityPid} | ObservedByList],
-	NewData = Data#module_data { observed_by = NewObservedByList },
-	
-	{noreply, NewData};
+    ObservedByList = Data#module_data.observed_by,
+    NewObservedByList = [{EntityId, EntityPid} | ObservedByList],
+    NewData = Data#module_data { observed_by = NewObservedByList },
+    
+    {noreply, NewData};
 
 handle_cast({'REMOVE_OBSERVED_BY', EntityId, EntityPid}, Data) ->
-	ObservedByList = Data#module_data.observed_by,
-	NewObservedByList = lists:delete({EntityId, EntityPid}, ObservedByList),
-	NewData = Data#module_data { observed_by = NewObservedByList },
-	
-	{noreply, NewData};
+    ObservedByList = Data#module_data.observed_by,
+    NewObservedByList = lists:delete({EntityId, EntityPid}, ObservedByList),
+    NewData = Data#module_data { observed_by = NewObservedByList },
+    
+    {noreply, NewData};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
 handle_call({'DAMAGE_UNIT', UnitId, Damage}, _From, Data) ->
-
+    
     Units = Data#module_data.units,
     Unit = unit:get_unit(UnitId, Units),
     
@@ -181,36 +181,36 @@ handle_call({'DAMAGE_UNIT', UnitId, Damage}, _From, Data) ->
         Unit =/= none ->
             
             [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
-    		TotalHp = Unit#unit.size * UnitType#unit_type.max_hp,
+            TotalHp = Unit#unit.size * UnitType#unit_type.max_hp,
             Army = Data#module_data.army,
-                                          
+            
             io:fwrite("Army ~w - Damage: ~w~n", [Army#army.id, Damage]),
             
             if
                 Damage >= TotalHp ->
-					io:fwrite("Army ~w - Unit Destroyed.~n", [Army#army.id]),
+                    io:fwrite("Army ~w - Unit Destroyed.~n", [Army#army.id]),
                     NewUnits = dict:erase(UnitId, Units);
                 true ->
                     Killed = Damage div UnitType#unit_type.max_hp,
                     
-					io:fwrite("Army ~w - Units killed: ~w~n", [Army#army.id, Killed]),
-					
+                    io:fwrite("Army ~w - Units killed: ~w~n", [Army#army.id, Killed]),
+                    
                     NewSize = Unit#unit.size - Killed,
                     NewUnit = Unit#unit {size = NewSize},
-					
-					io:fwrite("Army ~w - Units size: ~w~n", [Army#army.id, NewSize]),
-					
+                    
+                    io:fwrite("Army ~w - Units size: ~w~n", [Army#army.id, NewSize]),
+                    
                     NewUnits = dict:store(UnitId, NewUnit, Units)
             end,
-        						
-        	NewData = Data#module_data {units = NewUnits};
+            
+            NewData = Data#module_data {units = NewUnits};
         true ->
             NewData = Data
     end,   
     
-	ArmyStatus = get_army_status(Data),
-	
-	{reply, ArmyStatus, NewData};
+    ArmyStatus = get_army_status(Data),
+    
+    {reply, ArmyStatus, NewData};
 
 handle_call({'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}, _From, Data) ->
     
@@ -237,8 +237,8 @@ handle_call({'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}, _From, Data) ->
             NewData = Data
     end,         		
     
-	{reply, TransferUnitInfo , NewData};
-                
+    {reply, TransferUnitInfo , NewData};
+
 handle_call({'RECEIVE_UNIT', Unit, PlayerId}, _From, Data) ->
     
     io:fwrite("army - receive unit.~n"),
@@ -250,37 +250,37 @@ handle_call({'RECEIVE_UNIT', Unit, PlayerId}, _From, Data) ->
         PlayerId =:= Data#module_data.player_id ->
             %Check to see if unit already exists
             UnitResult = dict:is_key(Unit#unit.id, Units),
-                        
+            
             if
                 UnitResult =:= false ->
                     
                     NewUnit = Unit#unit {entity_id = Army#army.id},
                     NewUnits = dict:store(Unit#unit.id, NewUnit, Units),
                     NewData = Data#module_data {units = NewUnits, save_army = true},
-            		ReceiveUnitInfo = {receive_unit, success};
+                    ReceiveUnitInfo = {receive_unit, success};
                 
                 true ->
-    				NewData = Data,
+                    NewData = Data,
                     ReceiveUnitInfo = {receive_unit, error}
             end;               
         true ->
-			NewData = Data,
+            NewData = Data,
             ReceiveUnitInfo = {receive_unit, error}
     end,
     
     {reply, ReceiveUnitInfo, NewData};    
 
 handle_call({'GET_INFO'}, _From, Data) ->
-	
+    
     Army = Data#module_data.army,    
     Units = Data#module_data.units,
-                   
+    
     %Convert record to tuple packet form
     UnitsInfoTuple = unit:units_tuple(Units),
-	ArmyInfo = {Army#army.id, Army#army.player_id, UnitsInfoTuple},
-
+    ArmyInfo = {Army#army.id, Army#army.player_id, UnitsInfoTuple},
+    
     io:fwrite("army - ArmyInfo: ~w~n", [ArmyInfo]),
-	{reply, ArmyInfo , Data};
+    {reply, ArmyInfo , Data};
 
 handle_call({'GET_UNITS'}, _From, Data) ->
     {reply, Data#module_data.units, Data};
@@ -292,34 +292,34 @@ handle_call({'GET_UNIT', UnitId}, _From, Data) ->
 
 handle_call({'GET_STATE', _ArmyId}, _From, Data) ->
     Army = Data#module_data.army,
-	
-	State = #state { id = Army#army.id, 
-					 player_id = Army#army.player_id, 
-					 type = ?OBJECT_ARMY,
-					 state = Army#army.state,
-					 x = Army#army.x,
-					 y = Army#army.y},
-	
-	{reply, State, Data};
+    
+    State = #state { id = Army#army.id, 
+                     player_id = Army#army.player_id, 
+                     type = ?OBJECT_ARMY,
+                     state = Army#army.state,
+                     x = Army#army.x,
+                     y = Army#army.y},
+    
+    {reply, State, Data};
 
 handle_call({'GET_ID'}, _From, Data) ->
     Army = Data#module_data.army,
-	{reply, Army#army.id, Data};
+    {reply, Army#army.id, Data};
 
 handle_call({'GET_PLAYER_ID'}, _From, Data) ->
-	{reply, Data#module_data.player_id, Data};
+    {reply, Data#module_data.player_id, Data};
 
 handle_call({'GET_TYPE'}, _From, Data) ->
     {reply, ?OBJECT_ARMY, Data};
 
 handle_call('GET_VISIBLE', _From, Data) ->
-	{reply, Data#module_data.visible, Data};
+    {reply, Data#module_data.visible, Data};
 
 handle_call('GET_OBSERVED_BY', _From, Data) ->
-	{reply, Data#module_data.observed_by, Data};
+    {reply, Data#module_data.observed_by, Data};
 
 handle_call('GET_SUBSCRIPTION_DATA', _From, Data) ->
-	Army = Data#module_data.army,	
+    Army = Data#module_data.army,	
     {reply, {Army#army.x, Army#army.y, Data#module_data.visible, Data#module_data.observed_by}, Data};
 
 handle_call(Event, From, Data) ->
@@ -340,59 +340,57 @@ handle_info(Info, Data) ->
 
 code_change(_OldVsn, Data, _Extra) ->
     {ok, Data}.
-	
+
 %%
 %% Local Functions
 %%
 
 do_move(Army, ArmyPid, VisibleList, ObservedByList) ->    
-	
-	PlayerPID = global:whereis_name({player, Army#army.player_id}),
-	
-	%% Move army coordinates
-	{NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, Army#army.dest_x, Army#army.dest_y),
-	
-	%% Set any newly discovered tiles
-    gen_server:cast(PlayerPID, {'SET_DISCOVERED_TILES', Army#army.id, NewArmyX, NewArmyY}),
-	
-	%% Update subscription model
-	EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
-	{ok, SubscriptionPid} = subscription:start(Army#army.id),
-	subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
-	
-	%Toggle player's perception has been updated.
-	gen_server:cast(PlayerPID, 'UPDATE_PERCEPTION'),	
     
-	%% Update army's state
-	if	
+    %% Move army coordinates
+    {NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, Army#army.dest_x, Army#army.dest_y),
+    
+    %% Set any newly discovered tiles
+    gen_server:cast(global:whereis_name({player, Army#army.player_id}), {'SET_DISCOVERED_TILES', Army#army.id, NewArmyX, NewArmyY}),
+    
+    %% Update subscription model
+    EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
+    {ok, SubscriptionPid} = subscription:start(Army#army.id),
+    subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
+    
+    %Toggle player's perception has been updated.
+    gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', Army#army.player_id}),		
+    
+    %% Update army's state
+    if	
         (NewArmyX =:= Army#army.dest_x) and (NewArmyY =:= Army#army.dest_y) ->
             NewArmy = state_none(Army, NewArmyX, NewArmyY);
-		true ->
+        true ->
             ArmySpeed = get_army_speed(Army#army.id),
-			gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)}),
-	        NewArmy = event_move(Army, NewArmyX, NewArmyY)
-	end,
+            gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)}),
+            NewArmy = event_move(Army, NewArmyX, NewArmyY)
+    end,
     
-	NewArmy.
+    NewArmy.
 
 do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->    
     TargetState = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE', Army#army.id}),
-	{NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
+    {NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
     
-	if	
+    if	
         (NewArmyX =:= TargetState#state.x) and (NewArmyY =:= TargetState#state.y) -> 
-			
-			BattleId = counter:increment(battle),
+            
+            BattleId = counter:increment(battle),
             battle:create(BattleId, TargetState#state.x, TargetState#state.y),
-			battle:setup(BattleId, Army#army.id, Army#army.target),
-			gen_server:cast(global:whereis_name({army, Army#army.target}), {'SET_STATE_COMBAT', BattleId}),
-			
+            battle:setup(BattleId, Army#army.id, Army#army.target),
+            gen_server:cast(global:whereis_name({army, Army#army.target}), {'SET_STATE_COMBAT', BattleId}),
+            
             NewArmy = state_combat(Army, BattleId, NewArmyX, NewArmyY);
-		true ->
+        true ->
             ArmySpeed = get_army_speed(Army#army.id),
-			gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)}),
-			NewArmy = event_move(Army, NewArmyX, NewArmyY)
-	end,
+            gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)}),
+            NewArmy = event_move(Army, NewArmyX, NewArmyY)
+    end,
     
     NewArmy.
 
@@ -407,8 +405,8 @@ move(ArmyX, ArmyY, DestX, DestY) ->
             NewArmyX = ArmyX - 1;
         true ->
             NewArmyX = ArmyX
-	end,
-
+    end,
+    
     if
         DiffY > 0 ->
             NewArmyY = ArmyY + 1;
@@ -417,27 +415,27 @@ move(ArmyX, ArmyY, DestX, DestY) ->
         true ->
             NewArmyY = ArmyY
     end,
-                  
-	{NewArmyX, NewArmyY}.
+    
+    {NewArmyX, NewArmyY}.
 
 
 
 get_army_speed(ArmyId) ->
     %UnitsSpeed = unit:units_speed(ArmyId),
     5.
-    %lists:max(UnitsSpeed).
+%lists:max(UnitsSpeed).
 
 speed_to_ticks(Speed) ->
     Speed * (1000 div ?GAME_LOOP_TICK).
 
 event_move(Army, NewX, NewY) ->
     io:fwrite("army - db_event_move~n"),
-	Army#army{x = NewX,
+    Army#army{x = NewX,
               y = NewY}.  
 
 state_move(Army, DestX, DestY) ->
     Army#army{dest_x = DestX, 
-    	      dest_y = DestY,
+              dest_y = DestY,
               state = ?STATE_MOVE}.
 
 
@@ -448,12 +446,12 @@ state_attack(Army, TargetId) ->
 
 state_combat(Army, BattleId) ->
     Army#army{state = ?STATE_COMBAT,
-			  battle = BattleId}.
+              battle = BattleId}.
 
 state_combat(Army, BattleId, X, Y) ->
-	Army#army{state = ?STATE_COMBAT,
-			  battle = BattleId,
-			  x = X,
+    Army#army{state = ?STATE_COMBAT,
+              battle = BattleId,
+              x = X,
               y = Y}.
 
 state_none(Army, X, Y) ->
@@ -465,22 +463,21 @@ state_none(Army) ->
     Army#army{state = ?STATE_NONE}. 
 
 get_army_status(Data) ->
-	
-	NumUnits = dict:size(Data#module_data.units),
-	
-	if
-		NumUnits =:= 0 ->
-			ArmyStatus = ?ARMY_DEAD;
-		true ->
-			ArmyStatus = ?ARMY_ALIVE
-	end,
-
-	ArmyStatus.
-						 
-						
-						
-						
-
-			
-			
     
+    NumUnits = dict:size(Data#module_data.units),
+    
+    if
+        NumUnits =:= 0 ->
+            ArmyStatus = ?ARMY_DEAD;
+        true ->
+            ArmyStatus = ?ARMY_ALIVE
+    end,
+    
+    ArmyStatus.
+
+
+
+
+
+
+

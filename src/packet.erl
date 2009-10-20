@@ -37,7 +37,7 @@ id() ->
     int().
 
 tile_index() ->
-	int().
+    int().
 
 state() ->
     short().
@@ -55,10 +55,10 @@ y() ->
     short().
 
 level() ->
-	short().
+    short().
 
 improvement_type() ->
-	byte().
+    byte().
 
 entity() ->
     tuple({id(), player(), type(), state(), x(), y()}).
@@ -70,19 +70,19 @@ tile() ->
     tuple({tile_index(), byte()}).
 
 tiles() ->
-	list(int(), tile()). 
+    list(int(), tile()). 
 
 info_list() ->
     list(int(), string()).    
 
 hero() ->
-	id().
+    id().
 
 unit_id() ->
     id().
 
 unit_size() ->
-	int().
+    int().
 
 unit_type() ->
     short().
@@ -94,13 +94,13 @@ end_time() ->
     int().
 
 unit() ->
-	tuple({unit_id(), unit_type(), unit_size()}).
+    tuple({unit_id(), unit_type(), unit_size()}).
 
 unit_queue() ->
     tuple({unit_id(), unit_type(), unit_size(), start_time(), end_time()}).
 
 units() ->
-	list(short(), unit()).
+    list(short(), unit()).
 
 buildings() ->
     list(short(), int()).
@@ -124,25 +124,25 @@ battle_id() ->
     id().
 
 source_army_id() ->
-	id().
+    id().
 
 source_unit_id() ->
-	id().
+    id().
 
 target_army_id() ->
-	id().
+    id().
 
 target_unit_id() ->
-	id().
+    id().
 
 armies() ->
-	list(short(), army()).
+    list(short(), army()).
 
 army() ->
-	tuple({id(), player(), units()}).
+    tuple({id(), player(), units()}).
 
 damage() ->
-	int().
+    int().
 
 % packet records
 
@@ -181,8 +181,8 @@ info() ->
     record(info, {info_list()}).
 
 info_army() ->
-	record(info_army, {id(),
-					   units()}).
+    record(info_army, {id(),
+                       units()}).
 
 info_city() ->
     record(info_city, {id(),
@@ -203,82 +203,82 @@ transfer_unit() ->
                            target_type()}).
 
 battle_info() ->
-	record(battle_info, {battle_id(),
-						 armies()}).
+    record(battle_info, {battle_id(),
+                         armies()}).
 
 battle_add_army() ->
-	record(battle_add_army, {battle_id(),
-							 army()}).
+    record(battle_add_army, {battle_id(),
+                             army()}).
 
 battle_target() ->
     record(battle_target, {battle_id(),
-						   source_army_id(),
-						   source_unit_id(),
+                           source_army_id(),
+                           source_unit_id(),
                            target_army_id(),
                            target_unit_id()}).
 
 battle_damage() ->
-	record(battle_damage, {battle_id(),
-						   source_id(),
-						   target_id(),
-						   damage()}).
+    record(battle_damage, {battle_id(),
+                           source_id(),
+                           target_id(),
+                           damage()}).
 
 build_improvement() ->
-	record(build_improvement, {improvement_type(),
-							   tile_index(),
-							   source_army_id()}).
+    record(build_improvement, {improvement_type(),
+                               tile_index(),
+                               source_army_id()}).
 
 %%
 %% API Functions
 %%
 
 read(?CMD_POLICYREQUEST) ->
-	io:fwrite("packet: CMD_POLICYREQUEST.~n"),
+    io:fwrite("packet: CMD_POLICYREQUEST.~n"),
     policy_request;
 
 read(<<?CMD_LOGIN, Bin/binary>>) ->
-	io:fwrite("packet: read() - Read Data accepted: ~w~n", [Bin]),
+    io:fwrite("packet: read() - Read Data accepted: ~w~n", [Bin]),
     unpickle(login(), Bin);
 
 read(<<?CMD_CLOCKSYNC>>) ->
-	io:fwrite("packet: read() - clocksync~n"),
-	clocksync;
+    io:fwrite("packet: read() - clocksync~n"),
+    clocksync;
 
 read(<<?CMD_CLIENTREADY>>) ->
-	io:fwrite("packet: read() - clientready~n"),
-	clientready;
+    io:fwrite("packet: read() - clientready~n"),
+    clientready;
 
 read(<<?CMD_MOVE, Bin/binary>>) ->
-	unpickle(move(), Bin);
+    unpickle(move(), Bin);
 
 read(<<?CMD_ATTACK, Bin/binary>>) ->
-	unpickle(attack(), Bin);
+    unpickle(attack(), Bin);
 
 read(<<?CMD_REQUEST_INFO, Bin/binary>>) ->
-	unpickle(request_info(), Bin);
+    unpickle(request_info(), Bin);
 
 read(<<?CMD_CITY_QUEUE_UNIT, Bin/binary>>) ->
-	unpickle(city_queue_unit(), Bin);
+    unpickle(city_queue_unit(), Bin);
 
 read(<<?CMD_TRANSFER_UNIT, Bin/binary>>) ->
-	unpickle(transfer_unit(), Bin);
+    unpickle(transfer_unit(), Bin);
 
 read(<<?CMD_BATTLE_TARGET, Bin/binary>>) ->
-	unpickle(battle_target(), Bin);
+    unpickle(battle_target(), Bin);
 
 read(<<?CMD_BUILD_IMPROVEMENT, Bin/binary>>) ->
-	unpickle(build_improvement(), Bin);
+    unpickle(build_improvement(), Bin);
 
 %% Test Packets
 
 read(<<?CMD_PLAYER_ID, Bin/binary>>) ->
-	unpickle(player_id(), Bin);
+    unpickle(player_id(), Bin);
 
 read(<<?CMD_EXPLORED_MAP, Bin/binary>>) ->
-	unpickle(map(), Bin);
+    unpickle(map(), Bin);
 
 read(<<?CMD_PERCEPTION, Bin/binary>>) ->
-	unpickle(perception(), Bin).
+    unpickle(perception(), Bin).
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];
@@ -296,24 +296,24 @@ write(R) when is_record(R, info) ->
     [?CMD_INFO|pickle(info(), R)];
 
 write(R) when is_record(R, info_army) ->
-	[?CMD_INFO_ARMY|pickle(info_army(), R)];
+    [?CMD_INFO_ARMY|pickle(info_army(), R)];
 
 write(R) when is_record(R, info_city) ->
-	[?CMD_INFO_CITY|pickle(info_city(), R)];
+    [?CMD_INFO_CITY|pickle(info_city(), R)];
 
 write(R) when is_record(R, battle_info) ->
-	[?CMD_BATTLE_INFO|pickle(battle_info(), R)];
+    [?CMD_BATTLE_INFO|pickle(battle_info(), R)];
 
 write(R) when is_record(R, battle_add_army) ->
-	[?CMD_BATTLE_ADD_ARMY|pickle(battle_add_army(), R)];
+    [?CMD_BATTLE_ADD_ARMY|pickle(battle_add_army(), R)];
 
 write(R) when is_record(R, battle_damage) ->
-	[?CMD_BATTLE_DAMAGE|pickle(battle_damage(), R)];
+    [?CMD_BATTLE_DAMAGE|pickle(battle_damage(), R)];
 
 % Test packets
 
 write(R) when is_record(R, move) ->
-	[?CMD_MOVE|pickle(move(), R)].
+    [?CMD_MOVE|pickle(move(), R)].
 
 send(Socket, Data) ->
     io:format("packet: send() - Data ->  ~p~n", [Data]),
@@ -387,11 +387,11 @@ send_clocksync(Socket) ->
 
 %%%%
 army_info_test() ->
-	R = #info_army { id = 1, units = []},
-	Bin = write(R),
-	io:fwrite("R: ~w~n", [Bin]).
+    R = #info_army { id = 1, units = []},
+    Bin = write(R),
+    io:fwrite("R: ~w~n", [Bin]).
 
 battle_joined_test() ->
-	R = {battle_joined,1,[{2,1,[{1,2,3}]}]},
-	Bin = write(R),
-	io:fwrite("R: ~w~n", [Bin]).
+    R = {battle_joined,1,[{2,1,[{1,2,3}]}]},
+    Bin = write(R),
+    io:fwrite("R: ~w~n", [Bin]).
