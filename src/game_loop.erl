@@ -24,7 +24,6 @@ loop(LastTime, GamePID) ->
     CurrentTick = gen_server:call(GamePID, 'GET_TICK'), 	
     EventList = gen_server:call(GamePID, 'GET_EVENTS'),
     UpdatePerceptions = gen_server:call(GamePID, 'GET_UPDATE_PERCEPTION'),
-    io:fwrite("UpdatePerceptions: ~w~n", [UpdatePerceptions]),
     
     %Process events
     process_events(GamePID, CurrentTick, EventList),
@@ -82,8 +81,7 @@ send_perceptions(UpdatePerception) ->
         
     PlayerPid = global:whereis_name({player,PlayerId}),       
     case is_pid(PlayerPid) of
-        true -> io:fwrite("PlayerPid: ~w~n", [PlayerPid]), 
-                gen_server:cast(PlayerPid, {'SEND_PERCEPTION'});
+        true -> gen_server:cast(PlayerPid, {'SEND_PERCEPTION'});
         false -> ok
     end,
     
