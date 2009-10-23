@@ -79,13 +79,11 @@ send_perceptions([]) ->
 send_perceptions(UpdatePerception) ->
     [PlayerId | Rest] = UpdatePerception,
         
-    PlayerPid = global:whereis_name({player,PlayerId}),   
-    
-    %case is_pid(PlayerPid) of
-    %    true -> gen_server:cast(PlayerPid, {'SEND_PERCEPTION'});
-    %    false -> ok
-    %end,
-    
-    gen_server:cast(PlayerPid, {'SEND_PERCEPTION'});
+    PlayerPid = global:whereis_name({player,PlayerId}),       
+    case is_pid(PlayerPid) of
+        true -> io:fwrite("PlayerPid: ~w~n", [PlayerPid]), 
+                gen_server:cast(PlayerPid, {'SEND_PERCEPTION'});
+        false -> ok
+    end,
     
     send_perceptions(Rest).

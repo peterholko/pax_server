@@ -92,6 +92,8 @@ handle_cast({'ADD_PERCEPTION', NewPerceptionData}, Data) ->
 
 handle_cast({'SEND_PERCEPTION'}, Data) ->
     
+    io:fwrite("Data#module_data.update_perception: ~w~n", [Data#module_data.update_perception]),
+    
     if 
         Data#module_data.update_perception =:= true -> 
             
