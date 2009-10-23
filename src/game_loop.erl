@@ -23,7 +23,7 @@ loop(LastTime, GamePID) ->
     
     CurrentTick = gen_server:call(GamePID, 'GET_TICK'), 	
     EventList = gen_server:call(GamePID, 'GET_EVENTS'),
-    PlayerList = gen_server:call(GamePID, 'GET_PLAYERS'),
+    UpdatePerceptions = gen_server:call(GamePID, 'GET_UPDATE_PERCEPTION'),
     
     %Process events
     process_events(GamePID, CurrentTick, EventList),
@@ -32,7 +32,7 @@ loop(LastTime, GamePID) ->
     %perceptions(EntityList, ObjectList),
     
     %Send perceptions
-    send_perceptions(PlayerList),
+    send_perceptions(UpdatePerceptions),
     
     CurrentTime = util:get_time(),
     NextTime = LastTime + ?GAME_LOOP_TICK,
@@ -122,7 +122,13 @@ build_perception(EntityInfo, ObjectList, Perception) ->
 send_perceptions([]) ->
     ok;
 
-send_perceptions(PlayerList) ->
-    [Player | Rest] = PlayerList,
-    gen_server:cast(Player#player_process.process, {'SEND_PERCEPTION'}),
+send_perceptions(UpdatePerception) ->
+    [PlayerId | Rest] = UpdatePerception,
+        
+    PlayerPid = global:whereis_name({player,PlayerId}),       
+    case is_pid(PlayerPid) of
+        true -> gen_server:cast(PlayerPid, {'SEND_PERCEPTION'});
+        false -> ok
+    end,
+    
     send_perceptions(Rest).

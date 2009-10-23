@@ -14,7 +14,7 @@
 %% Exported Functions
 %%
 -export([start/0, load_entities/0, setup_perception/0, init/1, handle_call/3, handle_cast/2, 
-         handle_info/2, terminate/2, code_change/3]).
+        handle_info/2, terminate/2, code_change/3]).
 
 %%
 %% API Functions
@@ -119,7 +119,7 @@ handle_cast('NEXT_TICK', Data) ->
 
 handle_cast({'UPDATE_PERCEPTION', PlayerId}, Data) ->
     UpdatePerceptions = Data#game_info.update_perceptions,
-    NewUpdatePerceptions = dict:store(PlayerId, PlayerId, UpdatePerceptions),
+    NewUpdatePerceptions = gb_sets:add(PlayerId, UpdatePerceptions),
     NewData = Data#game_info { update_perceptions = NewUpdatePerceptions},
     {noreply, NewData}.
 
@@ -152,6 +152,9 @@ handle_call('SETUP_PERCEPTION', _From, Data) ->
 handle_call({'IS_PLAYER_ONLINE', PlayerId}, _From, Data) ->	
     Result = lists:keymember(PlayerId, 2, Data#game_info.players),
     {reply, Result, Data};
+
+handle_call('GET_UPDATE_PERCEPTION', _From, Data) ->
+    {reply, gb_sets:to_list(Data#game_info.update_perceptions), Data};
 
 handle_call('GET_PLAYERS', _From, Data) ->
     {reply, Data#game_info.players, Data};
