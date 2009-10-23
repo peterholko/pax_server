@@ -90,12 +90,7 @@ handle_cast({'ADD_PERCEPTION', NewPerceptionData}, Data) ->
     
     {noreply, Data};    
 
-handle_cast({'SEND_PERCEPTION'}, Data) ->
-    
-    io:fwrite("Data#module_data.update_perception: ~w~n", [Data#module_data.update_perception]),
-    
-    if 
-        Data#module_data.update_perception =:= true -> 
+handle_cast({'SEND_PERCEPTION'}, Data) ->    
             
             ObjectPerception = build_perception(Data#module_data.player_id),			            
             io:fwrite("discovered tiles: ~w~n", [Data#module_data.discovered_tiles]),			
@@ -105,10 +100,7 @@ handle_cast({'SEND_PERCEPTION'}, Data) ->
             % Reset update perception state
             NewData = Data#module_data {update_perception = false },
             forward_to_client(R, NewData),            
-            io:fwrite("Perception Modified.~n");
-        true ->
-            NewData = Data
-    end,
+            io:fwrite("Perception Modified.~n"),
     
     {noreply, NewData}; 
 
