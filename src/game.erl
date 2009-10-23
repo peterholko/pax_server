@@ -42,8 +42,8 @@ handle_cast(stop, Data) ->
 handle_cast({'ADD_PLAYER', PlayerId, ProcessId}, Data) ->
     
     %Toggle perception flag to send first perception
-    gen_server:cast(ProcessId, 'UPDATE_PERCEPTION'),
-    
+    NewUpdatePerceptions = gb_sets:add(PlayerId, Data#game_info.update_perceptions),
+        
     ArmiesIdPid = gen_server:call(ProcessId, 'GET_ARMIES_ID_PID'),
     CitiesIdPid = gen_server:call(ProcessId, 'GET_CITIES_ID_PID'),
     
@@ -58,12 +58,16 @@ handle_cast({'ADD_PLAYER', PlayerId, ProcessId}, Data) ->
     
     NewData = Data#game_info {
                               players = NewPlayerList,
-                              entities = NewEntityList
+                              entities = NewEntityList,
+                              update_perceptions = NewUpdatePerceptions                             
                              },
     {noreply, NewData};
 
 handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
     io:fwrite("game - delete_player - ProcessId: ~w~n", [ProcessId]),
+    %Toggle perception flag to send first perception
+    NewUpdatePerceptions = gb_sets:delete(PlayerId, Data#game_info.update_perceptions),   
+    
     ArmiesIdPid = gen_server:call(ProcessId, 'GET_ARMIES_ID_PID'),
     CitiesIdPid = gen_server:call(ProcessId, 'GET_CITIES_ID_PID'),
     
@@ -73,7 +77,8 @@ handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
     NewPlayerList = lists:keydelete(PlayerId, 2, Data#game_info.players),
     NewData = Data#game_info {
                               players = NewPlayerList,
-                              entities = NewEntityList
+                              entities = NewEntityList,
+                              update_perceptions = NewUpdatePerceptions
                              },
     io:fwrite("game - delete_player ~n"),
     {noreply, NewData};
