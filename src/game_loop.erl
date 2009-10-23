@@ -24,6 +24,7 @@ loop(LastTime, GamePID) ->
     CurrentTick = gen_server:call(GamePID, 'GET_TICK'), 	
     EventList = gen_server:call(GamePID, 'GET_EVENTS'),
     UpdatePerceptions = gen_server:call(GamePID, 'GET_UPDATE_PERCEPTION'),
+    io:fwrite("UpdatePerceptions: ~w~n", [UpdatePerceptions]),
     
     %Process events
     process_events(GamePID, CurrentTick, EventList),
@@ -71,53 +72,6 @@ process_events(GamePID, CurrentTick, EventList) ->
     end,
     
     process_events(GamePID, CurrentTick, Rest).
-
-
-
-
-perceptions([], []) ->
-    ok;
-
-perceptions([], _) ->
-    ok;
-
-perceptions(EntityList, ObjectList) ->
-    [EntityPid | Rest] = EntityList,   
-    
-    EntityState = gen_server:call(EntityPid, {'GET_STATE'}),
-    
-    build_perception({EntityState#state.x, EntityState#state.y, EntityState#state.player_id}, ObjectList, []),
-    
-    perceptions(Rest, ObjectList).
-
-build_perception(EntityInfo, [], Perception) ->
-    {_, _, EntityPlayerId} = EntityInfo,
-    gen_server:cast(global:whereis_name({player, EntityPlayerId}), {'ADD_PERCEPTION', Perception});    
-
-build_perception(EntityInfo, ObjectList, Perception) ->
-    {EntityX, EntityY, _} = EntityInfo,    
-    
-    [ObjectPid | Rest] = ObjectList,
-    State = gen_server:call(ObjectPid, {'GET_STATE'}),
-    
-    DiffX = EntityX - State#state.x,
-    DiffY = EntityY - State#state.y,
-    
-    Diff = (DiffX * DiffX) + (DiffY * DiffY),
-    
-    if
-        Diff < 50 ->			
-            NewPerception = [{State#state.id, 
-                              State#state.player_id, 
-                              State#state.type, 
-                              State#state.state, 
-                              State#state.x, 
-                              State#state.y} | Perception];
-        true ->
-            NewPerception = Perception
-    end,        
-    
-    build_perception(EntityInfo, Rest, NewPerception). 
 
 send_perceptions([]) ->
     ok;
