@@ -34,6 +34,7 @@ loop(LastTime, GamePID) ->
     
     %Send perceptions
     send_perceptions(UpdatePerceptions),
+    clear_perceptions(GamePID),
     
     CurrentTime = util:get_time(),
     NextTime = LastTime + ?GAME_LOOP_TICK,
@@ -87,3 +88,6 @@ send_perceptions(UpdatePerception) ->
     end,
     
     send_perceptions(Rest).
+
+clear_perceptions(GamePID) ->
+    gen_server:cast(GamePID, 'CLEAR_PERCEPTIONS').

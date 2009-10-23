@@ -121,6 +121,10 @@ handle_cast({'UPDATE_PERCEPTION', PlayerId}, Data) ->
     UpdatePerceptions = Data#game_info.update_perceptions,
     NewUpdatePerceptions = gb_sets:add(PlayerId, UpdatePerceptions),
     NewData = Data#game_info { update_perceptions = NewUpdatePerceptions},
+    {noreply, NewData};
+
+handle_cast('CLEAR_PERCEPTIONS', Data) ->
+    NewData = Data#game_info { update_perceptions = gb_sets:empty()},
     {noreply, NewData}.
 
 handle_call('LOAD_ENTITIES', _From, Data) ->
