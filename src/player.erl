@@ -391,8 +391,10 @@ build_perception(PlayerId) ->
 entity_visible_list(EntityList, EntityType) ->
     
     F = fun(EntityId, EveryVisibleList) ->
-                VisibleList = gen_server:call(global:whereis_name({EntityType, EntityId}), 'GET_VISIBLE'),
-                VisibleList ++ EveryVisibleList
+                EntityPid = global:whereis_name({EntityType, EntityId}),
+                VisibleList = gen_server:call(EntityPid, 'GET_VISIBLE'),
+                VisibleListWithSelf = [{EntityId, EntityPid} | VisibleList],
+                VisibleListWithSelf ++ EveryVisibleList 
         end,
     
     lists:foldl(F, [], EntityList).

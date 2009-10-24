@@ -377,6 +377,14 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
     TargetState = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE', Army#army.id}),
     {NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
     
+    %% Update subscription model
+    EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
+    {ok, SubscriptionPid} = subscription:start(Army#army.id),
+    subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
+    
+    %Toggle player's perception has been updated.
+    gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', Army#army.player_id}),      
+    
     if	
         (NewArmyX =:= TargetState#state.x) and (NewArmyY =:= TargetState#state.y) -> 
             
