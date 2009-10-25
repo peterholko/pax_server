@@ -367,7 +367,7 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
             NewArmy = state_none(Army, NewArmyX, NewArmyY);
         true ->
             ArmySpeed = get_army_speed(Army#army.id),
-            gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)}),
+            game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed))   
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
     
@@ -396,7 +396,7 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
             NewArmy = state_combat(Army, BattleId, NewArmyX, NewArmyY);
         true ->
             ArmySpeed = get_army_speed(Army#army.id),
-            gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)}),
+            game:add_event(ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed))            
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
     

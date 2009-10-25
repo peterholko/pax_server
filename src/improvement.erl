@@ -45,18 +45,31 @@ handle_cast({'BUILD_IMPROVEMENT', TileX, TileY, PlayerId, Type}, Data) ->
                                tile_index = TileIndex,
                                player_id = PlayerId, 
                                type = Type,                                
-                               state = ?STATE_CONSTRUCTING},
+                               state = ?STATE_CONSTRUCTING,
+                               observed_by},
     
     db:dirty_write(Improvement),
-       
+    
+    %% Add completion event 
+    game:add_event(self(), ?EVENT_IMPROVEMENT_COMPLETED, Improvement#improvement.id, 10),
+    
     {noreply, Data};
 
 handle_cast({'ADD_VISIBLE', ImprovementId, _ImprovementPid}, Data) ->    
-    [Improvement] = db:dirty_read(improvement, ImprovementId),
+    %[Improvement] = db:dirty_read(improvement, ImprovementId),
     {noreply, Data};
 
 handle_cast({'REMOVE_VISIBLE', _ImprovementId, _ImprovementPid}, Data) ->
     %Do nothing atm	
+    {noreply, Data};
+
+handle_cast({'PROCESS_EVENT', ImprovementId, EventType}, Data) ->
+    
+    case EventType of
+        ?EVENT_IMPROVEMENT_COMPLETED ->           
+            state_completed(ImprovementId)            
+    end,      
+    
     {noreply, Data};
 
 handle_cast(stop, Data) ->
@@ -124,6 +137,16 @@ terminate(_Reason, _) ->
 %% ====================================================================
 %% Internal functions
 %% ====================================================================
+
+state_completed(ImprovementId) ->
+    log4erl:info("Improvement completed"),
+    F = fun() -> 
+                [Improvement] = mnesia:read(improvement, ImprovementId),
+                NewImprovement = Improvement#improvement{state = ?STATE_COMPLETED},
+                mnesia:write(NewImprovement)
+        end,
+    {atomic, Value} = mnesia:transaction(F),
+    Value.
 
 %% check_queue(Improvement) ->
 %%     [ImprovementQueue] = db:dirty_read(improvement_queue, Improvement#improvement.id),

@@ -16,12 +16,13 @@
 -define(STATE_COMBAT, 3).
 -define(STATE_DEAD, 4).
 -define(STATE_CONSTRUCTING, 5).
--define(STATE_COMPLETE, 6).
+-define(STATE_COMPLETED, 6).
 
 -define(EVENT_NONE, 0).
 -define(EVENT_MOVE, 1).
 -define(EVENT_ATTACK, 2).
 -define(EVENT_UNIT_ROUND, 3).
+-define(EVENT_IMPROVEMENT_COMPLETED, 4).
 
 -define(GAME_LOOP_TICK, 200).
 

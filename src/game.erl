@@ -13,8 +13,9 @@
 %%
 %% Exported Functions
 %%
--export([start/0, load_entities/0, setup_perception/0, init/1, handle_call/3, handle_cast/2, 
+-export([start/0, load_entities/0, setup_perception/0, add_event/4, init/1, handle_call/3, handle_cast/2, 
         handle_info/2, terminate/2, code_change/3]).
+
 
 %%
 %% API Functions
@@ -28,6 +29,9 @@ load_entities() ->
 
 setup_perception() ->
     gen_server:call({global, game_pid}, 'SETUP_PERCEPTION').
+
+add_event(ObjectPid, EventType, EventData, EventTick) ->
+    gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ObjectPid, EventType, EventData, EventTick}).
 
 init([]) ->    
     Data = #game_info {armies = [], cities = [], battles = []},

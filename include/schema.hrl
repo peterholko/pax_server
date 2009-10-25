@@ -54,7 +54,8 @@
                       city_id,
                       player_id,
                       type,
-                      state}).
+                      state,
+                      observed_by}).
 
 -record(resource, {entity_id,
                    entity_type,
