@@ -278,7 +278,9 @@ handle_cast(_ = #build_improvement{tile_index = TileIndex,
     subscription:update_perception(SubscriptionPid, ImprovementId, ImprovementPid, TileX, TileY, EveryObject, [], []),
 
     %Toggle player's perception has been updated.
-    game:update_perception(Data#module_data.player_id);
+    game:update_perception(Data#module_data.player_id),
+    
+    {noreply, Data};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data};
