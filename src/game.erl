@@ -72,8 +72,6 @@ handle_cast({'ADD_PLAYER', PlayerId, ProcessId}, Data) ->
 
 handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
     io:fwrite("game - delete_player - ProcessId: ~w~n", [ProcessId]),
-    %Toggle perception flag to send first perception
-    NewUpdatePerceptions = gb_sets:delete(PlayerId, Data#game_info.update_perceptions),   
     
     ArmiesIdPid = gen_server:call(ProcessId, 'GET_ARMIES_ID_PID'),
     CitiesIdPid = gen_server:call(ProcessId, 'GET_CITIES_ID_PID'),
