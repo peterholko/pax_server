@@ -13,7 +13,7 @@
                     battles = [],
                     objects = [],
                     events = [],
-					update_perceptions = gb_sets:new()
+					update_perceptions
                     }).
 
 -record(state, { id,

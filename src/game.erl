@@ -37,7 +37,7 @@ update_perception(PlayerId) ->
     gen_server:cast(global:whereis_name(game_pid), {'UPDATE_PERCEPTION', PlayerId}).
 
 init([]) ->    
-    Data = #game_info {armies = [], cities = [], battles = []},
+    Data = #game_info {update_perceptions = gb_sets:new() },
     {ok, Data}.
 
 terminate(_Reason, _) ->
