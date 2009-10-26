@@ -17,7 +17,7 @@
 
 %% --------------------------------------------------------------------
 %% External exports
--export([start/0,create/4]).
+-export([start/0, create/4]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -30,8 +30,8 @@
 start() ->
     gen_server:start({global, improve_pid}, improvement, [], []).
 
-create(TileX, TileY, PlayerId, Type) ->
-    gen_server:cast(global:whereis_name(improve_pid), {'BUILD_IMPROVEMENT', TileX, TileY, PlayerId, Type}).
+create(ImprovementId, TileIndex, PlayerId, Type) ->
+    gen_server:cast(global:whereis_name(improve_pid), {'BUILD_IMPROVEMENT', ImprovementId, TileIndex, PlayerId, Type}).
 
 %% ====================================================================
 %% Server functions
@@ -41,36 +41,57 @@ init([]) ->
     Data = #module_data {},
     {ok, Data}.
 
-handle_cast({'BUILD_IMPROVEMENT', TileX, TileY, PlayerId, Type}, Data) ->
+handle_cast({'BUILD_IMPROVEMENT', ImprovementId, TileIndex, PlayerId, Type}, Data) ->
     
-    TileIndex = map:convert_coords(TileX, TileY),
-    Improvement = #improvement{id = counter:increment(improvement),
+    Improvement = #improvement{id = ImprovementId,
                                tile_index = TileIndex,
                                player_id = PlayerId, 
                                type = Type,                                
                                state = ?STATE_CONSTRUCTING,
-                               observed_by},
+                               observed_by = []},
     
     db:dirty_write(Improvement),
     
     %% Add completion event 
-    game:add_event(self(), ?EVENT_IMPROVEMENT_COMPLETED, Improvement#improvement.id, 10),
+    game:add_event(self(), ?EVENT_IMPROVEMENT_COMPLETED, ImprovementId, 10),
     
     {noreply, Data};
 
-handle_cast({'ADD_VISIBLE', ImprovementId, _ImprovementPid}, Data) ->    
+handle_cast({'ADD_VISIBLE', _ImprovementId, _EntityId, _EntityPid}, Data) ->    
+    %Do nothing atm 
     %[Improvement] = db:dirty_read(improvement, ImprovementId),
     {noreply, Data};
 
-handle_cast({'REMOVE_VISIBLE', _ImprovementId, _ImprovementPid}, Data) ->
+handle_cast({'REMOVE_VISIBLE', _ImprovementId, _EntityId, _EntityPid}, Data) ->
     %Do nothing atm	
+    {noreply, Data};
+
+handle_cast({'ADD_OBSERVED_BY', ImprovementId, EntityId, EntityPid}, Data) ->    
+    
+    EntityType = gen_server:call(EntityPid, {'GET_TYPE'}),
+        
+    case EntityType of
+        ?OBJECT_ARMY ->
+            add_observed_by(ImprovementId, EntityId, EntityPid);
+        ?OBJECT_CITY ->
+            add_observed_by(ImprovementId, EntityId, EntityPid)
+    end, 
+
+    {noreply, Data};
+
+handle_cast({'REMOVE_OBSERVED_BY', ImprovementId, EntityId, EntityPid}, Data) ->    
+    
+    remove_observed_by(ImprovementId, EntityId, EntityPid),
+    
     {noreply, Data};
 
 handle_cast({'PROCESS_EVENT', ImprovementId, EventType}, Data) ->
     
     case EventType of
-        ?EVENT_IMPROVEMENT_COMPLETED ->           
-            state_completed(ImprovementId)            
+        ?EVENT_IMPROVEMENT_COMPLETED ->  
+            [Improvement] = db:dirty_read(improvement, ImprovementId),
+            state_completed(Improvement),
+            update_observers(Improvement)
     end,      
     
     {noreply, Data};
@@ -141,15 +162,32 @@ terminate(_Reason, _) ->
 %% Internal functions
 %% ====================================================================
 
-state_completed(ImprovementId) ->
+state_completed(Improvement) ->
     log4erl:info("Improvement completed"),
-    F = fun() -> 
-                [Improvement] = mnesia:read(improvement, ImprovementId),
-                NewImprovement = Improvement#improvement{state = ?STATE_COMPLETED},
-                mnesia:write(NewImprovement)
-        end,
-    {atomic, Value} = mnesia:transaction(F),
-    Value.
+    NewImprovement = Improvement#improvement{state = ?STATE_COMPLETED},
+    db:dirty_write(NewImprovement).
+
+update_observers(Improvement) ->
+    ObservedByList = Improvement#improvement.observed_by, 
+    
+    F = fun({_EntityId, EntityPid}) ->                
+                PlayerId = gen_server:call(EntityPid, {'GET_PLAYER_ID'}),                
+                game:update_perception(PlayerId)
+        end,  
+    
+    lists:foreach(F, ObservedByList).
+
+add_observed_by(ImprovementId, EntityId, EntityPid) ->
+    [Improvement] = db:dirty_read(improvement, ImprovementId),
+    NewObservedByList = [{EntityId, EntityPid} | Improvement#improvement.observed_by],
+    NewImprovement = Improvement#improvement { observed_by = NewObservedByList},
+    db:dirty_write(NewImprovement).
+
+remove_observed_by(ImprovementId, EntityId, EntityPid) ->
+    [Improvement] = db:dirty_read(improvement, ImprovementId),
+    NewObservedByList = lists:delete({EntityId, EntityPid}, Improvement#improvement.observed_by),
+    NewImprovement = Improvement#improvement { observed_by = NewObservedByList},
+    db:dirty_write(NewImprovement).                                  
 
 %% check_queue(Improvement) ->
 %%     [ImprovementQueue] = db:dirty_read(improvement_queue, Improvement#improvement.id),

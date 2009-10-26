@@ -224,9 +224,8 @@ battle_damage() ->
                            damage()}).
 
 build_improvement() ->
-    record(build_improvement, {improvement_type(),
-                               tile_index(),
-                               source_army_id()}).
+    record(build_improvement, {tile_index(),
+                               improvement_type()}).
 
 %%
 %% API Functions

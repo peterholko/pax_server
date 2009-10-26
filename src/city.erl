@@ -75,28 +75,28 @@ queue_unit(CityId, PlayerId, UnitType, UnitSize) ->
 %% OTP handlers
 %%
 
-handle_cast({'ADD_VISIBLE', EntityId, EntityPid}, Data) ->
+handle_cast({'ADD_VISIBLE', _CityId, EntityId, EntityPid}, Data) ->
     VisibleList = Data#module_data.visible,
     NewVisibleList = [{EntityId, EntityPid} | VisibleList],
     NewData = Data#module_data { visible = NewVisibleList },
     
     {noreply, NewData};
 
-handle_cast({'REMOVE_VISIBLE', EntityId, EntityPid}, Data) ->
+handle_cast({'REMOVE_VISIBLE', _CityId, EntityId, EntityPid}, Data) ->
     VisibleList = Data#module_data.visible,
     NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
     NewData = Data#module_data { visible = NewVisibleList },
     
     {noreply, NewData};
 
-handle_cast({'ADD_OBSERVED_BY', EntityId, EntityPid}, Data) ->
+handle_cast({'ADD_OBSERVED_BY', _CityId, EntityId, EntityPid}, Data) ->
     ObservedByList = Data#module_data.observed_by,
     NewObservedByList = [{EntityId, EntityPid} | ObservedByList],
     NewData = Data#module_data { observed_by = NewObservedByList },
     
     {noreply, NewData};
 
-handle_cast({'REMOVE_OBSERVED_BY', EntityId, EntityPid}, Data) ->
+handle_cast({'REMOVE_OBSERVED_BY', _CityId, EntityId, EntityPid}, Data) ->
     ObservedByList = Data#module_data.observed_by,
     NewObservedByList = lists:delete({EntityId, EntityPid}, ObservedByList),
     NewData = Data#module_data { observed_by = NewObservedByList },

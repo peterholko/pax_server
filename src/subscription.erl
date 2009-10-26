@@ -93,8 +93,8 @@ remove_visible_list(SourceId, SourcePid, X, Y, Visible) ->
                 if
                     Distance >= 50 ->
                         NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
-                        gen_server:cast(SourcePid, {'REMOVE_VISIBLE', EntityId, EntityPid}),										
-                        gen_server:cast(EntityPid, {'REMOVE_OBSERVED_BY', SourceId, SourcePid});
+                        gen_server:cast(SourcePid, {'REMOVE_VISIBLE', SourceId, EntityId, EntityPid}),										
+                        gen_server:cast(EntityPid, {'REMOVE_OBSERVED_BY', EntityId, SourceId, SourcePid});
                     true ->
                         NewVisibleList = VisibleList
                 end,
@@ -110,8 +110,8 @@ remove_observed_by_list(SourceId, SourcePid, X, Y, ObservedBy) ->
                 if
                     Distance >= 50 ->
                         NewObservedByList = lists:delete({EntityId, EntityPid}, ObservedByList),
-                        gen_server:cast(SourcePid, {'REMOVE_OBSERVED_BY', EntityId, EntityPid}),	
-                        gen_server:cast(EntityPid, {'REMOVE_VISIBLE', SourceId, SourcePid});										
+                        gen_server:cast(SourcePid, {'REMOVE_OBSERVED_BY', SourceId, EntityId, EntityPid}),	
+                        gen_server:cast(EntityPid, {'REMOVE_VISIBLE', EntityId, SourceId, SourcePid});										
                     true ->
                         NewObservedByList = ObservedByList
                 end,
@@ -126,8 +126,8 @@ add_visible_list(SourceId, SourcePid, X, Y, VisibleCandidateList) ->
                  
                  if
                      Distance < 50 ->
-                         gen_server:cast(SourcePid, {'ADD_VISIBLE', EntityId, EntityPid}),
-                         gen_server:cast(EntityPid, {'ADD_OBSERVED_BY', SourceId, SourcePid});	
+                         gen_server:cast(SourcePid, {'ADD_VISIBLE', SourceId, EntityId, EntityPid}),
+                         gen_server:cast(EntityPid, {'ADD_OBSERVED_BY', EntityId, SourceId, SourcePid});	
                      true ->
                          ok
                  end
@@ -141,8 +141,8 @@ add_observed_by_list(SourceId, SourcePid, X, Y, ObservedByCandidateList) ->
                  
                  if
                      Distance < 50 ->
-                         gen_server:cast(SourcePid, {'ADD_OBSERVED_BY', EntityId, EntityPid}),
-                         gen_server:cast(EntityPid, {'ADD_VISIBLE', SourceId, SourcePid});	
+                         gen_server:cast(SourcePid, {'ADD_OBSERVED_BY', SourceId, EntityId, EntityPid}),
+                         gen_server:cast(EntityPid, {'ADD_VISIBLE', EntityId, SourceId, SourcePid});	
                      true ->
                          ok
                  end

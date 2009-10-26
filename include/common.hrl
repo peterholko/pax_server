@@ -37,6 +37,8 @@
 -define(BUILDING_UNIT_SEA, 2).
 -define(BUILDING_UNIT_AIR, 3).
 
+-define(IMPROVEMENT_FARM, 1).
+
 -define(ARMY_DEAD, 0).
 -define(ARMY_ALIVE, 1).
 

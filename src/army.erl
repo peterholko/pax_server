@@ -135,7 +135,7 @@ handle_cast({'PROCESS_EVENT', _, EventType}, Data) ->
     
     {noreply, NewData};
 
-handle_cast({'ADD_VISIBLE', EntityId, EntityPid}, Data) ->
+handle_cast({'ADD_VISIBLE', _ArmyId, EntityId, EntityPid}, Data) ->
     VisibleList = Data#module_data.visible,
     NewVisibleList = [{EntityId, EntityPid} | VisibleList],		
     NewData = Data#module_data { visible = NewVisibleList },
@@ -145,7 +145,7 @@ handle_cast({'ADD_VISIBLE', EntityId, EntityPid}, Data) ->
     
     {noreply, NewData};
 
-handle_cast({'REMOVE_VISIBLE', EntityId, EntityPid}, Data) ->
+handle_cast({'REMOVE_VISIBLE', _ArmyId, EntityId, EntityPid}, Data) ->
     VisibleList = Data#module_data.visible,
     NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
     NewData = Data#module_data { visible = NewVisibleList },
@@ -155,14 +155,14 @@ handle_cast({'REMOVE_VISIBLE', EntityId, EntityPid}, Data) ->
     
     {noreply, NewData};
 
-handle_cast({'ADD_OBSERVED_BY', EntityId, EntityPid}, Data) ->
+handle_cast({'ADD_OBSERVED_BY', _ArmyId, EntityId, EntityPid}, Data) ->
     ObservedByList = Data#module_data.observed_by,
     NewObservedByList = [{EntityId, EntityPid} | ObservedByList],
     NewData = Data#module_data { observed_by = NewObservedByList },
     
     {noreply, NewData};
 
-handle_cast({'REMOVE_OBSERVED_BY', EntityId, EntityPid}, Data) ->
+handle_cast({'REMOVE_OBSERVED_BY', _ArmyId, EntityId, EntityPid}, Data) ->
     ObservedByList = Data#module_data.observed_by,
     NewObservedByList = lists:delete({EntityId, EntityPid}, ObservedByList),
     NewData = Data#module_data { observed_by = NewObservedByList },
@@ -359,7 +359,7 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
     
     %Toggle player's perception has been updated.
-    gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', Army#army.player_id}),		
+    game:update_perception(Army#army.player_id), 		
     
     %% Update army's state
     if	
@@ -367,7 +367,7 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
             NewArmy = state_none(Army, NewArmyX, NewArmyY);
         true ->
             ArmySpeed = get_army_speed(Army#army.id),
-            game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed))   
+            game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)),   
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
     
@@ -383,7 +383,7 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
     subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
     
     %Toggle player's perception has been updated.
-    gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', Army#army.player_id}),      
+    game:update_perception(Army#army.player_id),          
     
     if	
         (NewArmyX =:= TargetState#state.x) and (NewArmyY =:= TargetState#state.y) -> 
@@ -396,7 +396,7 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
             NewArmy = state_combat(Army, BattleId, NewArmyX, NewArmyY);
         true ->
             ArmySpeed = get_army_speed(Army#army.id),
-            game:add_event(ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed))            
+            game:add_event(ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)),            
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
     
