@@ -81,10 +81,14 @@ init() ->
 %%
 
 do_accept(ListenSocket, Client) ->	
-    {ok, Socket} = gen_tcp:accept(ListenSocket),  
-    io:fwrite("Socket accepted.~n"),
-    spawn(fun() -> do_accept(ListenSocket, Client) end),
-    handle_client(Socket, Client).
+    case gen_tcp:accept(ListenSocket) of 
+        {ok, Socket} ->
+            io:fwrite("Socket accepted.~n"),
+            spawn(fun() -> do_accept(ListenSocket, Client) end),
+            handle_client(Socket, Client);
+        {error, closed} ->
+            io:fwrite("Socket not accepted.")
+    end.
 
 handle_client(Socket, Client) ->
     receive
@@ -123,7 +127,7 @@ handle_client(Socket, Client) ->
             io:fwrite("server: handle_client - Client#client.player_pid -> ~w~n", [Client#client.player_pid]),
             gen_server:call(Client#client.player_pid, 'LOGOUT'),
             handle_client(Socket, Client);
-        
+                
         {packet, Packet} ->
             ok = packet:send(Socket, Packet),
             handle_client(Socket, Client)   
