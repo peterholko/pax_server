@@ -63,11 +63,13 @@ init() ->
     log4erl:info("Starting game process...") ,
     {ok, _GamePid} = game:start(),
     ok = game:load_entities(),	
-    ok = game:setup_perception(),	
+    ok = game:setup_perception(),	   
+    spawn(fun() -> game_loop:loop(util:get_time(), global:whereis_name(game_pid)) end),
     
-    TotalMS = util:get_time(), 
-    spawn(fun() -> game_loop:loop(TotalMS, global:whereis_name(game_pid)) end),
+    % Start managers
+    improvement:start(),    
     
+    % Start socket listener
     {ok, ListenSocket} = gen_tcp:listen(2345, [binary, {packet, 0},  
                                                {reuseaddr, true},
                                                {active, once},
