@@ -82,8 +82,7 @@ handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
     NewPlayerList = lists:keydelete(PlayerId, 2, Data#game_info.players),
     NewData = Data#game_info {
                               players = NewPlayerList,
-                              entities = NewEntityList,
-                              update_perceptions = NewUpdatePerceptions
+                              entities = NewEntityList
                              },
     io:fwrite("game - delete_player ~n"),
     {noreply, NewData};
