@@ -17,7 +17,7 @@
 
 %% --------------------------------------------------------------------
 %% External exports
--export([start/0]).
+-export([start/0,create/4]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -29,6 +29,9 @@
 
 start() ->
     gen_server:start({global, improve_pid}, improvement, [], []).
+
+create(TileX, TileY, PlayerId, Type) ->
+    gen_server:cast(global:whereis_name(improve_pid), {'BUILD_IMPROVEMENT', TileX, TileY, PlayerId, Type}).
 
 %% ====================================================================
 %% Server functions

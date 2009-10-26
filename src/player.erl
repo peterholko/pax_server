@@ -265,6 +265,16 @@ handle_cast(_ = #battle_target{battle_id = BattleId,
     
     {noreply, Data};
 
+handle_cast(,Data) ->
+    improvement:create(TileX, TileY, PlayerId, Type),
+
+    EveryObject = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
+    {ok, SubscriptionPid} = subscription:start(ImprovementId),
+    subscription:update_perception(SubscriptionPid, ImprovementId, ImprovementPid, TileX, TileY, EveryObject, [], []),
+
+    %Toggle player's perception has been updated.
+    game:update_perception(PlayerId).
+
 handle_cast(stop, Data) ->
     {stop, normal, Data};
 
