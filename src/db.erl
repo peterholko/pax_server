@@ -50,15 +50,19 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(resource_type, [{disc_copies, [node()]}, {attributes, record_info(fields, resource_type)}]),
     {atomic, ok} = mnesia:create_table(population_type, [{disc_copies, [node()]}, {attributes, record_info(fields, population_type)}]),
     {atomic, ok} = mnesia:create_table(improvement_type, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement_type)}]),
-    
+    {atomic, ok} = mnesia:create_table(claim, [{disc_copies, [node()]}, {attributes, record_info(fields, claim)}]),    
+
+
     mnesia:add_table_index(player, name),
     mnesia:add_table_index(unit, entity_id),
     mnesia:add_table_index(unit_queue, city_id),
+    mnesia:add_table_index(claim, tile_index),
+    mnesia:add_table_index(claim, city_id),
     mnesia:stop().
 
 start() ->
     mnesia:start(),
-    mnesia:wait_for_tables([connection, army, unit, unit_type, hero, city, battle, building_type, unit_queue, counter, player], 5000).
+    mnesia:wait_for_tables([connection, army, unit, unit_type, hero, city, battle, building_type, unit_queue, counter, player, claim], 5000).
 
 write(R) ->
     F = fun() -> mnesia:write(R) end,
@@ -138,9 +142,9 @@ test_tables() ->
      {player, 2, <<"test2">>, <<"123123">>, 0, false, [3], [12]},
      {player, 3, <<"test3">>, <<"123123">>, 0, false, [4], [13]},
      {player, 4, <<"test4">>, <<"123123">>, 0, false, [5], []},
-     {city, 11, 1, 3, 4, 0, [1], [], 0},
-     {city, 12, 2, 1, 5, 0, [], [], 0},
-     {city, 13, 3, 7, 4, 0, [], [], 0},
+     {city, 11, 1, 3, 4, 0, [1], [], [], 0},
+     {city, 12, 2, 1, 5, 0, [], [], [], 0},
+     {city, 13, 3, 7, 4, 0, [], [], [], 0},
      {army, 1, 1,  2,  2, 0, 0, none, 0, 1, none},
      {army, 2, 1,  5,  5, 0, 0, none, 0, 0, none},
      {army, 3, 2,  8,  2, 0, 0, none, 0, 0, none},

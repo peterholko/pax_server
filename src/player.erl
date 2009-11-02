@@ -1,4 +1,4 @@
-%% Author: Peter
+% Author: Peter
 %% Created: Dec 24, 2008
 %% Description: TODO: Add description to player
 -module(player).
@@ -265,20 +265,34 @@ handle_cast(_ = #battle_target{battle_id = BattleId,
     
     {noreply, Data};
 
-handle_cast(_ = #build_improvement{tile_index = TileIndex,
+handle_cast(_ = #build_improvement{city_id = CityId,
+                                   x = X,
+                                   y = Y,
                                    improvement_type = ImprovementType }, Data) ->
     
-    ImprovementPid = global:whereis_name(improve_pid),
-    ImprovementId = counter:increment(improvement),
-    improvement:create(ImprovementId, TileIndex, Data#module_data.player_id, ImprovementType),
-    {TileX, TileY} = map:convert_coords(TileIndex),
-    
-    EveryObject = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
-    {ok, SubscriptionPid} = subscription:start(ImprovementId),
-    subscription:update_perception(SubscriptionPid, ImprovementId, ImprovementPid, TileX, TileY, EveryObject, [], []),
+    [Player] = db:read(player, Data#module_data.player_id),
 
-    %Toggle player's perception has been updated.
-    game:update_perception(Data#module_data.player_id),
+    case lists:member(CityId, Player#player.cities) of
+        true ->
+            city:add_improvement(CityId, X, Y, ImprovementType);
+        false ->
+            log4erl:info("Add Improvement - City id does not exist for this player.")        
+    end,
+    
+    {noreply, Data};
+
+handle_cast(_ = #add_claim{ city_id = CityId,
+                            x = X,
+                            y = Y}, Data) ->
+
+    [Player] = db:read(player, Data#module_data.player_id),
+   
+    case lists:member(CityId, Player#player.cities) of
+        true ->
+            city:add_claim(CityId, X, Y);
+        false ->
+            log4erl:info("Add Claim - City id does not exist for this player.")        
+    end,
     
     {noreply, Data};
 

@@ -19,9 +19,14 @@
 %%
 
 run() ->
+    spawn(fun() -> connect() end).
+
+connect() ->
     {ok,Socket} = gen_tcp:connect("localhost",2345,[binary,{active, true},{nodelay, true}, {keepalive, true}, {packet,0}]),
-    gen_tcp:send(Socket, <<?CMD_LOGIN, 4:16, "test", 6:16, "123123">>),
-loop(Socket).
+    t:start(Socket), 
+    t:login(),   
+
+    loop(Socket).
 
 %%
 %% Local Functions
@@ -40,10 +45,6 @@ loop(Socket) ->
                     loop(Socket);
                 #perception{entities = Entities, tiles = Tiles} ->
                     io:fwrite("Perception: ~w ~w~n",[Entities, Tiles]),
-                    %Move = #move {id = 2, x = 6, y = 4},
-                    %packet:send(Socket, Move),
-                    BuildImprovement = #build_improvement {tile_index = 55, improvement_type = ?IMPROVEMENT_FARM},
-                    packet:send(Socket, BuildImprovement),
                     loop(Socket);                
                 _Any ->
                     io:fwrite("Do not recognize command.~n")

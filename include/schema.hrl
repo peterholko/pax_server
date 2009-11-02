@@ -42,6 +42,7 @@
                 state = 0,
                 buildings = [],
                 units = [],
+                claims = [],
                 last_update_time}).
 
 -record(battle, {id,
@@ -51,8 +52,8 @@
 
 -record(improvement, {id,
                       tile_index,
-                      city_id,
                       player_id,
+                      city_id,
                       type,
                       state,
                       observed_by}).
@@ -70,6 +71,10 @@
                      type,
                      value,
                      base_growth}).
+
+-record(claim, {id, 
+		tile_index,
+		city_id}).
 
 %%% Queue tables %%%
 

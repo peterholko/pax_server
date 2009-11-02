@@ -224,8 +224,15 @@ battle_damage() ->
                            damage()}).
 
 build_improvement() ->
-    record(build_improvement, {tile_index(),
+    record(build_improvement, {id(),
+                               x(),
+                               y(),
                                improvement_type()}).
+
+add_claim() ->
+    record(add_claim, {id(),
+                       x(),
+                       y()}).
 
 %%
 %% API Functions
@@ -268,7 +275,10 @@ read(<<?CMD_BATTLE_TARGET, Bin/binary>>) ->
 read(<<?CMD_BUILD_IMPROVEMENT, Bin/binary>>) ->
     unpickle(build_improvement(), Bin);
 
-%% Test Packets
+read(<<?CMD_ADD_CLAIM, Bin/binary>>) ->
+    unpickle(add_claim(), Bin);
+
+%% Test Read Packets
 
 read(<<?CMD_PLAYER_ID, Bin/binary>>) ->
     unpickle(player_id(), Bin);
@@ -309,13 +319,16 @@ write(R) when is_record(R, battle_add_army) ->
 write(R) when is_record(R, battle_damage) ->
     [?CMD_BATTLE_DAMAGE|pickle(battle_damage(), R)];
 
-% Test packets
+% Test write packets
 
 write(R) when is_record(R, move) ->
     [?CMD_MOVE|pickle(move(), R)];
 
 write(R) when is_record(R, build_improvement) ->
-    [?CMD_BUILD_IMPROVEMENT|pickle(build_improvement(), R)].
+    [?CMD_BUILD_IMPROVEMENT|pickle(build_improvement(), R)];
+
+write(R) when is_record(R, add_claim) ->
+    [?CMD_ADD_CLAIM|pickle(add_claim(), R)].
 
 send(Socket, Data) ->
     io:format("packet: send() - Data ->  ~p~n", [Data]),

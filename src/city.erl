@@ -1,4 +1,4 @@
-%% Author: Peter
+% Author: Peter
 %% Created: Feb 4, 2009
 %% Description: TODO: Add description to city
 -module(city).
@@ -19,23 +19,19 @@
 -export([init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--export([start/2, stop/1, queue_unit/4]).
+-export([start/2, stop/1, queue_unit/4, add_claim/3, add_improvement/4]).
 
--record(module_data, {
-                      city, 
+-record(module_data, {city, 
                       units, 
                       units_queue,
                       buildings,
                       buildings_queue,
-                      improvements,
-                      improvements_queue,		  
+                      improvements = [],
                       player_id, 
                       self,
                       visible = [],
                       observed_by = [],
-                      save_city = false
-                     }).
-
+                      save_city = false}).
 %%
 %% API Functions
 %%
@@ -58,7 +54,6 @@ init([City, PlayerId])
     NewDictUnits = unit:init_units(ListUnits, DictUnits),
     
     UnitQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
-    
     {ok, #module_data{ city = City, units = NewDictUnits, units_queue = UnitQueue, player_id = PlayerId, self = self() }}.
 
 terminate(_Reason, _) ->
@@ -70,6 +65,14 @@ stop(ProcessId)
 
 queue_unit(CityId, PlayerId, UnitType, UnitSize) ->
     gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_UNIT', PlayerId, UnitType, UnitSize}).
+
+add_improvement(CityId, X, Y, ImprovementType) ->
+    gen_server:cast(global:whereis_name({city,CityId}), {'ADD_IMPROVEMENT', X, Y, ImprovementType}).
+
+add_claim(CityId, X, Y) ->
+    gen_server:cast(global:whereis_name({city, CityId}), {'ADD_CLAIM', X, Y}).
+
+
 
 %%
 %% OTP handlers
@@ -109,6 +112,64 @@ handle_cast({'ADD_UNIT', Unit}, Data) ->
     NewUnits = [Unit | Units],
     NewData = Data#module_data {units = NewUnits},
     
+    {noreply, NewData};
+
+handle_cast({'ADD_IMPROVEMENT', X, Y, ImprovementType}, Data) ->
+
+    City = Data#module_data.city,
+
+    case lists:member({X,Y}, City#city.claims) of
+        true ->
+            ImprovementPid = global:whereis_name(improve_pid),
+            ImprovementId = counter:increment(improvement),
+            improvement:create(ImprovementId, X, Y, Data#module_data.player_id, City#city.id, ImprovementType),
+            
+            NewImprovements = [{X, Y} | Data#module_data.improvements],
+            NewData = Data#module_data { improvements = NewImprovements},
+
+            %Subscription update
+            EveryObject = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
+            {ok, SubPid} = subscription:start(ImprovementId),
+            subscription:update_perception(SubPid, ImprovementId, ImprovementPid, X, Y, EveryObject, [], []),
+
+            %Toggle player's perception has been updated.
+            game:update_perception(Data#module_data.player_id);
+
+        false ->
+            log4erl:info("Add Improvement - Tile is not claimed by this city."),
+            NewData = Data
+    end,
+
+    {noreply, NewData};
+
+handle_cast({'ADD_CLAIM', X, Y}, Data) ->
+
+    City = Data#module_data.city,
+    TileIndex = map:convert_coords(X, Y),
+       
+    ValidX = abs(City#city.x - X) =< 6,
+    ValidY = abs(City#city.y - Y) =< 6,
+    Exists = length(db:index_read(claim, TileIndex, #claim.tile_index)) > 0,
+    MaxReached = length(City#city.claims) > 3,
+
+    io:fwrite("ValidX: ~w ValidY: ~w Exists: ~w MaxReached: ~w~n", [ValidX, ValidY, Exists, MaxReached]), 
+
+    case check_claim(ValidX, ValidY, Exists, MaxReached) of
+        true ->
+            log4erl:info("Add claim successful."),
+            NewClaimRecord = #claim {id = counter:increment(claim),
+                                     tile_index = TileIndex,
+                                     city_id = City#city.id},
+            Result = db:write(NewClaimRecord),
+            io:fwrite("Add Claim - result: ~w~n", [Result]),
+
+            NewClaims = [{X, Y} | City#city.claims],
+            NewCity = City#city { claims = NewClaims },
+            NewData = Data#module_data { city = NewCity };
+        false ->
+            NewData = Data
+    end,
+
     {noreply, NewData};
 
 handle_cast(stop, Data) ->
@@ -351,14 +412,9 @@ add_units_from_queue(Units, UnitsToAdd)->
     NewUnits = dict:store(Unit#unit.id, Unit, Units),
     add_units_from_queue(NewUnits, Rest).
 
-
-
-
-
-
-
-
-
-
-
-
+%Valid X, Valid Y, Exists, MaxReached
+check_claim(true, true, false, false) ->
+    true;
+check_claim(_, _, _, _) ->
+    log4erl:info("Add claim failed."),
+    false.

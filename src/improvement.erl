@@ -17,7 +17,7 @@
 
 %% --------------------------------------------------------------------
 %% External exports
--export([start/0, create/4]).
+-export([start/0, create/6]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -30,8 +30,8 @@
 start() ->
     gen_server:start({global, improve_pid}, improvement, [], []).
 
-create(ImprovementId, TileIndex, PlayerId, Type) ->
-    gen_server:cast(global:whereis_name(improve_pid), {'BUILD_IMPROVEMENT', ImprovementId, TileIndex, PlayerId, Type}).
+create(ImprovementId, X, Y, PlayerId, CityId, Type) ->
+    gen_server:cast(global:whereis_name(improve_pid), {'BUILD_IMPROVEMENT', ImprovementId, X, Y, PlayerId, CityId, Type}).
 
 %% ====================================================================
 %% Server functions
@@ -41,15 +41,18 @@ init([]) ->
     Data = #module_data {},
     {ok, Data}.
 
-handle_cast({'BUILD_IMPROVEMENT', ImprovementId, TileIndex, PlayerId, Type}, Data) ->
+handle_cast({'BUILD_IMPROVEMENT', ImprovementId, X, Y, PlayerId, CityId, Type}, Data) ->
     
+    TileIndex = map:convert_coords(X, Y),
     Improvement = #improvement{id = ImprovementId,
                                tile_index = TileIndex,
                                player_id = PlayerId, 
+                               city_id = CityId,
                                type = Type,                                
                                state = ?STATE_CONSTRUCTING,
                                observed_by = []},
     
+    io:fwrite("Improvement: ~w~n", [Improvement]), 
     db:dirty_write(Improvement),
     
     %% Add completion event 

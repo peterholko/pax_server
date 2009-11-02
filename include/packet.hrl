@@ -90,7 +90,12 @@
                         target_unit_id}).
 
 -define(CMD_BUILD_IMPROVEMENT, 100).
--record(build_improvement, {tile_index,
+-record(build_improvement, {city_id,
+                            x,
+                            y,
                             improvement_type}).
 
-
+-define(CMD_ADD_CLAIM, 125).
+-record(add_claim, {city_id,
+                    x,
+                    y}).
