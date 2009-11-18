@@ -23,6 +23,7 @@
 -define(EVENT_ATTACK, 2).
 -define(EVENT_UNIT_ROUND, 3).
 -define(EVENT_IMPROVEMENT_COMPLETED, 4).
+-define(EVENT_GATHER_RESOURCES, 5).
 
 -define(GAME_LOOP_TICK, 200).
 
@@ -37,7 +38,7 @@
 -define(BUILDING_UNIT_SEA, 2).
 -define(BUILDING_UNIT_AIR, 3).
 
--define(IMPROVEMENT_FARM, 1).
+-define(IMPROVEMENT_FARM, 0).
 
 -define(ARMY_DEAD, 0).
 -define(ARMY_ALIVE, 1).
