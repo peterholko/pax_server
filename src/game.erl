@@ -30,6 +30,9 @@ load_entities() ->
 setup_perception() ->
     gen_server:call({global, game_pid}, 'SETUP_PERCEPTION').
 
+setup_events() ->
+    gen_server:call({global, game_pid}, 'SETUP_EVENTS').
+
 add_event(ObjectPid, EventType, EventData, EventTick) ->
     gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ObjectPid, EventType, EventData, EventTick}).
 
@@ -162,6 +165,12 @@ handle_call('SETUP_PERCEPTION', _From, Data) ->
     entities_perception(Data#game_info.armies ++ Data#game_info.cities, Data#game_info.armies ++ Data#game_info.cities),		
     {reply, ok, Data};
 
+handle_call('SETUP_EVENT', _From, Data) ->
+    log4erl:info("Setup events..."),
+    static_events(Data#game_info.cities),
+
+    {reply, ok, Data};
+
 handle_call({'IS_PLAYER_ONLINE', PlayerId}, _From, Data) ->	
     Result = lists:keymember(PlayerId, 2, Data#game_info.players),
     {reply, Result, Data};
@@ -235,6 +244,7 @@ entities_perception(Entities, EveryEntity) ->
     lists:foreach(F, Entities),
     log4erl:info("All perception updated.").
 
-
+static_events(Cities) ->
+    ok.
 
 

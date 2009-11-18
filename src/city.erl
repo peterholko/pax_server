@@ -24,9 +24,8 @@
 -record(module_data, {city, 
                       units, 
                       units_queue,
-                      buildings,
-                      buildings_queue,
                       improvements = [],
+                      inventory,
                       player_id, 
                       self,
                       visible = [],
@@ -49,12 +48,21 @@ init([City, PlayerId])
        is_integer(PlayerId) ->
     process_flag(trap_exit, true),
     
+    %Unit setup
     ListUnits = db:index_read(unit, City#city.id, #unit.entity_id),
     DictUnits = dict:new(),
-    NewDictUnits = unit:init_units(ListUnits, DictUnits),
-    
+    NewDictUnits = unit:init_units(ListUnits, DictUnits), 
     UnitQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
-    {ok, #module_data{ city = City, units = NewDictUnits, units_queue = UnitQueue, player_id = PlayerId, self = self() }}.
+
+    %Inventory setup    
+    Inventory = dict:new(),
+
+    {ok, #module_data{city = City, 
+                      units = NewDictUnits, 
+                      units_queue = UnitQueue,
+                      inventory = Inventory, 
+                      player_id = PlayerId, 
+                      self = self() }}.
 
 terminate(_Reason, _) ->
     ok.
@@ -71,9 +79,6 @@ add_improvement(CityId, X, Y, ImprovementType) ->
 
 add_claim(CityId, X, Y) ->
     gen_server:cast(global:whereis_name({city, CityId}), {'ADD_CLAIM', X, Y}).
-
-
-
 %%
 %% OTP handlers
 %%
@@ -124,7 +129,7 @@ handle_cast({'ADD_IMPROVEMENT', X, Y, ImprovementType}, Data) ->
             ImprovementId = counter:increment(improvement),
             improvement:create(ImprovementId, X, Y, Data#module_data.player_id, City#city.id, ImprovementType),
             
-            NewImprovements = [{X, Y} | Data#module_data.improvements],
+            NewImprovements = [ImprovementId | Data#module_data.improvements],
             NewData = Data#module_data { improvements = NewImprovements},
 
             %Subscription update
@@ -170,6 +175,16 @@ handle_cast({'ADD_CLAIM', X, Y}, Data) ->
             NewData = Data
     end,
 
+    {noreply, NewData};
+
+handle_cast({'PROCESS_EVENT', _Id, EventType}, Data) ->
+    
+    case EventType of
+        ?EVENT_GATHER_RESOURCES -> 
+            NewInventory = gather_resources(Data#module_data.improvements, Data#module_data.inventory),
+            NewData = Data#module_data {inventory = NewInventory} 
+    end,      
+    
     {noreply, NewData};
 
 handle_cast(stop, Data) ->
@@ -305,6 +320,9 @@ handle_call({'GET_PLAYER_ID'}, _From, Data) ->
 handle_call({'GET_TYPE'}, _From, Data) ->
     {reply, ?OBJECT_CITY, Data};
 
+handle_call('GET_INVENTORY', _From, Data) ->
+    {reply, Data#module_data.inventory, Data};
+
 handle_call('GET_VISIBLE', _From, Data) ->
     {reply, Data#module_data.visible, Data};
 
@@ -312,7 +330,7 @@ handle_call('GET_OBSERVED_BY', _From, Data) ->
     {reply, Data#module_data.observed_by, Data};
 
 handle_call('GET_SUBSCRIPTION_DATA', _From, Data) ->
-    City = Data#module_data.city,	
+    City = Data#module_data.city,
     {reply, {City#city.x, City#city.y, Data#module_data.visible, Data#module_data.observed_by}, Data};
 
 handle_call(Event, From, Data) ->
@@ -418,3 +436,46 @@ check_claim(true, true, false, false) ->
 check_claim(_, _, _, _) ->
     log4erl:info("Add claim failed."),
     false.
+
+add_item(Type, Amount, Inventory) ->
+    
+    case dict:is_key(Type, Inventory) of
+        true ->
+            CurrentAmount = dict:fetch(Type, Inventory),
+            NewInventory = dict:store(Type, CurrentAmount + Amount, Inventory);
+        false ->
+            NewInventory = dict:store(Type, Amount, Inventory)
+    end,
+    
+    NewInventory.
+
+gather_resources([], Inventory) ->
+    Inventory;
+
+gather_resources([ImprovementId | Rest], Inventory) ->
+    [Improvement] = db:dirty_read(improvement, ImprovementId),
+    [_NumResources | Resources] = map_port:get_resources(Improvement#improvement.tile_index),
+
+    Yield = get_yield(Improvement#improvement.type, Resources, undefined, false),
+    ResourceGained = Yield * 1,
+
+    io:fwrite("ResourceGained: ~w~n",[ResourceGained]),
+
+    NewInventory = add_item(Improvement#improvement.type, ResourceGained, Inventory),
+    gather_resources(Rest, NewInventory).
+
+get_yield(_, [], _, _) ->
+    0;
+get_yield(_, _, Yield, true) ->
+    Yield;
+get_yield(SearchType, Resources, Yield, Result) ->
+    [Type | Rest] = Resources,
+    [Yield | NewResources] = Rest,
+    Result = Type =:= SearchType,
+
+    get_yield(SearchType, NewResources, Yield,  Result).
+
+
+    
+
+
