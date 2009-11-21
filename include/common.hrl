@@ -23,7 +23,7 @@
 -define(EVENT_ATTACK, 2).
 -define(EVENT_UNIT_ROUND, 3).
 -define(EVENT_IMPROVEMENT_COMPLETED, 4).
--define(EVENT_GATHER_RESOURCES, 5).
+-define(EVENT_HARVEST, 5).
 
 -define(GAME_LOOP_TICK, 200).
 
@@ -44,3 +44,5 @@
 -define(ARMY_ALIVE, 1).
 
 -define(PLAYER_NONE, -1).
+
+-define(HARVEST_TICK, 100).
