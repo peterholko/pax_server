@@ -59,7 +59,6 @@ process_events(_, _, []) ->
     ok;
 
 process_events(GamePID, CurrentTick, EventList) ->
-    %io:fwrite("game_loop - EventList: ~w CurrentTick: ~w~n", [EventList, CurrentTick]),
     [Event | Rest] = EventList,
     {EventId, Pid, Type, EventData, EventTick} = Event,
     

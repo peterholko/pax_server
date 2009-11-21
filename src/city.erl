@@ -180,8 +180,9 @@ handle_cast({'ADD_CLAIM', X, Y}, Data) ->
 handle_cast({'PROCESS_EVENT', _Id, EventType}, Data) ->
     
     case EventType of
-        ?EVENT_GATHER_RESOURCES -> 
-            NewInventory = gather_resources(Data#module_data.improvements, Data#module_data.inventory),
+        ?EVENT_HARVEST -> 
+            log4erl:info("Processing Harvest for City ~w~n", [self()]),
+            NewInventory = harvest(Data#module_data.improvements, Data#module_data.inventory),
             NewData = Data#module_data {inventory = NewInventory} 
     end,      
     
@@ -449,10 +450,10 @@ add_item(Type, Amount, Inventory) ->
     
     NewInventory.
 
-gather_resources([], Inventory) ->
+harvest([], Inventory) ->
     Inventory;
 
-gather_resources([ImprovementId | Rest], Inventory) ->
+harvest([ImprovementId | Rest], Inventory) ->
     [Improvement] = db:dirty_read(improvement, ImprovementId),
     [_NumResources | Resources] = map_port:get_resources(Improvement#improvement.tile_index),
 
@@ -462,18 +463,17 @@ gather_resources([ImprovementId | Rest], Inventory) ->
     io:fwrite("ResourceGained: ~w~n",[ResourceGained]),
 
     NewInventory = add_item(Improvement#improvement.type, ResourceGained, Inventory),
-    gather_resources(Rest, NewInventory).
+    harvest(Rest, NewInventory).
 
-get_yield(_, [], _, _) ->
+get_yield(_, [], _, false) ->
     0;
-get_yield(_, _, Yield, true) ->
+get_yield(_, [], Yield, true) ->
     Yield;
 get_yield(SearchType, Resources, Yield, Result) ->
     [Type | Rest] = Resources,
-    [Yield | NewResources] = Rest,
-    Result = Type =:= SearchType,
-
-    get_yield(SearchType, NewResources, Yield,  Result).
+    [NewYield | NewResources] = Rest,
+    NewResult = Type =:= SearchType,
+    get_yield(SearchType, NewResources, NewYield, NewResult).
 
 
     

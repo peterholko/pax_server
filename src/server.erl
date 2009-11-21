@@ -63,7 +63,8 @@ init() ->
     log4erl:info("Starting game process...") ,
     {ok, _GamePid} = game:start(),
     ok = game:load_entities(),	
-    ok = game:setup_perception(),	   
+    ok = game:setup_perception(),	 
+    ok = game:setup_events(),  
     spawn(fun() -> game_loop:loop(util:get_time(), global:whereis_name(game_pid)) end),
     
     % Start managers

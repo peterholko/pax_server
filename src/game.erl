@@ -13,8 +13,9 @@
 %%
 %% Exported Functions
 %%
--export([start/0, load_entities/0, setup_perception/0, add_event/4, update_perception/1, init/1, handle_call/3, handle_cast/2, 
-        handle_info/2, terminate/2, code_change/3]).
+-export([start/0, load_entities/0, setup_perception/0, setup_events/0, add_event/4, update_perception/1]).
+-export([get_cities/0]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 
 %%
@@ -34,10 +35,13 @@ setup_events() ->
     gen_server:call({global, game_pid}, 'SETUP_EVENTS').
 
 add_event(ObjectPid, EventType, EventData, EventTick) ->
-    gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', ObjectPid, EventType, EventData, EventTick}).
+    gen_server:cast({global, game_pid}, {'ADD_EVENT', ObjectPid, EventType, EventData, EventTick}).
 
 update_perception(PlayerId) ->
-    gen_server:cast(global:whereis_name(game_pid), {'UPDATE_PERCEPTION', PlayerId}).
+    gen_server:cast({global, game_pid}, {'UPDATE_PERCEPTION', PlayerId}).
+
+get_cities() ->
+    gen_server:call({global, game_pid}, 'GET_CITIES').
 
 init([]) ->    
     Data = #game_info {update_perceptions = gb_sets:new() },
@@ -92,12 +96,8 @@ handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
 
 handle_cast({'ADD_EVENT', Pid, Type, EventData, EventTick}, Data) ->
     io:fwrite("game - add_event - EventTick: ~w~n", [EventTick]),
-    EventId = counter:increment(event),
-    CurrentTick = Data#game_info.tick,
-    Events = Data#game_info.events,
-    NewEvents = [{EventId, Pid, Type, EventData, CurrentTick + EventTick} | Events],
-    NewData = Data#game_info { events = NewEvents},  
-    
+    NewData = add_event(Pid, Type, EventData, EventTick, Data),    
+
     {noreply, NewData};
 
 handle_cast({'DELETE_EVENT', EventId}, Data) ->
@@ -165,11 +165,14 @@ handle_call('SETUP_PERCEPTION', _From, Data) ->
     entities_perception(Data#game_info.armies ++ Data#game_info.cities, Data#game_info.armies ++ Data#game_info.cities),		
     {reply, ok, Data};
 
-handle_call('SETUP_EVENT', _From, Data) ->
+handle_call('SETUP_EVENTS', _From, Data) ->
     log4erl:info("Setup events..."),
-    static_events(Data#game_info.cities),
+    {ok, _Pid} = event:start(),
+    
+    {EventPid, EventType, EventData, EventTick} = event:harvest(),
+    NewData = add_event(EventPid, EventType, EventData, EventTick, Data),
 
-    {reply, ok, Data};
+    {reply, ok, NewData};
 
 handle_call({'IS_PLAYER_ONLINE', PlayerId}, _From, Data) ->	
     Result = lists:keymember(PlayerId, 2, Data#game_info.players),
@@ -244,7 +247,9 @@ entities_perception(Entities, EveryEntity) ->
     lists:foreach(F, Entities),
     log4erl:info("All perception updated.").
 
-static_events(Cities) ->
-    ok.
-
-
+add_event(Pid, Type, EventData, EventTick, Data) ->
+    EventId = counter:increment(event),
+    CurrentTick = Data#game_info.tick,
+    Events = Data#game_info.events,
+    NewEvents = [{EventId, Pid, Type, EventData, CurrentTick + EventTick} | Events],
+    Data#game_info { events = NewEvents}.  
