@@ -287,7 +287,10 @@ read(<<?CMD_EXPLORED_MAP, Bin/binary>>) ->
     unpickle(map(), Bin);
 
 read(<<?CMD_PERCEPTION, Bin/binary>>) ->
-    unpickle(perception(), Bin).
+    unpickle(perception(), Bin);
+
+read(<<?CMD_INFO_ARMY, Bin/binary>>) ->
+    unpickle(info_army(), Bin).
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];
@@ -328,7 +331,13 @@ write(R) when is_record(R, build_improvement) ->
     [?CMD_BUILD_IMPROVEMENT|pickle(build_improvement(), R)];
 
 write(R) when is_record(R, add_claim) ->
-    [?CMD_ADD_CLAIM|pickle(add_claim(), R)].
+    [?CMD_ADD_CLAIM|pickle(add_claim(), R)];
+
+write(R) when is_record(R, transfer_unit) ->
+    [?CMD_TRANSFER_UNIT|pickle(transfer_unit(), R)];
+
+write(R) when is_record(R, request_info) ->
+    [?CMD_REQUEST_INFO|pickle(request_info(), R)].
 
 send(Socket, Data) ->
     io:format("packet: send() - Data ->  ~p~n", [Data]),

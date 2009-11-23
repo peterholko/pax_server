@@ -46,6 +46,9 @@ loop(Socket) ->
                 #perception{entities = Entities, tiles = Tiles} ->
                     io:fwrite("Perception: ~w ~w~n",[Entities, Tiles]),
                     loop(Socket);                
+                #info_army{id = Id, units = Units} ->
+                    io:fwrite("Info Army: ~w ~w~n", [Id, Units]),
+                    loop(Socket);
                 _Any ->
                     io:fwrite("Do not recognize command.~n")
             end;							
