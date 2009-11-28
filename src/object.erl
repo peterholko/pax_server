@@ -12,15 +12,20 @@
 %%
 %% Exported Functions
 %%
--export([get_object_atom/1]).
+-export([get_atom/1, get_pid/2]).
 
 %%
 %% API Functions
 %%
 
-get_object_atom(?OBJECT_ARMY) -> army;
-get_object_atom(?OBJECT_CITY) -> city;
-get_object_atom(_) -> none.
+get_atom(?OBJECT_ARMY) -> army;
+get_atom(?OBJECT_CITY) -> city;
+get_atom(?OBJECT_TRANSPORT) -> transport;
+get_atom(_) -> none.
+
+get_pid(army, ArmyId) -> global:whereis_name({army, ArmyId});
+get_pid(city, CityId) -> global:whereis_name({city, CityId});
+get_pid(transport, _TransportId) -> global:whereis_name(transport_pid). 
 
 %%
 %% Local Functions

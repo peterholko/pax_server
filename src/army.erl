@@ -212,7 +212,7 @@ handle_call({'DAMAGE_UNIT', UnitId, Damage}, _From, Data) ->
     
     {reply, ArmyStatus, NewData};
 
-handle_call({'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}, _From, Data) ->
+handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, Data) ->
     
     io:fwrite("army - transfer unit.~n"),
     
@@ -223,7 +223,9 @@ handle_call({'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}, _From, Data) ->
         UnitResult =/= false ->
             Unit = dict:fetch(UnitId, Units),
             
-            case gen_server:call(global:whereis_name({TargetAtom, TargetId}), {'RECEIVE_UNIT', Unit, Data#module_data.player_id}) of
+            TargetPid = object:get_pid(TargetAtom, TargetId),
+
+            case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
                 {receive_unit, success} ->
                     NewUnits = dict:erase(UnitId, Units),
                     NewData = Data#module_data {units = NewUnits, save_army = true},
@@ -239,7 +241,7 @@ handle_call({'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}, _From, Data) ->
     
     {reply, TransferUnitInfo , NewData};
 
-handle_call({'RECEIVE_UNIT', Unit, PlayerId}, _From, Data) ->
+handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
     
     io:fwrite("army - receive unit.~n"),
     

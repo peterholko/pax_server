@@ -227,10 +227,12 @@ handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = Unit
 
 handle_cast(_ = #transfer_unit{unit_id = UnitId, source_id = SourceId, source_type = SourceType, target_id = TargetId, target_type = TargetType}, Data) ->
     
-    SourceAtom = object:get_object_atom(SourceType),
-    TargetAtom = object:get_object_atom(TargetType),
+    SourceAtom = object:get_atom(SourceType),
+    TargetAtom = object:get_atom(TargetType),
+    SourcePid = object:get_pid(SourceAtom, SourceId),
+    TargetPid = object:get_pid(TargetAtom, TargetId),
     
-    case gen_server:call(global:whereis_name({SourceAtom, SourceId}), {'TRANSFER_UNIT', UnitId, TargetId, TargetAtom}) of
+    case gen_server:call(SourcePid, {'TRANSFER_UNIT', SourceId, UnitId, TargetId, TargetAtom}) of
         {transfer_unit, success} ->
             RequestSourceInfo = #request_info{ type = SourceType, id = SourceId},
             gen_server:cast(self(), RequestSourceInfo),            
