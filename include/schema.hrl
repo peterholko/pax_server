@@ -76,6 +76,12 @@
 		tile_index,
 		city_id}).
 
+-record(transport, {id,
+                    inventory,
+                    units = []}).
+
+
+
 %%% Queue tables %%%
 
 -record(unit_queue, {id,

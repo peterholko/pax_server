@@ -33,6 +33,7 @@
 -define(OBJECT_BUILDING, 3).
 -define(OBJECT_BATTLE, 4).
 -define(OBJECT_IMPROVEMENT, 5).
+-define(OBJECT_TRANSPORT, 6).
 
 -define(BUILDING_UNIT_LAND, 1).
 -define(BUILDING_UNIT_SEA, 2).
