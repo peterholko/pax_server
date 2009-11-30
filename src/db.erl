@@ -18,7 +18,7 @@
 %%
 -export([create_schema/0, start/0, 
          write/1, read/2, delete/2, index_read/3,
-         dirty_write/1, dirty_read/2, dirty_delete/2,
+         dirty_write/1, dirty_read/2, dirty_index_read/3, dirty_delete/2,
          reset_game_tables/0, reset_tables/0, select_armies/0,
          select_cities/0, select_battles/0, 
          select_all_armies/0, select_all_players/0,
@@ -88,6 +88,9 @@ index_read(T, V, K) ->
 dirty_read(T, K) ->
     mnesia:dirty_read(T, K).
 
+dirty_index_read(T, V, K) ->
+    mnesia:dirty_index_read(T, V, K).
+
 dirty_write(R) ->
     mnesia:dirty_write(R).
 
@@ -148,7 +151,7 @@ test_tables() ->
      {city, 13, 3, 7, 4, 0, [], [], [], 0},
      {army, 1, 1,  2,  2, 0, 0, none, 0, 1, none},
      {army, 2, 1,  5,  5, 0, 0, none, 0, 0, none},
-     {army, 3, 2,  8,  2, 0, 0, none, 0, 0, none},
+     {army, 3, 2,  3,  3, 0, 0, none, 0, 0, none},
      {army, 4, 3, 10, 10, 0, 0, none, 0, 0, none},
      {army, 5, 4, 15,  2, 0, 0, none, 0, 0, none},
      {army, 6, 5, 25, 25, 0, 0, none, 0, 0, none},

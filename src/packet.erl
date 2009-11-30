@@ -290,7 +290,16 @@ read(<<?CMD_PERCEPTION, Bin/binary>>) ->
     unpickle(perception(), Bin);
 
 read(<<?CMD_INFO_ARMY, Bin/binary>>) ->
-    unpickle(info_army(), Bin).
+    unpickle(info_army(), Bin);
+
+read(<<?CMD_BATTLE_INFO, Bin/binary>>) ->
+    unpickle(battle_info(), Bin);
+
+read(<<?CMD_BATTLE_ADD_ARMY, Bin/binary>>) ->
+    unpickle(battle_add_army(), Bin);
+
+read(<<?CMD_BATTLE_DAMAGE, Bin/binary>>) ->
+    unpickle(battle_damage(), Bin).
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];
@@ -337,7 +346,13 @@ write(R) when is_record(R, transfer_unit) ->
     [?CMD_TRANSFER_UNIT|pickle(transfer_unit(), R)];
 
 write(R) when is_record(R, request_info) ->
-    [?CMD_REQUEST_INFO|pickle(request_info(), R)].
+    [?CMD_REQUEST_INFO|pickle(request_info(), R)];
+
+write(R) when is_record(R, attack) ->
+    [?CMD_ATTACK|pickle(attack(), R)];
+
+write(R) when is_record(R, battle_target) ->
+    [?CMD_BATTLE_TARGET|pickle(battle_target(), R)].
 
 send(Socket, Data) ->
     io:format("packet: send() - Data ->  ~p~n", [Data]),

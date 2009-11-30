@@ -21,15 +21,12 @@
 
 -export([start/2, stop/1]).
 
--record(module_data, {
-                      army,  
-                      units,       
+-record(module_data, {army,  
                       player_id, 
                       self,
                       visible = [],
                       observed_by = [],
-                      save_army = false
-                     }).
+                      save_army = false}).
 
 %%
 %% API Functions
@@ -50,11 +47,7 @@ init([Army, PlayerId])
     
     io:fwrite("army - army_id: ~w player_id: ~w~n", [Army#army.id, PlayerId]),  
     
-    ListUnits = db:index_read(unit, Army#army.id, #unit.entity_id),
-    DictUnits = dict:new(),
-    NewDictUnits = unit:init_units(ListUnits, DictUnits),
-    
-    {ok, #module_data{army = Army, units = NewDictUnits, player_id = PlayerId, self = self()}}.
+    {ok, #module_data{army = Army, player_id = PlayerId, self = self()}}.
 
 terminate(_Reason, _) ->
     ok.
@@ -174,93 +167,90 @@ handle_cast(stop, Data) ->
 
 handle_call({'DAMAGE_UNIT', UnitId, Damage}, _From, Data) ->
     
-    Units = Data#module_data.units,
-    Unit = unit:get_unit(UnitId, Units),
-    
-    if
-        Unit =/= none ->
-            
+    Army = Data#module_data.army,
+    Units = Army#army.units,
+   
+    case gb_sets:is_member(UnitId, Units) of
+        true ->
+            [Unit] = db:dirty_read(unit, UnitId),            
             [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
-            TotalHp = Unit#unit.size * UnitType#unit_type.max_hp,
-            Army = Data#module_data.army,
-            
+            TotalHp = Unit#unit.size * UnitType#unit_type.max_hp,            
             io:fwrite("Army ~w - Damage: ~w~n", [Army#army.id, Damage]),
             
             if
                 Damage >= TotalHp ->
                     io:fwrite("Army ~w - Unit Destroyed.~n", [Army#army.id]),
-                    NewUnits = dict:erase(UnitId, Units);
+                    db:dirty_delete(unit, UnitId),
+                    NewUnits = gb_sets:delete(UnitId, Units);
                 true ->
                     Killed = Damage div UnitType#unit_type.max_hp,
-                    
                     io:fwrite("Army ~w - Units killed: ~w~n", [Army#army.id, Killed]),
                     
                     NewSize = Unit#unit.size - Killed,
                     NewUnit = Unit#unit {size = NewSize},
-                    
+                    db:dirty_write(unit, NewUnit),                    
                     io:fwrite("Army ~w - Units size: ~w~n", [Army#army.id, NewSize]),
                     
-                    NewUnits = dict:store(UnitId, NewUnit, Units)
+                    NewUnits = gb_sets:add(UnitId, Units)
             end,
             
-            NewData = Data#module_data {units = NewUnits};
-        true ->
+            NewArmy = Army#army { units = NewUnits },                    
+            NewData = Data#module_data {army = NewArmy};
+        false ->
             NewData = Data
     end,   
     
-    ArmyStatus = get_army_status(Data),
+    ArmyStatus = get_army_status(NewData),
     
     {reply, ArmyStatus, NewData};
 
 handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, Data) ->
-    
     io:fwrite("army - transfer unit.~n"),
+    Army = Data#module_data.army,    
+    Units = Army#army.units,
     
-    Units = Data#module_data.units,
-    UnitResult = dict:is_key(UnitId, Units),
-    
-    if
-        UnitResult =/= false ->
-            Unit = dict:fetch(UnitId, Units),
-            
+    case gb_sets:is_member(UnitId, Units) of
+        true ->
+            [Unit] = db:dirty_read(unit, UnitId),                      
             TargetPid = object:get_pid(TargetAtom, TargetId),
 
             case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
                 {receive_unit, success} ->
-                    NewUnits = dict:erase(UnitId, Units),
-                    NewData = Data#module_data {units = NewUnits, save_army = true},
+                    db:dirty_delete(unit, UnitId),
+                    NewUnits = gb_sets:delete(UnitId, Units),
+                    NewArmy = Army#army {units = NewUnits},
                     TransferUnitInfo = {transfer_unit, success};
                 Error ->
                     TransferUnitInfo = Error,
-                    NewData = Data
+                    NewArmy = Army
             end;
-        true ->
+        false ->
             TransferUnitInfo = {transfer_unit, error},
-            NewData = Data
+            NewArmy = Army
     end,         		
     
+    NewData = Data#module_data {army = NewArmy},
     {reply, TransferUnitInfo , NewData};
 
 handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
-    
     io:fwrite("army - receive unit.~n"),
-    
     Army = Data#module_data.army,
-    Units = Data#module_data.units,
+    Units = Army#army.units,
     
     if
         PlayerId =:= Data#module_data.player_id ->
             %Check to see if unit already exists
-            UnitResult = dict:is_key(Unit#unit.id, Units),
+            UnitResult = gb_sets:is_member(Unit#unit.id, Units),            
             
             if
-                UnitResult =:= false ->
-                    
+                UnitResult =:= false ->                    
                     NewUnit = Unit#unit {entity_id = Army#army.id},
-                    NewUnits = dict:store(Unit#unit.id, NewUnit, Units),
-                    NewData = Data#module_data {units = NewUnits, save_army = true},
-                    ReceiveUnitInfo = {receive_unit, success};
-                
+                    db:dirty_write(unit, NewUnit),       
+
+                    NewUnits = gb_sets:add(Unit#unit.id, Units),
+                    NewArmy = Army#army {units = NewUnits},
+                    NewData = Data#module_data {army = NewArmy},
+                    ReceiveUnitInfo = {receive_unit, success};                
                 true ->
                     NewData = Data,
                     ReceiveUnitInfo = {receive_unit, error}
@@ -272,12 +262,9 @@ handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
     
     {reply, ReceiveUnitInfo, NewData};    
 
-handle_call({'GET_INFO'}, _From, Data) ->
-    
-    Army = Data#module_data.army,    
-    Units = Data#module_data.units,
-    
-    %Convert record to tuple packet form
+handle_call({'GET_INFO'}, _From, Data) ->    
+    Army = Data#module_data.army,   
+    [Units] = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
     UnitsInfoTuple = unit:units_tuple(Units),
     ArmyInfo = {Army#army.id, Army#army.player_id, UnitsInfoTuple},
     
@@ -285,10 +272,13 @@ handle_call({'GET_INFO'}, _From, Data) ->
     {reply, ArmyInfo , Data};
 
 handle_call({'GET_UNITS'}, _From, Data) ->
-    {reply, Data#module_data.units, Data};
+    Army = Data#module_data.army,
+    [Units] = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
+    {reply, Units, Data};
 
 handle_call({'GET_UNIT', UnitId}, _From, Data) ->
-    Units = Data#module_data.units,
+    Army = Data#module_data.army,
+    Units = Army#army.units,
     Unit = unit:get_unit(UnitId, Units),
     {reply, Unit, Data};
 
@@ -428,9 +418,7 @@ move(ArmyX, ArmyY, DestX, DestY) ->
     
     {NewArmyX, NewArmyY}.
 
-
-
-get_army_speed(ArmyId) ->
+get_army_speed(_ArmyId) ->
     %UnitsSpeed = unit:units_speed(ArmyId),
     5.
 %lists:max(UnitsSpeed).
@@ -474,7 +462,8 @@ state_none(Army) ->
 
 get_army_status(Data) ->
     
-    NumUnits = dict:size(Data#module_data.units),
+    Army = Data#module_data.army,
+    NumUnits = gb_sets:size(Army#army.units),
     
     if
         NumUnits =:= 0 ->

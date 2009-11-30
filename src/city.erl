@@ -21,8 +21,7 @@
 
 -export([start/2, stop/1, queue_unit/4, add_claim/3, add_improvement/4]).
 
--record(module_data, {city, 
-                      units, 
+-record(module_data, {city,                       
                       units_queue,
                       improvements = [],
                       inventory,
@@ -48,17 +47,13 @@ init([City, PlayerId])
        is_integer(PlayerId) ->
     process_flag(trap_exit, true),
     
-    %Unit setup
-    ListUnits = db:index_read(unit, City#city.id, #unit.entity_id),
-    DictUnits = dict:new(),
-    NewDictUnits = unit:init_units(ListUnits, DictUnits), 
+    %UnitQueue setup
     UnitQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
 
     %Inventory setup    
     Inventory = dict:new(),
 
     {ok, #module_data{city = City, 
-                      units = NewDictUnits, 
                       units_queue = UnitQueue,
                       inventory = Inventory, 
                       player_id = PlayerId, 
@@ -217,18 +212,20 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             
             %Get UnitsQueue and Units
             UnitsQueue = Data#module_data.units_queue,
-            Units = Data#module_data.units,
+            UnitIds = City#city.units,
             
             %Check if any units are completed
             {NewUnitsQueue, UnitsToAdd} = check_queue(UnitsQueue),
             
             %Add any units from the queue
-            NewUnits = add_units_from_queue(Units, UnitsToAdd),
+            NewUnitIds = add_units_from_queue(UnitIds, UnitsToAdd),
             
             %Assign any changes to module data
-            NewData = Data#module_data {units = NewUnits, units_queue = NewUnitsQueue},
-            
+            NewCity = City#city {units = NewUnitIds}, 
+            NewData = Data#module_data {city = NewCity, units_queue = NewUnitsQueue},            
+                        
             %Convert record to tuple packet form
+            [NewUnits] = db:dirty_index_read(unit, City#city.id, #unit.entity_id),
             UnitsTuple = unit:units_tuple(NewUnits),
             UnitsQueueTuple = unit:units_queue_tuple(NewUnitsQueue),
             
@@ -430,7 +427,8 @@ add_units_from_queue(Units, UnitsToAdd)->
                   type = UnitQueue#unit_queue.unit_type,
                   size = UnitQueue#unit_queue.unit_size},
     
-    NewUnits = dict:store(Unit#unit.id, Unit, Units),
+    db:dirty_write(unit, Unit),
+    NewUnits = [Unit#unit.id | Units]        
     add_units_from_queue(NewUnits, Rest).
 
 %Valid X, Valid Y, Exists, MaxReached

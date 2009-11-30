@@ -13,7 +13,7 @@
 -include("packet.hrl").
 %% --------------------------------------------------------------------
 %% External exports
--export([start/1, login/0, build_farm/0, add_claim/0, transfer/0, info_army/1]).
+-export([start/1, login/0, build_farm/0, add_claim/0, transfer/0, battle/0, target/0, info_army/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -record(data, {socket}).
@@ -38,8 +38,16 @@ transfer() ->
     gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 1, 1, 1, 2, 1}),
     gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 7, 2, 1, 1, 1}).
 
+battle() ->
+    gen_server:cast(global:whereis_name(test_sender), {'ATTACK', 1, 3}).
+
+target() ->
+    gen_server:cast(global:whereis_name(test_sender), {'TARGET', 1, 1, 1, 3, 9}).
+
 info_army(ArmyId) ->
     gen_server:cast(global:whereis_name(test_sender), {'INFO_ARMY', ArmyId}).
+
+
 
 %% ====================================================================
 %% Server functions
@@ -79,6 +87,21 @@ handle_cast({'INFO_ARMY', ArmyId}, Data) ->
     RequestInfo = #request_info{type = ?OBJECT_ARMY, id = ArmyId},
     packet:send(Data#data.socket, RequestInfo),
     {noreply, Data};    
+
+handle_cast({'ATTACK', SourceId, TargetId}, Data) ->
+    Attack = #attack{id = SourceId, target_id = TargetId},
+    packet:send(Data#data.socket, Attack),
+    {noreply, Data};
+
+handle_cast({'TARGET', BattleId, SourceArmy, SourceUnit, TargetArmy, TargetUnit}, Data) ->
+    Target = #battle_target{battle_id = BattleId, 
+                            source_army_id = SourceArmy, 
+                            source_unit_id = SourceUnit,
+                            target_army_id = TargetArmy,
+                            target_unit_id = TargetUnit},
+    
+    packet:send(Data#data.socket, Target),
+    {noreply, Data};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
