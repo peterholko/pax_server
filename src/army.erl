@@ -188,7 +188,7 @@ handle_call({'DAMAGE_UNIT', UnitId, Damage}, _From, Data) ->
                     
                     NewSize = Unit#unit.size - Killed,
                     NewUnit = Unit#unit {size = NewSize},
-                    db:dirty_write(unit, NewUnit),                    
+                    db:dirty_write(NewUnit),                    
                     io:fwrite("Army ~w - Units size: ~w~n", [Army#army.id, NewSize]),
                     
                     NewUnits = gb_sets:add(UnitId, Units)
@@ -219,17 +219,17 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
                     db:dirty_delete(unit, UnitId),
                     NewUnits = gb_sets:delete(UnitId, Units),
                     NewArmy = Army#army {units = NewUnits},
+                    NewData = Data#module_data{army = NewArmy},
                     TransferUnitInfo = {transfer_unit, success};
                 Error ->
                     TransferUnitInfo = Error,
-                    NewArmy = Army
+                    NewData = Data
             end;
         false ->
             TransferUnitInfo = {transfer_unit, error},
-            NewArmy = Army
+            NewData = Data
     end,         		
     
-    NewData = Data#module_data {army = NewArmy},
     {reply, TransferUnitInfo , NewData};
 
 handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
@@ -245,7 +245,7 @@ handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
             if
                 UnitResult =:= false ->                    
                     NewUnit = Unit#unit {entity_id = Army#army.id},
-                    db:dirty_write(unit, NewUnit),       
+                    db:dirty_write(NewUnit),       
 
                     NewUnits = gb_sets:add(Unit#unit.id, Units),
                     NewArmy = Army#army {units = NewUnits},
@@ -264,7 +264,7 @@ handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
 
 handle_call({'GET_INFO'}, _From, Data) ->    
     Army = Data#module_data.army,   
-    [Units] = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
+    Units = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
     UnitsInfoTuple = unit:units_tuple(Units),
     ArmyInfo = {Army#army.id, Army#army.player_id, UnitsInfoTuple},
     
@@ -273,7 +273,7 @@ handle_call({'GET_INFO'}, _From, Data) ->
 
 handle_call({'GET_UNITS'}, _From, Data) ->
     Army = Data#module_data.army,
-    [Units] = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
+    Units = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
     {reply, Units, Data};
 
 handle_call({'GET_UNIT', UnitId}, _From, Data) ->

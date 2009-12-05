@@ -106,8 +106,7 @@ handle_cast({'PROCESS_EVENT', EventData, EventType}, Data) ->
     case EventType of
         ?EVENT_UNIT_ROUND ->
             
-            NewData = unit_round(EventData, Data),
-            
+            NewData = unit_round(EventData, Data),           
             io:fwrite("battle: ~w~n", [EventData]);
         ?EVENT_NONE ->
             NewData = Data
@@ -198,12 +197,10 @@ code_change(_OldVsn, Data, _Extra) ->
     {ok, Data}.
 
 add_army(PlayerId, ArmyId, Data) ->	
-    
     io:fwrite("Battle - add_army~n"),
     ArmyUnits = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_UNITS'}),
-    ArmyUnitsIds = dict:fetch_keys(ArmyUnits),
     
-    add_events(ArmyUnitsIds, ArmyId, Data#module_data.self),
+    add_events(ArmyUnits, ArmyId, Data#module_data.self),
     
     NewArmies = [ArmyId | Data#module_data.armies],
     NewPlayers = sets:add_element(PlayerId, Data#module_data.players),
@@ -214,14 +211,9 @@ add_events([], _, _) ->
     io:fwrite("Battle - Finished Adding Events~n"),
     ok;
 
-add_events(UnitsIds, ArmyId, BattlePid) ->
-    
-    io:fwrite("Battle - add_events - UnitsIds: ~w~n", [UnitsIds]),
-    
-    [UnitId | Rest] = UnitsIds,
-    
-    Unit = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_UNIT', UnitId}),
-    
+add_events(Units, ArmyId, BattlePid) ->    
+    io:fwrite("Battle - add_events - Units: ~w~n", [Units]),    
+    [Unit | Rest] = Units,   
     [UnitType] = mnesia:dirty_read(unit_type, Unit#unit.type),
     UnitSpeed = UnitType#unit_type.speed,
     EventTime = UnitSpeed * trunc(1000 / ?GAME_LOOP_TICK),
@@ -284,11 +276,11 @@ unit_attack(ArmyId, Unit, TargetArmyId, TargetUnit, Data) ->
             io:fwrite("Battle - Apply Unit Damage.~n"),
             
             [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
-            [TargetUnitType] = db:dirty_read(unit_type, TargetUnit#unit.type),
+            [_TargetUnitType] = db:dirty_read(unit_type, TargetUnit#unit.type),
             Damage = UnitType#unit_type.attack,
             
             ArmyStatus = gen_server:call(global:whereis_name({army, TargetArmyId}), {'DAMAGE_UNIT', TargetUnit#unit.id, Damage}),
-            PlayerId = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_PLAYER_ID'}),
+            _PlayerId = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_PLAYER_ID'}),
             
             broadcast_damage(Data#module_data.battle_id, Data#module_data.players, Unit#unit.id, TargetUnit#unit.id, Damage),
             

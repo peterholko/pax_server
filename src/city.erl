@@ -106,11 +106,12 @@ handle_cast({'REMOVE_OBSERVED_BY', _CityId, EntityId, EntityPid}, Data) ->
     
     {noreply, NewData};
 
-handle_cast({'ADD_UNIT', Unit}, Data) ->
-    
-    Units = Data#module_data.units,
-    NewUnits = [Unit | Units],
-    NewData = Data#module_data {units = NewUnits},
+handle_cast({'ADD_UNIT', UnitId}, Data) ->
+    City = Data#module_data.city,
+    Units = City#city.units,
+    NewUnits = [UnitId | Units],
+    NewCity = City#city { units = NewUnits},
+    NewData = Data#module_data {city = NewCity},
     
     {noreply, NewData};
 
@@ -238,55 +239,53 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
     io:fwrite("city - CityInfo: ~w~n", [CityInfo]),
     {reply, CityInfo , NewData};
 
-handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, Data) ->
-    
+handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, Data) ->   
     io:fwrite("city - transfer unit.~n"),
+    City = Data#module_data.city,
+    Units = City#city.units,
     
-    Units = Data#module_data.units,
-    UnitResult = dict:is_key(UnitId, Units),
-    
-    if
-        UnitResult =/= false ->
-            Unit = dict:fetch(UnitId, Units),
-            
+    case gb_sets:is_member(UnitId, Units) of
+        true ->
+            [Unit] = db:dirty_read(unit, UnitId),
             TargetPid = object:get_pid(TargetAtom, TargetId),
 
             case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
                 {receive_unit, success} ->
-                    NewUnits = dict:erase(UnitId, Units),
-                    NewData = Data#module_data {units = NewUnits, save_city = true},
+                    db:dirty_delete(unit, UnitId),
+                    NewUnits = gb_sets:delete(UnitId, Units),
+                    NewCity = City#city {units = NewUnits},
+                    NewData = Data#module_data {city = NewCity},
                     TransferUnitInfo = {transfer_unit, success};
                 Error ->
                     TransferUnitInfo = Error,
                     NewData = Data
             end;
-        true ->
+        false ->
             TransferUnitInfo = {transfer_unit, error},
             NewData = Data
     end,         		
     
     {reply, TransferUnitInfo , NewData};
 
-handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
-    
-    io:fwrite("city - receive unit.~n"),
-    
+handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->   
+    io:fwrite("city - receive unit.~n"),   
     City = Data#module_data.city,
-    Units = Data#module_data.units,
+    Units = City#city.units,
     
     if
         PlayerId =:= Data#module_data.player_id ->
             %Check to see if unit already exists
-            UnitResult = dict:is_key(Unit#unit.id, Units),
+            UnitResult = gb_sets:is_member(Unit#unit.id, Units),
             
             if
-                UnitResult =:= false ->
-                    
+                UnitResult =:= false ->                    
                     NewUnit = Unit#unit {entity_id = City#city.id},
-                    NewUnits = dict:store(Unit#unit.id, NewUnit, Units),
-                    NewData = Data#module_data {units = NewUnits, save_city = true},
-                    ReceiveUnitInfo = {receive_unit, success};
-                
+                    db:dirty_write(NewUnit),
+
+                    NewUnits = gb_sets:add(Unit#unit.id, Units),
+                    NewCity = City#city {units = NewUnits},                
+                    NewData = Data#module_data {city = NewCity},
+                    ReceiveUnitInfo = {receive_unit, success};                
                 true ->
                     NewData = Data,
                     ReceiveUnitInfo = {receive_unit, error}
@@ -427,8 +426,8 @@ add_units_from_queue(Units, UnitsToAdd)->
                   type = UnitQueue#unit_queue.unit_type,
                   size = UnitQueue#unit_queue.unit_size},
     
-    db:dirty_write(unit, Unit),
-    NewUnits = [Unit#unit.id | Units]        
+    db:dirty_write(Unit),
+    NewUnits = [Unit#unit.id | Units],        
     add_units_from_queue(NewUnits, Rest).
 
 %Valid X, Valid Y, Exists, MaxReached

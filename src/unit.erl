@@ -30,8 +30,6 @@ get_unit_ids(ListUnits, UnitIds) ->
     get_unit_ids(Rest, NewUnitIds).
 
 get_unit(UnitId, Units) ->
-    UnitResult = dict:is_key(UnitId, Units),
-    
     case gb_sets:is_member(UnitId, Units) of
         true ->
             [Unit] = db:dirty_read(unit, UnitId);
