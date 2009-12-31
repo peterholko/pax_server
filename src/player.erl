@@ -189,9 +189,10 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
             end;
         ?OBJECT_CITY ->
             case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
-                {detailed, BuildingInfo, UnitsInfo, UnitsQueueInfo} ->
+                {detailed, BuildingInfo, BuildingsQueueInfo, UnitsInfo, UnitsQueueInfo} ->
                     R = #info_city { id = Id, 
-                                     buildings = BuildingInfo, 
+                                     buildings = BuildingInfo,
+                                     buildings_queue = BuildingsQueueInfo, 
                                      units = UnitsInfo,
                                      units_queue = UnitsQueueInfo},
                     forward_to_client(R, Data);
@@ -208,6 +209,15 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
                     forward_to_client(R, Data);
                 {generic, BattleId} ->
                     BattleId
+            end;
+        ?OBJECT_TRANSPORT ->
+            case gen_server:call(global:whereis_name(transport_pid), {'GET_INFO', Id}) of
+                {detailed, TransportId, UnitsInfo} ->
+                    R = #transport_info { transport_id = TransportId,
+                                          units = UnitsInfo},
+                    forward_to_client(R, Data);
+                {generic, TransportId} ->
+                    TransportId
             end
     end, 
     

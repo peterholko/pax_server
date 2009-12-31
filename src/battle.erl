@@ -214,7 +214,7 @@ add_events([], _, _) ->
 add_events(Units, ArmyId, BattlePid) ->    
     io:fwrite("Battle - add_events - Units: ~w~n", [Units]),    
     [Unit | Rest] = Units,   
-    [UnitType] = mnesia:dirty_read(unit_type, Unit#unit.type),
+    [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
     UnitSpeed = UnitType#unit_type.speed,
     EventTime = UnitSpeed * trunc(1000 / ?GAME_LOOP_TICK),
     

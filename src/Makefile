@@ -18,7 +18,7 @@ BEAMS=$(ERLS:.erl=.beam)
 MODS = army battle city counter db entity event\
        game_loop game improvement login map object \
        packet pickle player population server subscription\
-       t test unit util
+       t transport test unit util
 
 #BEAMS = $(ERLS:.erl=.beam)
 #MODS = $(BEAMS:.beam=)

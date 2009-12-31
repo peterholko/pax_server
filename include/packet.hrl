@@ -53,8 +53,13 @@
 -define (CMD_INFO_CITY, 53).
 -record(info_city, {id,
                     buildings,
+                    buildings_queue,
                     units,
                     units_queue}).
+
+-define (CMD_TRANSPORT_INFO, 55).
+-record(transport_info, {transport_id, 
+                         units}).
 
 -define (CMD_CITY_QUEUE_UNIT, 60).
 -record(city_queue_unit, {id,
@@ -99,3 +104,5 @@
 -record(add_claim, {city_id,
                     x,
                     y}).
+
+-record(tt, {test}).

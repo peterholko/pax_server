@@ -19,10 +19,11 @@
 -export([init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--export([start/2, stop/1, queue_unit/4, add_claim/3, add_improvement/4]).
+-export([start/2, stop/1, queue_unit/4, queue_building/3, add_claim/3, add_improvement/4]).
 
 -record(module_data, {city,                       
                       units_queue,
+                      buildings_queue,
                       improvements = [],
                       inventory,
                       player_id, 
@@ -48,13 +49,15 @@ init([City, PlayerId])
     process_flag(trap_exit, true),
     
     %UnitQueue setup
-    UnitQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
+    UnitsQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
+    BuildingsQueue = db:index_read(building_queue, City#city.id, #building_queue.city_id),
 
     %Inventory setup    
     Inventory = dict:new(),
 
     {ok, #module_data{city = City, 
-                      units_queue = UnitQueue,
+                      units_queue = UnitsQueue,
+                      buildings_queue = BuildingsQueue,
                       inventory = Inventory, 
                       player_id = PlayerId, 
                       self = self() }}.
@@ -68,6 +71,9 @@ stop(ProcessId)
 
 queue_unit(CityId, PlayerId, UnitType, UnitSize) ->
     gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_UNIT', PlayerId, UnitType, UnitSize}).
+
+queue_building(CityId, PlayerId, BuildingType) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_BUILDING', PlayerId, BuildingType}).
 
 add_improvement(CityId, X, Y, ImprovementType) ->
     gen_server:cast(global:whereis_name({city,CityId}), {'ADD_IMPROVEMENT', X, Y, ImprovementType}).
@@ -116,7 +122,6 @@ handle_cast({'ADD_UNIT', UnitId}, Data) ->
     {noreply, NewData};
 
 handle_cast({'ADD_IMPROVEMENT', X, Y, ImprovementType}, Data) ->
-
     City = Data#module_data.city,
 
     case lists:member({X,Y}, City#city.claims) of
@@ -173,57 +178,78 @@ handle_cast({'ADD_CLAIM', X, Y}, Data) ->
 
     {noreply, NewData};
 
-handle_cast({'PROCESS_EVENT', _Id, EventType}, Data) ->
-    
+handle_cast({'PROCESS_EVENT', _Id, EventType}, Data) ->   
+    City = Data#module_data.city,
+
     case EventType of
         ?EVENT_HARVEST -> 
             log4erl:info("Processing Harvest for City ~w~n", [self()]),
-            NewInventory = harvest(Data#module_data.improvements, Data#module_data.inventory),
-            NewData = Data#module_data {inventory = NewInventory} 
+            harvest(Data#module_data.improvements, City#city.id)            
     end,      
     
-    {noreply, NewData};
+    {noreply, Data};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
-handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize}, _From, Data) ->
-    
+handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize}, _From, Data) ->   
     City = Data#module_data.city,
     UnitsQueue = Data#module_data.units_queue,
     
-    if
-        City#city.player_id =:= PlayerId ->
+    case City#city.player_id =:= PlayerId of
+        true ->              
             NewUnitsQueue = add_unit_to_queue(City#city.id, UnitsQueue, UnitType, UnitSize),
             NewData = Data#module_data { units_queue = NewUnitsQueue},
             Result = {city, queued_unit};
-        true ->
+        false ->
             NewData = Data,
             Result = {city, error}
     end,
     
     {reply, Result, NewData};
 
-handle_call({'GET_INFO', PlayerId}, _From, Data) ->
-    
+handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
+    City = Data#module_data.city,
+    BuildingsQueue = Data#module_data.buildings_queue,
+
+    case City#city.player_id =:= PlayerId of
+        true ->
+            NewBuildingsQueue = add_building_to_queue(City#city.id, BuildingsQueue, BuildingType),
+            NewData = Data#module_data { buildings_queue = NewBuildingsQueue},
+            Result = {city, queued_building};
+        false ->
+            NewData = Data,
+            Result = {city, error}
+    end,
+
+    {reply, Result, NewData}; 
+
+handle_call({'GET_INFO', PlayerId}, _From, Data) ->    
     City = Data#module_data.city,
     
     if 
-        City#city.player_id =:= PlayerId ->
-            
-            %Get UnitsQueue and Units
+        City#city.player_id =:= PlayerId ->           
+            %Get UnitQueue and Units
             UnitsQueue = Data#module_data.units_queue,
             UnitIds = City#city.units,
+
+            %Get BuildingQueue and buildings,
+            BuildingsQueue = Data#module_data.buildings_queue,
+            BuildingIds = City#city.buildings,
             
-            %Check if any units are completed
-            {NewUnitsQueue, UnitsToAdd} = check_queue(UnitsQueue),
+            %Check if any units or buildings are completed
+            {NewUnitsQueue, UnitsToAdd} = check_unit_queue(UnitsQueue),
+            {NewBuildingsQueue, BuildingsToAdd} = check_building_queue(BuildingsQueue),
             
             %Add any units from the queue
             NewUnitIds = add_units_from_queue(UnitIds, UnitsToAdd),
+            NewBuildingIds = add_buildings_from_queue(BuildingIds, BuildingsToAdd),
             
             %Assign any changes to module data
-            NewCity = City#city {units = NewUnitIds}, 
-            NewData = Data#module_data {city = NewCity, units_queue = NewUnitsQueue},            
+            NewCity = City#city {units = NewUnitIds, buildings = NewBuildingIds}, 
+            NewData = Data#module_data {city = NewCity, 
+                                        units_queue = NewUnitsQueue, 
+                                        buildings_queue = NewBuildingsQueue},            
                         
             %Convert record to tuple packet form
             [NewUnits] = db:dirty_index_read(unit, City#city.id, #unit.entity_id),
@@ -385,20 +411,48 @@ get_queue_unit_time(QueueInfo, CurrentTime) ->
     end,
     StartTime.
 
-check_queue([]) ->
+add_building_to_queue(CityId, BuildingsQueue, BuildingType) ->
+    CurrentTime = util:get_time_seconds(),
+    StartTime = get_queue_building_time(BuildingsQueue, CurrentTime),
+    
+    BuildingQueue = #building_queue {id = counter:increment(building_queue),
+                                     city_id = CityId,
+                                     building_type = BuildingType,
+                                     start_time = StartTime,
+                                     end_time = StartTime + 60},
+
+    [BuildingQueue | BuildingsQueue].
+
+get_queue_building_time([], CurrentTime) ->
+    CurrentTime;
+
+get_queue_building_time(QueueInfo, CurrentTime) ->
+    SortedQueueInfo = lists:keysort(4, QueueInfo),
+    LastBuildingQueue = lists:last(SortedQueueInfo),
+    EndTime = LastBuildingQueue#building_queue.end_time,
+    
+    case EndTime > CurrentTime of
+        true ->
+            StartTime = EndTime;
+        false ->
+            StartTime = CurrentTime
+    end,
+    StartTime.
+
+check_unit_queue([]) ->
     {[], []};
 
-check_queue(QueueInfo) ->
+check_unit_queue(QueueInfo) ->
     CurrentTime = util:get_time_seconds(),
     
-    io:fwrite("city - check_queue - CurrentTime: ~w~n", [CurrentTime]),  
+    io:fwrite("city - check_unit_queue - CurrentTime: ~w~n", [CurrentTime]),  
     
     F = fun(UnitQueue, UnitsToRemove) ->
                 EndTime = UnitQueue#unit_queue.end_time,
                 
                 if
                     EndTime =< CurrentTime ->    
-                        io:fwrite("city - check_queue - UnitQueue: ~w~n", [UnitQueue]),    
+                        io:fwrite("city - check_unit_queue - UnitQueue: ~w~n", [UnitQueue]),    
                         NewUnitsToRemove = [UnitQueue | UnitsToRemove];
                     true ->
                         NewUnitsToRemove = UnitsToRemove
@@ -410,14 +464,36 @@ check_queue(QueueInfo) ->
     UnitsToRemove = lists:foldl(F, [], QueueInfo),
     
     NewQueueInfo = QueueInfo -- UnitsToRemove,
-    io:fwrite("city - check_queue - UnitsRemoved: ~w~n", [UnitsToRemove]),    
+    io:fwrite("city - check_unit_queue - UnitsRemoved: ~w~n", [UnitsToRemove]),    
     {NewQueueInfo, UnitsToRemove}.  
+
+check_building_queue([]) ->
+    {[], []};
+
+check_building_queue(QueueInfo) ->
+    CurrentTime = util:get_time_seconds(),
+
+    F = fun(BuildingQueue, BuildingsToRemove) ->
+            EndTime = BuildingQueue#building_queue.end_time,
+
+            case EndTime =< CurrentTime of
+                true ->
+                    NewBuildingsToRemove = [BuildingQueue | BuildingsToRemove];
+                false ->
+                    NewBuildingsToRemove = BuildingsToRemove
+            end,
+            
+            NewBuildingsToRemove
+        end,
+
+    BuildingsToRemove = lists:foldl(F, [], QueueInfo),
+    NewQueueInfo = QueueInfo -- BuildingsToRemove,
+    {NewQueueInfo, BuildingsToRemove}.
 
 add_units_from_queue(Units, []) ->
     Units;
 
-add_units_from_queue(Units, UnitsToAdd)->
-    
+add_units_from_queue(Units, UnitsToAdd) ->    
     [UnitQueue | Rest] = UnitsToAdd,
     
     Unit = #unit {id = counter:increment(unit),
@@ -430,6 +506,21 @@ add_units_from_queue(Units, UnitsToAdd)->
     NewUnits = [Unit#unit.id | Units],        
     add_units_from_queue(NewUnits, Rest).
 
+add_buildings_from_queue(Buildings, []) ->
+    Buildings;
+
+add_buildings_from_queue(Buildings, BuildingsToAdd) ->
+    [BuildingQueue | Rest] = BuildingsToAdd,
+    
+    Building = #building {id = counter:increment(building),
+                          city_id = BuildingQueue#building_queue.city_id,
+                          type = BuildingQueue#building_queue.building_type},
+
+    db:dirty_write(Building),
+    NewBuildings = [Building#building.id | Buildings],
+
+    add_buildings_from_queue(NewBuildings, Rest).
+
 %Valid X, Valid Y, Exists, MaxReached
 check_claim(true, true, false, false) ->
     true;
@@ -437,22 +528,45 @@ check_claim(_, _, _, _) ->
     log4erl:info("Add claim failed."),
     false.
 
-add_item(Type, Amount, Inventory) ->
-    
-    case dict:is_key(Type, Inventory) of
-        true ->
-            CurrentAmount = dict:fetch(Type, Inventory),
-            NewInventory = dict:store(Type, CurrentAmount + Amount, Inventory);
-        false ->
-            NewInventory = dict:store(Type, Amount, Inventory)
-    end,
-    
-    NewInventory.
+add_item(CityId, Type, Value) ->
+    case db:dirty_read(item_type_ref, {CityId, Type}) of
+        [ItemTypeRef] ->
+            io:fwrite("ItemTypeRef: ~w~n", [ItemTypeRef]),
+            update_item(ItemTypeRef#item_type_ref.item_id, Value);
+        _ ->
+            new_item(CityId, Type, Value)
+    end.
 
-harvest([], Inventory) ->
-    Inventory;
+update_item(ItemId, Value) ->
+    F = fun() ->
+            [Item] = mnesia:read(item, ItemId),
+            CurrentValue = Item#item.value,
+            NewItem = Item#item {value = CurrentValue + Value},
+            mnesia:write(NewItem)
+        end,
+    {atomic, _Status} = mnesia:transaction(F).
 
-harvest([ImprovementId | Rest], Inventory) ->
+new_item(CityId, Type, Value) ->
+    F = fun() ->
+            ItemId = counter:increment(item),
+            ItemRef = {CityId, Type},
+            Item = #item {id = ItemId,
+                          entity_id = CityId,
+                          type = Type,
+                          value = Value},
+            ItemTypeRef = #item_type_ref {ref = ItemRef,
+                                          item_id = ItemId},
+            mnesia:write(Item),
+            mnesia:write(ItemTypeRef)
+        end,
+    {atomic, _Status} = mnesia:transaction(F).
+
+harvest([], _) ->
+    io:fwrite("Harvest no improvements~n"),
+    ok;
+
+harvest([ImprovementId | Rest], CityId) ->
+    io:fwrite("Harvest~n"),
     [Improvement] = db:dirty_read(improvement, ImprovementId),
     [_NumResources | Resources] = map_port:get_resources(Improvement#improvement.tile_index),
 
@@ -461,20 +575,16 @@ harvest([ImprovementId | Rest], Inventory) ->
 
     io:fwrite("ResourceGained: ~w~n",[ResourceGained]),
 
-    NewInventory = add_item(Improvement#improvement.type, ResourceGained, Inventory),
-    harvest(Rest, NewInventory).
+    add_item(CityId, Improvement#improvement.type, ResourceGained),
+    harvest(Rest, CityId).
 
 get_yield(_, [], _, false) ->
     0;
 get_yield(_, [], Yield, true) ->
     Yield;
-get_yield(SearchType, Resources, Yield, Result) ->
+get_yield(SearchType, Resources, _Yield, _Result) ->
     [Type | Rest] = Resources,
     [NewYield | NewResources] = Rest,
     NewResult = Type =:= SearchType,
     get_yield(SearchType, NewResources, NewYield, NewResult).
-
-
-    
-
 

@@ -69,18 +69,26 @@
                    type}).
 
 -record(population, {city_id, 
-                     type,
-                     value,
-                     base_growth}).
+                     value,    
+                     caste,
+                     race}).                     
 
 -record(claim, {id, 
 		tile_index,
 		city_id}).
 
 -record(transport, {id,
-                    inventory,
-                    units = []}).
+                    player_id,
+                    units}).
 
+-record(item, {id, 
+               entity_id,
+               type,
+               value}).                    
+
+%%% Reference tables %%%
+-record(item_type_ref, {ref,
+                       item_id}).
 
 
 %%% Queue tables %%%

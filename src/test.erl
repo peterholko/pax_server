@@ -12,19 +12,19 @@
 %%
 %% Exported Functions
 %%
--export([run/0]).
+-export([run/1]).
 
 %%
 %% API Functions
 %%
 
-run() ->
-    spawn(fun() -> connect() end).
+run(Account) ->
+    spawn(fun() -> connect(Account) end).
 
-connect() ->
+connect(Account) ->
     {ok,Socket} = gen_tcp:connect("localhost",2345,[binary,{active, true},{nodelay, true}, {keepalive, true}, {packet,0}]),
     t:start(Socket), 
-    t:login(),   
+    t:login(Account),   
 
     loop(Socket).
 

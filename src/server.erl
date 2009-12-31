@@ -69,6 +69,7 @@ init() ->
     
     % Start managers
     improvement:start(),    
+    transport:start(),
     
     % Start socket listener
     {ok, ListenSocket} = gen_tcp:listen(2345, [binary, {packet, 0},  

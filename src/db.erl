@@ -19,7 +19,7 @@
 -export([create_schema/0, start/0, 
          write/1, read/2, delete/2, index_read/3,
          dirty_write/1, dirty_read/2, dirty_index_read/3, dirty_delete/2,
-         reset_game_tables/0, reset_tables/0, select_armies/0,
+         reset_game_tables/0, reset_tables/0, dump/1, select_armies/0,
          select_cities/0, select_battles/0, 
          select_all_armies/0, select_all_players/0,
          do/1
@@ -51,7 +51,10 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(resource_type, [{disc_copies, [node()]}, {attributes, record_info(fields, resource_type)}]),
     {atomic, ok} = mnesia:create_table(population_type, [{disc_copies, [node()]}, {attributes, record_info(fields, population_type)}]),
     {atomic, ok} = mnesia:create_table(improvement_type, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement_type)}]),
-    {atomic, ok} = mnesia:create_table(claim, [{disc_copies, [node()]}, {attributes, record_info(fields, claim)}]),    
+    {atomic, ok} = mnesia:create_table(claim, [{disc_copies, [node()]}, {attributes, record_info(fields, claim)}]),   
+ 
+    {atomic, ok} = mnesia:create_table(item, [{disc_copies, [node()]}, {attributes, record_info(fields, item)}]),    
+    {atomic, ok} = mnesia:create_table(item_type_ref, [{disc_copies, [node()]}, {attributes, record_info(fields, item_type_ref)}]),    
 
 
     mnesia:add_table_index(player, name),
@@ -96,6 +99,9 @@ dirty_write(R) ->
 
 dirty_delete(T, K) ->
     mnesia:dirty_delete(T, K). 
+
+dump(Table) ->
+    do(qlc:q([X || X <- mnesia:table(Table)])).
 
 select_armies() ->
     do(qlc:q([{X#army.id, X#army.player_id} || X <- mnesia:table(army)])).
@@ -142,7 +148,7 @@ test_tables() ->
      {connection, 2, none, none},
      {connection, 3, none, none},
      {connection, 4, none, none},     
-     {player, 1, <<"test">>, <<"123123">>, 0, false, [1,2], [11]},
+     {player, 1, <<"test1">>, <<"123123">>, 0, false, [1,2], [11]},
      {player, 2, <<"test2">>, <<"123123">>, 0, false, [3], [12]},
      {player, 3, <<"test3">>, <<"123123">>, 0, false, [4], [13]},
      {player, 4, <<"test4">>, <<"123123">>, 0, false, [5], []},
@@ -164,8 +170,8 @@ test_tables() ->
      {unit, 6, 11, 2, 2, 500, 1},
      {unit, 7, 2, 1, 2, 20, 1},
      {unit, 8, 2, 1, 1, 30, 1},
-     {unit, 9, 3, 1, 1, 15, 1}
-    
+     {unit, 9, 3, 1, 1, 15, 1},
+     {transport, 1, 1, gb_sets:new()}    
     ].
 
 reset_tables() ->

@@ -216,7 +216,6 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
 
             case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
                 {receive_unit, success} ->
-                    db:dirty_delete(unit, UnitId),
                     NewUnits = gb_sets:delete(UnitId, Units),
                     NewArmy = Army#army {units = NewUnits},
                     NewData = Data#module_data{army = NewArmy},

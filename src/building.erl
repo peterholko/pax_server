@@ -14,20 +14,33 @@
 %%
 %% Exported Functions
 %%
--export([init_buildings/2]).
+-export([buildings_tuple/1, buildings_queue_tuple/1]).
 
 %%
 %% API Functions
 %%
 
-init_buildings([], DictBuildings) ->
-    DictBuildings;
+buildings_tuple([]) ->
+    [];
 
-init_buildings(ListBuildings, DictBuildings) ->
-    [Building | Rest] = ListBuildings,
-    NewDictBuildings = dict:store(Building#building.id, Building, DictBuildings),
-    init_buildings(Rest, NewDictBuildings).
+buildings_tuple(Buildings) ->
+    F = fun(Building, BuildingList) ->
+            BuildingTuple = {Building#building.id, Building#building.type},
+            [UnitTuple | UnitList]
+        end,
 
+    lists:foldl(F, [], Units).
 
+buildings_queue_tuple([]) ->
+    [];
 
-
+buildings_queue_tuple(BuildingsQueue) ->
+    F = fun(BuildingQueue, BuildingQueuList) ->
+            BuildingQueueTuple = {BuildingQueue#building_queue.id,
+                                  BuildingQueue#building_queue.type,
+                                  BuildingQueue#building_queue.start_time,
+                                  BuildingQueue#building_queue.end_time),
+            [BuildingQueueTuple | BuildingQueueList]
+        end,
+    lists:foldl(F, [], BuildingsQueue).
+            

@@ -18,11 +18,16 @@
 %%
 %% Exported Functions
 %%
--export([read/1, send/2, send_policy/1, send_clocksync/1, battle_joined_test/0, army_info_test/0]).
+-export([read/1, send/2, send_policy/1, send_clocksync/1, battle_joined_test/0, army_info_test/0, tt_test/0]).
 
 %%
 %% Local Functions
 %%
+
+-record(test, {id}).
+
+test() ->
+    record(test, {int()}).
 
 name() ->
     string().
@@ -102,11 +107,23 @@ unit_queue() ->
 units() ->
     list(short(), unit()).
 
-buildings() ->
-    list(short(), int()).
-
 units_queue() ->
     list(short(), unit_queue()).
+
+building_type() ->
+    short().
+
+building() ->
+    tuple({id(), building_type()}).
+
+building_queue() ->
+    tuple({id(), building_type(), start_time(), end_time()}).
+
+buildings() ->
+    list(short(), building()).
+
+buildings_queue() ->
+    list(short(), building_queue()).
 
 source_id() ->
     id().
@@ -121,6 +138,9 @@ target_type() ->
     type().
 
 battle_id() ->
+    id().
+
+transport_id() ->
     id().
 
 source_army_id() ->
@@ -145,6 +165,9 @@ damage() ->
     int().
 
 % packet records
+
+tt() ->
+    record(tt, {test()}).
 
 login() ->
     record(login, {name(),
@@ -187,6 +210,7 @@ info_army() ->
 info_city() ->
     record(info_city, {id(),
                        buildings(),
+                       buildings_queue(),
                        units(),
                        units_queue()}).
 
@@ -233,6 +257,10 @@ add_claim() ->
     record(add_claim, {id(),
                        x(),
                        y()}).
+
+transport_info() ->
+    record(transport_info, {transport_id(),
+                            units()}).
 
 %%
 %% API Functions
@@ -295,6 +323,9 @@ read(<<?CMD_INFO_ARMY, Bin/binary>>) ->
 read(<<?CMD_BATTLE_INFO, Bin/binary>>) ->
     unpickle(battle_info(), Bin);
 
+read(<<?CMD_TRANSPORT_INFO, Bin/binary>>) ->
+    unpickle(transport_info(), Bin);
+
 read(<<?CMD_BATTLE_ADD_ARMY, Bin/binary>>) ->
     unpickle(battle_add_army(), Bin);
 
@@ -325,6 +356,9 @@ write(R) when is_record(R, info_city) ->
 write(R) when is_record(R, battle_info) ->
     [?CMD_BATTLE_INFO|pickle(battle_info(), R)];
 
+write(R) when is_record(R, transport_info) ->
+    [?CMD_TRANSPORT_INFO|pickle(transport_info(), R)];
+
 write(R) when is_record(R, battle_add_army) ->
     [?CMD_BATTLE_ADD_ARMY|pickle(battle_add_army(), R)];
 
@@ -352,7 +386,10 @@ write(R) when is_record(R, attack) ->
     [?CMD_ATTACK|pickle(attack(), R)];
 
 write(R) when is_record(R, battle_target) ->
-    [?CMD_BATTLE_TARGET|pickle(battle_target(), R)].
+    [?CMD_BATTLE_TARGET|pickle(battle_target(), R)];
+
+write(R) when is_record(R, tt) ->
+    [-1|pickle(tt(), R)].
 
 send(Socket, Data) ->
     io:format("packet: send() - Data ->  ~p~n", [Data]),
@@ -432,5 +469,11 @@ army_info_test() ->
 
 battle_joined_test() ->
     R = {battle_joined,1,[{2,1,[{1,2,3}]}]},
+    Bin = write(R),
+    io:fwrite("R: ~w~n", [Bin]).
+
+tt_test() ->
+    RR = #test {id = 8},
+    R = #tt {test = RR},
     Bin = write(R),
     io:fwrite("R: ~w~n", [Bin]).

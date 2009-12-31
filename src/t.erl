@@ -13,7 +13,9 @@
 -include("packet.hrl").
 %% --------------------------------------------------------------------
 %% External exports
--export([start/1, login/0, build_farm/0, add_claim/0, transfer/0, battle/0, target/0, info_army/1]).
+-export([start/1, login/1]).
+-export([build_farm/0, add_claim/0, transfer/0, transfer2/0, 
+         battle/0, target/0, info_army/1, move/3]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -record(data, {socket}).
@@ -25,8 +27,8 @@
 start(Socket) ->
     gen_server:start({global, test_sender}, t, [Socket], []).
 
-login() ->
-    gen_server:cast(global:whereis_name(test_sender), 'LOGIN').
+login(Account) ->
+    gen_server:cast(global:whereis_name(test_sender), {'LOGIN', Account}).
 
 build_farm() ->
     gen_server:cast(global:whereis_name(test_sender), {'BUILD_IMPROVEMENT', 11, 5, 5, ?IMPROVEMENT_FARM}).
@@ -38,6 +40,9 @@ transfer() ->
     gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 1, 1, 1, 2, 1}),
     gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 7, 2, 1, 1, 1}).
 
+transfer2() ->
+    gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 1, 1, 1, 1, 6}).
+
 battle() ->
     gen_server:cast(global:whereis_name(test_sender), {'ATTACK', 1, 3}).
 
@@ -47,6 +52,8 @@ target() ->
 info_army(ArmyId) ->
     gen_server:cast(global:whereis_name(test_sender), {'INFO_ARMY', ArmyId}).
 
+move(ArmyId, X, Y) ->
+    gen_server:cast(global:whereis_name(test_sender), {'MOVE', ArmyId, X, Y}).
 
 
 %% ====================================================================
@@ -70,8 +77,9 @@ handle_cast({'BUILD_IMPROVEMENT', CityId, X, Y, ImprovementType}, Data) ->
 
     {noreply, Data};
 
-handle_cast('LOGIN', Data) ->
-    gen_tcp:send(Data#data.socket, <<?CMD_LOGIN, 4:16, "test", 6:16, "123123">>),
+handle_cast({'LOGIN', Account}, Data) ->
+    AccountBin = list_to_binary(Account),
+    gen_tcp:send(Data#data.socket, <<?CMD_LOGIN, 5:16, AccountBin/binary, 6:16, "123123">>),
     {noreply, Data};
 
 handle_cast({'TRANSFER_UNIT', UnitId, SourceId, SourceType, TargetId, TargetType}, Data) ->
@@ -86,6 +94,11 @@ handle_cast({'TRANSFER_UNIT', UnitId, SourceId, SourceType, TargetId, TargetType
 handle_cast({'INFO_ARMY', ArmyId}, Data) ->
     RequestInfo = #request_info{type = ?OBJECT_ARMY, id = ArmyId},
     packet:send(Data#data.socket, RequestInfo),
+    {noreply, Data};   
+ 
+handle_cast({'MOVE', ArmyId, X, Y}, Data) ->
+    Move = #move{id = ArmyId, x = X, y = Y},
+    packet:send(Data#data.socket, Move),
     {noreply, Data};    
 
 handle_cast({'ATTACK', SourceId, TargetId}, Data) ->
