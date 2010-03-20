@@ -15,7 +15,8 @@
 %% External exports
 -export([start/1, login/1]).
 -export([build_farm/0, add_claim/0, transfer/0, transfer2/0, 
-         battle/0, target/0, info_army/1, move/3]).
+         battle/0, target/0, info_army/1, move/3, 
+         queue_unit/0, queue_building/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -record(data, {socket}).
@@ -32,6 +33,12 @@ login(Account) ->
 
 build_farm() ->
     gen_server:cast(global:whereis_name(test_sender), {'BUILD_IMPROVEMENT', 11, 5, 5, ?IMPROVEMENT_FARM}).
+
+queue_unit() ->
+    gen_server:cast(global:whereis_name(test_sender), {'QUEUE_UNIT', 11, 1, 100}).
+
+queue_building() ->
+    gen_server:cast(global:whereis_name(test_sender), {'QUEUE_BUILDING', 11, 1}).
 
 add_claim() ->
     gen_server:cast(global:whereis_name(test_sender), {'ADD_CLAIM', 11, 5, 5}).
@@ -75,6 +82,19 @@ handle_cast({'BUILD_IMPROVEMENT', CityId, X, Y, ImprovementType}, Data) ->
     BuildImprovement = #build_improvement {city_id = CityId, x = X, y = Y, improvement_type = ImprovementType},
     packet:send(Data#data.socket, BuildImprovement),
 
+    {noreply, Data};
+
+handle_cast({'QUEUE_UNIT', CityId, UnitType, UnitSize}, Data) ->
+    CityQueueUnit = #city_queue_unit { id = CityId,
+                                       unit_type = UnitType,
+                                       unit_size = UnitSize},
+    packet:send(Data#data.socket, CityQueueUnit),
+    {noreply, Data};
+
+handle_cast({'QUEUE_BUILDING', CityId, BuildingType}, Data) ->
+    CityQueueBuilding = #city_queue_building { id = CityId,
+                                               building_type = BuildingType},
+    packet:send(Data#data.socket, CityQueueBuilding),
     {noreply, Data};
 
 handle_cast({'LOGIN', Account}, Data) ->

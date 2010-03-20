@@ -34,7 +34,7 @@ connect(Account) ->
 
 loop(Socket) ->
     receive
-        {tcp, Socket, Bin} ->			
+        {tcp, Socket, Bin} ->		
             case packet:read(Bin) of
                 #player_id{id = PlayerId} ->
                     io:fwrite("PlayerId: ~w~n", [PlayerId]),		
@@ -48,6 +48,13 @@ loop(Socket) ->
                     loop(Socket);                
                 #info_army{id = Id, units = Units} ->
                     io:fwrite("Info Army: ~w ~w~n", [Id, Units]),
+                    loop(Socket);
+                #info_city{id = Id, 
+                           buildings = Buildings, 
+                           buildings_queue = BuildingsQueue,
+                           units = Units,
+                           units_queue = UnitsQueue} ->
+                    io:fwrite("Info City: ~w ~w ~w ~w ~w~n", [Id, Buildings, BuildingsQueue, Units, UnitsQueue]),
                     loop(Socket);
                 #battle_info{battle_id = BattleId, armies = Armies} ->
                     io:fwrite("Battle Info: ~w ~w~n", [BattleId, Armies]),

@@ -251,12 +251,17 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
                                         units_queue = NewUnitsQueue, 
                                         buildings_queue = NewBuildingsQueue},            
                         
-            %Convert record to tuple packet form
-            [NewUnits] = db:dirty_index_read(unit, City#city.id, #unit.entity_id),
+            %Convert units record to tuple packet form
+            NewUnits = db:dirty_index_read(unit, City#city.id, #unit.entity_id),
             UnitsTuple = unit:units_tuple(NewUnits),
             UnitsQueueTuple = unit:units_queue_tuple(NewUnitsQueue),
+
+            %Convert buildings record to tuple packet form
+            NewBuildings = db:dirty_index_read(building, City#city.id, #building.city_id),  
+            BuildingsTuple = building:buildings_tuple(NewBuildings),
+            BuildingsQueueTuple = building:buildings_queue_tuple(NewBuildingsQueue),        
             
-            CityInfo = {detailed, City#city.buildings, UnitsTuple, UnitsQueueTuple};
+            CityInfo = {detailed, BuildingsTuple, BuildingsQueueTuple, UnitsTuple, UnitsQueueTuple};
         true ->
             NewData = Data,
             CityInfo = {generic, City#city.player_id}

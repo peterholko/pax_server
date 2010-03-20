@@ -34,6 +34,7 @@ create_schema() ->
     mnesia:delete_schema([node()]),
     mnesia:create_schema([node()]),
     mnesia:start(),
+
     {atomic, ok} = mnesia:create_table(player, [{disc_copies, [node()]}, {attributes, record_info(fields, player)}]),
     {atomic, ok} = mnesia:create_table(connection, [{disc_copies, [node()]}, {attributes, record_info(fields, connection)}]),
     {atomic, ok} = mnesia:create_table(army, [{disc_copies, [node()]}, {attributes, record_info(fields, army)}]),
@@ -41,10 +42,10 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(hero, [{disc_copies, [node()]}, {attributes, record_info(fields, hero)}]),
     {atomic, ok} = mnesia:create_table(city, [{disc_copies, [node()]}, {attributes, record_info(fields, city)}]),
     {atomic, ok} = mnesia:create_table(battle, [{disc_copies, [node()]}, {attributes, record_info(fields, battle)}]),
-    {atomic, ok} = mnesia:create_table(unit_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_queue)}]),
     {atomic, ok} = mnesia:create_table(counter, [{disc_copies, [node()]}, {attributes, record_info(fields, counter)}]),
     {atomic, ok} = mnesia:create_table(improvement, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement)}]),
     {atomic, ok} = mnesia:create_table(transport, [{disc_copies, [node()]}, {attributes, record_info(fields, transport)}]),
+    {atomic, ok} = mnesia:create_table(building, [{disc_copies, [node()]}, {attributes, record_info(fields, building)}]),
     
     {atomic, ok} = mnesia:create_table(unit_type, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_type)}]),
     {atomic, ok} = mnesia:create_table(building_type, [{disc_copies, [node()]}, {attributes, record_info(fields, building_type)}]),
@@ -56,12 +57,18 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(item, [{disc_copies, [node()]}, {attributes, record_info(fields, item)}]),    
     {atomic, ok} = mnesia:create_table(item_type_ref, [{disc_copies, [node()]}, {attributes, record_info(fields, item_type_ref)}]),    
 
+    {atomic, ok} = mnesia:create_table(unit_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_queue)}]),
+    {atomic, ok} = mnesia:create_table(building_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, building_queue)}]),
 
     mnesia:add_table_index(player, name),
     mnesia:add_table_index(unit, entity_id),
-    mnesia:add_table_index(unit_queue, city_id),
+    mnesia:add_table_index(building, city_id),
     mnesia:add_table_index(claim, tile_index),
     mnesia:add_table_index(claim, city_id),
+
+    mnesia:add_table_index(unit_queue, city_id),
+    mnesia:add_table_index(building_queue, city_id),
+
     mnesia:stop().
 
 start() ->
@@ -152,9 +159,9 @@ test_tables() ->
      {player, 2, <<"test2">>, <<"123123">>, 0, false, [3], [12]},
      {player, 3, <<"test3">>, <<"123123">>, 0, false, [4], [13]},
      {player, 4, <<"test4">>, <<"123123">>, 0, false, [5], []},
-     {city, 11, 1, 3, 4, 0, [1], {2,{5,nil,{6,nil,nil}}}, [], 0},
-     {city, 12, 2, 1, 5, 0, [], {0, nil}, [], 0},
-     {city, 13, 3, 7, 4, 0, [], {0, nil}, [], 0},
+     {city, 11, 1, 3, 4, 0, {0, nil}, {2,{5,nil,{6,nil,nil}}}, [], 0},
+     {city, 12, 2, 1, 5, 0, {0, nil}, {0, nil}, [], 0},
+     {city, 13, 3, 7, 4, 0, {0, nil}, {0, nil}, [], 0},
      {army, 1, 1,  2,  2, 0, 0, none, 0, 1, {2,{1,nil,{2,nil,nil}}}, none},
      {army, 2, 1,  5,  5, 0, 0, none, 0, 0, {2,{7,nil,{8,nil,nil}}}, none},
      {army, 3, 2,  3,  3, 0, 0, none, 0, 0, {1,{9,nil,nil}}, none},

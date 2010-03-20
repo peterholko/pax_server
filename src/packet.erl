@@ -219,6 +219,9 @@ city_queue_unit() ->
                              unit_type(),
                              unit_size()}).
 
+city_queue_building() ->
+    record(city_queue_building, {id(),
+                                 building_type()}).
 transfer_unit() ->
     record(transfer_unit, {unit_id(),
                            source_id(),
@@ -294,6 +297,9 @@ read(<<?CMD_REQUEST_INFO, Bin/binary>>) ->
 read(<<?CMD_CITY_QUEUE_UNIT, Bin/binary>>) ->
     unpickle(city_queue_unit(), Bin);
 
+read(<<?CMD_CITY_QUEUE_BUILDING, Bin/binary>>) ->
+    unpickle(city_queue_building(), Bin);
+
 read(<<?CMD_TRANSFER_UNIT, Bin/binary>>) ->
     unpickle(transfer_unit(), Bin);
 
@@ -319,6 +325,9 @@ read(<<?CMD_PERCEPTION, Bin/binary>>) ->
 
 read(<<?CMD_INFO_ARMY, Bin/binary>>) ->
     unpickle(info_army(), Bin);
+
+read(<<?CMD_INFO_CITY, Bin/binary>>) ->
+    unpickle(info_city(), Bin);
 
 read(<<?CMD_BATTLE_INFO, Bin/binary>>) ->
     unpickle(battle_info(), Bin);
@@ -387,6 +396,12 @@ write(R) when is_record(R, attack) ->
 
 write(R) when is_record(R, battle_target) ->
     [?CMD_BATTLE_TARGET|pickle(battle_target(), R)];
+
+write(R) when is_record(R, city_queue_unit) ->
+    [?CMD_CITY_QUEUE_UNIT|pickle(city_queue_unit(), R)];
+
+write(R) when is_record(R, city_queue_building) ->
+    [?CMD_CITY_QUEUE_BUILDING|pickle(city_queue_building(), R)];
 
 write(R) when is_record(R, tt) ->
     [-1|pickle(tt(), R)].

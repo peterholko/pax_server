@@ -231,8 +231,17 @@ handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = Unit
             gen_server:cast(self(), RequestInfo);
         {city, error} ->
             ok
-    end,                       
-    
+    end,                        
+    {noreply, Data};
+
+handle_cast(_ = #city_queue_building{id = Id, building_type = BuildingType}, Data) ->
+    case city:queue_building(Id, Data#module_data.player_id, BuildingType) of
+        {city, queued_building} ->
+            RequestInfo = #request_info{ type = ?OBJECT_CITY, id = Id},
+            gen_server:cast(self(), RequestInfo);
+        {city, error} ->
+            ok
+    end,
     {noreply, Data};
 
 handle_cast(_ = #transfer_unit{unit_id = UnitId, source_id = SourceId, source_type = SourceType, target_id = TargetId, target_type = TargetType}, Data) ->

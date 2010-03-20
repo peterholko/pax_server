@@ -26,20 +26,20 @@ buildings_tuple([]) ->
 buildings_tuple(Buildings) ->
     F = fun(Building, BuildingList) ->
             BuildingTuple = {Building#building.id, Building#building.type},
-            [UnitTuple | UnitList]
+            [BuildingTuple | BuildingList]
         end,
 
-    lists:foldl(F, [], Units).
+    lists:foldl(F, [], Buildings).
 
 buildings_queue_tuple([]) ->
     [];
 
 buildings_queue_tuple(BuildingsQueue) ->
-    F = fun(BuildingQueue, BuildingQueuList) ->
+    F = fun(BuildingQueue, BuildingQueueList) ->
             BuildingQueueTuple = {BuildingQueue#building_queue.id,
-                                  BuildingQueue#building_queue.type,
+                                  BuildingQueue#building_queue.building_type,
                                   BuildingQueue#building_queue.start_time,
-                                  BuildingQueue#building_queue.end_time),
+                                  BuildingQueue#building_queue.end_time},
             [BuildingQueueTuple | BuildingQueueList]
         end,
     lists:foldl(F, [], BuildingsQueue).

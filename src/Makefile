@@ -15,7 +15,7 @@ BEAMS=$(ERLS:.erl=.beam)
 # to the end of the line and continue on the next line
 
 # Edit the lines below
-MODS = army battle city counter db entity event\
+MODS = army battle building city counter db entity event\
        game_loop game improvement login map object \
        packet pickle player population server subscription\
        t transport test unit util

@@ -61,6 +61,10 @@
 -record(transport_info, {transport_id, 
                          units}).
 
+-define (CMD_CITY_QUEUE_BUILDING, 59). 
+-record(city_queue_building, {id,
+                              building_type}).
+
 -define (CMD_CITY_QUEUE_UNIT, 60).
 -record(city_queue_unit, {id,
                           unit_type,
