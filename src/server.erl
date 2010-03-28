@@ -72,10 +72,13 @@ init() ->
     transport:start(),
     
     % Start socket listener
-    {ok, ListenSocket} = gen_tcp:listen(2345, [binary, {packet, 0},  
-                                               {reuseaddr, true},
+    {ok, ListenSocket} = gen_tcp:listen(2345, [binary,
                                                {active, once},
-                                               {nodelay, true}]),
+                                               {keepalive, true},
+                                               {nodelay, true},
+                                               {packet, 0}]),
+
+    
     Client = #client{ server_pid = self() },
     log4erl:info("Server listening...~n"),
     do_accept(ListenSocket, Client).
@@ -130,6 +133,10 @@ handle_client(Socket, Client) ->
             io:fwrite("server: handle_client - self() -> ~w~n", [self()]),
             io:fwrite("server: handle_client - Client#client.player_pid -> ~w~n", [Client#client.player_pid]),
             gen_server:call(Client#client.player_pid, 'LOGOUT'),
+            handle_client(Socket, Client);
+
+        {tcp_error, Socket, Reason} ->
+            io:fwrite("server: tcp_error ~w~n", [Reason]),
             handle_client(Socket, Client);
                 
         {packet, Packet} ->

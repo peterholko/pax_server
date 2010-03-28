@@ -95,7 +95,7 @@ handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
     {noreply, NewData};
 
 handle_cast({'ADD_EVENT', Pid, Type, EventData, EventTick}, Data) ->
-    io:fwrite("game - add_event - EventTick: ~w~n", [EventTick]),
+    %io:fwrite("game - add_event - EventTick: ~w~n", [EventTick]),
     NewData = add_event(Pid, Type, EventData, EventTick, Data),    
 
     {noreply, NewData};

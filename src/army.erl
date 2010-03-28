@@ -350,7 +350,10 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
     
     %Toggle player's perception has been updated.
-    game:update_perception(Army#army.player_id), 		
+    game:update_perception(Army#army.player_id), 	
+   
+    %Toggle observedByList perception has been updated due to army move.
+    entity_update_perception(ObservedByList),    	
     
     %% Update army's state
     if	
@@ -376,6 +379,9 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
     %Toggle player's perception has been updated.
     game:update_perception(Army#army.player_id),          
     
+    %Toggle observedByList perception has been updated due to army move.
+    entity_update_perception(ObservedByList),    
+	
     if	
         (NewArmyX =:= TargetState#state.x) and (NewArmyY =:= TargetState#state.y) -> 
             
@@ -473,7 +479,20 @@ get_army_status(Data) ->
     
     ArmyStatus.
 
-
+entity_update_perception(EntityList) ->
+    F = fun({_EntityId, EntityPid}) ->
+            PlayerId = gen_server:call(EntityPid, {'GET_PLAYER_ID'}),
+            case gen_server:call(global:whereis_name(game_pid), {'IS_PLAYER_ONLINE', PlayerId}) of
+                true ->
+                    game:update_perception(PlayerId);
+                false ->
+                    ok
+            end
+        end,
+    
+    lists:foreach(F, EntityList).
+              
+    
 
 
 

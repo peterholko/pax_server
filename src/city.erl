@@ -183,7 +183,7 @@ handle_cast({'PROCESS_EVENT', _Id, EventType}, Data) ->
 
     case EventType of
         ?EVENT_HARVEST -> 
-            log4erl:info("Processing Harvest for City ~w~n", [self()]),
+            %log4erl:info("Processing Harvest for City ~w~n", [self()]),
             harvest(Data#module_data.improvements, City#city.id)            
     end,      
     
@@ -282,7 +282,6 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
 
             case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
                 {receive_unit, success} ->
-                    db:dirty_delete(unit, UnitId),
                     NewUnits = gb_sets:delete(UnitId, Units),
                     NewCity = City#city {units = NewUnits},
                     NewData = Data#module_data {city = NewCity},
@@ -567,7 +566,7 @@ new_item(CityId, Type, Value) ->
     {atomic, _Status} = mnesia:transaction(F).
 
 harvest([], _) ->
-    io:fwrite("Harvest no improvements~n"),
+    %io:fwrite("Harvest no improvements~n"),
     ok;
 
 harvest([ImprovementId | Rest], CityId) ->
