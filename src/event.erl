@@ -13,7 +13,7 @@
 -include("common.hrl").
 %% --------------------------------------------------------------------
 %% External exports
--export([start/0, harvest/0]).
+-export([start/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 %% ====================================================================
@@ -22,9 +22,6 @@
 
 start() ->
     gen_server:start({global, event_pid}, event, [], []).
-
-harvest() ->
-    {global:whereis_name(event_pid), ?EVENT_HARVEST, none, ?HARVEST_TICK}. 
 
 %% ====================================================================
 %% Server functions
@@ -44,7 +41,22 @@ handle_cast({'PROCESS_EVENT',_EventData, ?EVENT_HARVEST}, Data) ->
     
     lists:foreach(F, Cities),      
 
-    game:add_event(self(), ?EVENT_HARVEST, none, ?HARVEST_TICK), 
+    game:add_event(self(), ?EVENT_HARVEST, none, ?HARVEST_TICK),
+    
+    {noreply, Data};
+
+handle_cast({'PROCESS_EVENT',_EventData, ?EVENT_GROWTH}, Data) ->
+    log4erl:info("Processing Event Growth"),  
+ 
+    Cities = game:get_cities(),
+
+    F = fun({_CityId, CityPid}) ->            
+            gen_server:cast(CityPid, {'PROCESS_EVENT', _EventData, ?EVENT_GROWTH})                
+        end,
+    
+    lists:foreach(F, Cities),      
+
+    game:add_event(self(), ?EVENT_GROWTH, none, ?GROWTH_TICK),
     
     {noreply, Data};
 

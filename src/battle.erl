@@ -128,7 +128,7 @@ handle_call({'ADD_TARGET', SourceArmyId, SourceUnitId, TargetArmyId, TargetUnitI
         GuardArmy ->
             SourceUnit = gen_server:call(global:whereis_name({army, SourceArmyId}), {'GET_UNIT', SourceUnitId}),
             TargetUnit = gen_server:call(global:whereis_name({army, TargetArmyId}), {'GET_UNIT', TargetUnitId}),
-            
+            io:fwrite("SourceUnit: ~w TargetUnit: ~w~n", [SourceUnit, TargetUnit]),
             GuardUnit = (SourceUnit =/= false) and (TargetUnit =/= false),
             
             if

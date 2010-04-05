@@ -184,7 +184,9 @@ handle_cast({'PROCESS_EVENT', _Id, EventType}, Data) ->
     case EventType of
         ?EVENT_HARVEST -> 
             %log4erl:info("Processing Harvest for City ~w~n", [self()]),
-            harvest(Data#module_data.improvements, City#city.id)            
+            harvest(Data#module_data.improvements, City#city.id);
+        ?EVENT_GROWTH ->
+            growth(City#city.id)            
     end,      
     
     {noreply, Data};
@@ -591,4 +593,32 @@ get_yield(SearchType, Resources, _Yield, _Result) ->
     [NewYield | NewResources] = Rest,
     NewResult = Type =:= SearchType,
     get_yield(SearchType, NewResources, NewYield, NewResult).
+
+growth(CityId) ->
+    Population = db:dirty_read(population, CityId),
+    add_population(Population).    
+
+growth_rate(?CASTE_SLAVE) ->
+    1.03;
+growth_rate(?CASTE_SOLDIER) ->
+    1.02;
+growth_rate(?CASTE_COMMONER) ->
+    1.01;
+growth_rate(?CASTE_NOBLE) ->
+    1.005.
+    
+add_population([]) ->
+    ok;
+
+add_population([Caste | Rest]) ->
+    GrowthRate = growth_rate(Caste#population.caste),
+    NewValue = Caste#population.value * GrowthRate,   
+    NewCaste = Caste#population {value = NewValue},
+
+    db:write(NewCaste),
+
+    add_population(Rest).
+
+
+
 

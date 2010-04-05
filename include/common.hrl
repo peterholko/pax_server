@@ -24,6 +24,7 @@
 -define(EVENT_UNIT_ROUND, 3).
 -define(EVENT_IMPROVEMENT_COMPLETED, 4).
 -define(EVENT_HARVEST, 5).
+-define(EVENT_GROWTH, 6).
 
 -define(GAME_LOOP_TICK, 200).
 
@@ -45,5 +46,14 @@
 -define(ARMY_ALIVE, 1).
 
 -define(PLAYER_NONE, -1).
+-define(PLAYER_HUMAN, 0).
+-define(PLAYER_COMPUTER, 1).
+-define(PLAYER_GM, 2).
 
 -define(HARVEST_TICK, 100).
+-define(GROWTH_TICK, 500).
+
+-define(CASTE_SLAVE, 0).
+-define(CASTE_SOLDIER, 1).
+-define(CASTE_COMMONER, 2).
+-define(CASTE_NOBLE, 3).

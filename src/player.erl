@@ -18,7 +18,7 @@
 -export([init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--export([start/1, stop/1, stop/2, get_explored_map/1]).
+-export([start/1, stop/1, stop/2, get_explored_map/1, get_type/1]).
 
 %%
 %% Records
@@ -36,6 +36,10 @@
 %%
 %% API Functions
 %%
+
+get_type(PlayerId) ->
+    [PlayerType] = db:read(player_type, PlayerId),
+    PlayerType#player_type.type.
 
 start(Name) 
   when is_binary(Name) ->

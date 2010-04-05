@@ -9,7 +9,7 @@
 %%
 
 -include("game.hrl").
-
+-include("common.hrl").
 %%
 %% Exported Functions
 %%
@@ -167,12 +167,12 @@ handle_call('SETUP_PERCEPTION', _From, Data) ->
 
 handle_call('SETUP_EVENTS', _From, Data) ->
     log4erl:info("Setup events..."),
-    {ok, _Pid} = event:start(),
+    {ok, EventPid} = event:start(),
     
-    {EventPid, EventType, EventData, EventTick} = event:harvest(),
-    NewData = add_event(EventPid, EventType, EventData, EventTick, Data),
+    HarvestData = add_event(EventPid, ?EVENT_HARVEST, none, ?HARVEST_TICK, Data),
+    GrowthData = add_event(EventPid, ?EVENT_GROWTH, none, ?GROWTH_TICK, HarvestData),
 
-    {reply, ok, NewData};
+    {reply, ok, GrowthData};
 
 handle_call({'IS_PLAYER_ONLINE', PlayerId}, _From, Data) ->	
     Result = lists:keymember(PlayerId, 2, Data#game_info.players),

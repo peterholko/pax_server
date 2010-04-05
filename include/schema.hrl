@@ -90,6 +90,8 @@
 -record(item_type_ref, {ref,
                        item_id}).
 
+-record(player_type, {player_id,
+                      type}).
 
 %%% Queue tables %%%
 

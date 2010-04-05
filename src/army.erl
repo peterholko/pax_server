@@ -133,8 +133,7 @@ handle_cast({'ADD_VISIBLE', _ArmyId, EntityId, EntityPid}, Data) ->
     NewVisibleList = [{EntityId, EntityPid} | VisibleList],		
     NewData = Data#module_data { visible = NewVisibleList },
     
-    %Toggle within game state that player's perception has been updated.
-    gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', Data#module_data.player_id}),	
+    update_perception(Data#module_data.player_id),
     
     {noreply, NewData};
 
@@ -143,8 +142,7 @@ handle_cast({'REMOVE_VISIBLE', _ArmyId, EntityId, EntityPid}, Data) ->
     NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
     NewData = Data#module_data { visible = NewVisibleList },
     
-    %Toggle within game state that player's perception has been updated.
-    gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', Data#module_data.player_id}),	
+    update_perception(Data#module_data.player_id),
     
     {noreply, NewData};
 
@@ -342,16 +340,16 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     {NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, Army#army.dest_x, Army#army.dest_y),
     
     %% Set any newly discovered tiles
-    gen_server:cast(global:whereis_name({player, Army#army.player_id}), {'SET_DISCOVERED_TILES', Army#army.id, NewArmyX, NewArmyY}),
-    
+    set_discovered_tiles(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
+ 
     %% Update subscription model
     EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
     {ok, SubscriptionPid} = subscription:start(Army#army.id),
     subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
     
     %Toggle player's perception has been updated.
-    game:update_perception(Army#army.player_id), 	
-   
+    update_perception(Army#army.player_id),  
+ 
     %Toggle observedByList perception has been updated due to army move.
     entity_update_perception(ObservedByList),    	
     
@@ -371,13 +369,16 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
     TargetState = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE', Army#army.id}),
     {NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
     
+    %% Set any newly discovered tiles
+    set_discovered_tiles(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
+
     %% Update subscription model
     EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
     {ok, SubscriptionPid} = subscription:start(Army#army.id),
     subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
     
     %Toggle player's perception has been updated.
-    game:update_perception(Army#army.player_id),          
+    update_perception(Army#army.player_id),  
     
     %Toggle observedByList perception has been updated due to army move.
     entity_update_perception(ObservedByList),    
@@ -492,9 +493,19 @@ entity_update_perception(EntityList) ->
     
     lists:foreach(F, EntityList).
               
-    
+update_perception(PlayerId) ->    
+    case player:get_type(PlayerId) of
+        ?PLAYER_HUMAN ->
+            %Toggle within game state that player's perception has been updated.
+            gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', PlayerId});
+        ?PLAYER_COMPUTER ->
+            ok
+    end.
 
-
-
-
-
+set_discovered_tiles(PlayerId, ArmyId, X, Y) ->
+    case player:get_type(PlayerId) of
+        ?PLAYER_HUMAN ->
+            gen_server:cast(global:whereis_name({player, PlayerId}), {'SET_DISCOVERED_TILES', ArmyId, X, Y});
+        ?PLAYER_COMPUTER ->
+            ok
+    end.
