@@ -552,6 +552,14 @@ update_item(ItemId, Value) ->
         end,
     {atomic, _Status} = mnesia:transaction(F).
 
+set_item(ItemId, Value) ->
+    F = fun() ->
+            [Item] = mnesia:read(item, ItemId),
+            NewItem = Item#item {value = Value},
+            mnesia:write(NewItem)
+        end,
+    {atomic, _Status} = mnesia:transaction(F).
+
 new_item(CityId, Type, Value) ->
     F = fun() ->
             ItemId = counter:increment(item),
@@ -605,8 +613,10 @@ get_yield(SearchType, Resources, _Yield, _Result) ->
     get_yield(SearchType, NewResources, NewYield, NewResult).
 
 growth(CityId) ->
-    Population = db:dirty_read(population, CityId),
+    Population = db:dirty_index_read(population, CityId, #population.city_id),
     
+    io:fwrite("Population: ~w~n", [Population]),
+
     %Calculate food required
     TotalFoodRequired = total_food_required(Population, 0),
     
@@ -632,26 +642,31 @@ growth_rate(?CASTE_COMMONER) ->
 growth_rate(?CASTE_NOBLE) ->
     1.005.
 
-total_food_required([], _TotalFoodRequired) ->
-    ok;
+total_food_required([], TotalFoodRequired) ->
+    TotalFoodRequired;
 
 total_food_required([Caste | Rest], FoodRequired) ->
-    NewFoodRequired = food_required(Caste#population.caste),
+    NewFoodRequired = food_required(Caste#population.caste) * Caste#population.value,
     TotalFoodRequired = FoodRequired + NewFoodRequired,
 
     total_food_required(Rest, TotalFoodRequired).
 
 food_upkeep(CityId, Population, TotalFoodRequired) ->
     case get_item_by_type(CityId, ?ITEM_FOOD) of
-        {found, Item} ->
+        {found, Food} ->
+            io:fwrite("Food upkeep: ~w~n",[Food]),
+            io:fwrite("Food Store: ~w TotalFoodRequired: ~w~n", [Food#item.value, TotalFoodRequired]), 
             if
-                Item#item.value >= TotalFoodRequired ->
-                    add_population(Population);
+                Food#item.value >= TotalFoodRequired ->
+                    io:fwrite("Add population..."),
+                    add_population(Population),
+                    NewFoodValue = Food#item.value - TotalFoodRequired;
                 true ->
-                    starve_population(Population, TotalFoodRequired - Item#item.value)
+                    starve_population(Population, TotalFoodRequired - Food#item.value),
+                    NewFoodValue = 0
             end,
-            
-            update_item(Item#item.id, Item#item.value - TotalFoodRequired);
+            io:fwrite("New Food Store: ~w~n", [NewFoodValue]), 
+            set_item(Food#item.id, NewFoodValue);
         {not_found} ->
             starve_population(Population, TotalFoodRequired)
     end.         
@@ -669,30 +684,30 @@ add_population([Caste | Rest]) ->
 
 starve_population(Population, InsufficientFood) ->   
     [Slaves, Soldiers, Commoners, Nobles] = extract_castes(Population),   
-    starve_caste(Nobles,
-    starve_caste(Commoners,
-    starve_caste(Soldiers, 
-    starve_caste(Slaves, InsufficientFood)))).
+    starve_caste(Nobles,starve_caste(Commoners,starve_caste(Soldiers, starve_caste(Slaves, InsufficientFood)))).
 
 extract_castes(Population) ->
-    % Caste is the 4th elemt of the population record
-    lists:keysort(Population, 4).
+    % Caste is the 5th element of the population record
+    lists:keysort(5, Population).
 
 starve_caste(_Caste, 0) ->
-    ok;
+    0;
 
 starve_caste(Caste, InsufficientFood) ->
+    io:fwrite("Caste: ~w~n", [Caste]),
+    io:fwrite("InsufficientFood: ~w~n", [InsufficientFood]),
     if
         Caste#population.value >= InsufficientFood ->
-            NewInsufficientFood = 0;
+            NewInsufficientFood = 0,
+            NewValue = Caste#population.value - InsufficientFood;
         true ->
-            NewInsufficientFood = InsufficientFood - Caste#population.value
+            NewInsufficientFood = InsufficientFood - Caste#population.value,
+            NewValue = 0
     end,
 
-    NewValue = Caste#population.value - InsufficientFood,
     NewCaste = Caste#population {value = NewValue},
     db:write(NewCaste),
-
+    io:fwrite("NewInsufficientFood: ~w~n",[NewInsufficientFood]),
     NewInsufficientFood.
 
 

@@ -68,7 +68,8 @@
                    city_id,
                    type}).
 
--record(population, {city_id, 
+-record(population, {id,
+                     city_id, 
                      value,    
                      caste,
                      race}).                     

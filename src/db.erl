@@ -67,6 +67,7 @@ create_schema() ->
     mnesia:add_table_index(building, city_id),
     mnesia:add_table_index(claim, tile_index),
     mnesia:add_table_index(claim, city_id),
+    mnesia:add_table_index(population, city_id),
 
     mnesia:add_table_index(unit_queue, city_id),
     mnesia:add_table_index(building_queue, city_id),
@@ -167,8 +168,8 @@ test_tables() ->
      {player_type, 4, 0},
      {player_type, -1, 0},
      {city, 11, 1, 3, 4, 0, {0, nil}, {2,{5,nil,{6,nil,nil}}}, [], 0},
-     {city, 12, 2, 1, 5, 0, {0, nil}, {0, nil}, [], 0},
-     {city, 13, 3, 7, 4, 0, {0, nil}, {0, nil}, [], 0},
+     %{city, 12, 2, 1, 5, 0, {0, nil}, {0, nil}, [], 0},
+     %{city, 13, 3, 7, 4, 0, {0, nil}, {0, nil}, [], 0},
      {army, 1, 1,  2,  2, 0, 0, none, 0, 1, {2,{1,nil,{2,nil,nil}}}, none},
      {army, 2, 1,  5,  5, 0, 0, none, 0, 0, {2,{7,nil,{8,nil,nil}}}, none},
      {army, 3, 2,  3,  3, 0, 0, none, 0, 0, {1,{9,nil,nil}}, none},
@@ -185,6 +186,10 @@ test_tables() ->
      {unit, 7, 2, 1, 2, 20, 1},
      {unit, 8, 2, 1, 1, 30, 1},
      {unit, 9, 3, 1, 1, 15, 1},
+     {population, 1, 11, 100, 0, 0},
+     {population, 2, 11, 0, 1, 0},
+     {population, 3, 11, 0, 2, 0},
+     {population, 4, 11, 0, 3, 0},
      {transport, 1, 1, gb_sets:new()}    
     ].
 
