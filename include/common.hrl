@@ -42,6 +42,8 @@
 
 -define(IMPROVEMENT_FARM, 0).
 
+-define(ITEM_FOOD, 0).
+
 -define(ARMY_DEAD, 0).
 -define(ARMY_ALIVE, 1).
 

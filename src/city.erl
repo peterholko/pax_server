@@ -567,6 +567,15 @@ new_item(CityId, Type, Value) ->
         end,
     {atomic, _Status} = mnesia:transaction(F).
 
+get_item_by_type(CityId, Type) ->
+    case db:dirty_read(item_type_ref, {CityId, Type}) of
+        [ItemTypeRef] ->
+            [Item] = db:dirty_read(item, ItemId),
+            Result = {found, Item};
+        _ ->
+            Result = {not_found}
+    Result.            
+
 harvest([], _) ->
     %io:fwrite("Harvest no improvements~n"),
     ok;
@@ -596,7 +605,22 @@ get_yield(SearchType, Resources, _Yield, _Result) ->
 
 growth(CityId) ->
     Population = db:dirty_read(population, CityId),
-    add_population(Population).    
+    
+    %Calculate food required
+    TotalFoodRequired = total_food_required(Population, 0),
+    
+    %Subtract from food stores
+    food_upkeep(CityId, TotalFoodRequired).
+
+
+food_required(?CASTE_SLAVE) ->
+    1;
+food_required(?CASTE_SOLDIER) ->
+    2;
+food_required(?CASTE_COMMONER) ->
+    2;
+food_required(?CASTE_NOBLE) ->
+    4;
 
 growth_rate(?CASTE_SLAVE) ->
     1.03;
@@ -606,7 +630,31 @@ growth_rate(?CASTE_COMMONER) ->
     1.01;
 growth_rate(?CASTE_NOBLE) ->
     1.005.
-    
+
+total_food_required([], TotalFoodRequired) ->
+    ok;
+
+total_food_required([Caste | Rest], FoodRequired) ->
+    NewFoodRequired = food_required(Caste#population.caste),
+    TotalFoodRequired = FoodRequired + NewFoodRequired,
+
+    total_food_required(Rest, TotalFoodRequired).
+
+food_upkeep(CityId, TotalFoodRequired) ->
+    case get_item_by_type(CityId, ?ITEM_FOOD) of
+        {found, Item} ->
+            if
+                Item#item.value >= TotalFoodRequired ->
+                    add_population(Population);
+                true ->
+                    starve_population(Population, TotalFoodRequired - Item#item.value)
+            end,
+            
+            update_item(Item#item.id, Item#item.value - TotalFoodRequired);
+        {not_found} ->
+            starve_population(Population, TotalFoodRequired)
+    end.         
+                                     
 add_population([]) ->
     ok;
 
@@ -619,6 +667,21 @@ add_population([Caste | Rest]) ->
 
     add_population(Rest).
 
+starve_population(Population, InsufficientFood) ->   
+   
+    starve_slaves(Slaves, InsufficientFood),
 
+starve_slaves([], NewInsufficientFood) ->
+    NewInsufficientFood;
 
+starve_slaves([Caste | Rest], InsufficientFood) ->
+    if
+        Caste#population.caste =:= ?CASTE_SLAVES ->
+            NewValue = Caste#population.value - InsufficientFood,
+            NewInsufficientFood 
+            NewCaste = Caste#population {value = NewValue}
+            db:write(NewCaste);
+        true ->
+            ok
+    end
 
