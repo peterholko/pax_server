@@ -570,10 +570,11 @@ new_item(CityId, Type, Value) ->
 get_item_by_type(CityId, Type) ->
     case db:dirty_read(item_type_ref, {CityId, Type}) of
         [ItemTypeRef] ->
-            [Item] = db:dirty_read(item, ItemId),
+            [Item] = db:dirty_read(item, ItemTypeRef#item_type_ref.item_id),
             Result = {found, Item};
         _ ->
             Result = {not_found}
+    end,
     Result.            
 
 harvest([], _) ->
@@ -610,7 +611,7 @@ growth(CityId) ->
     TotalFoodRequired = total_food_required(Population, 0),
     
     %Subtract from food stores
-    food_upkeep(CityId, TotalFoodRequired).
+    food_upkeep(CityId, Population, TotalFoodRequired).
 
 
 food_required(?CASTE_SLAVE) ->
@@ -620,7 +621,7 @@ food_required(?CASTE_SOLDIER) ->
 food_required(?CASTE_COMMONER) ->
     2;
 food_required(?CASTE_NOBLE) ->
-    4;
+    4.
 
 growth_rate(?CASTE_SLAVE) ->
     1.03;
@@ -631,7 +632,7 @@ growth_rate(?CASTE_COMMONER) ->
 growth_rate(?CASTE_NOBLE) ->
     1.005.
 
-total_food_required([], TotalFoodRequired) ->
+total_food_required([], _TotalFoodRequired) ->
     ok;
 
 total_food_required([Caste | Rest], FoodRequired) ->
@@ -640,7 +641,7 @@ total_food_required([Caste | Rest], FoodRequired) ->
 
     total_food_required(Rest, TotalFoodRequired).
 
-food_upkeep(CityId, TotalFoodRequired) ->
+food_upkeep(CityId, Population, TotalFoodRequired) ->
     case get_item_by_type(CityId, ?ITEM_FOOD) of
         {found, Item} ->
             if
@@ -662,26 +663,36 @@ add_population([Caste | Rest]) ->
     GrowthRate = growth_rate(Caste#population.caste),
     NewValue = Caste#population.value * GrowthRate,   
     NewCaste = Caste#population {value = NewValue},
-
     db:write(NewCaste),
 
     add_population(Rest).
 
 starve_population(Population, InsufficientFood) ->   
-   
-    starve_slaves(Slaves, InsufficientFood),
+    [Slaves, Soldiers, Commoners, Nobles] = extract_castes(Population),   
+    starve_caste(Nobles,
+    starve_caste(Commoners,
+    starve_caste(Soldiers, 
+    starve_caste(Slaves, InsufficientFood)))).
 
-starve_slaves([], NewInsufficientFood) ->
-    NewInsufficientFood;
+extract_castes(Population) ->
+    % Caste is the 4th elemt of the population record
+    lists:keysort(Population, 4).
 
-starve_slaves([Caste | Rest], InsufficientFood) ->
+starve_caste(_Caste, 0) ->
+    ok;
+
+starve_caste(Caste, InsufficientFood) ->
     if
-        Caste#population.caste =:= ?CASTE_SLAVES ->
-            NewValue = Caste#population.value - InsufficientFood,
-            NewInsufficientFood 
-            NewCaste = Caste#population {value = NewValue}
-            db:write(NewCaste);
+        Caste#population.value >= InsufficientFood ->
+            NewInsufficientFood = 0;
         true ->
-            ok
-    end
+            NewInsufficientFood = InsufficientFood - Caste#population.value
+    end,
+
+    NewValue = Caste#population.value - InsufficientFood,
+    NewCaste = Caste#population {value = NewValue},
+    db:write(NewCaste),
+
+    NewInsufficientFood.
+
 
