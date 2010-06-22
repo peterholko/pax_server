@@ -80,6 +80,9 @@ add_improvement(CityId, X, Y, ImprovementType) ->
 
 add_claim(CityId, X, Y) ->
     gen_server:cast(global:whereis_name({city, CityId}), {'ADD_CLAIM', X, Y}).
+
+assign_task(CityId, PopulationId, Amount, TaskId, TaskType) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'ASSIGN_TASK', PopulationId, Amount, TaskId, TaskType}).
 %%
 %% OTP handlers
 %%
@@ -149,7 +152,6 @@ handle_cast({'ADD_IMPROVEMENT', X, Y, ImprovementType}, Data) ->
     {noreply, NewData};
 
 handle_cast({'ADD_CLAIM', X, Y}, Data) ->
-
     City = Data#module_data.city,
     TileIndex = map:convert_coords(X, Y),
        
@@ -225,6 +227,23 @@ handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
     end,
 
     {reply, Result, NewData}; 
+
+handle_call({'ASSIGN_TASK', PopulationId, Amount, TaskId, TaskType}, _From, Data) ->
+    City = Data#module_data.city,
+    
+    [Assignments] = db:dirty_index_read(assignment, {City#city.id, PopulationId}, #assignment.city_pop_ref),
+    PopAvailable = get_available_pop(PopulationId, Assignments),
+    
+    if
+        PopAvailable >= Amount ->
+            assign_task(CityId, PopulationId, Amount, TaskId, TaskType),
+            Result = {city, assigned_task};
+        true ->
+            Result = {city, insufficient_pop}
+    end,
+
+    {reply, Result, NewData};
+
 
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->    
     City = Data#module_data.city,
@@ -568,7 +587,7 @@ new_item(CityId, Type, Value) ->
                           entity_id = CityId,
                           type = Type,
                           value = Value},
-            ItemTypeRef = #item_type_ref {ref = ItemRef,
+            ItemTypeRef = #item_type_ref {city_type_ref = ItemRef,
                                           item_id = ItemId},
             mnesia:write(Item),
             mnesia:write(ItemTypeRef)
@@ -684,7 +703,11 @@ add_population([Caste | Rest]) ->
 
 starve_population(Population, InsufficientFood) ->   
     [Slaves, Soldiers, Commoners, Nobles] = extract_castes(Population),   
-    starve_caste(Nobles,starve_caste(Commoners,starve_caste(Soldiers, starve_caste(Slaves, InsufficientFood)))).
+
+    starve_caste(Nobles, 
+    starve_caste(Commoners,
+    starve_caste(Soldiers, 
+    starve_caste(Slaves, InsufficientFood)))).
 
 extract_castes(Population) ->
     % Caste is the 5th element of the population record
@@ -696,12 +719,15 @@ starve_caste(_Caste, 0) ->
 starve_caste(Caste, InsufficientFood) ->
     io:fwrite("Caste: ~w~n", [Caste]),
     io:fwrite("InsufficientFood: ~w~n", [InsufficientFood]),
+
+    CasteFoodRequired = Caste#population.value * food_required(Caste#population.caste),
+
     if
-        Caste#population.value >= InsufficientFood ->
+        CasteFoodRequired >= InsufficientFood ->
             NewInsufficientFood = 0,
-            NewValue = Caste#population.value - InsufficientFood;
+            NewValue = CasteFoodRequired - InsufficientFood;
         true ->
-            NewInsufficientFood = InsufficientFood - Caste#population.value,
+            NewInsufficientFood = InsufficientFood - CasteFoodRequired,
             NewValue = 0
     end,
 
@@ -710,4 +736,18 @@ starve_caste(Caste, InsufficientFood) ->
     io:fwrite("NewInsufficientFood: ~w~n",[NewInsufficientFood]),
     NewInsufficientFood.
 
+get_available_pop(PopulationId, Assignments) ->
+    TotalPop = db:dirty_read(population, PopulationId),
+    TotalAssignment = total_assignment(Assignments, 0),
+    TotalPop#population.value - TotalAssignment.   
+
+total_assignment([], TotalAssignment) ->
+    TotalAssignment;
+
+total_assignment([Assignment | Rest], TotalAssignment) ->
+    NewTotalAssignment = Assignment#assignment.amount + TotalAssignment,
+    total_assignment(Rest, NewTotalAssignment).
+
+assign_task(CityId, PopulationId, Amount, TaskId, TaskType) ->
+    
 

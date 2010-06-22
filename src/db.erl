@@ -47,15 +47,16 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(transport, [{disc_copies, [node()]}, {attributes, record_info(fields, transport)}]),
     {atomic, ok} = mnesia:create_table(building, [{disc_copies, [node()]}, {attributes, record_info(fields, building)}]),
     {atomic, ok} = mnesia:create_table(population, [{disc_copies, [node()]}, {attributes, record_info(fields, population)}]),
-    
+    {atomic, ok} = mnesia:create_table(claim, [{disc_copies, [node()]}, {attributes, record_info(fields, claim)}]),   
+    {atomic, ok} = mnesia:create_table(item, [{disc_copies, [node()]}, {attributes, record_info(fields, item)}]),   
+    {atomic, ok} = mnesia:create_table(assignment, [{disc_copies, [node()]}, {attributes, record_info(fields, assignment)}]),   
+ 
     {atomic, ok} = mnesia:create_table(unit_type, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_type)}]),
     {atomic, ok} = mnesia:create_table(building_type, [{disc_copies, [node()]}, {attributes, record_info(fields, building_type)}]),
     {atomic, ok} = mnesia:create_table(resource_type, [{disc_copies, [node()]}, {attributes, record_info(fields, resource_type)}]),
     {atomic, ok} = mnesia:create_table(population_type, [{disc_copies, [node()]}, {attributes, record_info(fields, population_type)}]),
     {atomic, ok} = mnesia:create_table(improvement_type, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement_type)}]),
-    {atomic, ok} = mnesia:create_table(claim, [{disc_copies, [node()]}, {attributes, record_info(fields, claim)}]),   
  
-    {atomic, ok} = mnesia:create_table(item, [{disc_copies, [node()]}, {attributes, record_info(fields, item)}]),    
     {atomic, ok} = mnesia:create_table(item_type_ref, [{disc_copies, [node()]}, {attributes, record_info(fields, item_type_ref)}]),    
     {atomic, ok} = mnesia:create_table(player_type, [{disc_copies, [node()]}, {attributes, record_info(fields, player_type)}]),    
 
@@ -68,6 +69,7 @@ create_schema() ->
     mnesia:add_table_index(claim, tile_index),
     mnesia:add_table_index(claim, city_id),
     mnesia:add_table_index(population, city_id),
+    mnesia:add_table_index(assignment, city_pop_ref),
 
     mnesia:add_table_index(unit_queue, city_id),
     mnesia:add_table_index(building_queue, city_id),

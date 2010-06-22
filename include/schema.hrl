@@ -59,11 +59,6 @@
                       state,
                       observed_by}).
 
--record(resource, {entity_id,
-                   entity_type,
-                   value,
-                   type}).
-
 -record(building, {id,
                    city_id,
                    type}).
@@ -75,8 +70,8 @@
                      race}).                     
 
 -record(claim, {id, 
-		tile_index,
-		city_id}).
+        		tile_index,
+		        city_id}).
 
 -record(transport, {id,
                     player_id,
@@ -87,13 +82,18 @@
                type,
                value}).                    
 
+-record(assignment, {id,
+                     city_pop_ref, %% city_pop_ref = {CityId, PopulationId} %%
+                     amount,
+                     task %% task = {Id, Type} %%               
+                     }).
+
 %%% Reference tables %%%
--record(item_type_ref, {ref,
+-record(item_type_ref, {city_type_ref,  %% ref = {CityId, Type} %%
                        item_id}).
 
 -record(player_type, {player_id,
                       type}).
-
 %%% Queue tables %%%
 
 -record(unit_queue, {id,

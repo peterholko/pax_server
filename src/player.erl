@@ -229,7 +229,6 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
 
 handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = UnitSize}, Data) ->
     case city:queue_unit(Id, Data#module_data.player_id, UnitType, UnitSize) of
-        %case gen_server:call(global:whereis_name({city, Id}), {'QUEUE_UNIT', Data#module_data.player_id, UnitType, UnitSize}) of
         {city, queued_unit} ->
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = Id},
             gen_server:cast(self(), RequestInfo);
@@ -319,6 +318,23 @@ handle_cast(_ = #add_claim{ city_id = CityId,
             log4erl:info("Add Claim - City id does not exist for this player.")        
     end,
     
+    {noreply, Data};
+
+handle_cast(_ = #assign_task{ city_id = CityId,
+                              population_id = PopulationId,
+                              amount = Amount,
+                              task_id = TaskId,
+                              task_type = TaskType}, Data) ->
+
+    [Player] = db:read(player, Data#module_data.player_id),
+   
+    case lists:member(CityId, Player#player.cities) of
+        true ->
+            city:assign_task(CityId, PopulationId, Amount, TaskId, TaskType);
+        false ->
+            log4erl:info("Assign task - City id does not exist for this player.")        
+    end,
+
     {noreply, Data};
 
 handle_cast(stop, Data) ->
@@ -481,3 +497,4 @@ save_explored_map(PlayerId, ExploredMap) ->
     
     lists:foreach(F, ExploredMap),
     dets:close(FileName).
+
