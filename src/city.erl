@@ -230,9 +230,9 @@ handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
 
 handle_call({'ASSIGN_TASK', PopulationId, Amount, TaskId, TaskType}, _From, Data) ->
     City = Data#module_data.city,
-    
-    [Assignments] = db:dirty_index_read(assignment, {City#city.id, PopulationId}, #assignment.city_pop_ref),
-    PopAvailable = get_available_pop(PopulationId, Assignments),
+    io:fwrite("Assign task...~n"), 
+    PopAvailable = get_available_pop(City#city.id, PopulationId),
+    io:fwrite("PopAvailable: ~w~n", [PopAvailable]),
     
     case PopAvailable >= Amount of
         true ->
@@ -741,8 +741,9 @@ starve_caste(Caste, InsufficientFood) ->
     io:fwrite("NewInsufficientFood: ~w~n",[NewInsufficientFood]),
     NewInsufficientFood.
 
-get_available_pop(PopulationId, Assignments) ->
-    TotalPop = db:dirty_read(population, PopulationId),
+get_available_pop(CityId, PopulationId) ->
+    Assignments = db:dirty_index_read(assignment, {CityId, PopulationId}, #assignment.city_pop_ref),
+    [TotalPop] = db:dirty_read(population, PopulationId),
     TotalAssignment = total_assignment(Assignments, 0),
     TotalPop#population.value - TotalAssignment.   
 
