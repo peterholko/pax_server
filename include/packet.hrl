@@ -109,4 +109,12 @@
                     x,
                     y}).
 
+-define(CMD_ASSIGN_TASK, 130).
+-record(assign_task, {city_id,
+                      population_id,
+                      amount,
+                      task_id,
+                      task_type}).
+
+
 -record(tt, {test}).

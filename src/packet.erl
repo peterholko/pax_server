@@ -50,16 +50,13 @@ state() ->
 type() ->
     short().
 
-type_name() -> 
-    list(short(), byte()).
+amount() ->
+    int().
 
 x() ->
     short().
 
 y() ->
-    short().
-
-level() ->
     short().
 
 improvement_type() ->
@@ -79,9 +76,6 @@ tiles() ->
 
 info_list() ->
     list(int(), string()).    
-
-hero() ->
-    id().
 
 unit_id() ->
     id().
@@ -261,6 +255,13 @@ add_claim() ->
                        x(),
                        y()}).
 
+assign_task() ->
+    record(assign_task, {id(),
+                         id(),
+                         amount(),
+                         id(),
+                         type()}).                                              
+
 transport_info() ->
     record(transport_info, {transport_id(),
                             units()}).
@@ -311,6 +312,9 @@ read(<<?CMD_BUILD_IMPROVEMENT, Bin/binary>>) ->
 
 read(<<?CMD_ADD_CLAIM, Bin/binary>>) ->
     unpickle(add_claim(), Bin);
+
+read(<<?CMD_ASSIGN_TASK, Bin/binary>>) ->
+    unpickle(assign_task(), Bin);
 
 %% Test Read Packets
 
@@ -402,6 +406,9 @@ write(R) when is_record(R, city_queue_unit) ->
 
 write(R) when is_record(R, city_queue_building) ->
     [?CMD_CITY_QUEUE_BUILDING|pickle(city_queue_building(), R)];
+
+write(R) when is_record(R, assign_task) ->
+    [?CMD_ASSIGN_TASK|pickle(assign_task(), R)];
 
 write(R) when is_record(R, tt) ->
     [-1|pickle(tt(), R)].

@@ -14,7 +14,7 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/1, login/1]).
--export([build_farm/0, add_claim/0, transfer/0, transfer2/0, 
+-export([build_farm/0, add_claim/0, assign_task/0, transfer/0, transfer2/0, 
          battle/0, target/0, info_army/1, move/3, 
          queue_unit/0, queue_building/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -42,6 +42,9 @@ queue_building() ->
 
 add_claim() ->
     gen_server:cast(global:whereis_name(test_sender), {'ADD_CLAIM', 11, 5, 5}).
+
+assign_task() ->
+    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, 1, 10, 1, ?TASK_IMPROVEMENT}).
 
 transfer() -> 
     gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 1, 1, 1, 2, 1}),
@@ -71,6 +74,15 @@ init([Socket]) ->
     Data = #data {socket = Socket},
     {ok, Data}.
 
+handle_cast({'ASSIGN_TASK', CityId, PopulationId, Amount, TaskId, TaskType}, Data) ->
+    AssignTask = #assign_task { city_id = CityId, 
+                                population_id = PopulationId, 
+                                amount = Amount, 
+                                task_id = TaskId,
+                                task_type = TaskType},
+    packet:send(Data#data.socket, AssignTask),
+    
+    {noreply, Data};
 
 handle_cast({'ADD_CLAIM', CityId, X, Y}, Data) ->
     AddClaim = #add_claim {city_id = CityId, x = X, y = Y},

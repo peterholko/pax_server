@@ -85,11 +85,11 @@
 -record(assignment, {id,
                      city_pop_ref, %% city_pop_ref = {CityId, PopulationId} %%
                      amount,
-                     task %% task = {Id, Type} %%               
+                     task %% task = {TaskId, TaskType} %%               
                      }).
 
 %%% Reference tables %%%
--record(item_type_ref, {city_type_ref,  %% ref = {CityId, Type} %%
+-record(item_type_ref, {entity_type_ref,  %% ref = {EntityId, Type} %%
                        item_id}).
 
 -record(player_type, {player_id,

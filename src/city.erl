@@ -19,7 +19,7 @@
 -export([init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--export([start/2, stop/1, queue_unit/4, queue_building/3, add_claim/3, add_improvement/4]).
+-export([start/2, stop/1, queue_unit/4, queue_building/3, add_claim/3, add_improvement/4, assign_task/5]).
 
 -record(module_data, {city,                       
                       units_queue,
@@ -234,15 +234,20 @@ handle_call({'ASSIGN_TASK', PopulationId, Amount, TaskId, TaskType}, _From, Data
     [Assignments] = db:dirty_index_read(assignment, {City#city.id, PopulationId}, #assignment.city_pop_ref),
     PopAvailable = get_available_pop(PopulationId, Assignments),
     
-    if
-        PopAvailable >= Amount ->
-            assign_task(CityId, PopulationId, Amount, TaskId, TaskType),
-            Result = {city, assigned_task};
+    case PopAvailable >= Amount of
         true ->
+            case is_valid_task(City#city.id, TaskId, TaskType) of
+                true ->          
+                    store_assigned_task(City#city.id, PopulationId, Amount, TaskId, TaskType),
+                    Result = {city, assigned_task};
+                false ->
+                    Result = {city, invalid_task}
+            end;
+        false ->
             Result = {city, insufficient_pop}
     end,
 
-    {reply, Result, NewData};
+    {reply, Result, Data};
 
 
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->    
@@ -587,7 +592,7 @@ new_item(CityId, Type, Value) ->
                           entity_id = CityId,
                           type = Type,
                           value = Value},
-            ItemTypeRef = #item_type_ref {city_type_ref = ItemRef,
+            ItemTypeRef = #item_type_ref {entity_type_ref = ItemRef,
                                           item_id = ItemId},
             mnesia:write(Item),
             mnesia:write(ItemTypeRef)
@@ -748,6 +753,39 @@ total_assignment([Assignment | Rest], TotalAssignment) ->
     NewTotalAssignment = Assignment#assignment.amount + TotalAssignment,
     total_assignment(Rest, NewTotalAssignment).
 
-assign_task(CityId, PopulationId, Amount, TaskId, TaskType) ->
-    
+is_valid_task(CityId, ImprovementId, ?TASK_IMPROVEMENT) ->
+    case db:dirty_read(improvement, ImprovementId) of
+        [Improvement] ->
+            case Improvement#improvement.city_id =:= CityId of
+                true ->
+                    Result = true;
+                false ->
+                    Result = false
+            end;
+        _ ->
+            Result = false
+    end,
+    Result;
+is_valid_task(CityId, BuildingId, ?TASK_BUILDING) ->
+    case db:dirty_read(building, BuildingId) of
+        [Building] ->
+            case Building#building.city_id =:= CityId of
+                true ->
+                    Result = true;
+                false ->
+                    Result = false
+            end;
+        _ ->
+            Result = false
+    end,
+    Result;
+is_valid_task(_CityId, _TaskId, _TaskType) ->
+    false.
 
+store_assigned_task(CityId, PopulationId, Amount, TaskId, TaskType) ->
+    Assignment = #assignment {  id = counter:increment(assignment),
+                                city_pop_ref = {CityId, PopulationId},
+                                amount = Amount,
+                                task = {TaskId, TaskType} },
+    db:dirty_write(Assignment).
+    

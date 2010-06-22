@@ -70,6 +70,8 @@ create_schema() ->
     mnesia:add_table_index(claim, city_id),
     mnesia:add_table_index(population, city_id),
     mnesia:add_table_index(assignment, city_pop_ref),
+    mnesia:add_table_index(improvement, tile_index),
+    mnesia:add_table_index(improvement, city_id),
 
     mnesia:add_table_index(unit_queue, city_id),
     mnesia:add_table_index(building_queue, city_id),

@@ -59,3 +59,10 @@
 -define(CASTE_SOLDIER, 1).
 -define(CASTE_COMMONER, 2).
 -define(CASTE_NOBLE, 3).
+
+-define(TASK_NONE, 0).
+-define(TASK_IMPROVEMENT, 1).
+-define(TASK_BUILDING, 2).
+-define(TASK_CONSTRUCTION, 3).
+-define(TASK_RESEARCH, 4).
+
