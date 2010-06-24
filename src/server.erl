@@ -68,8 +68,9 @@ init() ->
     spawn(fun() -> game_loop:loop(util:get_time(), global:whereis_name(game_pid)) end),
     
     % Start managers
+    kingdom:start(),
     improvement:start(),    
-    transport:start(),
+    transport:start(),   
     
     % Start socket listener
     {ok, ListenSocket} = gen_tcp:listen(2345, [binary,

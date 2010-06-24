@@ -58,8 +58,8 @@ handle_cast({'ADD_PLAYER', PlayerId, ProcessId}, Data) ->
     %Toggle perception flag to send first perception
     NewUpdatePerceptions = gb_sets:add(PlayerId, Data#game_info.update_perceptions),
         
-    ArmiesIdPid = gen_server:call(ProcessId, 'GET_ARMIES_ID_PID'),
-    CitiesIdPid = gen_server:call(ProcessId, 'GET_CITIES_ID_PID'),
+    ArmiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_ARMIES_ID_PID', PlayerId}),
+    CitiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_CITIES_ID_PID', PlayerId}),
     
     NewEntities = ArmiesIdPid ++ CitiesIdPid,
     
@@ -80,8 +80,8 @@ handle_cast({'ADD_PLAYER', PlayerId, ProcessId}, Data) ->
 handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
     io:fwrite("game - delete_player - ProcessId: ~w~n", [ProcessId]),
     
-    ArmiesIdPid = gen_server:call(ProcessId, 'GET_ARMIES_ID_PID'),
-    CitiesIdPid = gen_server:call(ProcessId, 'GET_CITIES_ID_PID'),
+    ArmiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_ARMIES_ID_PID', PlayerId}),
+    CitiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_CITIES_ID_PID', PlayerId}),
     
     Entities = ArmiesIdPid ++ CitiesIdPid,
     
