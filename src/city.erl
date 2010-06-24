@@ -186,7 +186,7 @@ handle_cast({'PROCESS_EVENT', _Id, EventType}, Data) ->
     case EventType of
         ?EVENT_HARVEST -> 
             %log4erl:info("Processing Harvest for City ~w~n", [self()]),
-            harvest(Data#module_data.improvements, City#city.id);
+            harvest(City#city.id);
         ?EVENT_GROWTH ->
             growth(City#city.id)            
     end,      
@@ -609,22 +609,29 @@ get_item_by_type(CityId, Type) ->
     end,
     Result.            
 
-harvest([], _) ->
-    %io:fwrite("Harvest no improvements~n"),
-    ok;
-
-harvest([ImprovementId | Rest], CityId) ->
+harvest(CityId) ->
+    % match {assignment, assignment_id, city_id, population_id, amount, task_id, task_type}
     io:fwrite("Harvest~n"),
+    Assignments = db:dirty_match_object({assignment, '_', CityId, '_', '_', '_', ?TASK_IMPROVEMENT}),
+    harvest_assignment(Assignments, CityId).
+            
+harvest_assignment([], _CityId) ->
+    io:fwrite("Harvest complete~n");
+
+harvest_assignment([Assignment | Rest], CityId) ->
+    io:fwrite("Harvest Assignment~n"),
+    ImprovementId = Assignment#assignment.task_id,
     [Improvement] = db:dirty_read(improvement, ImprovementId),
     [_NumResources | Resources] = map_port:get_resources(Improvement#improvement.tile_index),
 
-    Yield = get_yield(Improvement#improvement.type, Resources, undefined, false),
-    ResourceGained = Yield * 1,
+    Yield = get_yield(Improvement#improvement.type, Resources, 0, false),
+    io:fwrite("Yield: ~w~n", [Yield]),
+    ResourceGained = Yield / 255 * Assignment#assignment.amount,
 
     io:fwrite("ResourceGained: ~w~n",[ResourceGained]),
-
     add_item(CityId, Improvement#improvement.type, ResourceGained),
-    harvest(Rest, CityId).
+
+    harvest_assignment(Rest, CityId).
 
 get_yield(_, [], _, false) ->
     0;
@@ -742,7 +749,7 @@ starve_caste(Caste, InsufficientFood) ->
     NewInsufficientFood.
 
 get_available_pop(CityId, PopulationId) ->
-    Assignments = db:dirty_index_read(assignment, {CityId, PopulationId}, #assignment.city_pop_ref),
+    Assignments = db:dirty_match_object({assignment, '_Assignment', CityId, PopulationId, '_TaskId', '_TaskType'}),
     [TotalPop] = db:dirty_read(population, PopulationId),
     TotalAssignment = total_assignment(Assignments, 0),
     TotalPop#population.value - TotalAssignment.   
@@ -785,8 +792,10 @@ is_valid_task(_CityId, _TaskId, _TaskType) ->
 
 store_assigned_task(CityId, PopulationId, Amount, TaskId, TaskType) ->
     Assignment = #assignment {  id = counter:increment(assignment),
-                                city_pop_ref = {CityId, PopulationId},
+                                city_id = CityId,
+                                population_id = PopulationId,
                                 amount = Amount,
-                                task = {TaskId, TaskType} },
+                                task_id = TaskId,
+                                task_type = TaskType },
     db:dirty_write(Assignment).
     

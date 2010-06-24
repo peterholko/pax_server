@@ -83,9 +83,11 @@
                value}).                    
 
 -record(assignment, {id,
-                     city_pop_ref, %% city_pop_ref = {CityId, PopulationId} %%
+                     city_id,
+                     population_id,
                      amount,
-                     task %% task = {TaskId, TaskType} %%               
+                     task_id,
+                     task_type               
                      }).
 
 %%% Reference tables %%%
@@ -94,6 +96,8 @@
 
 -record(player_type, {player_id,
                       type}).
+
+
 %%% Queue tables %%%
 
 -record(unit_queue, {id,

@@ -18,7 +18,7 @@
 %%
 -export([create_schema/0, start/0, 
          write/1, read/2, delete/2, index_read/3,
-         dirty_write/1, dirty_read/2, dirty_index_read/3, dirty_delete/2,
+         dirty_write/1, dirty_read/2, dirty_index_read/3, dirty_delete/2, dirty_match_object/1,
          reset_game_tables/0, reset_tables/0, dump/1, select_armies/0,
          select_cities/0, select_battles/0, 
          select_all_armies/0, select_all_players/0,
@@ -113,6 +113,9 @@ dirty_write(R) ->
 
 dirty_delete(T, K) ->
     mnesia:dirty_delete(T, K). 
+
+dirty_match_object(P) ->
+    mnesia:dirty_match_object(P).
 
 dump(Table) ->
     do(qlc:q([X || X <- mnesia:table(Table)])).

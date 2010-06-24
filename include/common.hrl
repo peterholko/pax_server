@@ -53,7 +53,7 @@
 -define(PLAYER_GM, 2).
 
 -define(HARVEST_TICK, 100).
--define(GROWTH_TICK, 200).
+-define(GROWTH_TICK, 500).
 
 -define(CASTE_SLAVE, 0).
 -define(CASTE_SOLDIER, 1).
