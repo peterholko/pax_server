@@ -68,7 +68,8 @@
 -define (CMD_CITY_QUEUE_UNIT, 60).
 -record(city_queue_unit, {id,
                           unit_type,
-                          unit_size}).
+                          unit_size,
+                          caste}).
 
 -define (CMD_TRANSFER_UNIT, 61).
 -record(transfer_unit, {unit_id,

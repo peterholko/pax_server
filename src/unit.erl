@@ -14,12 +14,24 @@
 %%
 %% Exported Functions
 %%
--export([get_unit_ids/2, get_unit/2,
-         units_id/1, units_tuple/1, units_queue_tuple/1]).
+-export([calc_new_unit_cost/2,
+         get_unit_ids/2, 
+         get_unit/2,
+         units_id/1, 
+         units_tuple/1, 
+         units_queue_tuple/1]).
 
 %%
 %% API Functions
 %%
+
+calc_new_unit_cost(UnitType, UnitSize) ->
+    UnitTypeModifier = cost_by_unit_type(UnitType),
+    UnitTypeModifier * UnitSize.
+    
+cost_by_unit_type(UnitTypeId) ->
+    [UnitType] = db:dirty_read(unit_type, UnitTypeId),
+    UnitType#unit_type.cost.
 
 get_unit_ids([], UnitIds) ->
     UnitIds;

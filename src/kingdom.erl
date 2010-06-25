@@ -15,6 +15,7 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+-export([get_gold/1]).
 
 -record(module_data, {}).
 %% ====================================================================
@@ -23,6 +24,9 @@
 
 start() ->
     gen_server:start({global, kingdom_pid}, kingdom, [], []).
+
+get_gold(PlayerId) ->
+    gen_server:call({global, kingdom_pid}, {'GET_GOLD', PlayerId}).
 
 %% ====================================================================
 %% Server functions
@@ -42,7 +46,7 @@ handle_call({'GET_ARMIES', PlayerId}, _From, Data) ->
     [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
     {reply, Kingdom#kingdom.armies, Data};
 
-handle_call('GET_ARMIES_ID_PID', _From, Data) ->
+handle_call({'GET_ARMIES_ID_PID', PlayerId}, _From, Data) ->
     [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
     Armies = Kingdom#kingdom.armies,
     
@@ -50,13 +54,17 @@ handle_call('GET_ARMIES_ID_PID', _From, Data) ->
     ArmiesIdPid = lists:foldl(F, [], Armies),	
     {reply, ArmiesIdPid, Data};
 
-handle_call('GET_CITIES_ID_PID', _From, Data) ->
+handle_call({'GET_CITIES_ID_PID', PlayerId}, _From, Data) ->
     [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
     Cities = Kingdom#kingdom.cities,
     
     F = fun(CityId, Rest) -> [{CityId, global:whereis_name({city, CityId})} | Rest] end,
     CitiesIdPid = lists:foldl(F, [], Cities),	
     {reply, CitiesIdPid, Data};
+
+handle_call({'GET_GOLD', PlayerId}, _From, Data) ->
+    [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
+    {reply, Kingdom#kingdom.gold, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 

@@ -147,9 +147,9 @@ handle_cast({'SET_DISCOVERED_TILES', _, EntityX, EntityY}, Data) ->
     {noreply, NewData};
 
 handle_cast(_ = #move{ id = ArmyId, x = X, y = Y}, Data) ->
-    [Player] = db:read(player, Data#module_data.player_id), 
+    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id), 
     
-    case lists:member(ArmyId, Player#player.armies) of
+    case lists:member(ArmyId, Kingdom#kingdom.armies) of
         true -> 
             gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_MOVE', X, Y});           
         false ->
@@ -159,12 +159,12 @@ handle_cast(_ = #move{ id = ArmyId, x = X, y = Y}, Data) ->
     {noreply, Data};
 
 handle_cast(_ = #attack{ id = ArmyId, target_id = TargetId}, Data) ->
-    [Player] = db:read(player, Data#module_data.player_id),
+    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id), 
     
     case db:read(army, TargetId) of
-        [_] ->    
-            Guard = (lists:member(ArmyId, Player#player.armies)) and
-                        (Player#player.id =/= TargetId),
+        [TargetArmy] ->    
+            Guard = (lists:member(ArmyId, Kingdom#kingdom.armies)) and
+                    (Data#module_data.player_id =/= TargetArmy#army.player_id),
             if
                 Guard ->		 
                     gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_ATTACK', TargetId});
@@ -227,8 +227,8 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
     
     {noreply, Data};
 
-handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = UnitSize}, Data) ->
-    case city:queue_unit(Id, Data#module_data.player_id, UnitType, UnitSize) of
+handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = UnitSize, caste = Caste}, Data) ->
+    case city:queue_unit(Id, Data#module_data.player_id, UnitType, UnitSize, Caste) of
         {city, queued_unit} ->
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = Id},
             gen_server:cast(self(), RequestInfo);
@@ -294,9 +294,9 @@ handle_cast(_ = #build_improvement{city_id = CityId,
                                    y = Y,
                                    improvement_type = ImprovementType }, Data) ->
     
-    [Player] = db:read(player, Data#module_data.player_id),
+    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
 
-    case lists:member(CityId, Player#player.cities) of
+    case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
             city:add_improvement(CityId, X, Y, ImprovementType);
         false ->
@@ -309,9 +309,9 @@ handle_cast(_ = #add_claim{ city_id = CityId,
                             x = X,
                             y = Y}, Data) ->
 
-    [Player] = db:read(player, Data#module_data.player_id),
+    [Kingdom] = db:read(kingdom, Data#module_data.player_id, #kingdom.player_id),
    
-    case lists:member(CityId, Player#player.cities) of
+    case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
             city:add_claim(CityId, X, Y);
         false ->
@@ -326,9 +326,9 @@ handle_cast(_ = #assign_task{ city_id = CityId,
                               task_id = TaskId,
                               task_type = TaskType}, Data) ->
 
-    [Player] = db:read(player, Data#module_data.player_id),
+    [Kingdom] = db:read(kingdom, Data#module_data.player_id, #kingdom.player_id),
    
-    case lists:member(CityId, Player#player.cities) of
+    case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
             city:assign_task(CityId, PopulationId, Amount, TaskId, TaskType);
         false ->
@@ -365,26 +365,6 @@ handle_call('ID', _From, Data) ->
 
 handle_call('SOCKET', _From, Data) ->
     {reply, Data#module_data.socket, Data};
-
-handle_call('GET_ARMIES', _From, Data) ->
-    [Player] = db:dirty_read(player, Data#module_data.player_id), 
-    {reply, Player#player.armies, Data};
-
-handle_call('GET_ARMIES_ID_PID', _From, Data) ->
-    [Player] = db:dirty_read(player, Data#module_data.player_id),
-    Armies = Player#player.armies,
-    
-    F = fun(ArmyId, Rest) -> [{ArmyId, global:whereis_name({army, ArmyId})} | Rest] end,
-    ArmiesIdPid = lists:foldl(F, [], Armies),	
-    {reply, ArmiesIdPid, Data};
-
-handle_call('GET_CITIES_ID_PID', _From, Data) ->
-    [Player] = db:dirty_read(player, Data#module_data.player_id),
-    Cities = Player#player.cities,
-    
-    F = fun(CityId, Rest) -> [{CityId, global:whereis_name({city, CityId})} | Rest] end,
-    CitiesIdPid = lists:foldl(F, [], Cities),	
-    {reply, CitiesIdPid, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
@@ -431,10 +411,10 @@ forward_to_client(Event, Data) ->
     end.
 
 build_perception(PlayerId) ->
-    [Player] = db:dirty_read(player, PlayerId),
+    [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id),
     
-    Armies = Player#player.armies,
-    Cities = Player#player.cities,
+    Armies = Kingdom#kingdom.armies,
+    Cities = Kingdom#kingdom.cities,
     
     ArmyVisibleList = entity_visible_list(Armies, army),
     CityVisibleList = entity_visible_list(Cities, city),

@@ -19,7 +19,7 @@
 -export([init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--export([start/2, stop/1, queue_unit/4, queue_building/3, add_claim/3, add_improvement/4, assign_task/5]).
+-export([start/2, stop/1, queue_unit/5, queue_building/3, add_claim/3, add_improvement/4, assign_task/5]).
 
 -record(module_data, {city,                       
                       units_queue,
@@ -69,8 +69,8 @@ stop(ProcessId)
   when is_pid(ProcessId) ->
     gen_server:cast(ProcessId, stop).
 
-queue_unit(CityId, PlayerId, UnitType, UnitSize) ->
-    gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_UNIT', PlayerId, UnitType, UnitSize}).
+queue_unit(CityId, PlayerId, UnitType, UnitSize, Caste) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste}).
 
 queue_building(CityId, PlayerId, BuildingType) ->
     gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_BUILDING', PlayerId, BuildingType}).
@@ -196,12 +196,16 @@ handle_cast({'PROCESS_EVENT', _Id, EventType}, Data) ->
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
-handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize}, _From, Data) ->   
+handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste}, _From, Data) ->   
     City = Data#module_data.city,
     UnitsQueue = Data#module_data.units_queue,
-    
-    case City#city.player_id =:= PlayerId of
-        true ->              
+
+    Cases = cases_unit_queue(PlayerId =:= City#city.player_id, 
+                              kingdom:get_gold(PlayerId) >= unit:calc_new_unit_cost(UnitType, UnitSize), 
+                              get_available_pop(City#city.id, Caste) >= UnitSize),
+      
+    case Cases of
+        true ->                          
             NewUnitsQueue = add_unit_to_queue(City#city.id, UnitsQueue, UnitType, UnitSize),
             NewData = Data#module_data { units_queue = NewUnitsQueue},
             Result = {city, queued_unit};
@@ -228,17 +232,17 @@ handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
 
     {reply, Result, NewData}; 
 
-handle_call({'ASSIGN_TASK', PopulationId, Amount, TaskId, TaskType}, _From, Data) ->
+handle_call({'ASSIGN_TASK', Caste, Amount, TaskId, TaskType}, _From, Data) ->
     City = Data#module_data.city,
     io:fwrite("Assign task...~n"), 
-    PopAvailable = get_available_pop(City#city.id, PopulationId),
+    PopAvailable = get_available_pop(City#city.id, Caste),
     io:fwrite("PopAvailable: ~w~n", [PopAvailable]),
     
     case PopAvailable >= Amount of
         true ->
             case is_valid_task(City#city.id, TaskId, TaskType) of
                 true ->          
-                    store_assigned_task(City#city.id, PopulationId, Amount, TaskId, TaskType),
+                    store_assigned_task(City#city.id, Caste, Amount, TaskId, TaskType),
                     Result = {city, assigned_task};
                 false ->
                     Result = {city, invalid_task}
@@ -748,9 +752,9 @@ starve_caste(Caste, InsufficientFood) ->
     io:fwrite("NewInsufficientFood: ~w~n",[NewInsufficientFood]),
     NewInsufficientFood.
 
-get_available_pop(CityId, PopulationId) ->
-    Assignments = db:dirty_match_object({assignment, '_Assignment', CityId, PopulationId, '_TaskId', '_TaskType'}),
-    [TotalPop] = db:dirty_read(population, PopulationId),
+get_available_pop(CityId, Caste) ->
+    Assignments = db:dirty_match_object({assignment, '_Assignment', CityId, Caste, '_TaskId', '_TaskType'}),
+    [TotalPop] = db:dirty_read(population, {CityId, Caste}),
     TotalAssignment = total_assignment(Assignments, 0),
     TotalPop#population.value - TotalAssignment.   
 
@@ -790,12 +794,17 @@ is_valid_task(CityId, BuildingId, ?TASK_BUILDING) ->
 is_valid_task(_CityId, _TaskId, _TaskType) ->
     false.
 
-store_assigned_task(CityId, PopulationId, Amount, TaskId, TaskType) ->
+store_assigned_task(CityId, Caste, Amount, TaskId, TaskType) ->
     Assignment = #assignment {  id = counter:increment(assignment),
                                 city_id = CityId,
-                                population_id = PopulationId,
+                                caste = Caste,
                                 amount = Amount,
                                 task_id = TaskId,
                                 task_type = TaskType },
     db:dirty_write(Assignment).
-    
+   
+cases_unit_queue(_IsPlayer = true, _CanAfford = true, _PopAvailable = true) ->
+    true;
+cases_unit_queue(IsPlayer, CanAfford, PopAvailable) ->
+    io:fwrite("cases_unit_queue: ~w, ~w, ~w~n", [IsPlayer, CanAfford, PopAvailable]),
+    false.

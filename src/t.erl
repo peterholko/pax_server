@@ -35,7 +35,7 @@ build_farm() ->
     gen_server:cast(global:whereis_name(test_sender), {'BUILD_IMPROVEMENT', 11, 5, 5, ?IMPROVEMENT_FARM}).
 
 queue_unit() ->
-    gen_server:cast(global:whereis_name(test_sender), {'QUEUE_UNIT', 11, 1, 100}).
+    gen_server:cast(global:whereis_name(test_sender), {'QUEUE_UNIT', 11, 1, 100, 0}).
 
 queue_building() ->
     gen_server:cast(global:whereis_name(test_sender), {'QUEUE_BUILDING', 11, 1}).
@@ -96,10 +96,11 @@ handle_cast({'BUILD_IMPROVEMENT', CityId, X, Y, ImprovementType}, Data) ->
 
     {noreply, Data};
 
-handle_cast({'QUEUE_UNIT', CityId, UnitType, UnitSize}, Data) ->
+handle_cast({'QUEUE_UNIT', CityId, UnitType, UnitSize, Caste}, Data) ->
     CityQueueUnit = #city_queue_unit { id = CityId,
                                        unit_type = UnitType,
-                                       unit_size = UnitSize},
+                                       unit_size = UnitSize,
+                                       caste = Caste},
     packet:send(Data#data.socket, CityQueueUnit),
     {noreply, Data};
 

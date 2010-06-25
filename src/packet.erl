@@ -59,6 +59,9 @@ x() ->
 y() ->
     short().
 
+caste() ->
+    byte().
+
 improvement_type() ->
     byte().
 
@@ -211,7 +214,8 @@ info_city() ->
 city_queue_unit() ->
     record(city_queue_unit, {id(),
                              unit_type(),
-                             unit_size()}).
+                             unit_size(),
+                             caste()}).
 
 city_queue_building() ->
     record(city_queue_building, {id(),

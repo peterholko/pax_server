@@ -5,13 +5,17 @@
                  name,
                  password,
                  login_errors = 0,
-                 disabled = false,
-                 armies = [],
-                 cities = []}).
+                 disabled = false}).
 
 -record(connection, {player_id,
                      process = none,
                      socket = none}).
+
+-record(kingdom, {id, 
+                 player_id,
+                 gold = 0,
+                 armies = [],
+                 cities = []}).
 
 -record(army, {	id,
                 player_id,
@@ -63,11 +67,10 @@
                    city_id,
                    type}).
 
--record(population, {id,
-                     city_id, 
-                     value,    
+-record(population, {city_caste_ref, % city_caste_ref = {city_id, caste} %
+                     city_id,
                      caste,
-                     race}).                     
+                     value}).                     
 
 -record(claim, {id, 
         		tile_index,
@@ -84,7 +87,7 @@
 
 -record(assignment, {id,
                      city_id,
-                     population_id,
+                     caste,
                      amount,
                      task_id,
                      task_type               
