@@ -114,7 +114,8 @@
                          city_id,
                          building_type,
                          start_time,
-                         end_time}).
+                         end_time,
+                         completion_rate}).
 
 -record(improvement_queue, {improvement_id,
                             player_id,
@@ -142,7 +143,8 @@
                            name}).
 
 -record(building_type, {id,
-                        name}).
+                        name,
+                        building_time}).
 
 
 

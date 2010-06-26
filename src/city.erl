@@ -200,18 +200,25 @@ handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste}, _From, Data) ->
     City = Data#module_data.city,
     UnitsQueue = Data#module_data.units_queue,
 
-    Cases = cases_unit_queue(PlayerId =:= City#city.player_id, 
-                              kingdom:get_gold(PlayerId) >= unit:calc_new_unit_cost(UnitType, UnitSize), 
-                              get_available_pop(City#city.id, Caste) >= UnitSize),
+    UnitCost = unit:calc_new_unit_cost(UnitType, UnitSize), 
+
+    CasesUnitQueue = cases_unit_queue(PlayerId =:= City#city.player_id, 
+                                      unit:is_valid_unit_type(UnitType),                             
+                                      kingdom:get_gold(PlayerId) >= UnitCost,
+                                      get_available_pop(City#city.id, Caste) >= UnitSize),
       
-    case Cases of
+    case CasesUnitQueue of
         true ->                          
+            kingdom:remove_gold(PlayerId, UnitCost),
+            remove_population(City#city.id, Caste, UnitSize),                        
+
             NewUnitsQueue = add_unit_to_queue(City#city.id, UnitsQueue, UnitType, UnitSize),
             NewData = Data#module_data { units_queue = NewUnitsQueue},
             Result = {city, queued_unit};
-        false ->
+        {false, ErrorMsg} ->
             NewData = Data,
-            Result = {city, error}
+            io:fwrite("QueueUnit Error: ~w~n", [ErrorMsg]),
+            Result = {city, ErrorMsg}
     end,
     
     {reply, Result, NewData};
@@ -242,6 +249,7 @@ handle_call({'ASSIGN_TASK', Caste, Amount, TaskId, TaskType}, _From, Data) ->
         true ->
             case is_valid_task(City#city.id, TaskId, TaskType) of
                 true ->          
+                    process_assignment(City#city.id, Caste, Amount, TaskId, TaskType),
                     store_assigned_task(City#city.id, Caste, Amount, TaskId, TaskType),
                     Result = {city, assigned_task};
                 false ->
@@ -453,7 +461,8 @@ add_building_to_queue(CityId, BuildingsQueue, BuildingType) ->
                                      city_id = CityId,
                                      building_type = BuildingType,
                                      start_time = StartTime,
-                                     end_time = StartTime + 60},
+                                     end_time = ?MAX_TIME,
+                                     completion_rate = 0},
 
     [BuildingQueue | BuildingsQueue].
 
@@ -694,7 +703,7 @@ food_upkeep(CityId, Population, TotalFoodRequired) ->
             if
                 Food#item.value >= TotalFoodRequired ->
                     io:fwrite("Add population..."),
-                    add_population(Population),
+                    grow_population(Population),
                     NewFoodValue = Food#item.value - TotalFoodRequired;
                 true ->
                     starve_population(Population, TotalFoodRequired - Food#item.value),
@@ -706,16 +715,22 @@ food_upkeep(CityId, Population, TotalFoodRequired) ->
             starve_population(Population, TotalFoodRequired)
     end.         
                                      
-add_population([]) ->
+grow_population([]) ->
     ok;
 
-add_population([Caste | Rest]) ->
+grow_population([Caste | Rest]) ->
     GrowthRate = growth_rate(Caste#population.caste),
     NewValue = Caste#population.value * GrowthRate,   
     NewCaste = Caste#population {value = NewValue},
     db:write(NewCaste),
 
-    add_population(Rest).
+    grow_population(Rest).
+
+remove_population(CityId, Caste, Value) ->
+    [Population] = db:dirty_read(population, {CityId, Caste}),
+    NewValue = Population#population.value - Value, 
+    NewPopulation = Population#population { value = NewValue},
+    db:dirty_write(NewPopulation).
 
 starve_population(Population, InsufficientFood) ->   
     [Slaves, Soldiers, Commoners, Nobles] = extract_castes(Population),   
@@ -791,8 +806,34 @@ is_valid_task(CityId, BuildingId, ?TASK_BUILDING) ->
             Result = false
     end,
     Result;
+is_valid_task(CityId, BuildingQueueId, ?TASK_CONSTRUCTION) ->
+    case db:dirty_read(building_queue, BuildingQueueId) of
+        [BuildingQueue] ->
+            case BuildingQueue#building_queue.city_id =:= CityId of
+                true ->
+                    Result = true;
+                false ->
+                    Result = false
+            end;
+        _->
+            Result = false
+    end,
+    Result;
 is_valid_task(_CityId, _TaskId, _TaskType) ->
     false.
+
+process_assignment(_City, Caste, Amount, BuildingQueueId, ?TASK_CONSTRUCTION) ->
+    [BuildingQueue] = db:dirty_read(building_queue, BuildingQueueId),    
+    NewBuildingTime = building:calc_building_time(BuildingQueue#building_queue.building_type,
+                                                  BuildingQueue#building_queue.completion_rate,
+                                                  Caste,
+                                                  Amount),
+    StartTime = BuildingQueue#building_queue.start_time,
+    NewBuildingQueue = BuildingQueue#building_queue { end_time = StartTime + NewBuildingTime},
+    db:dirty_write(NewBuildingQueue);
+
+process_assignment(_City, _Caste, _Amount, _TaskId, _TaskType) ->
+    do_nothing.     
 
 store_assigned_task(CityId, Caste, Amount, TaskId, TaskType) ->
     Assignment = #assignment {  id = counter:increment(assignment),
@@ -803,8 +844,13 @@ store_assigned_task(CityId, Caste, Amount, TaskId, TaskType) ->
                                 task_type = TaskType },
     db:dirty_write(Assignment).
    
-cases_unit_queue(_IsPlayer = true, _CanAfford = true, _PopAvailable = true) ->
+cases_unit_queue(_IsPlayer = true, _IsValidUnitType = true, _CanAfford = true, _PopAvailable = true) ->
     true;
-cases_unit_queue(IsPlayer, CanAfford, PopAvailable) ->
-    io:fwrite("cases_unit_queue: ~w, ~w, ~w~n", [IsPlayer, CanAfford, PopAvailable]),
-    false.
+cases_unit_queue(_IsPlayer = false, _IsValidUnitType, _CanAfford, _PopAvailable) ->
+    {false, not_player};
+cases_unit_queue(_IsPlayer, _IsValidUnitType = true, _CanAfford, _PopAvailable) ->
+    {false, invalid_unit_type};
+cases_unit_queue(_IsPlayer, _IsValidUnitType, _CanAfford = true, _PopAvailable) ->
+    {false, insufficient_gold};
+cases_unit_queue(_IsPlayer, _IsValidUnitType, _CanAfford, _PopAvailable = true) ->
+    {false, insufficient_pop}.

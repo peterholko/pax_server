@@ -1,3 +1,5 @@
+-define(MAX_TIME, 2147483647).
+
 -define(ERR_UNKNOWN, 0).
 -define(ERR_BAD_LOGIN, 1).
 -define(ERR_ACCOUNT_DISABLED, 2).

@@ -14,7 +14,8 @@
 %%
 %% Exported Functions
 %%
--export([calc_new_unit_cost/2,
+-export([is_valid_unit_type/1,
+         calc_new_unit_cost/2,
          get_unit_ids/2, 
          get_unit/2,
          units_id/1, 
@@ -24,6 +25,15 @@
 %%
 %% API Functions
 %%
+
+is_valid_unit_type(UnitType) ->
+    case db:dirty_read(unit_type, UnitType) of
+        [UnitType] ->
+            Result = true;
+        _ ->
+            Result = false
+    end,
+    Result.
 
 calc_new_unit_cost(UnitType, UnitSize) ->
     UnitTypeModifier = cost_by_unit_type(UnitType),

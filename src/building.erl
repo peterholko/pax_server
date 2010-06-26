@@ -14,11 +14,21 @@
 %%
 %% Exported Functions
 %%
--export([buildings_tuple/1, buildings_queue_tuple/1]).
+-export([calc_building_time/4,
+         buildings_tuple/1, 
+         buildings_queue_tuple/1]).
 
 %%
 %% API Functions
 %%
+
+calc_building_time(BuildingType, CompletionRate, _Caste, Amount) ->
+    [BuildingType] = db:dirty_read(building_type, BuildingType),
+    TimeCompleted = BuildingType#building_type.building_time * CompletionRate,
+    TimeLeft = BuildingType#building_type.building_time - TimeCompleted,
+    NewTimeLeft = TimeLeft / Amount,
+    NewBuildingTime = TimeCompleted + NewTimeLeft,
+    NewBuildingTime.
 
 buildings_tuple([]) ->
     [];

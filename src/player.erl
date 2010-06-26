@@ -232,8 +232,8 @@ handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = Unit
         {city, queued_unit} ->
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = Id},
             gen_server:cast(self(), RequestInfo);
-        {city, error} ->
-            ok
+        {city, Error} ->            
+            log4erl:info("Queue Unit - Error: ~w~n", [Error])        
     end,                        
     {noreply, Data};
 
@@ -309,7 +309,7 @@ handle_cast(_ = #add_claim{ city_id = CityId,
                             x = X,
                             y = Y}, Data) ->
 
-    [Kingdom] = db:read(kingdom, Data#module_data.player_id, #kingdom.player_id),
+    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
    
     case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
@@ -326,7 +326,7 @@ handle_cast(_ = #assign_task{ city_id = CityId,
                               task_id = TaskId,
                               task_type = TaskType}, Data) ->
 
-    [Kingdom] = db:read(kingdom, Data#module_data.player_id, #kingdom.player_id),
+    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
    
     case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
