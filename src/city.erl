@@ -23,7 +23,6 @@
 
 -record(module_data, {city,                       
                       units_queue,
-                      buildings_queue,
                       improvements = [],
                       inventory,
                       player_id, 
@@ -50,14 +49,12 @@ init([City, PlayerId])
     
     %UnitQueue setup
     UnitsQueue = db:index_read(unit_queue, City#city.id, #unit_queue.city_id),
-    BuildingsQueue = db:index_read(building_queue, City#city.id, #building_queue.city_id),
 
     %Inventory setup    
     Inventory = dict:new(),
 
     {ok, #module_data{city = City, 
                       units_queue = UnitsQueue,
-                      buildings_queue = BuildingsQueue,
                       inventory = Inventory, 
                       player_id = PlayerId, 
                       self = self() }}.
@@ -225,19 +222,17 @@ handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste}, _From, Data) ->
 
 handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
     City = Data#module_data.city,
-    BuildingsQueue = Data#module_data.buildings_queue,
-
+    BuildingsQueue = db:dirty_index_read(building_queue, City#city.id, #building_queue.city_id),
+        
     case City#city.player_id =:= PlayerId of
         true ->
-            NewBuildingsQueue = add_building_to_queue(City#city.id, BuildingsQueue, BuildingType),
-            NewData = Data#module_data { buildings_queue = NewBuildingsQueue},
+            add_building_to_queue(City#city.id, BuildingsQueue, BuildingType),
             Result = {city, queued_building};
         false ->
-            NewData = Data,
             Result = {city, error}
     end,
 
-    {reply, Result, NewData}; 
+    {reply, Result, Data}; 
 
 handle_call({'ASSIGN_TASK', Caste, Amount, TaskId, TaskType}, _From, Data) ->
     City = Data#module_data.city,
@@ -253,6 +248,7 @@ handle_call({'ASSIGN_TASK', Caste, Amount, TaskId, TaskType}, _From, Data) ->
                     store_assigned_task(City#city.id, Caste, Amount, TaskId, TaskType),
                     Result = {city, assigned_task};
                 false ->
+                    log4erl:info("~w: Invalid TaskId", [?MODULE]),
                     Result = {city, invalid_task}
             end;
         false ->
@@ -272,23 +268,25 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             UnitIds = City#city.units,
 
             %Get BuildingQueue and buildings,
-            BuildingsQueue = Data#module_data.buildings_queue,
+            BuildingsQueue = db:dirty_index_read(building_queue, City#city.id, #building_queue.city_id),
             BuildingIds = City#city.buildings,
             
+            io:fwrite("BuildingsQueue: ~w~n", [BuildingsQueue]),
+
             %Check if any units or buildings are completed
             {NewUnitsQueue, UnitsToAdd} = check_unit_queue(UnitsQueue),
             {NewBuildingsQueue, BuildingsToAdd} = check_building_queue(BuildingsQueue),
-            
+          
+            io:fwrite("NewBuildingsQueue: ~w~n", [NewBuildingsQueue]),
+  
             %Add any units from the queue
             NewUnitIds = add_units_from_queue(UnitIds, UnitsToAdd),
             NewBuildingIds = add_buildings_from_queue(BuildingIds, BuildingsToAdd),
             
             %Assign any changes to module data
             NewCity = City#city {units = NewUnitIds, buildings = NewBuildingIds}, 
-            NewData = Data#module_data {city = NewCity, 
-                                        units_queue = NewUnitsQueue, 
-                                        buildings_queue = NewBuildingsQueue},            
-                        
+            NewData = Data#module_data {city = NewCity, units_queue = NewUnitsQueue},                                    
+
             %Convert units record to tuple packet form
             NewUnits = db:dirty_index_read(unit, City#city.id, #unit.entity_id),
             UnitsTuple = unit:units_tuple(NewUnits),
@@ -298,6 +296,8 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             NewBuildings = db:dirty_index_read(building, City#city.id, #building.city_id),  
             BuildingsTuple = building:buildings_tuple(NewBuildings),
             BuildingsQueueTuple = building:buildings_queue_tuple(NewBuildingsQueue),        
+
+            io:fwrite("NewBuildingsQueue: ~w~n", [NewBuildingsQueue]),
             
             CityInfo = {detailed, BuildingsTuple, BuildingsQueueTuple, UnitsTuple, UnitsQueueTuple};
         true ->
@@ -461,9 +461,8 @@ add_building_to_queue(CityId, BuildingsQueue, BuildingType) ->
                                      city_id = CityId,
                                      building_type = BuildingType,
                                      start_time = StartTime,
-                                     end_time = ?MAX_TIME,
-                                     completion_rate = 0},
-
+                                     end_time = ?MAX_TIME},
+    db:dirty_write(BuildingQueue),
     [BuildingQueue | BuildingsQueue].
 
 get_queue_building_time([], CurrentTime) ->
@@ -558,8 +557,9 @@ add_buildings_from_queue(Buildings, BuildingsToAdd) ->
     Building = #building {id = counter:increment(building),
                           city_id = BuildingQueue#building_queue.city_id,
                           type = BuildingQueue#building_queue.building_type},
-
+    
     db:dirty_write(Building),
+    db:dirty_delete(building_queue, BuildingQueue#building_queue.id),
     NewBuildings = [Building#building.id | Buildings],
 
     add_buildings_from_queue(NewBuildings, Rest).
@@ -823,14 +823,26 @@ is_valid_task(_CityId, _TaskId, _TaskType) ->
     false.
 
 process_assignment(_City, Caste, Amount, BuildingQueueId, ?TASK_CONSTRUCTION) ->
-    [BuildingQueue] = db:dirty_read(building_queue, BuildingQueueId),    
-    NewBuildingTime = building:calc_building_time(BuildingQueue#building_queue.building_type,
-                                                  BuildingQueue#building_queue.completion_rate,
-                                                  Caste,
-                                                  Amount),
-    StartTime = BuildingQueue#building_queue.start_time,
-    NewBuildingQueue = BuildingQueue#building_queue { end_time = StartTime + NewBuildingTime},
-    db:dirty_write(NewBuildingQueue);
+    log4erl:info("~w: Process Assignment", [?MODULE]),
+
+    case db:dirty_read(building_queue, BuildingQueueId) of
+        [BuildingQueue] ->
+            CurrentTime = util:get_time_seconds(),       
+            StartTime = BuildingQueue#building_queue.start_time,
+            EndTime = BuildingQueue#building_queue.end_time,
+            CompletionRate = CurrentTime / (EndTime - StartTime),
+
+            NewBuildingTime = building:calc_building_time(BuildingQueue#building_queue.building_type,
+                                                          CompletionRate,
+                                                          Caste,
+                                                          Amount),
+            StartTime = BuildingQueue#building_queue.start_time,
+            NewBuildingQueue = BuildingQueue#building_queue { end_time = StartTime + NewBuildingTime},
+            db:dirty_write(NewBuildingQueue);
+        _ ->   
+            log4erl:error("~w: Invalid BuildingQueueId ~w", [?MODULE, BuildingQueueId]),
+            erlang:error("Invalid BuildingQueueId")
+    end;        
 
 process_assignment(_City, _Caste, _Amount, _TaskId, _TaskType) ->
     do_nothing.     

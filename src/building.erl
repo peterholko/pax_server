@@ -22,12 +22,18 @@
 %% API Functions
 %%
 
-calc_building_time(BuildingType, CompletionRate, _Caste, Amount) ->
-    [BuildingType] = db:dirty_read(building_type, BuildingType),
-    TimeCompleted = BuildingType#building_type.building_time * CompletionRate,
-    TimeLeft = BuildingType#building_type.building_time - TimeCompleted,
-    NewTimeLeft = TimeLeft / Amount,
-    NewBuildingTime = TimeCompleted + NewTimeLeft,
+calc_building_time(BuildingTypeId, CompletionRate, _Caste, Amount) ->
+    case db:dirty_read(building_type, BuildingTypeId) of
+        [BuildingType] ->
+            TimeCompleted = BuildingType#building_type.building_time * CompletionRate,
+            TimeLeft = BuildingType#building_type.building_time - TimeCompleted,
+            NewTimeLeft = TimeLeft / Amount,
+            NewBuildingTime = round(TimeCompleted + NewTimeLeft);
+        _ ->            
+            log4erl:error("~w: Invalid BuildingTypeId ~w", [?MODULE,BuildingTypeId]),
+            erlang:error("Invalid BuildingTypeId"),
+            NewBuildingTime = ?MAX_INT
+    end,
     NewBuildingTime.
 
 buildings_tuple([]) ->

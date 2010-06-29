@@ -151,8 +151,8 @@ do(Q) ->
 game_tables() ->
     [{unit_type, 1, "Footsolider", 	1, 4, 2, 5, 1, 5, 10},
      {unit_type, 2, "Archer", 		2, 5, 1, 10, 2, 5, 10},
-     {building_type, 1, "Barrack"},
-     {building_type, 2, "Training Grounds"}].
+     {building_type, 1, "Barracks", 20},
+     {building_type, 2, "Weaponsmith", 4}].
 
 reset_game_tables() ->
     F = fun() ->

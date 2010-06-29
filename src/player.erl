@@ -194,6 +194,7 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
         ?OBJECT_CITY ->
             case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
                 {detailed, BuildingInfo, BuildingsQueueInfo, UnitsInfo, UnitsQueueInfo} ->
+                    io:fwrite("BuildingsQueueInfo: ~w~n", [BuildingsQueueInfo]),
                     R = #info_city { id = Id, 
                                      buildings = BuildingInfo,
                                      buildings_queue = BuildingsQueueInfo, 
