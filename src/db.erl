@@ -180,7 +180,7 @@ test_tables() ->
      {player_type, 2, 0},
      {player_type, 3, 0},
      {player_type, 4, 0},
-     {player_type, -1, 0},
+     {player_type, -1, 1},
      {city, 11, 1, 3, 4, 0, {0, nil}, {2,{5,nil,{6,nil,nil}}}, [], 0},
      %{city, 12, 2, 1, 5, 0, {0, nil}, {0, nil}, [], 0},
      %{city, 13, 3, 7, 4, 0, {0, nil}, {0, nil}, [], 0},

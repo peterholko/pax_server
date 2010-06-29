@@ -18,6 +18,7 @@
          calc_new_unit_cost/2,
          get_unit_ids/2, 
          get_unit/2,
+         lowest_unit_speed/1,
          units_id/1, 
          units_tuple/1, 
          units_queue_tuple/1]).
@@ -60,6 +61,16 @@ get_unit(UnitId, Units) ->
             Unit = false
     end,
     Unit.
+
+lowest_unit_speed(Units) ->
+    F = fun(Unit, UnitList) ->
+            [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
+            UnitSpeed = UnitType#unit_type.speed,
+            [UnitSpeed | UnitList]
+        end,
+
+    UnitSpeeds = lists:foldl(F, [], Units),
+    lists:min(UnitSpeeds).
 
 units_id([]) ->
     [];

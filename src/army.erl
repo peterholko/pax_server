@@ -60,7 +60,7 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
     io:fwrite("army - set_state_move ~n"),
     
     Army = Data#module_data.army,
-    ArmySpeed = get_army_speed(Army#army.id),
+    ArmySpeed = get_army_speed(Army#army.units),
     
     if
         (Army#army.state =/= ?STATE_MOVE) and (Army#army.state =/= ?STATE_COMBAT) ->
@@ -80,7 +80,7 @@ handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     io:fwrite("army - set_state_attack ~n"),
     
     Army = Data#module_data.army,
-    ArmySpeed = get_army_speed(Army#army.id),
+    ArmySpeed = get_army_speed(Army#army.units),
     
     if
         (Army#army.state =/= ?STATE_ATTACK) and (Army#army.state =/= ?STATE_COMBAT)->
@@ -358,7 +358,7 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
         (NewArmyX =:= Army#army.dest_x) and (NewArmyY =:= Army#army.dest_y) ->
             NewArmy = state_none(Army, NewArmyX, NewArmyY);
         true ->
-            ArmySpeed = get_army_speed(Army#army.id),
+            ArmySpeed = get_army_speed(Army#army.units),
             game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)),   
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
@@ -393,7 +393,7 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
             
             NewArmy = state_combat(Army, BattleId, NewArmyX, NewArmyY);
         true ->
-            ArmySpeed = get_army_speed(Army#army.id),
+            ArmySpeed = get_army_speed(Army#army.units),
             game:add_event(ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)),            
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
@@ -424,10 +424,10 @@ move(ArmyX, ArmyY, DestX, DestY) ->
     
     {NewArmyX, NewArmyY}.
 
-get_army_speed(_ArmyId) ->
-    %UnitsSpeed = unit:units_speed(ArmyId),
-    5.
-%lists:max(UnitsSpeed).
+get_army_speed(SetUnits) ->
+    ListUnits = gb_sets:to_list(SetUnits),
+    ArmySpeed = unit:lowest_unit_speed(ListUnits),
+    ArmySpeed.
 
 speed_to_ticks(Speed) ->
     Speed * (1000 div ?GAME_LOOP_TICK).
@@ -499,7 +499,9 @@ update_perception(PlayerId) ->
             %Toggle within game state that player's perception has been updated.
             gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', PlayerId});
         ?PLAYER_COMPUTER ->
-            ok
+            ok;
+        _ ->
+            ok            
     end.
 
 set_discovered_tiles(PlayerId, ArmyId, X, Y) ->
@@ -507,5 +509,7 @@ set_discovered_tiles(PlayerId, ArmyId, X, Y) ->
         ?PLAYER_HUMAN ->
             gen_server:cast(global:whereis_name({player, PlayerId}), {'SET_DISCOVERED_TILES', ArmyId, X, Y});
         ?PLAYER_COMPUTER ->
+            ok;
+        _ ->
             ok
     end.

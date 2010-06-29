@@ -20,7 +20,7 @@
 %%
 
 loop(LastTime, GamePID) ->
-    
+    %StartLoopTime = util:get_time(), 
     CurrentTick = gen_server:call(GamePID, 'GET_TICK'), 	
     EventList = gen_server:call(GamePID, 'GET_EVENTS'),
     UpdatePerceptions = gen_server:call(GamePID, 'GET_UPDATE_PERCEPTION'),
@@ -35,21 +35,23 @@ loop(LastTime, GamePID) ->
     send_perceptions(UpdatePerceptions),
     clear_perceptions(GamePID),
     
-    CurrentTime = util:get_time(),
-    NextTime = LastTime + ?GAME_LOOP_TICK,
-    CalcSleepTime = NextTime - CurrentTime,
-    
     gen_server:cast(GamePID, 'NEXT_TICK'),
     
+    CurrentTime = util:get_time(),
+    CalcSleepTime = LastTime - CurrentTime + ?GAME_LOOP_TICK,
+
     if
         CalcSleepTime =< 0 ->
-            io:fwrite("loop - SleepTime: ~w~n", [CalcSleepTime]),
+            NextTime = LastTime + ?GAME_LOOP_TICK * 4,
             SleepTime = 1;
         true ->
+            NextTime = LastTime + ?GAME_LOOP_TICK,
             SleepTime = CalcSleepTime            
     end,
     
     timer:sleep(SleepTime),
+    %EndTime = util:get_time(),
+    %io:fwrite("game_loop - StartLoopTime: ~w CurrentTime: ~w EndTime: ~w SleepTime: ~w LastTime: ~w~n", [StartLoopTime, CurrentTime, EndTime, SleepTime, LastTime]),
     loop(NextTime, GamePID).
 %%
 %% Local Functions
