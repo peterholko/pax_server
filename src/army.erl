@@ -335,9 +335,9 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 
 do_move(Army, ArmyPid, VisibleList, ObservedByList) ->    
-    
     %% Move army coordinates
-    {NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, Army#army.dest_x, Army#army.dest_y),
+    [{DestX, DestY} | DestRest] = Army#army.dest, 
+    {NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, DestX, DestY),
     
     %% Set any newly discovered tiles
     set_discovered_tiles(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
@@ -347,17 +347,21 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     {ok, SubscriptionPid} = subscription:start(Army#army.id),
     subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
     
-    %Toggle player's perception has been updated.
+    %% Toggle player's perception has been updated.
     update_perception(Army#army.player_id),  
  
-    %Toggle observedByList perception has been updated due to army move.
+    %% Toggle observedByList perception has been updated due to army move.
     entity_update_perception(ObservedByList),    	
-    
-    %% Update army's state
-    if	
-        (NewArmyX =:= Army#army.dest_x) and (NewArmyY =:= Army#army.dest_y) ->
+        
+    %% Check if destination has been reached and if destination list is empty
+    case check_destination(NewArmyX =:= DestX, NewArmyY =:= DestY, length(DestRest)) of
+        final ->
             NewArmy = state_none(Army, NewArmyX, NewArmyY);
-        true ->
+        waypoint ->            
+            ArmySpeed = get_army_speed(Army#army.id),
+            game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)),   
+            NewArmy = event_move_next_dest(Army, NewArmyX, NewArmyY, DestRest);
+        moving ->
             ArmySpeed = get_army_speed(Army#army.id),
             game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)),   
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
@@ -432,13 +436,16 @@ speed_to_ticks(Speed) ->
     Speed * (1000 div ?GAME_LOOP_TICK).
 
 event_move(Army, NewX, NewY) ->
-    io:fwrite("army - db_event_move~n"),
     Army#army{x = NewX,
               y = NewY}.  
 
+event_move_next_dest(Army, NewX, NewY, NextDest) ->
+    Army#army{x = NewX,
+              y = NewY,
+              dest = NextDest}.
+
 state_move(Army, DestX, DestY) ->
-    Army#army{dest_x = DestX, 
-              dest_y = DestY,
+    Army#army{dest = [{DestX, DestY}],
               state = ?STATE_MOVE}.
 
 
@@ -512,3 +519,10 @@ set_discovered_tiles(PlayerId, ArmyId, X, Y) ->
         _ ->
             ok
     end.
+
+check_destination(_X = true, _Y = true, _DestList = 0) ->
+    final;
+reached_destination(_X = true, _Y = true, _DestList) ->
+    waypoint;
+reached_destination(_X, _Y, _DestList) ->
+    moving;
