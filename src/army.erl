@@ -113,6 +113,12 @@ handle_cast({'SET_STATE_NONE'}, Data) ->
     
     {noreply, NewData};	
 
+handle_cast({'ADD_WAYPOINT', X, Y}, Data) ->
+    NewArmy = add_waypoint(Data#module_data.army, X, Y),
+    NewData = Data#module_data {army = NewArmy, save_army = true},
+    
+    {noreply, NewData};
+
 handle_cast({'PROCESS_EVENT', _, EventType}, Data) ->
     
     case EventType of
@@ -206,26 +212,32 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
     io:fwrite("army - transfer unit.~n"),
     Army = Data#module_data.army,    
     Units = Army#army.units,
-    
+
     case gb_sets:is_member(UnitId, Units) of
         true ->
             [Unit] = db:dirty_read(unit, UnitId),                      
             TargetPid = object:get_pid(TargetAtom, TargetId),
 
-            case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
-                {receive_unit, success} ->
-                    NewUnits = gb_sets:delete(UnitId, Units),
-                    NewArmy = Army#army {units = NewUnits},
-                    NewData = Data#module_data{army = NewArmy},
-                    TransferUnitInfo = {transfer_unit, success};
-                Error ->
-                    TransferUnitInfo = Error,
+            case gen_server:call(TargetPid, {'ON_SAME_TILE', Army#army.x, Army#army.y}) of
+                true ->
+                    case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
+                        {receive_unit, success} ->
+                            NewUnits = gb_sets:delete(UnitId, Units),
+                            NewArmy = Army#army {units = NewUnits},
+                            NewData = Data#module_data{army = NewArmy},
+                            TransferUnitInfo = {transfer_unit, success};
+                        Error ->
+                            TransferUnitInfo = Error,
+                            NewData = Data
+                    end;
+                false ->
+                    TransferUnitInfo = {transfer_unit, not_same_tile},
                     NewData = Data
             end;
         false ->
-            TransferUnitInfo = {transfer_unit, error},
+            TransferUnitInfo = {transfer_unit, unit_is_not_member},
             NewData = Data
-    end,         		
+    end,
     
     {reply, TransferUnitInfo , NewData};
 
@@ -311,6 +323,10 @@ handle_call('GET_SUBSCRIPTION_DATA', _From, Data) ->
     Army = Data#module_data.army,	
     {reply, {Army#army.x, Army#army.y, Data#module_data.visible, Data#module_data.observed_by}, Data};
 
+handle_call({'ON_SAME_TILE', X, Y}, _From, Data) ->
+    Army = Data#module_data.army,   
+    {reply, (Army#army.x =:= X) and (Army#army.y =:= Y), Data};
+
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
                               {line, ?LINE},
@@ -339,6 +355,8 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     [{DestX, DestY} | DestRest] = Army#army.dest, 
     {NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, DestX, DestY),
     
+    io:fwrite("DestX: ~w, DestY: ~w, NewArmyX: ~w, NewArmyY: ~w~n",[DestX, DestY, NewArmyX, NewArmyY]),
+
     %% Set any newly discovered tiles
     set_discovered_tiles(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
  
@@ -356,12 +374,15 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     %% Check if destination has been reached and if destination list is empty
     case check_destination(NewArmyX =:= DestX, NewArmyY =:= DestY, length(DestRest)) of
         final ->
+            io:fwrite("Final destination reached.~n"),
             NewArmy = state_none(Army, NewArmyX, NewArmyY);
         waypoint ->            
+            io:fwrite("Next Waypoint.~n"),
             ArmySpeed = get_army_speed(Army#army.id),
             game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)),   
             NewArmy = event_move_next_dest(Army, NewArmyX, NewArmyY, DestRest);
         moving ->
+            io:fwrite("Moving.~n"),
             ArmySpeed = get_army_speed(Army#army.id),
             game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)),   
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
@@ -433,7 +454,7 @@ get_army_speed(ArmyId) ->
     ArmySpeed.
 
 speed_to_ticks(Speed) ->
-    Speed * (1000 div ?GAME_LOOP_TICK).
+    (25 * (1000 div ?GAME_LOOP_TICK)) div Speed.
 
 event_move(Army, NewX, NewY) ->
     Army#army{x = NewX,
@@ -522,7 +543,11 @@ set_discovered_tiles(PlayerId, ArmyId, X, Y) ->
 
 check_destination(_X = true, _Y = true, _DestList = 0) ->
     final;
-reached_destination(_X = true, _Y = true, _DestList) ->
+check_destination(_X = true, _Y = true, _DestList) ->
     waypoint;
-reached_destination(_X, _Y, _DestList) ->
-    moving;
+check_destination(_X, _Y, _DestList) ->
+    moving.
+
+add_waypoint(Army, X, Y) ->
+    NewDest = [{X, Y} | Army#army.dest],
+    Army#army {dest = NewDest}.

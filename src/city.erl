@@ -318,20 +318,26 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
             [Unit] = db:dirty_read(unit, UnitId),
             TargetPid = object:get_pid(TargetAtom, TargetId),
 
-            case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
-                {receive_unit, success} ->
-                    NewUnits = gb_sets:delete(UnitId, Units),
-                    NewCity = City#city {units = NewUnits},
-                    NewData = Data#module_data {city = NewCity},
-                    TransferUnitInfo = {transfer_unit, success};
-                Error ->
-                    TransferUnitInfo = Error,
+            case gen_server:call(TargetPid, {'ON_SAME_TILE', City#city.x, City#city.y}) of
+                true ->
+                    case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
+                        {receive_unit, success} ->
+                            NewUnits = gb_sets:delete(UnitId, Units),
+                            NewCity = City#city {units = NewUnits},
+                            NewData = Data#module_data {city = NewCity},
+                            TransferUnitInfo = {transfer_unit, success};
+                        Error ->
+                            TransferUnitInfo = Error,
+                            NewData = Data
+                    end;
+                false ->            
+                    TransferUnitInfo = {transfer_unit, not_same_tile},
                     NewData = Data
             end;
         false ->
-            TransferUnitInfo = {transfer_unit, error},
+            TransferUnitInfo = {transfer_unit, unit_is_not_member},
             NewData = Data
-    end,         		
+    end,
     
     {reply, TransferUnitInfo , NewData};
 
@@ -399,6 +405,10 @@ handle_call('GET_OBSERVED_BY', _From, Data) ->
 handle_call('GET_SUBSCRIPTION_DATA', _From, Data) ->
     City = Data#module_data.city,
     {reply, {City#city.x, City#city.y, Data#module_data.visible, Data#module_data.observed_by}, Data};
+
+handle_call({'ON_SAME_TILE', X, Y}, _From, Data) -> 
+    City = Data#module_data.city,
+    {reply, (City#city.x =:= X) and (City#city.y =:= Y), Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 

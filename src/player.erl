@@ -86,7 +86,7 @@ handle_cast('UPDATE_PERCEPTION', Data) ->
     log4erl:info("Player update perception"),
     {noreply, Data#module_data { update_perception = true} };
 
-handle_cast({'ADD_PERCEPTION', NewPerceptionData}, Data) ->	
+handle_cast({'ADD_PERCEPTION', _NewPerceptionData}, Data) ->	
     %Perception = Data#module_data.perception,
     %NewPerception = lists:append(NewPerceptionData, Perception),
     %UniquePerception = util:unique_list(NewPerception),
@@ -177,6 +177,18 @@ handle_cast(_ = #attack{ id = ArmyId, target_id = TargetId}, Data) ->
     
     {noreply, Data};
 
+handle_cast(_ = #add_waypoint{id = ArmyId, x = X, y = Y}, Data) ->
+    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id), 
+    
+    case lists:member(ArmyId, Kingdom#kingdom.armies) of
+        true -> 
+            gen_server:cast(global:whereis_name({army, ArmyId}), {'ADD_WAYPOINT', X, Y});           
+        false ->
+            none
+    end,
+
+    {noreply, Data};
+
 handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
     
     case Type of 
@@ -253,7 +265,6 @@ handle_cast(_ = #transfer_unit{unit_id = UnitId, source_id = SourceId, source_ty
     SourceAtom = object:get_atom(SourceType),
     TargetAtom = object:get_atom(TargetType),
     SourcePid = object:get_pid(SourceAtom, SourceId),
-    TargetPid = object:get_pid(TargetAtom, TargetId),
     
     case gen_server:call(SourcePid, {'TRANSFER_UNIT', SourceId, UnitId, TargetId, TargetAtom}) of
         {transfer_unit, success} ->
@@ -261,15 +272,11 @@ handle_cast(_ = #transfer_unit{unit_id = UnitId, source_id = SourceId, source_ty
             gen_server:cast(self(), RequestSourceInfo),            
             
             RequestTargetInfo = #request_info{ type = TargetType, id = TargetId},
-            gen_server:cast(self(), RequestTargetInfo);   
-        
-        {transfer_unit, error} ->
-            %TODO Add error message
-            io:fwrite("player - transfer unit - failed~n");
-        
-        {receive_unit, error} ->
-            io:fwrite("player - receive unit - failed~n")
-    
+            gen_server:cast(self(), RequestTargetInfo);           
+        {transfer_unit, TError} ->
+            log4erl:info("~w: Transfer Unit Error - ~w~n", [?MODULE, TError]);
+        {receive_unit, RError} ->
+            log4erl:info("~w: Receive Unit Error - ~w~n", [?MODULE, RError])
     end,   
     
     {noreply, Data};

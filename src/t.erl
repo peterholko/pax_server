@@ -15,7 +15,7 @@
 %% External exports
 -export([start/1, login/1]).
 -export([build_farm/0, add_claim/0, assign_task/0, transfer/0, transfer2/0, 
-         battle/0, target/0, info_army/1, info_city/1, move/3, 
+         battle/0, target/0, info_army/1, info_city/1, move/3, add_waypoint/3,
          queue_unit/0, queue_building/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
@@ -67,6 +67,9 @@ info_city(CityId) ->
 
 move(ArmyId, X, Y) ->
     gen_server:cast(global:whereis_name(test_sender), {'MOVE', ArmyId, X, Y}).
+
+add_waypoint(ArmyId, X, Y) ->
+    gen_server:cast(global:whereis_name(test_sender), {'ADD_WAYPOINT', ArmyId, X, Y}).
 
 
 %% ====================================================================
@@ -140,6 +143,11 @@ handle_cast({'INFO_CITY', CityId}, Data) ->
 handle_cast({'MOVE', ArmyId, X, Y}, Data) ->
     Move = #move{id = ArmyId, x = X, y = Y},
     packet:send(Data#data.socket, Move),
+    {noreply, Data};    
+
+handle_cast({'ADD_WAYPOINT', ArmyId, X, Y}, Data) ->
+    AddWaypoint = #add_waypoint{id = ArmyId, x = X, y = Y},
+    packet:send(Data#data.socket, AddWaypoint),
     {noreply, Data};    
 
 handle_cast({'ATTACK', SourceId, TargetId}, Data) ->

@@ -170,17 +170,26 @@ login() ->
     record(login, {name(),
                    pass()}).
 
-move() ->
-    record(move, {id(),
-                  x(),
-                  y()}).
-
 bad() ->
     record(bad, {byte(),
                  byte()}).
 
 player_id() ->
     record(player_id, {player()}).
+
+move() ->
+    record(move, {id(),
+                  x(),
+                  y()}).
+
+attack() ->
+    record(attack, {id(),
+                    id()}).
+
+add_waypoint() ->
+    record(add_waypoint, {id(),
+                          x(),
+                          y()}).
 
 perception() ->
     record(perception, {entities(),
@@ -189,9 +198,6 @@ perception() ->
 map() ->
     record(map, {tiles()}).
 
-attack() ->
-    record(attack, {id(),
-                    id()}).
 
 request_info() ->
     record(request_info, {short(),
@@ -296,6 +302,9 @@ read(<<?CMD_MOVE, Bin/binary>>) ->
 read(<<?CMD_ATTACK, Bin/binary>>) ->
     unpickle(attack(), Bin);
 
+read(<<?CMD_ADD_WAYPOINT, Bin/binary>>) ->
+    unpickle(add_waypoint(), Bin);
+
 read(<<?CMD_REQUEST_INFO, Bin/binary>>) ->
     unpickle(request_info(), Bin);
 
@@ -386,6 +395,9 @@ write(R) when is_record(R, battle_damage) ->
 
 write(R) when is_record(R, move) ->
     [?CMD_MOVE|pickle(move(), R)];
+
+write(R) when is_record(R, add_waypoint) ->
+    [?CMD_MOVE|pickle(add_waypoint(), R)];
 
 write(R) when is_record(R, build_improvement) ->
     [?CMD_BUILD_IMPROVEMENT|pickle(build_improvement(), R)];
