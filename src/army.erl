@@ -60,7 +60,7 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
     io:fwrite("army - set_state_move ~n"),
     
     Army = Data#module_data.army,
-    ArmySpeed = get_army_speed(Army#army.units),
+    ArmySpeed = get_army_speed(Army#army.id),
     
     if
         (Army#army.state =/= ?STATE_MOVE) and (Army#army.state =/= ?STATE_COMBAT) ->
@@ -80,7 +80,7 @@ handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     io:fwrite("army - set_state_attack ~n"),
     
     Army = Data#module_data.army,
-    ArmySpeed = get_army_speed(Army#army.units),
+    ArmySpeed = get_army_speed(Army#army.id),
     
     if
         (Army#army.state =/= ?STATE_ATTACK) and (Army#army.state =/= ?STATE_COMBAT)->
@@ -358,7 +358,7 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
         (NewArmyX =:= Army#army.dest_x) and (NewArmyY =:= Army#army.dest_y) ->
             NewArmy = state_none(Army, NewArmyX, NewArmyY);
         true ->
-            ArmySpeed = get_army_speed(Army#army.units),
+            ArmySpeed = get_army_speed(Army#army.id),
             game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)),   
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
@@ -393,7 +393,7 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
             
             NewArmy = state_combat(Army, BattleId, NewArmyX, NewArmyY);
         true ->
-            ArmySpeed = get_army_speed(Army#army.units),
+            ArmySpeed = get_army_speed(Army#army.id),
             game:add_event(ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)),            
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
@@ -424,9 +424,8 @@ move(ArmyX, ArmyY, DestX, DestY) ->
     
     {NewArmyX, NewArmyY}.
 
-get_army_speed(SetUnits) ->
-    ListUnits = gb_sets:to_list(SetUnits),
-    ArmySpeed = unit:lowest_unit_speed(ListUnits),
+get_army_speed(ArmyId) ->
+    ArmySpeed = unit:lowest_unit_speed(ArmyId),
     ArmySpeed.
 
 speed_to_ticks(Speed) ->

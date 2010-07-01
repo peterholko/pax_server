@@ -62,7 +62,8 @@ get_unit(UnitId, Units) ->
     end,
     Unit.
 
-lowest_unit_speed(Units) ->
+lowest_unit_speed(ArmyId) ->
+    Units = db:dirty_index_read(unit, ArmyId, #unit.entity_id), 
     F = fun(Unit, UnitList) ->
             [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
             UnitSpeed = UnitType#unit_type.speed,
