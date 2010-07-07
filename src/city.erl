@@ -645,26 +645,16 @@ harvest_assignment([Assignment | Rest], CityId) ->
     io:fwrite("Harvest Assignment~n"),
     ImprovementId = Assignment#assignment.task_id,
     [Improvement] = db:dirty_read(improvement, ImprovementId),
-    [_NumResources | Resources] = map_port:get_resources(Improvement#improvement.tile_index),
+    Yield  = map:get_resource_yield(Improvement#improvement.tile_index,
+                                    1),
 
-    Yield = get_yield(Improvement#improvement.type, Resources, 0, false),
     io:fwrite("Yield: ~w~n", [Yield]),
-    ResourceGained = Yield / 255 * Assignment#assignment.amount,
+    ResourceGained = Yield / 100 * Assignment#assignment.amount,
 
     io:fwrite("ResourceGained: ~w~n",[ResourceGained]),
     add_item(CityId, Improvement#improvement.type, ResourceGained),
 
     harvest_assignment(Rest, CityId).
-
-get_yield(_, [], _, false) ->
-    0;
-get_yield(_, [], Yield, true) ->
-    Yield;
-get_yield(SearchType, Resources, _Yield, _Result) ->
-    [Type | Rest] = Resources,
-    [NewYield | NewResources] = Rest,
-    NewResult = Type =:= SearchType,
-    get_yield(SearchType, NewResources, NewYield, NewResult).
 
 growth(CityId) ->
     Population = db:dirty_index_read(population, CityId, #population.city_id),

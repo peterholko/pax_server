@@ -97,10 +97,8 @@ handle_cast({'ADD_PERCEPTION', _NewPerceptionData}, Data) ->
 handle_cast({'SEND_PERCEPTION'}, Data) ->    
             
     ObjectPerception = build_perception(Data#module_data.player_id),			            
-    io:fwrite("discovered tiles: ~w~n", [Data#module_data.discovered_tiles]),			
     R = #perception {entities = ObjectPerception,
                      tiles = Data#module_data.discovered_tiles},
-    io:fwrite("perception record: ~w~n",[R]),
     % Reset update perception state
     NewData = Data#module_data {update_perception = false },
     forward_to_client(R, NewData),            
@@ -136,7 +134,6 @@ handle_cast({'SEND_BATTLE_DAMAGE', BattleId, SourceId, TargetId, Damage}, Data) 
 
 handle_cast({'SET_DISCOVERED_TILES', _, EntityX, EntityY}, Data) ->
     TileIndexList = map:get_surrounding_tiles(EntityX, EntityY),
-    io:fwrite("player - DISCOVERED_TILES  TileIndexList: ~w~n", [TileIndexList]),
     TileList = map:get_explored_map(TileIndexList),
     ExploredMap = Data#module_data.explored_map,
     NewExploredMap = ExploredMap ++ TileList,

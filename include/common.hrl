@@ -69,3 +69,14 @@
 -define(TASK_CONSTRUCTION, 3).
 -define(TASK_RESEARCH, 4).
 
+-define(TILE_MOUNTAIN, 0).
+-define(TILE_FOREST, 1).
+-define(TILE_PLAINS, 2).
+-define(TILE_SWAMP, 3).
+
+-define(TILE_MOUNTAIN_SPEED, 10).
+-define(TILE_FOREST_SPEED, 4).
+-define(TILE_PLAINS_SPEED, 1).
+-define(TILE_SWAMP_SPEED, 8).
+
+-define(BASE_SPEED, 25).

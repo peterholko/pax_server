@@ -18,7 +18,7 @@
          calc_new_unit_cost/2,
          get_unit_ids/2, 
          get_unit/2,
-         lowest_unit_speed/1,
+         highest_unit_movement/1,
          units_id/1, 
          units_tuple/1, 
          units_queue_tuple/1]).
@@ -62,16 +62,16 @@ get_unit(UnitId, Units) ->
     end,
     Unit.
 
-lowest_unit_speed(ArmyId) ->
+highest_unit_movement(ArmyId) ->
     Units = db:dirty_index_read(unit, ArmyId, #unit.entity_id), 
     F = fun(Unit, UnitList) ->
             [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
-            UnitSpeed = UnitType#unit_type.speed,
+            UnitSpeed = UnitType#unit_type.movement,
             [UnitSpeed | UnitList]
         end,
 
     UnitSpeeds = lists:foldl(F, [], Units),
-    lists:min(UnitSpeeds).
+    lists:max(UnitSpeeds).
 
 units_id([]) ->
     [];

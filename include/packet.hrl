@@ -30,14 +30,19 @@
 -record(perception, {entities,
                      tiles}).
 
--define (CMD_MOVE, 42).
+-define(CMD_MOVE, 42).
 -record(move, {id,
                x,
                y}).
 
--define (CMD_ATTACK, 43).
+-define(CMD_ATTACK, 43).
 -record(attack, {id,
                  target_id}).
+
+-define(CMD_ADD_WAYPOINT, 44).
+-record(add_waypoint, {id,
+                       x,
+                       y}).
 
 -define (CMD_REQUEST_INFO, 50).
 -record(request_info, {type,

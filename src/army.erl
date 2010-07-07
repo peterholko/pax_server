@@ -57,10 +57,10 @@ stop(ProcessId)
     gen_server:cast(ProcessId, stop).
 
 handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
-    io:fwrite("army - set_state_move ~n"),
-    
+    io:fwrite("army - set_state_move ~n"),    
     Army = Data#module_data.army,
-    ArmySpeed = get_army_speed(Army#army.id),
+    {NextX, NextY} = next_pos(Army#army.x, Army#army.y, DestX, DestY),
+    ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
     
     if
         (Army#army.state =/= ?STATE_MOVE) and (Army#army.state =/= ?STATE_COMBAT) ->
@@ -78,9 +78,10 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
 
 handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     io:fwrite("army - set_state_attack ~n"),
-    
     Army = Data#module_data.army,
-    ArmySpeed = get_army_speed(Army#army.id),
+    TargetState = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE', Army#army.id}),
+    {NextX, NextY} = next_pos(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
+    ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
     
     if
         (Army#army.state =/= ?STATE_ATTACK) and (Army#army.state =/= ?STATE_COMBAT)->
@@ -352,8 +353,9 @@ code_change(_OldVsn, Data, _Extra) ->
 
 do_move(Army, ArmyPid, VisibleList, ObservedByList) ->    
     %% Move army coordinates
+    io:fwrite("Army#army.dest: ~w~n", [Army#army.dest]),
     [{DestX, DestY} | DestRest] = Army#army.dest, 
-    {NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, DestX, DestY),
+    {NewArmyX, NewArmyY} = next_pos(Army#army.x, Army#army.y, DestX, DestY),
     
     io:fwrite("DestX: ~w, DestY: ~w, NewArmyX: ~w, NewArmyY: ~w~n",[DestX, DestY, NewArmyX, NewArmyY]),
 
@@ -378,12 +380,14 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
             NewArmy = state_none(Army, NewArmyX, NewArmyY);
         waypoint ->            
             io:fwrite("Next Waypoint.~n"),
-            ArmySpeed = get_army_speed(Army#army.id),
+            {NextX, NextY} = next_pos(NewArmyX, NewArmyY, DestX, DestY),
+            ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
             game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)),   
             NewArmy = event_move_next_dest(Army, NewArmyX, NewArmyY, DestRest);
         moving ->
             io:fwrite("Moving.~n"),
-            ArmySpeed = get_army_speed(Army#army.id),
+            {NextX, NextY} = next_pos(NewArmyX, NewArmyY, DestX, DestY),
+            ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
             game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)),   
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
@@ -392,7 +396,7 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
 
 do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->    
     TargetState = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE', Army#army.id}),
-    {NewArmyX, NewArmyY} = move(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
+    {NewArmyX, NewArmyY} = next_pos(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
     
     %% Set any newly discovered tiles
     set_discovered_tiles(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
@@ -418,14 +422,15 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
             
             NewArmy = state_combat(Army, BattleId, NewArmyX, NewArmyY);
         true ->
-            ArmySpeed = get_army_speed(Army#army.id),
+            {NextX, NextY} = next_pos(NewArmyX, NewArmyY, TargetState#state.x, TargetState#state.y),
+            ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
             game:add_event(ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)),            
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
     
     NewArmy.
 
-move(ArmyX, ArmyY, DestX, DestY) ->
+next_pos(ArmyX, ArmyY, DestX, DestY) ->
     DiffX = DestX - ArmyX,
     DiffY = DestY - ArmyY,
     
@@ -449,13 +454,6 @@ move(ArmyX, ArmyY, DestX, DestY) ->
     
     {NewArmyX, NewArmyY}.
 
-get_army_speed(ArmyId) ->
-    ArmySpeed = unit:lowest_unit_speed(ArmyId),
-    ArmySpeed.
-
-speed_to_ticks(Speed) ->
-    (25 * (1000 div ?GAME_LOOP_TICK)) div Speed.
-
 event_move(Army, NewX, NewY) ->
     Army#army{x = NewX,
               y = NewY}.  
@@ -468,7 +466,6 @@ event_move_next_dest(Army, NewX, NewY, NextDest) ->
 state_move(Army, DestX, DestY) ->
     Army#army{dest = [{DestX, DestY}],
               state = ?STATE_MOVE}.
-
 
 state_attack(Army, TargetId) ->
     Army#army{state = ?STATE_ATTACK,
@@ -493,8 +490,7 @@ state_none(Army, X, Y) ->
 state_none(Army) ->
     Army#army{state = ?STATE_NONE}. 
 
-get_army_status(Data) ->
-    
+get_army_status(Data) ->   
     Army = Data#module_data.army,
     NumUnits = gb_sets:size(Army#army.units),
     
@@ -506,6 +502,27 @@ get_army_status(Data) ->
     end,
     
     ArmyStatus.
+
+get_army_speed(ArmyId, X, Y) ->
+    ArmySpeed = unit:highest_unit_movement(ArmyId),
+    TileType = map:get_tile_type(X,Y),
+    Speed = ArmySpeed * tile_modifier(TileType),
+    io:fwrite("Speed: ~w~n",[Speed]),
+    Speed.
+
+speed_to_ticks(Speed) ->
+    (1000 div ?GAME_LOOP_TICK) * Speed.
+
+tile_modifier(?TILE_MOUNTAIN) ->
+    ?TILE_MOUNTAIN_SPEED;
+tile_modifier(?TILE_FOREST) ->
+    ?TILE_FOREST_SPEED;
+tile_modifier(?TILE_PLAINS) ->
+    ?TILE_PLAINS_SPEED;
+tile_modifier(?TILE_SWAMP) ->
+    ?TILE_SWAMP_SPEED;
+tile_modifier(_) ->
+    1.    
 
 entity_update_perception(EntityList) ->
     F = fun({_EntityId, EntityPid}) ->

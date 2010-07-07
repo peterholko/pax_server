@@ -57,7 +57,8 @@ init() ->
     
     % Load map data
     log4erl:info("Loading map data..."),  
-    {ok, _MapPid} = map:start(),
+    map:start(),
+    map:load(),
     
     % Create game loop
     log4erl:info("Starting game process...") ,

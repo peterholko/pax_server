@@ -44,7 +44,7 @@ add_claim() ->
     gen_server:cast(global:whereis_name(test_sender), {'ADD_CLAIM', 11, 5, 5}).
 
 assign_task() ->
-    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, 0, 33, 1, ?TASK_CONSTRUCTION}).
+    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, 0, 33, 1, ?TASK_IMPROVEMENT}).
 
 transfer() -> 
     gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 1, 1, 1, 2, 1}),
