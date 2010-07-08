@@ -79,7 +79,7 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
 handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     io:fwrite("army - set_state_attack ~n"),
     Army = Data#module_data.army,
-    TargetState = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE', Army#army.id}),
+    TargetState = gen_server:call(global:whereis_name({army, TargetId}), {'GET_STATE', Army#army.id}),
     {NextX, NextY} = next_pos(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
     ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
     
