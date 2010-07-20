@@ -30,13 +30,13 @@ start() ->
 init([]) ->
     {ok, none}.
 
-handle_cast({'PROCESS_EVENT',_EventData, ?EVENT_HARVEST}, Data) ->
+handle_cast({'PROCESS_EVENT', EventTick, _EventData, ?EVENT_HARVEST}, Data) ->
     log4erl:info("Processing Event Harvest"),  
  
     Cities = game:get_cities(),
 
     F = fun({_CityId, CityPid}) ->            
-            gen_server:cast(CityPid, {'PROCESS_EVENT', _EventData, ?EVENT_HARVEST})                
+            gen_server:cast(CityPid, {'PROCESS_EVENT', EventTick, _EventData, ?EVENT_HARVEST})                
         end,
     
     lists:foreach(F, Cities),      
@@ -45,13 +45,13 @@ handle_cast({'PROCESS_EVENT',_EventData, ?EVENT_HARVEST}, Data) ->
     
     {noreply, Data};
 
-handle_cast({'PROCESS_EVENT',_EventData, ?EVENT_GROWTH}, Data) ->
+handle_cast({'PROCESS_EVENT', EventTick, _EventData, ?EVENT_GROWTH}, Data) ->
     log4erl:info("Processing Event Growth"),  
  
     Cities = game:get_cities(),
 
     F = fun({_CityId, CityPid}) ->            
-            gen_server:cast(CityPid, {'PROCESS_EVENT', _EventData, ?EVENT_GROWTH})                
+            gen_server:cast(CityPid, {'PROCESS_EVENT', EventTick, _EventData, ?EVENT_GROWTH})                
         end,
     
     lists:foreach(F, Cities),      

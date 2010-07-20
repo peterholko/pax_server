@@ -27,6 +27,7 @@
                       battle_id,
                       x,
                       y,
+                      last_events,
                       self}).
 
 -record(target, {source_army,
@@ -52,12 +53,21 @@ init([BattleId, X, Y])
     process_flag(trap_exit, true),
     
     Players = sets:new(),
+    LastEvents = sets:new(),
     BattlePid = self(),
+    
     gen_server:cast(global:whereis_name(game_pid), {'ADD_BATTLE', BattlePid}),
     
     io:fwrite("battle - battle_id: ~w battle_pid: ~w~n", [BattleId, BattlePid]),
     
-    {ok, #module_data{players = Players, armies = [], targets = [], battle_id = BattleId, x = X, y = Y, self = BattlePid}};	
+    {ok, #module_data{players = Players, 
+                      armies = [], 
+                      targets = [], 
+                      battle_id = BattleId, 
+                      x = X, 
+                      y = Y, 
+                      last_events = LastEvents, 
+                      self = BattlePid}};	
 
 init([BattleId]) 
   when is_integer(BattleId) ->
@@ -66,7 +76,14 @@ init([BattleId])
     
     Battle = db:read(battle, BattleId),
     Players = sets:new(),
-    {ok, #module_data{players = Players, armies = Battle#battle.armies, targets = [], battle_id = BattleId, self = self()}}.
+    LastEvents = sets:new(),
+
+    {ok, #module_data{players = Players, 
+                      armies = Battle#battle.armies, 
+                      targets = [], 
+                      battle_id = BattleId, 
+                      last_events = LastEvents,
+                      self = self()}}.
 
 terminate(_Reason, _) ->
     ok.
@@ -101,13 +118,14 @@ handle_cast({'ADD_ARMY', ArmyId}, Data) ->
     
     {noreply, NewData};
 
-handle_cast({'PROCESS_EVENT', EventData, EventType}, Data) ->
+handle_cast({'PROCESS_EVENT', EventTick, EventData, EventType}, Data) ->
     
     case EventType of
         ?EVENT_UNIT_ROUND ->
-            
-            NewData = unit_round(EventData, Data),           
+            NewData = unit_round(EventTick, EventData, Data),           
             io:fwrite("battle: ~w~n", [EventData]);
+        ?EVENT_RETREAT ->
+            NewData = Data;
         ?EVENT_NONE ->
             NewData = Data
     end,      
@@ -152,6 +170,23 @@ handle_call({'ADD_TARGET', SourceArmyId, SourceUnitId, TargetArmyId, TargetUnitI
     
     {reply, TargetInfo, NewData};
 
+handle_call({'RETREAT', SourceArmyId}, _From, Data) ->
+    case lists:member(SourceArmyId, Data#module_data.armies) of
+        true ->
+            ArmyPid = global:whereis_name({army, SourceArmyId}),
+            EventTime = unit:calc_retreat_time(SourceArmyId) * trunc(1000 / ?GAME_LOOP_TICK),
+            EventData = SourceArmyId,
+
+            gen_server:call(ArmyPid, {'SET_STATE_RETREAT'}),
+            gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_RETREAT, EventData, EventTime}),
+
+            RetreatInfo = {battle_retreat, success};
+        false ->
+            RetreatInfo = {battle_retreat, invalid_army}
+    end,
+    
+    {reply, RetreatInfo, Data};     
+    
 handle_call({'GET_STATE', _BattleId}, _From, Data) ->
     
     State = #state { id = Data#module_data.battle_id,
@@ -222,7 +257,7 @@ add_events(Units, ArmyId, BattlePid) ->
     
     add_events(Rest, ArmyId, BattlePid).
 
-unit_round(EventData, Data) ->
+unit_round(EventTick, EventData, Data) ->
     
     {ArmyId, UnitId, UnitSpeed} = EventData,
     
@@ -233,9 +268,10 @@ unit_round(EventData, Data) ->
         ArmyResult ->
             if
                 Unit =/= false ->
-                    
-                    NewData = unit_target(ArmyId, Unit, Data),
-                    
+                    NewLastEvents = sets:add_element({ArmyId, EventTick}, Data#module_data.last_events),
+                    LastEventsData = Data#module_data {last_events = NewLastEvents},
+                    NewData = unit_target(ArmyId, Unit, LastEventsData),
+                                        
                     EventTime = UnitSpeed * trunc(1000 / ?GAME_LOOP_TICK),    
                     gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_UNIT_ROUND, EventData, EventTime});
                 true ->
@@ -280,7 +316,6 @@ unit_attack(ArmyId, Unit, TargetArmyId, TargetUnit, Data) ->
             Damage = UnitType#unit_type.attack,
             
             ArmyStatus = gen_server:call(global:whereis_name({army, TargetArmyId}), {'DAMAGE_UNIT', TargetUnit#unit.id, Damage}),
-            _PlayerId = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_PLAYER_ID'}),
             
             broadcast_damage(Data#module_data.battle_id, Data#module_data.players, Unit#unit.id, TargetUnit#unit.id, Damage),
             

@@ -66,7 +66,7 @@ process_events(GamePID, CurrentTick, EventList) ->
     
     if
         CurrentTick =:= EventTick ->
-            gen_server:cast(Pid, {'PROCESS_EVENT', EventData, Type}),
+            gen_server:cast(Pid, {'PROCESS_EVENT', EventTick, EventData, Type}),
             gen_server:cast(GamePID, {'DELETE_EVENT', EventId});
         true ->
             ok

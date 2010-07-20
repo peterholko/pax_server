@@ -294,6 +294,17 @@ handle_cast(_ = #battle_target{battle_id = BattleId,
     
     {noreply, Data};
 
+handle_cast(_ = #battle_retreat{battle_id = BattleId,
+                                source_army_id = SourceArmyId}, Data) ->
+    case gen_server:call(global:whereis_name({battle, BattleId}), {'RETREAT', SourceArmyId}) of
+        {battle_retreat, success} ->
+            ok;
+        {battle_retreat, error} ->
+            ok
+    end,
+
+    {noreply, Data};
+
 handle_cast(_ = #build_improvement{city_id = CityId,
                                    x = X,
                                    y = Y,

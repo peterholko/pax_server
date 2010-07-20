@@ -20,6 +20,7 @@
 -define(STATE_DEAD, 4).
 -define(STATE_CONSTRUCTING, 5).
 -define(STATE_COMPLETED, 6).
+-define(STATE_RETREAT, 7).
 
 -define(EVENT_NONE, 0).
 -define(EVENT_MOVE, 1).
@@ -28,6 +29,7 @@
 -define(EVENT_IMPROVEMENT_COMPLETED, 4).
 -define(EVENT_HARVEST, 5).
 -define(EVENT_GROWTH, 6).
+-define(EVENT_RETREAT, 7).
 
 -define(GAME_LOOP_TICK, 200).
 

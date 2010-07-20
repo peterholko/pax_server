@@ -104,6 +104,10 @@
                         target_army_id,
                         target_unit_id}).
 
+-define (CMD_BATTLE_RETREAT, 74).
+-record(battle_retreat, {battle_id,
+                         source_army_id}). 
+
 -define(CMD_BUILD_IMPROVEMENT, 100).
 -record(build_improvement, {city_id,
                             x,

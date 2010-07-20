@@ -16,6 +16,7 @@
 %%
 -export([is_valid_unit_type/1,
          calc_new_unit_cost/2,
+         calc_retreat_time/1,
          get_unit_ids/2, 
          get_unit/2,
          highest_unit_movement/1,
@@ -43,6 +44,9 @@ calc_new_unit_cost(UnitType, UnitSize) ->
 cost_by_unit_type(UnitTypeId) ->
     [UnitType] = db:dirty_read(unit_type, UnitTypeId),
     UnitType#unit_type.cost.
+
+calc_retreat_time(_ArmyId) ->
+    10.
 
 get_unit_ids([], UnitIds) ->
     UnitIds;

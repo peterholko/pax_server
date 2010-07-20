@@ -177,7 +177,7 @@ handle_cast({'ADD_CLAIM', X, Y}, Data) ->
 
     {noreply, NewData};
 
-handle_cast({'PROCESS_EVENT', _Id, EventType}, Data) ->   
+handle_cast({'PROCESS_EVENT',_EventTick, _Id, EventType}, Data) ->   
     City = Data#module_data.city,
 
     case EventType of

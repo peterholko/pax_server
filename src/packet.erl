@@ -253,6 +253,9 @@ battle_damage() ->
                            source_id(),
                            target_id(),
                            damage()}).
+battle_retreat() ->
+    record(battle_retreat, {battle_id(),
+                            source_id()}).
 
 build_improvement() ->
     record(build_improvement, {id(),
@@ -319,6 +322,9 @@ read(<<?CMD_TRANSFER_UNIT, Bin/binary>>) ->
 
 read(<<?CMD_BATTLE_TARGET, Bin/binary>>) ->
     unpickle(battle_target(), Bin);
+
+read(<<?CMD_BATTLE_RETREAT, Bin/binary>>) ->
+    unpickle(battle_retreat(), Bin);
 
 read(<<?CMD_BUILD_IMPROVEMENT, Bin/binary>>) ->
     unpickle(build_improvement(), Bin);
@@ -416,6 +422,9 @@ write(R) when is_record(R, attack) ->
 
 write(R) when is_record(R, battle_target) ->
     [?CMD_BATTLE_TARGET|pickle(battle_target(), R)];
+
+write(R) when is_record(R, battle_retreat) ->
+    [?CMD_BATTLE_TARGET|pickle(battle_retreat(), R)];
 
 write(R) when is_record(R, city_queue_unit) ->
     [?CMD_CITY_QUEUE_UNIT|pickle(city_queue_unit(), R)];

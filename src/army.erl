@@ -107,6 +107,16 @@ handle_cast({'SET_STATE_COMBAT', BattleId}, Data) ->
     
     {noreply, NewData};
 
+handle_cast({'SET_STATE_RETREAT', BattleId}, Data) ->
+    Army = Data#module_data.army,
+    
+    gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
+    
+    NewArmy = state_retreat(Army, BattleId),
+    NewData = Data#module_data {army = NewArmy, save_army = true},
+
+    {noreply, NewData};
+
 handle_cast({'SET_STATE_NONE'}, Data) ->
     
     NewArmy = state_none(Data#module_data.army),
@@ -120,7 +130,7 @@ handle_cast({'ADD_WAYPOINT', X, Y}, Data) ->
     
     {noreply, NewData};
 
-handle_cast({'PROCESS_EVENT', _, EventType}, Data) ->
+handle_cast({'PROCESS_EVENT', _EventTick, _EventData, EventType}, Data) ->
     
     case EventType of
         ?EVENT_MOVE ->
@@ -471,6 +481,9 @@ state_attack(Army, TargetId) ->
     Army#army{state = ?STATE_ATTACK,
               target = TargetId}.
 
+state_retreat(Army, BattleId) ->
+    Army#army{state = ?STATE_RETREAT,
+              battle = BattleId}.
 
 state_combat(Army, BattleId) ->
     Army#army{state = ?STATE_COMBAT,
