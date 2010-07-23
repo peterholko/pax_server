@@ -25,8 +25,7 @@
                       player_id, 
                       self,
                       visible = [],
-                      observed_by = [],
-                      save_army = false}).
+                      observed_by = []}).
 
 %%
 %% API Functions
@@ -72,7 +71,7 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
     end,         
     
     NewArmy = state_move(Army, DestX, DestY),  
-    NewData = Data#module_data {army = NewArmy, save_army = true},
+    NewData = Data#module_data {army = NewArmy},
     
     {noreply, NewData};
 
@@ -93,7 +92,7 @@ handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     
     
     NewArmy = state_attack(Data#module_data.army, TargetId),
-    NewData = Data#module_data {army = NewArmy, save_army = true},
+    NewData = Data#module_data {army = NewArmy},
     
     {noreply, NewData};
 
@@ -113,7 +112,7 @@ handle_cast({'SET_STATE_RETREAT_MOVE'}, Data) ->
     end,
     
     NewArmy = state_retreat_move(Data#module_data.army, LastX, LastY),
-    NewData = Data#module_data {army = NewArmy, save_army = true},
+    NewData = Data#module_data {army = NewArmy},
 
     {noreply, NewData};   
  
@@ -133,7 +132,7 @@ handle_cast({'SET_STATE_LEAVE_MOVE'}, Data) ->
     end,
     
     NewArmy = state_leave_move(Data#module_data.army, LastX, LastY),
-    NewData = Data#module_data {army = NewArmy, save_army = true},
+    NewData = Data#module_data {army = NewArmy},
 
     {noreply, NewData};    
 
@@ -143,7 +142,7 @@ handle_cast({'SET_STATE_COMBAT', BattleId}, Data) ->
     gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),	
     
     NewArmy = state_combat(Army, BattleId),
-    NewData = Data#module_data {army = NewArmy, save_army = true},
+    NewData = Data#module_data {army = NewArmy},
     
     {noreply, NewData};
 
@@ -152,7 +151,7 @@ handle_cast({'SET_STATE_RETREAT', BattleId}, Data) ->
     
     gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
     NewArmy = state_retreat(Army, BattleId),
-    NewData = Data#module_data {army = NewArmy, save_army = true},
+    NewData = Data#module_data {army = NewArmy},
 
     {noreply, NewData};
 
@@ -161,20 +160,20 @@ handle_cast({'SET_STATE_LEAVE', BattleId}, Data) ->
     
     gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
     NewArmy = state_leave(Army, BattleId),
-    NewData = Data#module_data {army = NewArmy, save_army = true},
+    NewData = Data#module_data {army = NewArmy},
 
     {noreply, NewData};
 
 handle_cast({'SET_STATE_NONE'}, Data) ->
     
     NewArmy = state_none(Data#module_data.army),
-    NewData = Data#module_data {army = NewArmy, save_army = true},    
+    NewData = Data#module_data {army = NewArmy},    
     
     {noreply, NewData};	
 
 handle_cast({'ADD_WAYPOINT', X, Y}, Data) ->
     NewArmy = add_waypoint(Data#module_data.army, X, Y),
-    NewData = Data#module_data {army = NewArmy, save_army = true},
+    NewData = Data#module_data {army = NewArmy},
     
     {noreply, NewData};
 
