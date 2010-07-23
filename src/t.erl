@@ -16,7 +16,7 @@
 -export([start/1, login/1]).
 -export([build_farm/0, add_claim/0, assign_task/0, transfer/0, transfer2/0, 
          battle/0, target/0, info_army/1, info_city/1, move/3, add_waypoint/3,
-         queue_unit/0, queue_building/0]).
+         queue_unit/0, queue_building/0, retreat/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -record(data, {socket}).
@@ -58,6 +58,9 @@ battle() ->
 
 target() ->
     gen_server:cast(global:whereis_name(test_sender), {'TARGET', 1, 1, 1, 3, 9}).
+
+retreat() ->
+    gen_server:cast(global:whereis_name(test_sender), {'RETREAT', 1, 1}).
 
 info_army(ArmyId) ->
     gen_server:cast(global:whereis_name(test_sender), {'INFO_ARMY', ArmyId}).
@@ -163,6 +166,13 @@ handle_cast({'TARGET', BattleId, SourceArmy, SourceUnit, TargetArmy, TargetUnit}
                             target_unit_id = TargetUnit},
     
     packet:send(Data#data.socket, Target),
+    {noreply, Data};
+
+handle_cast({'RETREAT', BattleId, SourceArmy}, Data) ->
+    Retreat = #battle_retreat{battle_id = BattleId,
+                              source_army_id = SourceArmy},
+
+    packet:send(Data#data.socket, Retreat),
     {noreply, Data};
 
 handle_cast(stop, Data) ->

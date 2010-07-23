@@ -23,6 +23,7 @@
                 y,  
                 dest,
                 target,
+                last_pos,
                 state = 0,			
                 hero = 0,
                 units = gb_sets:new(),

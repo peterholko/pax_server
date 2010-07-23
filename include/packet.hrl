@@ -91,22 +91,30 @@
 -record(battle_add_army, {battle_id,
                           army}).
 
--define (CMD_BATTLE_DAMAGE, 72).
+-define (CMD_BATTLE_REMOVE_ARMY, 72).
+-record(battle_remove_army, {battle_id, 
+                             army}).
+
+-define (CMD_BATTLE_DAMAGE, 74).
 -record(battle_damage, {battle_id,
                         source_id,
                         target_id,
                         damage}).
 
--define (CMD_BATTLE_TARGET, 73).
+-define (CMD_BATTLE_TARGET, 75).
 -record(battle_target, {battle_id,
                         source_army_id,
                         source_unit_id,
                         target_army_id,
                         target_unit_id}).
 
--define (CMD_BATTLE_RETREAT, 74).
+-define (CMD_BATTLE_RETREAT, 76).
 -record(battle_retreat, {battle_id,
                          source_army_id}). 
+
+-define(CMD_BATTLE_LEAVE, 77).
+-record(battle_leave, {battle_id,
+                       source_army_id}).
 
 -define(CMD_BUILD_IMPROVEMENT, 100).
 -record(build_improvement, {city_id,

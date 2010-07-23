@@ -97,6 +97,46 @@ handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     
     {noreply, NewData};
 
+handle_cast({'SET_STATE_RETREAT_MOVE'}, Data) ->
+    io:fwrite("army - set_state_retreat_move ~n"),
+    Army = Data#module_data.army,
+    {LastX, LastY} = Army#army.last_pos,
+    
+    ArmySpeed = get_army_speed(Army#army.id, LastX, LastY),
+    
+    if
+        Army#army.state =:= ?STATE_RETREAT ->
+            gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
+            gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_RETREAT_MOVE, none, speed_to_ticks(ArmySpeed)});
+        true ->
+            ok
+    end,
+    
+    NewArmy = state_retreat_move(Data#module_data.army, LastX, LastY),
+    NewData = Data#module_data {army = NewArmy, save_army = true},
+
+    {noreply, NewData};   
+ 
+handle_cast({'SET_STATE_LEAVE_MOVE'}, Data) ->
+    io:fwrite("army - set_state_leave_move ~n"),
+    Army = Data#module_data.army,
+    {LastX, LastY} = Army#army.last_pos,
+    
+    ArmySpeed = get_army_speed(Army#army.id, LastX, LastY),
+    
+    if
+        Army#army.state =:= ?STATE_LEAVE ->
+            gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
+            gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_LEAVE_MOVE, none, speed_to_ticks(ArmySpeed)});
+        true ->
+            ok
+    end,
+    
+    NewArmy = state_leave_move(Data#module_data.army, LastX, LastY),
+    NewData = Data#module_data {army = NewArmy, save_army = true},
+
+    {noreply, NewData};    
+
 handle_cast({'SET_STATE_COMBAT', BattleId}, Data) ->
     Army = Data#module_data.army,
     
@@ -111,8 +151,16 @@ handle_cast({'SET_STATE_RETREAT', BattleId}, Data) ->
     Army = Data#module_data.army,
     
     gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
-    
     NewArmy = state_retreat(Army, BattleId),
+    NewData = Data#module_data {army = NewArmy, save_army = true},
+
+    {noreply, NewData};
+
+handle_cast({'SET_STATE_LEAVE', BattleId}, Data) ->
+    Army = Data#module_data.army,
+    
+    gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
+    NewArmy = state_leave(Army, BattleId),
     NewData = Data#module_data {army = NewArmy, save_army = true},
 
     {noreply, NewData};
@@ -138,6 +186,16 @@ handle_cast({'PROCESS_EVENT', _EventTick, _EventData, EventType}, Data) ->
             NewData = Data#module_data {army = NewArmy};
         ?EVENT_ATTACK ->
             NewArmy = do_attack(Data#module_data.army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by),
+            NewData = Data#module_data {army = NewArmy};
+        ?EVENT_RETREAT_MOVE ->
+            Army = Data#module_data.army,
+            battle:remove_army(Army#army.battle, Army#army.id),
+            NewArmy = do_move(Data#module_data.army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by),            
+            NewData = Data#module_data {army = NewArmy};
+        ?EVENT_LEAVE_MOVE ->
+            Army = Data#module_data.army,
+            battle:remove_army(Army#army.battle, Army#army.id),
+            NewArmy = do_move(Data#module_data.army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by),            
             NewData = Data#module_data {army = NewArmy};
         ?EVENT_NONE ->
             NewData = Data
@@ -215,9 +273,11 @@ handle_call({'DAMAGE_UNIT', UnitId, Damage}, _From, Data) ->
             NewData = Data
     end,   
     
-    ArmyStatus = get_army_status(NewData),
+    NewerData = get_army_status(NewData),
+    NewerArmy = NewerData#module_data.army,
+    ArmyState = NewerArmy#army.state,
     
-    {reply, ArmyStatus, NewData};
+    {reply, ArmyState, NewerData};
 
 handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, Data) ->
     io:fwrite("army - transfer unit.~n"),
@@ -367,8 +427,6 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     [{DestX, DestY} | DestRest] = Army#army.dest, 
     {NewArmyX, NewArmyY} = next_pos(Army#army.x, Army#army.y, DestX, DestY),
     
-    io:fwrite("DestX: ~w, DestY: ~w, NewArmyX: ~w, NewArmyY: ~w~n",[DestX, DestY, NewArmyX, NewArmyY]),
-
     %% Set any newly discovered tiles
     set_discovered_tiles(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
  
@@ -402,7 +460,8 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
     
-    NewArmy.
+    %Update the last position
+    update_last_pos(NewArmy).
 
 do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->    
     TargetState = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE', Army#army.id}),
@@ -437,8 +496,8 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
             game:add_event(ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)),            
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
-    
-    NewArmy.
+
+    update_last_pos(NewArmy).
 
 next_pos(ArmyX, ArmyY, DestX, DestY) ->
     DiffX = DestX - ArmyX,
@@ -473,6 +532,10 @@ event_move_next_dest(Army, NewX, NewY, NextDest) ->
               y = NewY,
               dest = NextDest}.
 
+update_last_pos(Army) ->
+    LastPos = {Army#army.x, Army#army.y},
+    Army#army { last_pos = LastPos}.
+
 state_move(Army, DestX, DestY) ->
     Army#army{dest = [{DestX, DestY}],
               state = ?STATE_MOVE}.
@@ -485,6 +548,18 @@ state_retreat(Army, BattleId) ->
     Army#army{state = ?STATE_RETREAT,
               battle = BattleId}.
 
+state_retreat_move(Army, LastX, LastY) ->
+    Army#army{dest = [{LastX, LastY}],
+              state = ?STATE_RETREAT_MOVE}.
+
+state_leave(Army, BattleId) ->
+    Army#army{state = ?STATE_LEAVE,
+              battle = BattleId}.
+
+state_leave_move(Army, LastX, LastY) ->
+    Army#army{dest = [{LastX, LastY}],
+              state = ?STATE_LEAVE_MOVE}.
+
 state_combat(Army, BattleId) ->
     Army#army{state = ?STATE_COMBAT,
               battle = BattleId}.
@@ -494,6 +569,9 @@ state_combat(Army, BattleId, X, Y) ->
               battle = BattleId,
               x = X,
               y = Y}.
+
+state_dead(Army) ->
+    Army#army{state = ?STATE_DEAD}.
 
 state_none(Army, X, Y) ->
     Army#army{state = ?STATE_NONE,
@@ -509,12 +587,12 @@ get_army_status(Data) ->
     
     if
         NumUnits =:= 0 ->
-            ArmyStatus = ?ARMY_DEAD;
+            NewArmy = state_dead(Army);
         true ->
-            ArmyStatus = ?ARMY_ALIVE
+            NewArmy = Army
     end,
-    
-    ArmyStatus.
+
+    Data#module_data {army = NewArmy}.
 
 get_army_speed(ArmyId, X, Y) ->
     ArmySpeed = unit:highest_unit_movement(ArmyId),

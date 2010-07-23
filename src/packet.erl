@@ -240,6 +240,9 @@ battle_info() ->
 battle_add_army() ->
     record(battle_add_army, {battle_id(),
                              army()}).
+battle_remove_army() ->
+    record(battle_remove_army, {battle_id(),
+                             army()}).
 
 battle_target() ->
     record(battle_target, {battle_id(),
@@ -257,6 +260,9 @@ battle_retreat() ->
     record(battle_retreat, {battle_id(),
                             source_id()}).
 
+battle_leave() ->
+    record(battle_leave, {battle_id(),
+                          source_id()}).
 build_improvement() ->
     record(build_improvement, {id(),
                                x(),
@@ -326,6 +332,9 @@ read(<<?CMD_BATTLE_TARGET, Bin/binary>>) ->
 read(<<?CMD_BATTLE_RETREAT, Bin/binary>>) ->
     unpickle(battle_retreat(), Bin);
 
+read(<<?CMD_BATTLE_LEAVE, Bin/binary>>) ->
+    unpickle(battle_leave(), Bin);
+
 read(<<?CMD_BUILD_IMPROVEMENT, Bin/binary>>) ->
     unpickle(build_improvement(), Bin);
 
@@ -360,6 +369,9 @@ read(<<?CMD_TRANSPORT_INFO, Bin/binary>>) ->
 
 read(<<?CMD_BATTLE_ADD_ARMY, Bin/binary>>) ->
     unpickle(battle_add_army(), Bin);
+
+read(<<?CMD_BATTLE_REMOVE_ARMY, Bin/binary>>) ->
+    unpickle(battle_remove_army(), Bin);
 
 read(<<?CMD_BATTLE_DAMAGE, Bin/binary>>) ->
     unpickle(battle_damage(), Bin).
@@ -424,7 +436,10 @@ write(R) when is_record(R, battle_target) ->
     [?CMD_BATTLE_TARGET|pickle(battle_target(), R)];
 
 write(R) when is_record(R, battle_retreat) ->
-    [?CMD_BATTLE_TARGET|pickle(battle_retreat(), R)];
+    [?CMD_BATTLE_RETREAT|pickle(battle_retreat(), R)];
+
+write(R) when is_record(R, battle_leave) ->
+    [?CMD_BATTLE_LEAVE|pickle(battle_leave(), R)];
 
 write(R) when is_record(R, city_queue_unit) ->
     [?CMD_CITY_QUEUE_UNIT|pickle(city_queue_unit(), R)];

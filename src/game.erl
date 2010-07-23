@@ -14,7 +14,7 @@
 %% Exported Functions
 %%
 -export([start/0, load_entities/0, setup_perception/0, setup_events/0, add_event/4, update_perception/1]).
--export([get_cities/0]).
+-export([get_cities/0, add_event_get_id/4, delete_event/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 
@@ -36,6 +36,12 @@ setup_events() ->
 
 add_event(ObjectPid, EventType, EventData, EventTick) ->
     gen_server:cast({global, game_pid}, {'ADD_EVENT', ObjectPid, EventType, EventData, EventTick}).
+
+add_event_get_id(ObjectPid, EventType, EventData, EventTick) ->
+    gen_server:call({global, game_pid}, {'ADD_EVENT', ObjectPid, EventType, EventData, EventTick}).
+
+delete_event(EventId) ->
+    gen_server:cast({global, game_pid}, {'DELETE_EVENT', EventId}).
 
 update_perception(PlayerId) ->
     gen_server:cast({global, game_pid}, {'UPDATE_PERCEPTION', PlayerId}).
@@ -95,9 +101,7 @@ handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
     {noreply, NewData};
 
 handle_cast({'ADD_EVENT', Pid, Type, EventData, EventTick}, Data) ->
-    %io:fwrite("game - add_event - EventTick: ~w~n", [EventTick]),
-    NewData = add_event(Pid, Type, EventData, EventTick, Data),    
-
+    {_EventId, NewData} = add_event(Pid, Type, EventData, EventTick, Data),    
     {noreply, NewData};
 
 handle_cast({'DELETE_EVENT', EventId}, Data) ->
@@ -139,6 +143,10 @@ handle_cast('CLEAR_PERCEPTIONS', Data) ->
     NewData = Data#game_info { update_perceptions = gb_sets:empty()},
     {noreply, NewData}.
 
+handle_call({'ADD_EVENT', Pid, Type, EventData, EventTick}, _From, Data) ->
+    {EventId, NewData} = add_event(Pid, Type, EventData, EventTick, Data),    
+    {reply, EventId, NewData};
+
 handle_call('LOAD_ENTITIES', _From, Data) ->
     %% Load armies, cities
     log4erl:info("Loading armies, cities and battles..."), 	
@@ -169,8 +177,8 @@ handle_call('SETUP_EVENTS', _From, Data) ->
     log4erl:info("Setup events..."),
     {ok, EventPid} = event:start(),
     
-    HarvestData = add_event(EventPid, ?EVENT_HARVEST, none, ?HARVEST_TICK, Data),
-    GrowthData = add_event(EventPid, ?EVENT_GROWTH, none, ?GROWTH_TICK, HarvestData),
+    {_HarvetEventId, HarvestData} = add_event(EventPid, ?EVENT_HARVEST, none, ?HARVEST_TICK, Data),
+    {_GrowthEventId, GrowthData} = add_event(EventPid, ?EVENT_GROWTH, none, ?GROWTH_TICK, HarvestData),
 
     {reply, ok, GrowthData};
 
@@ -252,4 +260,6 @@ add_event(Pid, Type, EventData, EventTick, Data) ->
     CurrentTick = Data#game_info.tick,
     Events = Data#game_info.events,
     NewEvents = [{EventId, Pid, Type, EventData, CurrentTick + EventTick} | Events],
-    Data#game_info { events = NewEvents}.  
+    NewData = Data#game_info { events = NewEvents},
+    {EventId, NewData}.
+    

@@ -21,15 +21,21 @@
 -define(STATE_CONSTRUCTING, 5).
 -define(STATE_COMPLETED, 6).
 -define(STATE_RETREAT, 7).
+-define(STATE_RETREAT_MOVE, 8).
+-define(STATE_LEAVE, 9).
+-define(STATE_LEAVE_MOVE, 10).
 
 -define(EVENT_NONE, 0).
 -define(EVENT_MOVE, 1).
 -define(EVENT_ATTACK, 2).
--define(EVENT_UNIT_ROUND, 3).
+-define(EVENT_UNIT_ATTACK, 3).
 -define(EVENT_IMPROVEMENT_COMPLETED, 4).
 -define(EVENT_HARVEST, 5).
 -define(EVENT_GROWTH, 6).
 -define(EVENT_RETREAT, 7).
+-define(EVENT_RETREAT_MOVE, 8).
+-define(EVENT_LEAVE, 9).
+-define(EVENT_LEAVE_MOVE, 10).
 
 -define(GAME_LOOP_TICK, 200).
 

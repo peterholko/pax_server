@@ -19,7 +19,7 @@
          handle_info/2, terminate/2, code_change/3]).
 
 -export([start/1, stop/1, stop/2, get_explored_map/1, get_type/1]).
-
+-export([send_battle_add_army/3, send_battle_remove_army/3]).
 %%
 %% Records
 %%
@@ -40,6 +40,12 @@
 get_type(PlayerId) ->
     [PlayerType] = db:read(player_type, PlayerId),
     PlayerType#player_type.type.
+
+send_battle_add_army(PlayerId, BattleId, ArmyInfo) ->
+    gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_BATTLE_ADD_ARMY', BattleId, ArmyInfo}).
+
+send_battle_remove_army(PlayerId, BattleId, ArmyInfo) ->
+    gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_BATTLE_REMOVE_ARMY', BattleId, ArmyInfo}).
 
 start(Name) 
   when is_binary(Name) ->
@@ -122,6 +128,14 @@ handle_cast({'SEND_BATTLE_ADD_ARMY', BattleId, ArmyInfo}, Data) ->
     forward_to_client(R, Data),
     {noreply, Data};
 
+handle_cast({'SEND_BATTLE_REMOVE_ARMY', BattleId, ArmyInfo}, Data) ->
+    
+    R = #battle_remove_army {battle_id = BattleId,
+                             army = ArmyInfo},
+
+    forward_to_client(R, Data),
+    {noreply, Data};
+
 handle_cast({'SEND_BATTLE_DAMAGE', BattleId, SourceId, TargetId, Damage}, Data) ->
     
     R = #battle_damage {battle_id = BattleId,
@@ -156,10 +170,12 @@ handle_cast(_ = #move{ id = ArmyId, x = X, y = Y}, Data) ->
     {noreply, Data};
 
 handle_cast(_ = #attack{ id = ArmyId, target_id = TargetId}, Data) ->
+    io:fwrite("player - attack~n"),
     [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id), 
     
     case db:read(army, TargetId) of
         [TargetArmy] ->    
+            io:fwrite("player - attack read army~n"),
             Guard = (lists:member(ArmyId, Kingdom#kingdom.armies)) and
                     (Data#module_data.player_id =/= TargetArmy#army.player_id),
             if
@@ -283,26 +299,51 @@ handle_cast(_ = #battle_target{battle_id = BattleId,
                                source_unit_id = SourceUnitId, 
                                target_army_id = TargetArmyId,
                                target_unit_id = TargetUnitId}, Data) ->
-    
-    case gen_server:call(global:whereis_name({battle, BattleId}), {'ADD_TARGET', SourceArmyId, SourceUnitId, TargetArmyId, TargetUnitId}) of
-        {battle_target, success} ->
-            ok;
-        {battle_target, error} ->
-            %TODO Add error message
+    case db:read(battle, BattleId) of
+        [_Battle] ->
+            case gen_server:call(global:whereis_name({battle, BattleId}), {'ADD_TARGET', SourceArmyId, SourceUnitId, TargetArmyId, TargetUnitId}) of
+                {battle_target, success} ->
+                    ok;
+                {battle_target, error} ->
+                    %TODO Add error message
+                    ok
+            end;
+        _ ->
             ok
-    end,
+    end,    
     
     {noreply, Data};
 
 handle_cast(_ = #battle_retreat{battle_id = BattleId,
                                 source_army_id = SourceArmyId}, Data) ->
-    case gen_server:call(global:whereis_name({battle, BattleId}), {'RETREAT', SourceArmyId}) of
-        {battle_retreat, success} ->
-            ok;
-        {battle_retreat, error} ->
+    log4erl:info("~w: Battle Retreat command received - BattleId: ~w",[?MODULE, BattleId]),
+    case db:read(battle, BattleId) of
+        [_Battle] ->
+            case gen_server:call(global:whereis_name({battle, BattleId}), {'RETREAT', SourceArmyId}) of
+                {battle_retreat, success} ->
+                    ok;
+                {battle_retreat, error} ->
+                    ok
+            end;
+        _ ->
             ok
     end,
+    {noreply, Data};
 
+handle_cast(_ = #battle_leave{battle_id = BattleId,
+                              source_army_id = SourceArmyId}, Data) ->
+    log4erl:info("~w: Battle Leave command received - BattleId: ~w",[?MODULE, BattleId]),
+    case db:read(battle, BattleId) of
+        [_Battle] ->
+            case gen_server:call(global:whereis_name({battle, BattleId}), {'LEAVE', SourceArmyId}) of
+                {battle_leave, success} ->
+                    ok;
+                {battle_leave, error} ->
+                    ok
+            end;
+        _ ->
+            ok
+    end,
     {noreply, Data};
 
 handle_cast(_ = #build_improvement{city_id = CityId,
