@@ -72,6 +72,7 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
     
     NewArmy = state_move(Army, DestX, DestY),  
     NewData = Data#module_data {army = NewArmy},
+    save_army(NewArmy),
     
     {noreply, NewData};
 
@@ -93,6 +94,7 @@ handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     
     NewArmy = state_attack(Data#module_data.army, TargetId),
     NewData = Data#module_data {army = NewArmy},
+    save_army(NewArmy),
     
     {noreply, NewData};
 
@@ -113,6 +115,7 @@ handle_cast({'SET_STATE_RETREAT_MOVE'}, Data) ->
     
     NewArmy = state_retreat_move(Data#module_data.army, LastX, LastY),
     NewData = Data#module_data {army = NewArmy},
+    save_army(NewArmy),
 
     {noreply, NewData};   
  
@@ -133,6 +136,7 @@ handle_cast({'SET_STATE_LEAVE_MOVE'}, Data) ->
     
     NewArmy = state_leave_move(Data#module_data.army, LastX, LastY),
     NewData = Data#module_data {army = NewArmy},
+    save_army(NewArmy),
 
     {noreply, NewData};    
 
@@ -143,6 +147,7 @@ handle_cast({'SET_STATE_COMBAT', BattleId}, Data) ->
     
     NewArmy = state_combat(Army, BattleId),
     NewData = Data#module_data {army = NewArmy},
+    save_army(NewArmy),
     
     {noreply, NewData};
 
@@ -152,6 +157,7 @@ handle_cast({'SET_STATE_RETREAT', BattleId}, Data) ->
     gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
     NewArmy = state_retreat(Army, BattleId),
     NewData = Data#module_data {army = NewArmy},
+    save_army(NewArmy),
 
     {noreply, NewData};
 
@@ -161,19 +167,21 @@ handle_cast({'SET_STATE_LEAVE', BattleId}, Data) ->
     gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
     NewArmy = state_leave(Army, BattleId),
     NewData = Data#module_data {army = NewArmy},
+    save_army(NewArmy),
 
     {noreply, NewData};
 
 handle_cast({'SET_STATE_NONE'}, Data) ->
-    
     NewArmy = state_none(Data#module_data.army),
     NewData = Data#module_data {army = NewArmy},    
+    save_army(NewArmy),
     
     {noreply, NewData};	
 
 handle_cast({'ADD_WAYPOINT', X, Y}, Data) ->
     NewArmy = add_waypoint(Data#module_data.army, X, Y),
     NewData = Data#module_data {army = NewArmy},
+    save_army(NewArmy),  
     
     {noreply, NewData};
 
@@ -198,8 +206,10 @@ handle_cast({'PROCESS_EVENT', _EventTick, _EventData, EventType}, Data) ->
             NewData = Data#module_data {army = NewArmy};
         ?EVENT_NONE ->
             NewData = Data
-    end,      
-    
+    end,     
+ 
+    save_army(NewData#module_data.army),
+ 
     {noreply, NewData};
 
 handle_cast({'ADD_VISIBLE', _ArmyId, EntityId, EntityPid}, Data) ->
@@ -274,9 +284,9 @@ handle_call({'DAMAGE_UNIT', UnitId, Damage}, _From, Data) ->
     
     NewerData = get_army_status(NewData),
     NewerArmy = NewerData#module_data.army,
-    ArmyState = NewerArmy#army.state,
+    save_army(NewerArmy),
     
-    {reply, ArmyState, NewerData};
+    {reply, NewerArmy#army.state, NewerData};
 
 handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, Data) ->
     io:fwrite("army - transfer unit.~n"),
@@ -292,6 +302,7 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
                 true ->
                     case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
                         {receive_unit, success} ->
+                            db:dirty_delete(Unit),
                             NewUnits = gb_sets:delete(UnitId, Units),
                             NewArmy = Army#army {units = NewUnits},
                             NewData = Data#module_data{army = NewArmy},
@@ -308,6 +319,8 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
             TransferUnitInfo = {transfer_unit, unit_is_not_member},
             NewData = Data
     end,
+
+    save_army(NewData#module_data.army),
     
     {reply, TransferUnitInfo , NewData};
 
@@ -338,6 +351,8 @@ handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
             NewData = Data,
             ReceiveUnitInfo = {receive_unit, error}
     end,
+
+    save_army(NewData#module_data.army),
     
     {reply, ReceiveUnitInfo, NewData};    
 
@@ -658,3 +673,6 @@ check_destination(_X, _Y, _DestList) ->
 add_waypoint(Army, X, Y) ->
     NewDest = [{X, Y} | Army#army.dest],
     Army#army {dest = NewDest}.
+
+save_army(Army) ->
+    db:dirty_write(Army).

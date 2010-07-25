@@ -28,8 +28,7 @@
                       player_id, 
                       self,
                       visible = [],
-                      observed_by = [],
-                      save_city = false}).
+                      observed_by = []}).
 %%
 %% API Functions
 %%
@@ -118,7 +117,8 @@ handle_cast({'ADD_UNIT', UnitId}, Data) ->
     NewUnits = [UnitId | Units],
     NewCity = City#city { units = NewUnits},
     NewData = Data#module_data {city = NewCity},
-    
+    save_city(NewCity),    
+ 
     {noreply, NewData};
 
 handle_cast({'ADD_IMPROVEMENT', X, Y, ImprovementType}, Data) ->
@@ -175,6 +175,8 @@ handle_cast({'ADD_CLAIM', X, Y}, Data) ->
             NewData = Data
     end,
 
+    save_city(NewData#module_data.city),
+
     {noreply, NewData};
 
 handle_cast({'PROCESS_EVENT',_EventTick, _Id, EventType}, Data) ->   
@@ -187,6 +189,7 @@ handle_cast({'PROCESS_EVENT',_EventTick, _Id, EventType}, Data) ->
         ?EVENT_GROWTH ->
             growth(City#city.id)            
     end,      
+    
     
     {noreply, Data};
 
@@ -297,7 +300,8 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             BuildingsTuple = building:buildings_tuple(NewBuildings),
             BuildingsQueueTuple = building:buildings_queue_tuple(NewBuildingsQueue),        
 
-            io:fwrite("NewBuildingsQueue: ~w~n", [NewBuildingsQueue]),
+            %Save city record
+            save_city(NewCity),
             
             CityInfo = {detailed, BuildingsTuple, BuildingsQueueTuple, UnitsTuple, UnitsQueueTuple};
         true ->
@@ -322,6 +326,7 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
                 true ->
                     case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
                         {receive_unit, success} ->
+                            db:dirty_delete(Unit),
                             NewUnits = gb_sets:delete(UnitId, Units),
                             NewCity = City#city {units = NewUnits},
                             NewData = Data#module_data {city = NewCity},
@@ -338,7 +343,9 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
             TransferUnitInfo = {transfer_unit, unit_is_not_member},
             NewData = Data
     end,
-    
+
+    save_city(NewData#module_data.city),    
+
     {reply, TransferUnitInfo , NewData};
 
 handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->   
@@ -369,6 +376,8 @@ handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
             ReceiveUnitInfo = {receive_unit, error}
     end,
     
+    save_city(NewData#module_data.city),    
+
     {reply, ReceiveUnitInfo, NewData};   
 
 handle_call({'GET_STATE', _CityId}, _From, Data) ->
@@ -866,3 +875,6 @@ cases_unit_queue(_IsPlayer, _IsValidUnitType, _CanAfford = true, _PopAvailable) 
     {false, insufficient_gold};
 cases_unit_queue(_IsPlayer, _IsValidUnitType, _CanAfford, _PopAvailable = true) ->
     {false, insufficient_pop}.
+
+save_city(City) ->
+    db:dirty_write(City).
