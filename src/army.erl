@@ -356,11 +356,26 @@ handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
     
     {reply, ReceiveUnitInfo, NewData};    
 
-handle_call({'GET_INFO'}, _From, Data) ->    
+handle_call({'GET_INFO', PlayerId}, _From, Data) ->    
     Army = Data#module_data.army,   
-    Units = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
-    UnitsInfoTuple = unit:units_tuple(Units),
-    ArmyInfo = {Army#army.id, Army#army.player_id, UnitsInfoTuple},
+
+    case Army#army.player_id =:= PlayerId of
+        true ->
+            Units = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
+            UnitsInfoTuple = unit:units_tuple(Units),
+            ArmyInfo = {detailed, 
+                        Army#army.id, 
+                        Army#army.player_id, 
+                        Army#army.name,
+                        kingdom:get_name(Army#army.player_id),
+                        UnitsInfoTuple};
+        false ->
+            ArmyInfo = {generic, 
+                        Army#army.id,
+                        Army#army.player_id, 
+                        Army#army.name, 
+                        kingdom:get_name(Army#army.player_id)}
+    end,            
     
     io:fwrite("army - ArmyInfo: ~w~n", [ArmyInfo]),
     {reply, ArmyInfo , Data};

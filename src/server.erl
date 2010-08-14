@@ -72,6 +72,7 @@ init() ->
     kingdom:start(),
     improvement:start(),    
     transport:start(),   
+    item:start(),
     
     % Start socket listener
     {ok, ListenSocket} = gen_tcp:listen(2345, [binary,
@@ -187,9 +188,14 @@ process_clientready(Client, Socket) ->
             PlayerPID = Client#client.player_pid,    
             io:fwrite("PlayerPID ~w~n", [PlayerPID]),			
             PlayerId = gen_server:call(PlayerPID, 'ID'),    
-            
+           
+            InfoKingdom = player:get_info_kingdom(PlayerId), 
             ExploredMap = player:get_explored_map(PlayerId),
-            io:fwrite("server: process_client_ready() -> ~w~n", [ExploredMap]),
+
+            %io:fwrite("InfoKingdom: ~w~n", InfoKingdom),
+            %io:fwrite("server: process_client_ready() -> ~w~n", [ExploredMap]),
+
+            ok = packet:send(Socket, InfoKingdom),
             ok = packet:send(Socket, #map{tiles = ExploredMap}),
             
             gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID}),    

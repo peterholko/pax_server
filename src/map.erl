@@ -197,7 +197,6 @@ get_map_tiles(TileIndexList, MapList, Map) ->
     if
         TileIndex >= 0 ->
             Tile = ets:lookup(Map, TileIndex),
-            io:fwrite("Tile[~w]: ~w~n",[TileIndex, Tile]),
             [{_Index, TileType, _Resources}] = Tile,
             NewMapList = [{TileIndex, TileType} | MapList];
         true ->

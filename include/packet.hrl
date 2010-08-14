@@ -23,6 +23,11 @@
 -define(CMD_PLAYER_ID, 5).
 -record(player_id, {id}).
 
+-define(CMD_INFO_KINGDOM, 6).
+-record(info_kingdom, {id,
+                       name,
+                       gold}).
+
 -define(CMD_EXPLORED_MAP, 39).
 -record(map, {tiles}).
 
@@ -53,10 +58,13 @@
 
 -define (CMD_INFO_ARMY, 52).
 -record(info_army, {id,
+                    name,
+                    kingdom_name,
                     units}).
 
 -define (CMD_INFO_CITY, 53).
 -record(info_city, {id,
+                    name,
                     buildings,
                     buildings_queue,
                     units,
@@ -65,6 +73,18 @@
 -define (CMD_TRANSPORT_INFO, 55).
 -record(transport_info, {transport_id, 
                          units}).
+
+-define (CMD_INFO_GENERIC_ARMY, 56).
+-record(info_generic_army, {id,
+                            player_id,
+                            name,
+                            kingdom_name}).
+
+-define (CMD_INFO_GENERIC_CITY, 57).
+-record(info_generic_city, {id,
+                            player_id,
+                            name,
+                            kingdom_name}).
 
 -define (CMD_CITY_QUEUE_BUILDING, 59). 
 -record(city_queue_building, {id,
@@ -134,5 +154,12 @@
                       task_id,
                       task_type}).
 
+
+-define(CMD_TRANSFER_ITEM, 150).
+-record(transfer_item, {item_id,
+                        source_id}).
+
+-define(CMD_DELETE_ITEM, 151).
+-record(delete_item, {item_id}).
 
 -record(tt, {test}).

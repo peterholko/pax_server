@@ -303,10 +303,19 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             %Save city record
             save_city(NewCity),
             
-            CityInfo = {detailed, BuildingsTuple, BuildingsQueueTuple, UnitsTuple, UnitsQueueTuple};
+            CityInfo = {detailed, 
+                        City#city.name,
+                        BuildingsTuple, 
+                        BuildingsQueueTuple, 
+                        UnitsTuple, 
+                        UnitsQueueTuple};
         true ->
             NewData = Data,
-            CityInfo = {generic, City#city.player_id}
+            CityInfo = {generic, 
+                        City#city.id, 
+                        City#city.player_id, 
+                        City#city.name,
+                        kingdom:get_name(City#city.player_id)}
     end,
     
     io:fwrite("city - CityInfo: ~w~n", [CityInfo]),
@@ -590,57 +599,6 @@ check_claim(_, _, _, _) ->
     log4erl:info("Add claim failed."),
     false.
 
-add_item(CityId, Type, Value) ->
-    case db:dirty_read(item_type_ref, {CityId, Type}) of
-        [ItemTypeRef] ->
-            io:fwrite("ItemTypeRef: ~w~n", [ItemTypeRef]),
-            update_item(ItemTypeRef#item_type_ref.item_id, Value);
-        _ ->
-            new_item(CityId, Type, Value)
-    end.
-
-update_item(ItemId, Value) ->
-    F = fun() ->
-            [Item] = mnesia:read(item, ItemId),
-            CurrentValue = Item#item.value,
-            NewItem = Item#item {value = CurrentValue + Value},
-            mnesia:write(NewItem)
-        end,
-    {atomic, _Status} = mnesia:transaction(F).
-
-set_item(ItemId, Value) ->
-    F = fun() ->
-            [Item] = mnesia:read(item, ItemId),
-            NewItem = Item#item {value = Value},
-            mnesia:write(NewItem)
-        end,
-    {atomic, _Status} = mnesia:transaction(F).
-
-new_item(CityId, Type, Value) ->
-    F = fun() ->
-            ItemId = counter:increment(item),
-            ItemRef = {CityId, Type},
-            Item = #item {id = ItemId,
-                          entity_id = CityId,
-                          type = Type,
-                          value = Value},
-            ItemTypeRef = #item_type_ref {entity_type_ref = ItemRef,
-                                          item_id = ItemId},
-            mnesia:write(Item),
-            mnesia:write(ItemTypeRef)
-        end,
-    {atomic, _Status} = mnesia:transaction(F).
-
-get_item_by_type(CityId, Type) ->
-    case db:dirty_read(item_type_ref, {CityId, Type}) of
-        [ItemTypeRef] ->
-            [Item] = db:dirty_read(item, ItemTypeRef#item_type_ref.item_id),
-            Result = {found, Item};
-        _ ->
-            Result = {not_found}
-    end,
-    Result.            
-
 harvest(CityId) ->
     % match {assignment, assignment_id, city_id, population_id, amount, task_id, task_type}
     io:fwrite("Harvest~n"),
@@ -661,7 +619,7 @@ harvest_assignment([Assignment | Rest], CityId) ->
     ResourceGained = Yield / 100 * Assignment#assignment.amount,
 
     io:fwrite("ResourceGained: ~w~n",[ResourceGained]),
-    add_item(CityId, Improvement#improvement.type, ResourceGained),
+    item:add_item(CityId, Improvement#improvement.type, ResourceGained),
 
     harvest_assignment(Rest, CityId).
 
@@ -705,7 +663,7 @@ total_food_required([Caste | Rest], FoodRequired) ->
     total_food_required(Rest, TotalFoodRequired).
 
 food_upkeep(CityId, Population, TotalFoodRequired) ->
-    case get_item_by_type(CityId, ?ITEM_FOOD) of
+    case item:get_item_by_type(CityId, ?ITEM_FOOD) of
         {found, Food} ->
             io:fwrite("Food upkeep: ~w~n",[Food]),
             io:fwrite("Food Store: ~w TotalFoodRequired: ~w~n", [Food#item.value, TotalFoodRequired]), 
@@ -719,7 +677,7 @@ food_upkeep(CityId, Population, TotalFoodRequired) ->
                     NewFoodValue = 0
             end,
             io:fwrite("New Food Store: ~w~n", [NewFoodValue]), 
-            set_item(Food#item.id, NewFoodValue);
+            item:set_item(Food#item.id, NewFoodValue);
         {not_found} ->
             starve_population(Population, TotalFoodRequired)
     end.         

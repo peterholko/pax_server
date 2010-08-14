@@ -206,16 +206,34 @@ request_info() ->
 info() ->
     record(info, {info_list()}).
 
+info_kingdom() ->
+    record(info_kingdom, {id(),
+                          name(),
+                          int()}).
 info_army() ->
     record(info_army, {id(),
+                       name(), 
+                       name(), %kingdom name
                        units()}).
 
 info_city() ->
     record(info_city, {id(),
+                       name(),
                        buildings(),
                        buildings_queue(),
                        units(),
                        units_queue()}).
+
+info_generic_army() ->
+    record(info_generic_army, {id(),   
+                               id(), %player id
+                               name(), %army name
+                               name()}). %kingdom name                            
+info_generic_city() ->
+    record(info_generic_city, {id(),
+                               id(), %player id
+                               name(), %city name
+                               name()}). %kingdom name
 
 city_queue_unit() ->
     record(city_queue_unit, {id(),
@@ -281,6 +299,13 @@ assign_task() ->
                          id(),
                          type()}).                                              
 
+transfer_item() ->
+    record(transfer_item, {id(),
+                           target_id()}).
+
+delete_item() ->
+    record(delete_item, {id()}).
+
 transport_info() ->
     record(transport_info, {transport_id(),
                             units()}).
@@ -344,6 +369,12 @@ read(<<?CMD_ADD_CLAIM, Bin/binary>>) ->
 read(<<?CMD_ASSIGN_TASK, Bin/binary>>) ->
     unpickle(assign_task(), Bin);
 
+read(<<?CMD_TRANSFER_ITEM, Bin/binary>>) ->
+    unpickle(transfer_item(), Bin);
+
+read(<<?CMD_DELETE_ITEM, Bin/binary>>) ->
+    unpickle(delete_item(), Bin);
+
 %% Test Read Packets
 
 read(<<?CMD_PLAYER_ID, Bin/binary>>) ->
@@ -391,11 +422,20 @@ write(R) when is_record(R, map) ->
 write(R) when is_record(R, info) ->
     [?CMD_INFO|pickle(info(), R)];
 
+write(R) when is_record(R, info_kingdom) ->
+    [?CMD_INFO_KINGDOM|pickle(info_kingdom(), R)];
+
 write(R) when is_record(R, info_army) ->
     [?CMD_INFO_ARMY|pickle(info_army(), R)];
 
 write(R) when is_record(R, info_city) ->
     [?CMD_INFO_CITY|pickle(info_city(), R)];
+
+write(R) when is_record(R, info_generic_army) ->
+    [?CMD_INFO_GENERIC_ARMY|pickle(info_generic_army(), R)];
+
+write(R) when is_record(R, info_generic_city) ->
+    [?CMD_INFO_GENERIC_CITY|pickle(info_generic_city(), R)];
 
 write(R) when is_record(R, battle_info) ->
     [?CMD_BATTLE_INFO|pickle(battle_info(), R)];
@@ -449,6 +489,12 @@ write(R) when is_record(R, city_queue_building) ->
 
 write(R) when is_record(R, assign_task) ->
     [?CMD_ASSIGN_TASK|pickle(assign_task(), R)];
+
+write(R) when is_record(R, transfer_item) ->
+    [?CMD_TRANSFER_ITEM|pickle(transfer_item(), R)];
+
+write(R) when is_record(R, delete_item) ->
+    [?CMD_DELETE_ITEM|pickle(delete_item(), R)];
 
 write(R) when is_record(R, tt) ->
     [-1|pickle(tt(), R)].

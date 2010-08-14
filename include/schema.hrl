@@ -13,12 +13,14 @@
 
 -record(kingdom, {id, 
                  player_id,
+                 name,
                  gold = 0,
                  armies = [],
                  cities = []}).
 
 -record(army, {	id,
                 player_id,
+                name,
                 x,
                 y,  
                 dest,
@@ -42,6 +44,7 @@
 
 -record(city, { id,
                 player_id,
+                name,
                 x,
                 y, 
                 state = 0,

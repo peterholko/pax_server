@@ -20,6 +20,7 @@
 
 -export([start/1, stop/1, stop/2, get_explored_map/1, get_type/1]).
 -export([send_battle_add_army/3, send_battle_remove_army/3]).
+-export([get_info_kingdom/1]).
 %%
 %% Records
 %%
@@ -206,29 +207,40 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
     
     case Type of 
         ?OBJECT_ARMY ->
-            {ArmyId, PlayerId, UnitsInfo} = gen_server:call(global:whereis_name({army, Id}), {'GET_INFO'}),			
-            
-            if
-                Data#module_data.player_id =:= PlayerId ->
-                    R = #info_army {id = ArmyId,
-                                    units = UnitsInfo},
+            case gen_server:call(global:whereis_name({army, Id}), {'GET_INFO', Data#module_data.player_id}) of
+                {detailed, ArmyId, _ArmyPlayerId, ArmyName, KingdomName, UnitsInfo} ->            
+                    R = #info_army { id = ArmyId,
+                                     name = ArmyName,
+                                     kingdom_name = KingdomName,
+                                     units = UnitsInfo},
                     forward_to_client(R, Data);
-                true ->
-                    PlayerId
+                {generic, ArmyId, ArmyPlayerId, ArmyName, KingdomName} ->
+                    R = #info_generic_army { id = ArmyId,
+                                             player_id = ArmyPlayerId,
+                                             name = ArmyName,
+                                             kingdom_name = KingdomName},
+                    forward_to_client(R, Data);
+                _ ->
+                    ok
             end;
         ?OBJECT_CITY ->
             case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
-                {detailed, BuildingInfo, BuildingsQueueInfo, UnitsInfo, UnitsQueueInfo} ->
+                {detailed, CityName, BuildingInfo, BuildingsQueueInfo, UnitsInfo, UnitsQueueInfo} ->
                     io:fwrite("BuildingsQueueInfo: ~w~n", [BuildingsQueueInfo]),
-                    R = #info_city { id = Id, 
+                    R = #info_city { id = Id,
+                                     name = CityName, 
                                      buildings = BuildingInfo,
                                      buildings_queue = BuildingsQueueInfo, 
                                      units = UnitsInfo,
                                      units_queue = UnitsQueueInfo},
                     forward_to_client(R, Data);
-                {generic, CityInfo} ->
-                    CityInfo;
-                {none} ->
+                {generic, CityId, CityPlayerId, CityName, KingdomName} ->
+                    R = #info_generic_city { id = CityId,
+                                             player_id = CityPlayerId,
+                                             name = CityName,
+                                             kingdom_name = KingdomName},
+                    forward_to_client(R, Data);                                             
+                _ ->
                     ok
             end;
         ?OBJECT_BATTLE ->
@@ -534,4 +546,12 @@ save_explored_map(PlayerId, ExploredMap) ->
     
     lists:foreach(F, ExploredMap),
     dets:close(FileName).
+
+get_info_kingdom(PlayerId) ->
+    {Id, Name, Gold} = kingdom:get_info_kingdom(PlayerId),
+    InfoKingdom = #info_kingdom { id = Id, name = Name, gold = Gold},
+    io:fwrite("InfoKingdom: ~w~n", [InfoKingdom]),
+    InfoKingdom.
+                        
+    
 
