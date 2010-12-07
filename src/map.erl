@@ -16,9 +16,9 @@
 %% External exports
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([load/0, get_tile/2, get_tile_type/2, get_explored_map/1, get_surrounding_tiles/2]).
--export([get_resource_yield/2]).
+-export([get_tile_info/1, harvest_resource/3, is_tile_explored/2]).
 -export([convert_coords/1, convert_coords/2]).
--record(module_data, {map}).
+-record(module_data, {}).
 %% ====================================================================
 %% External functions
 %% ====================================================================
@@ -32,6 +32,9 @@ load() ->
 get_tile(X, Y) ->
     TileIndex = convert_coords(X,Y),
     gen_server:call({global, map}, {'GET_TILE', TileIndex}).
+
+get_tile_info(TileIndex) ->
+    gen_server:call({global, map}, {'GET_TILE_INFO', TileIndex}).
 
 get_tile_type(X, Y) ->
     TileIndex = convert_coords(X,Y),
@@ -48,16 +51,26 @@ get_surrounding_tiles(X, Y) ->
     io:fwrite("map - get_surrounding_tiles TileList: ~w~n",[TileList]),
     TileList.
 
-get_resource_yield(TileIndex, ResourceType) ->
-    gen_server:call({global, map}, {'GET_RESOURCE_YIELD', TileIndex, ResourceType}).
+harvest_resource(TileIndex, ResourceType, Amount) ->
+    gen_server:call({global, map}, {'HARVEST_RESOURCE', TileIndex, ResourceType, Amount}).
 
+is_tile_explored(TileIndex, ExploredMap) ->
+    io:fwrite("TileIndex: ~w~n", [TileIndex]),
+    io:fwrite("ExploredMap: ~w~n", [ExploredMap]),
+    case lists:keyfind(TileIndex, 1, ExploredMap) of
+        false ->
+            Result = false;
+        {_Tile, _TileType} ->
+            Result = true
+    end,
+    Result.
 
 %% ====================================================================
 %% Server functions
 %% ====================================================================
 
 init([]) ->
-    Data = #module_data {map = ets:new(map, [set])},
+    Data = #module_data{},
     {ok, Data}.
 
 handle_cast(none, Data) ->  
@@ -70,10 +83,11 @@ handle_call(load, _From, Data) ->
     io:fwrite("Loading map...~n"),
     case file:open("tiles.bin", read) of
         {ok, TilesFileRef} ->
-            load_tiles(TilesFileRef, false, 0, Data#module_data.map),
+            load_tiles(TilesFileRef, false, 0),
             case file:open("resourceList.txt", read) of
                 {ok, ResourceListFileRef} ->
-                    load_resources(ResourceListFileRef, false, 0, Data#module_data.map);
+                    Time = util:get_time_seconds(),
+                    load_resources(ResourceListFileRef, Time, false, 0);
                 Any ->
                     io:fwrite("~w", [Any])
             end;
@@ -84,31 +98,42 @@ handle_call(load, _From, Data) ->
     {reply, ok, Data};
 
 handle_call({'GET_EXPLORED_MAP', TileIndexList}, _From, Data) ->
-    MapTiles = get_map_tiles(TileIndexList, [], Data#module_data.map),
+    MapTiles = get_map_tiles(TileIndexList, []),
     {reply, MapTiles, Data};
 
 handle_call({'GET_TILE', TileIndex}, _From, Data) ->
-    MapTile = ets:lookup(Data#module_data.map, TileIndex),
-    io:fwrite("Map Tile: ~w~n", [MapTile]),
-    {reply, ok, Data};
+    Tile = db:dirty_read(tile, TileIndex),
+    {reply, Tile, Data};
+
+handle_call({'GET_TILE_INFO', TileIndex}, _From, Data) ->
+    case db:dirty_read(tile, TileIndex) of
+        [Tile] ->
+            TileType = Tile#tile.type,
+            Resources = get_resources(Tile#tile.resources, []);
+        _ ->
+            TileType = -1,
+            Resources = [],
+            log4erl:error("~w: Could not find tile ~w", [?MODULE, TileIndex]),
+            erlang:error("Could not find tile.")
+    end,      
+    {reply, {TileType, Resources}, Data};
 
 handle_call({'GET_TILE_TYPE', TileIndex}, _From, Data) ->
-    Tile = ets:lookup(Data#module_data.map, TileIndex),
-    [{_Index, TileType, _Resources}] = Tile,
-    {reply, TileType, Data};
+    [Tile] = db:dirty_read(tile, TileIndex),
+    {reply, Tile#tile.type, Data};
 
-handle_call({'GET_RESOURCE_YIELD', TileIndex, ResourceType}, _From, Data) ->
-    Tile = ets:lookup(Data#module_data.map, TileIndex),
-    [{_Index, _TileType, Resources}] = Tile,
-    case lists:keyfind(ResourceType, 1, Resources) of
+handle_call({'HARVEST_RESOURCE', TileIndex, ResourceType, Amount}, _From, Data) ->
+    Tile = db:dirty_read(tile, TileIndex), 
+    Resources = Tile#tile.resources,
+    case lists:keyfind(ResourceType, 2, Resources) of
         false ->
-            ResourceYield = 0,
+            HarvestAmount = 0,
             log4erl:error("~w: Could not find resource type ~w", [?MODULE, ResourceType]),
             erlang:error("Could not find resource type.");
-        {ResourceType, ResourceYield} ->
-            ok
+        {ResourceId, _ResType} ->
+            HarvestAmount = get_harvest_amount(ResourceId, Amount)                
     end,                     
-    {reply, ResourceYield, Data};
+    {reply, HarvestAmount, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
@@ -135,24 +160,27 @@ terminate(_Reason, _) ->
 %% --------------------------------------------------------------------
 %%% Internal functions
 
-load_tiles(_FileRef, true, _TileIndex, _Map) ->
+load_tiles(_FileRef, true, _TileIndex) ->
+    io:fwrite("loading tiles done~n"),
     done;
 
-load_tiles(FileRef, _, TileIndex, Map) ->
+load_tiles(FileRef, _, TileIndex) ->
     case file:read(FileRef, 1) of
         {ok, Data} ->
             [TileType] = Data,
-            ets:insert(Map, {TileIndex, TileType, []}),
+            Tile = #tile {index = TileIndex, type = TileType, resources = []},
+            db:dirty_write(Tile),
             EOF = false;
         eof ->
             EOF = true
     end,
-    load_tiles(FileRef, EOF, TileIndex + 1, Map).
+    load_tiles(FileRef, EOF, TileIndex + 1).
             
-load_resources(_ResourceListFileRef, true, _TileIndex, _Map) ->
+load_resources(_ResourceListFileRef, _Time, true, _TileIndex) ->
+    io:fwrite("loading resources done~n"),
     done;
 
-load_resources(ResourceListFileRef, _, TileIndex, Map) ->
+load_resources(ResourceListFileRef, Time, _, TileIndex) ->
     case io:get_line(ResourceListFileRef, '') of
         eof ->
             EOF = true;
@@ -160,50 +188,124 @@ load_resources(ResourceListFileRef, _, TileIndex, Map) ->
             ResourceFileName = Data, 
             case file:open(ResourceFileName, read) of
                 {ok, ResourceFileRef} ->
-                    load_resource_yield(ResourceFileRef, false, 0, Map);
+                    load_resource_regen(ResourceFileRef, 0, Time, false, 0);
                 Any ->
                     io:fwrite("~w", [Any])
             end,
             EOF = false
     end,
-    load_resources(ResourceListFileRef, EOF, TileIndex + 1, Map).
+    load_resources(ResourceListFileRef, Time, EOF, TileIndex + 1).
 
-load_resource_yield(_ResourceFileRef, true, _TileIndex, _Map) ->
+load_resource_regen(_ResourceFileRef, _ResourceType, _Time, true, _TileIndex) ->
     done;
 
-load_resource_yield(ResourceFileRef, _, TileIndex, Map) ->
+load_resource_regen(ResourceFileRef, ResourceType, Time, _, TileIndex) ->
     case file:read(ResourceFileRef, 1) of
         {ok, Data} ->
-            %io:fwrite("Resource Data: ~w~n", [Data]),
-            [ResourceYield] = Data,
-            Tile = ets:lookup(Map, TileIndex),
-            %io:fwrite("Tile: ~w~n", [Tile]),
-            [{TileIndex, TileType, Resources}] = Tile,
-            %io:fwrite("Resources: ~w~n",[Resources]),
-            NewResources = [{1, ResourceYield} | Resources],
-            ets:insert(Map, {TileIndex, TileType, NewResources}),
+            [ResourceRegen] = Data,
+            case ResourceRegen > 0 of
+                true ->
+                    ResourceId = counter:increment(resource),
+                    [Tile] = db:dirty_read(tile, TileIndex),
+
+                    NewResources = [{ResourceId, ResourceType} | Tile#tile.resources],
+                    NewTile = Tile#tile { resources = NewResources},       
+                    Resource = #resource {id = ResourceId,
+                                          type = 1,
+                                          total = 0,
+                                          regen_rate = ResourceRegen,
+                                          last_update = Time},
+
+                    db:dirty_write(NewTile),
+                    db:dirty_write(Resource);
+                false ->
+                    skip_resource
+            end,                                            
             EOF = false;
         eof ->
             EOF = true
     end,
-    load_resource_yield(ResourceFileRef, EOF, TileIndex + 1, Map).
+    load_resource_regen(ResourceFileRef, ResourceType, Time, EOF, TileIndex + 1).
 
-get_map_tiles([], MapList, _Map) ->
+get_harvest_amount(ResourceId, Amount) ->
+    case db:dirty_read(resource, ResourceId) of
+        [Resource] ->
+            HarvestAmount = update_resource(Resource, Amount);
+        _ ->
+            HarvestAmount = 0
+    end,
+    HarvestAmount.
+
+update_resource(Resource, Amount) ->
+    CurrentTime = util:get_time_seconds(),
+    DiffTime = CurrentTime - Resource#resource.last_update,
+    
+    Total = Resource#resource.total,
+    ResourceGrowth = erlang:round(DiffTime / 1000) * Resource#resource.regen_rate,
+
+    case (Total + ResourceGrowth - Amount) < 0 of
+        true ->
+            HarvestAmount = Amount - (Total + ResourceGrowth),
+            NewTotal = 0;
+        false ->
+            HarvestAmount = Amount,
+            NewTotal = Total + ResourceGrowth - Amount
+    end,
+        
+    NewResource = Resource#resource {total = NewTotal,
+                                     last_update = CurrentTime},
+
+    db:dirty_write(NewResource),
+    %Return harvested amount
+    HarvestAmount.
+
+get_resources([], NewResources) ->
+    NewResources;
+
+get_resources([{ResourceId, _ResourceType} | Rest], Resources) ->
+    case db:dirty_read(resource, ResourceId) of
+        [Resource] ->
+            NewResource = update_resource(Resource),
+            NewResources = [NewResource | Resources];
+        _ ->            
+            NewResources = Resources,
+            log4erl:error("~w: Could not find resource id ~w", [?MODULE, ResourceId]),
+            erlang:error("Could not find resource id.")
+    end,           
+    
+    get_resources(Rest, NewResources).
+
+update_resource(Resource) ->
+    CurrentTime = util:get_time_seconds(),
+    DiffTime = CurrentTime - Resource#resource.last_update,
+
+    ResourceGrowth = erlang:round(DiffTime / 1000) * Resource#resource.regen_rate,
+    NewTotal = Resource#resource.total + ResourceGrowth,    
+
+    NewResource = Resource#resource {total = NewTotal,
+                                     last_update = CurrentTime},
+    db:dirty_write(NewResource),
+
+    {NewResource#resource.id, 
+     NewResource#resource.type,
+     NewResource#resource.total,
+     NewResource#resource.regen_rate}.
+
+get_map_tiles([], MapList) ->
     MapList;
 
-get_map_tiles(TileIndexList, MapList, Map) ->
+get_map_tiles(TileIndexList, MapList) ->
     [TileIndex | Rest] = TileIndexList,
 
     if
         TileIndex >= 0 ->
-            Tile = ets:lookup(Map, TileIndex),
-            [{_Index, TileType, _Resources}] = Tile,
-            NewMapList = [{TileIndex, TileType} | MapList];
+            [Tile] = db:dirty_read(tile, TileIndex),
+            NewMapList = [{TileIndex, Tile#tile.type} | MapList];
         true ->
             NewMapList = MapList
     end,
 
-    get_map_tiles(Rest, NewMapList, Map).
+    get_map_tiles(Rest, NewMapList).
 
 convert_coords(X, Y) ->
     Y * ?MAP_HEIGHT + X.

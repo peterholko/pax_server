@@ -65,6 +65,12 @@ caste() ->
 improvement_type() ->
     byte().
 
+resource() ->
+    tuple({id(), type(), int(), int()}).
+
+resources() ->
+    list(short(), resource()).
+
 entity() ->
     tuple({id(), player(), type(), state(), x(), y()}).
 
@@ -223,6 +229,11 @@ info_city() ->
                        buildings_queue(),
                        units(),
                        units_queue()}).
+
+info_tile() ->
+    record(info_tile, {int(), %tile_index,
+                       short(), %tile_type,
+                       resources()}).
 
 info_generic_army() ->
     record(info_generic_army, {id(),   
@@ -430,6 +441,9 @@ write(R) when is_record(R, info_army) ->
 
 write(R) when is_record(R, info_city) ->
     [?CMD_INFO_CITY|pickle(info_city(), R)];
+
+write(R) when is_record(R, info_tile) ->
+    [?CMD_INFO_TILE|pickle(info_tile(), R)];
 
 write(R) when is_record(R, info_generic_army) ->
     [?CMD_INFO_GENERIC_ARMY|pickle(info_generic_army(), R)];

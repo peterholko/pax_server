@@ -612,11 +612,7 @@ harvest_assignment([Assignment | Rest], CityId) ->
     io:fwrite("Harvest Assignment~n"),
     ImprovementId = Assignment#assignment.task_id,
     [Improvement] = db:dirty_read(improvement, ImprovementId),
-    Yield  = map:get_resource_yield(Improvement#improvement.tile_index,
-                                    1),
-
-    io:fwrite("Yield: ~w~n", [Yield]),
-    ResourceGained = Yield / 100 * Assignment#assignment.amount,
+    ResourceGained  = map:harvest_resource(Improvement#improvement.tile_index, 1, Assignment#assignment.amount),
 
     io:fwrite("ResourceGained: ~w~n",[ResourceGained]),
     item:add_item(CityId, Improvement#improvement.type, ResourceGained),

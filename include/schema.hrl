@@ -11,6 +11,16 @@
                      process = none,
                      socket = none}).
 
+-record(tile, {index,
+               type,
+               resources}).
+
+-record(resource, {id,
+                   type,
+                   total,
+                   regen_rate,
+                   last_update}).
+
 -record(kingdom, {id, 
                  player_id,
                  name,
@@ -139,6 +149,7 @@
                           name}).
 
 -record(resource_type, {id,
+                        tile_max,
                         name}).
 
 -record(improvement_type, {id,

@@ -56,13 +56,19 @@
 -define (CMD_INFO, 51).
 -record(info, {info_list}).
 
--define (CMD_INFO_ARMY, 52).
+-define (CMD_INFO_TILE, 52).
+-record(info_tile, {tile_index,
+                    tile_type,
+                    resources}).
+
+-define (CMD_INFO_ARMY, 53).
 -record(info_army, {id,
                     name,
                     kingdom_name,
                     units}).
 
--define (CMD_INFO_CITY, 53).
+
+-define (CMD_INFO_CITY, 54).
 -record(info_city, {id,
                     name,
                     buildings,

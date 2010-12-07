@@ -83,7 +83,7 @@ init() ->
 
     
     Client = #client{ server_pid = self() },
-    log4erl:info("Server listening...~n"),
+    log4erl:info("Server listening..."),
     do_accept(ListenSocket, Client).
 
 %%
@@ -93,20 +93,21 @@ init() ->
 do_accept(ListenSocket, Client) ->	
     case gen_tcp:accept(ListenSocket) of 
         {ok, Socket} ->
-            io:fwrite("Socket accepted.~n"),
+            log4erl:debug("Socket accepted."),
             spawn(fun() -> do_accept(ListenSocket, Client) end),
             handle_client(Socket, Client);
         {error, closed} ->
-            io:fwrite("Socket not accepted.")
+            log4erl:error("Socket not accepted.")
     end.
 
 handle_client(Socket, Client) ->
     receive
         {tcp, Socket, Bin} ->
             
-            io:fwrite("Status: Data accepted: ~w~n", [Bin]),
+            log4erl:debug("Status: Data accepted: ~w", [Bin]),
             NewClient = case catch packet:read(Bin) of
                             {'EXIT', Error} ->
+                                log4erl:error("Could not parse packet"),
                                 error_logger:error_report(
                                   [{module, ?MODULE},
                                    {line, ?LINE},
@@ -132,14 +133,14 @@ handle_client(Socket, Client) ->
             handle_client(Socket, NewClient);
         
         {tcp_closed, Socket} ->
-            io:fwrite("server: Socket disconnected.~n"),
-            io:fwrite("server: handle_client - self() -> ~w~n", [self()]),
-            io:fwrite("server: handle_client - Client#client.player_pid -> ~w~n", [Client#client.player_pid]),
+            log4erl:debug("Socket disconnected"),
+            log4erl:debug("Handle_client - self() -> ~w", [self()]),
+            log4erl:debug("Handle_client - Client#client.player_pid -> ~w", [Client#client.player_pid]),
             gen_server:call(Client#client.player_pid, 'LOGOUT'),
             handle_client(Socket, Client);
 
         {tcp_error, Socket, Reason} ->
-            io:fwrite("server: tcp_error ~w~n", [Reason]),
+            log4erl:error("tcp_error: ~w", [Reason]),
             handle_client(Socket, Client);
                 
         {packet, Packet} ->
@@ -154,15 +155,14 @@ process_login(Client, Socket, Name, Pass) ->
             ok = packet:send(Socket, #bad{ cmd = ?CMD_LOGIN, error = Error}),
             Client;
         {ok, PlayerPID} ->
-            io:fwrite("server: process_login - ok.~n"),
+            log4erl:debug("process_login - ok"),
             PlayerId = gen_server:call(PlayerPID, 'ID'),
-            io:fwrite("server: process_login - PlayerPID -> ~w~n", [PlayerPID]),
+            log4erl:debug("process_login - PlayerPID -> ~w", [PlayerPID]),
             ok = packet:send(Socket, #player_id{ id = PlayerId }),
             
-            %io:fwrite("server: process_login - PlayerX -> ~w~n", [CharX]),
             NewClient = Client#client{ player_pid = PlayerPID },
-            io:fwrite("server: process_login - self() -> ~w~n", [self()]),
-            io:fwrite("server: process_login - Client#client.player_pid -> ~w~n", [NewClient]),            
+            log4erl:debug("process_login - self() -> ~w", [self()]),
+            log4erl:debug("process_login - Client#client.player_pid -> ~w", [NewClient]),            
             NewClient
     end.	
 
@@ -175,34 +175,25 @@ process_policy_request(Client, Socket) ->
     Client.
 
 process_clocksync(Client, Socket) ->
-    io:fwrite("server: process_clocksync~n"),
+    log4erl:debug("server: process_clocksync~n"),
     ok = packet:send_clocksync(Socket),
     Client.
 
 process_clientready(Client, Socket) ->
-    
-    io:fwrite("server - process_clientready~n"),
+    log4erl:debug("server - process_clientready~n"),
     if
         Client#client.ready =/= true ->
-            io:fwrite("server - client.ready =/= true~n"),
+            log4erl:debug("server - client.ready =/= true~n"),
             PlayerPID = Client#client.player_pid,    
-            io:fwrite("PlayerPID ~w~n", [PlayerPID]),			
-            PlayerId = gen_server:call(PlayerPID, 'ID'),    
-           
-            InfoKingdom = player:get_info_kingdom(PlayerId), 
-            ExploredMap = player:get_explored_map(PlayerId),
-
-            %io:fwrite("InfoKingdom: ~w~n", InfoKingdom),
-            %io:fwrite("server: process_client_ready() -> ~w~n", [ExploredMap]),
-
-            ok = packet:send(Socket, InfoKingdom),
-            ok = packet:send(Socket, #map{tiles = ExploredMap}),
-            
+            log4erl:debug("PlayerPID ~w~n", [PlayerPID]),			
+            PlayerId = gen_server:call(PlayerPID, 'ID'),   
+ 
+            gen_server:cast(PlayerPID, {'SEND_SETUP_INFO'}),        
             gen_server:cast(global:whereis_name(game_pid), {'ADD_PLAYER', PlayerId, PlayerPID}),    
             
             NewClient = Client#client{ ready = true };
         true ->			
-            io:fwrite("server - clientready failed as ready state was true"),
+            log4erl:debug("server - clientready failed as ready state was true"),
             NewClient = Client
     end,
     

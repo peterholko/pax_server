@@ -52,6 +52,9 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(item, [{disc_copies, [node()]}, {attributes, record_info(fields, item)}]),   
     {atomic, ok} = mnesia:create_table(assignment, [{disc_copies, [node()]}, {attributes, record_info(fields, assignment)}]),   
  
+    {atomic, ok} = mnesia:create_table(tile, [{ram_copies, [node()]}, {attributes, record_info(fields, tile)}]),   
+    {atomic, ok} = mnesia:create_table(resource, [{ram_copies, [node()]}, {attributes, record_info(fields, resource)}]),   
+
     {atomic, ok} = mnesia:create_table(unit_type, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_type)}]),
     {atomic, ok} = mnesia:create_table(building_type, [{disc_copies, [node()]}, {attributes, record_info(fields, building_type)}]),
     {atomic, ok} = mnesia:create_table(resource_type, [{disc_copies, [node()]}, {attributes, record_info(fields, resource_type)}]),
@@ -173,8 +176,8 @@ test_tables() ->
      {player, 3, <<"test3">>, <<"123123">>, 0, false},
      {player, 4, <<"test4">>, <<"123123">>, 0, false},
      {kingdom, 1, 1, <<"The Rich">>, 5000, [1,2], [11]},
-     {kingdom, 2, 2, <<"The Bad">>, 100, [3], [12]},
-     {kingdom, 3, 3, <<"The Ugly">>, 100, [4], [13]},
+     {kingdom, 2, 2, <<"The Bad">>, 100, [3], []},
+     {kingdom, 3, 3, <<"The Ugly">>, 100, [4], []},
      {kingdom, 4, 4, <<"The Poor">>, 100, [5], []},
      {player_type, 1, 0},
      {player_type, 2, 0},

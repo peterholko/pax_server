@@ -72,7 +72,7 @@ init([Id])
 
 stop(ProcessId) 
   when is_pid(ProcessId) ->
-    io:fwrite("player - stop player process: ~w~n", [ProcessId]),
+    log4erl:debug("player - stop player process: ~w~n", [ProcessId]),
     gen_server:cast(ProcessId, stop).
 
 stop(ProcessId, Reason) 
@@ -90,16 +90,22 @@ handle_cast({'SOCKET', Socket}, Data) ->
     {noreply, Data1};
 
 handle_cast('UPDATE_PERCEPTION', Data) ->		
-    log4erl:info("Player update perception"),
+    log4erl:debug("Player update perception"),
     {noreply, Data#module_data { update_perception = true} };
 
-handle_cast({'ADD_PERCEPTION', _NewPerceptionData}, Data) ->	
-    %Perception = Data#module_data.perception,
-    %NewPerception = lists:append(NewPerceptionData, Perception),
-    %UniquePerception = util:unique_list(NewPerception),
-    %NewData = Data#module_data {perception = UniquePerception},
+handle_cast({'SEND_SETUP_INFO'}, Data) ->
+
+    InfoKingdom = player:get_info_kingdom(Data#module_data.player_id),
+    ExploredMap = player:get_explored_map(Data#module_data.player_id),
     
-    {noreply, Data};    
+    Map = #map {tiles = ExploredMap},
+
+    forward_to_client(InfoKingdom, Data),
+    forward_to_client(Map, Data),
+ 
+    NewData = Data#module_data {explored_map = ExploredMap},
+
+    {noreply, NewData};
 
 handle_cast({'SEND_PERCEPTION'}, Data) ->    
             
@@ -109,7 +115,7 @@ handle_cast({'SEND_PERCEPTION'}, Data) ->
     % Reset update perception state
     NewData = Data#module_data {update_perception = false },
     forward_to_client(R, NewData),            
-    io:fwrite("Perception Modified.~n"),
+    log4erl:debug("Perception Modified.~n"),
     
     {noreply, NewData}; 
 
@@ -165,28 +171,32 @@ handle_cast(_ = #move{ id = ArmyId, x = X, y = Y}, Data) ->
         true -> 
             gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_MOVE', X, Y});           
         false ->
-            none
+            log4erl:error("Army ~w is not owned by Player ~w", [ArmyId, #kingdom.player_id])
     end,
     
     {noreply, Data};
 
 handle_cast(_ = #attack{ id = ArmyId, target_id = TargetId}, Data) ->
-    io:fwrite("player - attack~n"),
+    log4erl:debug("player - attack~n"),
     [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id), 
     
     case db:read(army, TargetId) of
         [TargetArmy] ->    
-            io:fwrite("player - attack read army~n"),
+            log4erl:debug("player - attack read army~n"),
             Guard = (lists:member(ArmyId, Kingdom#kingdom.armies)) and
                     (Data#module_data.player_id =/= TargetArmy#army.player_id),
             if
                 Guard ->		 
                     gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_ATTACK', TargetId});
                 true ->
-                    ok		
+                    log4erl:error("Army ~w is not owned by Player ~w and
+                                   Target ~w is the same as Player ~w", [ArmyId, 
+                                                                         Data#module_data.player_id,
+                                                                         TargetArmy#army.player_id,
+                                                                         Data#module_data.player_id])                                                                         
             end;
         _ ->
-            ok
+            log4erl:error("Target ~w does not exist", [TargetId])
     end,
     
     {noreply, Data};
@@ -203,9 +213,23 @@ handle_cast(_ = #add_waypoint{id = ArmyId, x = X, y = Y}, Data) ->
 
     {noreply, Data};
 
-handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
-    
-    case Type of 
+handle_cast(_ = #request_info{ type = Type, id = Id}, Data) -> 
+    case Type of
+        ?OBJECT_TILE ->
+            log4erl:debug("tile request info~n"),
+            TileIndex = Id,
+            case map:is_tile_explored(TileIndex, Data#module_data.explored_map) of
+                true ->
+                    log4erl:debug("tile is explored~n"),
+                    {TileType, Resources} = map:get_tile_info(TileIndex),
+                    R = #info_tile { tile_index = TileIndex,
+                                     tile_type = TileType,
+                                     resources = Resources},
+                    forward_to_client(R, Data);
+                false ->
+                    log4erl:debug("tile is not explored~n"),
+                    ok
+            end; 
         ?OBJECT_ARMY ->
             case gen_server:call(global:whereis_name({army, Id}), {'GET_INFO', Data#module_data.player_id}) of
                 {detailed, ArmyId, _ArmyPlayerId, ArmyName, KingdomName, UnitsInfo} ->            
@@ -226,7 +250,7 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
         ?OBJECT_CITY ->
             case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
                 {detailed, CityName, BuildingInfo, BuildingsQueueInfo, UnitsInfo, UnitsQueueInfo} ->
-                    io:fwrite("BuildingsQueueInfo: ~w~n", [BuildingsQueueInfo]),
+                    log4erl:debug("BuildingsQueueInfo: ~w~n", [BuildingsQueueInfo]),
                     R = #info_city { id = Id,
                                      name = CityName, 
                                      buildings = BuildingInfo,
@@ -271,7 +295,7 @@ handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = Unit
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = Id},
             gen_server:cast(self(), RequestInfo);
         {city, Error} ->            
-            log4erl:info("Queue Unit - Error: ~w~n", [Error])        
+            log4erl:error("Queue Unit - Error: ~w", [Error])        
     end,                        
     {noreply, Data};
 
@@ -280,8 +304,8 @@ handle_cast(_ = #city_queue_building{id = Id, building_type = BuildingType}, Dat
         {city, queued_building} ->
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = Id},
             gen_server:cast(self(), RequestInfo);
-        {city, error} ->
-            ok
+        {city, Error} ->
+            log4erl:error("Queue Building - Error: ~w", [Error])
     end,
     {noreply, Data};
 
@@ -299,9 +323,9 @@ handle_cast(_ = #transfer_unit{unit_id = UnitId, source_id = SourceId, source_ty
             RequestTargetInfo = #request_info{ type = TargetType, id = TargetId},
             gen_server:cast(self(), RequestTargetInfo);           
         {transfer_unit, TError} ->
-            log4erl:info("~w: Transfer Unit Error - ~w~n", [?MODULE, TError]);
+            log4erl:error("Transfer Unit Error - ~w", [TError]);
         {receive_unit, RError} ->
-            log4erl:info("~w: Receive Unit Error - ~w~n", [?MODULE, RError])
+            log4erl:error("Receive Unit Error - ~w", [RError])
     end,   
     
     {noreply, Data};
@@ -316,9 +340,8 @@ handle_cast(_ = #battle_target{battle_id = BattleId,
             case gen_server:call(global:whereis_name({battle, BattleId}), {'ADD_TARGET', SourceArmyId, SourceUnitId, TargetArmyId, TargetUnitId}) of
                 {battle_target, success} ->
                     ok;
-                {battle_target, error} ->
-                    %TODO Add error message
-                    ok
+                {battle_target, Error} ->
+                    log4erl:error("Battle Target Error - ~w", [Error])
             end;
         _ ->
             ok
