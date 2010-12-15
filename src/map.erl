@@ -89,10 +89,10 @@ handle_call(load, _From, Data) ->
                     Time = util:get_time_seconds(),
                     load_resources(ResourceListFileRef, Time, false, 0);
                 Any ->
-                    io:fwrite("~w", [Any])
+                    io:fwrite("Failed to open resourceList.txt - ~w", [Any])
             end;
         Any ->
-            io:fwrite("~w", [Any])
+            io:fwrite("Failed to open tiles.bin - ~w", [Any])
     end,   
 
     {reply, ok, Data};
@@ -185,12 +185,12 @@ load_resources(ResourceListFileRef, Time, _, TileIndex) ->
         eof ->
             EOF = true;
         Data ->
-            ResourceFileName = Data, 
+            ResourceFileName = re:split(Data,"[\n]",[{return,list},trim]), 
             case file:open(ResourceFileName, read) of
                 {ok, ResourceFileRef} ->
                     load_resource_regen(ResourceFileRef, 0, Time, false, 0);
                 Any ->
-                    io:fwrite("~w", [Any])
+                    io:fwrite("Failed to open ResourceFileName: ~w - ~w", [ResourceFileName, Any])
             end,
             EOF = false
     end,
