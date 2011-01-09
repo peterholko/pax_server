@@ -123,8 +123,9 @@ handle_call({'GET_TILE_TYPE', TileIndex}, _From, Data) ->
     {reply, Tile#tile.type, Data};
 
 handle_call({'HARVEST_RESOURCE', TileIndex, ResourceType, Amount}, _From, Data) ->
-    Tile = db:dirty_read(tile, TileIndex), 
+    [Tile] = db:dirty_read(tile, TileIndex), 
     Resources = Tile#tile.resources,
+    io:fwrite("map - Resources: ~w~n", Resources),
     case lists:keyfind(ResourceType, 2, Resources) of
         false ->
             HarvestAmount = 0,

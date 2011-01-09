@@ -88,7 +88,7 @@ handle_cast({'REMOVE_OBSERVED_BY', ImprovementId, EntityId, EntityPid}, Data) ->
     
     {noreply, Data};
 
-handle_cast({'PROCESS_EVENT', ImprovementId, EventType}, Data) ->
+handle_cast({'PROCESS_EVENT', _EventTick, ImprovementId, EventType}, Data) ->
     
     case EventType of
         ?EVENT_IMPROVEMENT_COMPLETED ->  

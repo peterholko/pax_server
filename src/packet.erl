@@ -167,6 +167,12 @@ army() ->
 damage() ->
     int().
 
+claim() ->
+    tuple({id(), tile_index(), id()}).
+
+claims() ->
+    list(short(), claim()).
+
 % packet records
 
 tt() ->
@@ -228,7 +234,8 @@ info_city() ->
                        buildings(),
                        buildings_queue(),
                        units(),
-                       units_queue()}).
+                       units_queue(),
+                       claims()}).
 
 info_tile() ->
     record(info_tile, {int(), %tile_index,
@@ -402,6 +409,9 @@ read(<<?CMD_INFO_ARMY, Bin/binary>>) ->
 
 read(<<?CMD_INFO_CITY, Bin/binary>>) ->
     unpickle(info_city(), Bin);
+
+read(<<?CMD_INFO_KINGDOM, Bin/binary>>) ->
+    unpickle(info_kingdom(), Bin);
 
 read(<<?CMD_BATTLE_INFO, Bin/binary>>) ->
     unpickle(battle_info(), Bin);

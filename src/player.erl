@@ -89,38 +89,29 @@ handle_cast({'SOCKET', Socket}, Data) ->
     Data1 = Data#module_data{ socket = Socket },
     {noreply, Data1};
 
-handle_cast('UPDATE_PERCEPTION', Data) ->		
-    log4erl:debug("Player update perception"),
-    {noreply, Data#module_data { update_perception = true} };
+%handle_cast('UPDATE_PERCEPTION', Data) ->		
+    %log4erl:debug("Player update perception"),
+%    {noreply, Data#module_data { update_perception = true} };
 
-handle_cast({'SEND_SETUP_INFO'}, Data) ->
-
-    InfoKingdom = player:get_info_kingdom(Data#module_data.player_id),
-    ExploredMap = player:get_explored_map(Data#module_data.player_id),
-    
+handle_cast({'SEND_SETUP_INFO'}, Data) ->    
+    ExploredMap = get_explored_map(Data#module_data.player_id),    
     Map = #map {tiles = ExploredMap},
+    forward_to_client(Map, Data),        
 
-    forward_to_client(InfoKingdom, Data),
-    forward_to_client(Map, Data),
- 
+    send_perception(Data),
+
+    get_info_kingdom(Data),
+    get_info_all_cities(Data),
+
     NewData = Data#module_data {explored_map = ExploredMap},
 
     {noreply, NewData};
 
 handle_cast({'SEND_PERCEPTION'}, Data) ->    
-            
-    ObjectPerception = build_perception(Data#module_data.player_id),			            
-    R = #perception {entities = ObjectPerception,
-                     tiles = Data#module_data.discovered_tiles},
-    % Reset update perception state
-    NewData = Data#module_data {update_perception = false },
-    forward_to_client(R, NewData),            
-    log4erl:debug("Perception Modified.~n"),
-    
-    {noreply, NewData}; 
+    send_perception(Data),    
+    {noreply, Data}; 
 
 handle_cast({'SEND_BATTLE_INFO', BattleId, Armies}, Data) ->	
-    
     R = #battle_info {battle_id = BattleId,
                       armies = Armies},
     
@@ -128,7 +119,6 @@ handle_cast({'SEND_BATTLE_INFO', BattleId, Armies}, Data) ->
     {noreply, Data}; 
 
 handle_cast({'SEND_BATTLE_ADD_ARMY', BattleId, ArmyInfo}, Data) ->
-    
     R = #battle_add_army {battle_id = BattleId,
                           army = ArmyInfo},
     
@@ -136,7 +126,6 @@ handle_cast({'SEND_BATTLE_ADD_ARMY', BattleId, ArmyInfo}, Data) ->
     {noreply, Data};
 
 handle_cast({'SEND_BATTLE_REMOVE_ARMY', BattleId, ArmyInfo}, Data) ->
-    
     R = #battle_remove_army {battle_id = BattleId,
                              army = ArmyInfo},
 
@@ -144,7 +133,6 @@ handle_cast({'SEND_BATTLE_REMOVE_ARMY', BattleId, ArmyInfo}, Data) ->
     {noreply, Data};
 
 handle_cast({'SEND_BATTLE_DAMAGE', BattleId, SourceId, TargetId, Damage}, Data) ->
-    
     R = #battle_damage {battle_id = BattleId,
                         source_id = SourceId,
                         target_id = TargetId,
@@ -154,8 +142,11 @@ handle_cast({'SEND_BATTLE_DAMAGE', BattleId, SourceId, TargetId, Damage}, Data) 
     {noreply, Data};
 
 handle_cast({'SET_DISCOVERED_TILES', _, EntityX, EntityY}, Data) ->
+    io:fwrite("Data: ~w~n", [Data]),
     TileIndexList = map:get_surrounding_tiles(EntityX, EntityY),
     TileList = map:get_explored_map(TileIndexList),
+    io:fwrite("TileList: ~w~n", [TileList]),
+    io:fwrite("Data#module_data.explored_map: ~w~n",[Data#module_data.explored_map]),
     ExploredMap = Data#module_data.explored_map,
     NewExploredMap = ExploredMap ++ TileList,
     
@@ -247,27 +238,9 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
                 _ ->
                     ok
             end;
-        ?OBJECT_CITY ->
-            case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
-                {detailed, CityName, BuildingInfo, BuildingsQueueInfo, UnitsInfo, UnitsQueueInfo} ->
-                    log4erl:debug("BuildingsQueueInfo: ~w~n", [BuildingsQueueInfo]),
-                    R = #info_city { id = Id,
-                                     name = CityName, 
-                                     buildings = BuildingInfo,
-                                     buildings_queue = BuildingsQueueInfo, 
-                                     units = UnitsInfo,
-                                     units_queue = UnitsQueueInfo},
-                    forward_to_client(R, Data);
-                {generic, CityId, CityPlayerId, CityName, KingdomName} ->
-                    R = #info_generic_city { id = CityId,
-                                             player_id = CityPlayerId,
-                                             name = CityName,
-                                             kingdom_name = KingdomName},
-                    forward_to_client(R, Data);                                             
-                _ ->
-                    ok
-            end;
-        ?OBJECT_BATTLE ->
+       ?OBJECT_CITY ->
+            get_info_city(Id, Data);
+       ?OBJECT_BATTLE ->
             case gen_server:call(global:whereis_name({battle, Id}), {'GET_INFO', Data#module_data.player_id}) of
                 {detailed, BattleId, Armies} ->
                     R = #battle_info { battle_id = BattleId,
@@ -502,6 +475,14 @@ forward_to_client(Event, Data) ->
             ok
     end.
 
+send_perception(Data) ->
+    ObjectPerception = build_perception(Data#module_data.player_id),			            
+    R = #perception {entities = ObjectPerception,
+                     tiles = Data#module_data.discovered_tiles},
+    % Reset update perception state
+    forward_to_client(R, Data),            
+    log4erl:debug("Perception Modified.~n").
+
 build_perception(PlayerId) ->
     [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id),
     
@@ -570,11 +551,38 @@ save_explored_map(PlayerId, ExploredMap) ->
     lists:foreach(F, ExploredMap),
     dets:close(FileName).
 
-get_info_kingdom(PlayerId) ->
-    {Id, Name, Gold} = kingdom:get_info_kingdom(PlayerId),
+get_info_kingdom(Data) ->
+    {Id, Name, Gold} = kingdom:get_info_kingdom(Data#module_data.player_id),
     InfoKingdom = #info_kingdom { id = Id, name = Name, gold = Gold},
     io:fwrite("InfoKingdom: ~w~n", [InfoKingdom]),
-    InfoKingdom.
-                        
-    
+    forward_to_client(InfoKingdom, Data).    
 
+get_info_all_cities(Data) ->
+    Cities = kingdom:get_cities(Data#module_data.player_id),
+    
+    F = fun(CityId) ->
+            get_info_city(CityId, Data)
+        end,
+    lists:foreach(F, Cities).
+    
+get_info_city(Id, Data) ->
+    case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
+        {detailed, CityName, BuildingInfo, BuildingsQueueInfo, UnitsInfo, UnitsQueueInfo, Claims} ->
+            log4erl:debug("BuildingsQueueInfo: ~w~n", [BuildingsQueueInfo]),
+            R = #info_city { id = Id,
+                             name = CityName, 
+                             buildings = BuildingInfo,
+                             buildings_queue = BuildingsQueueInfo, 
+                             units = UnitsInfo,
+                             units_queue = UnitsQueueInfo,
+                             claims = Claims},
+            forward_to_client(R, Data);
+        {generic, CityId, CityPlayerId, CityName, KingdomName} ->
+            R = #info_generic_city { id = CityId,
+                                     player_id = CityPlayerId,
+                                     name = CityName,
+                                     kingdom_name = KingdomName},
+            forward_to_client(R, Data);                                             
+        _ ->
+            ok
+    end.

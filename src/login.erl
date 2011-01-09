@@ -80,6 +80,7 @@ login(PlayerInfo, PlayerConn, account_disabled, _) ->
 
 login(PlayerInfo, PlayerConn, player_online, Args) ->
     %% player is already online
+    io:fwrite("login: player is already online~n"),
     ok = gen_server:call(PlayerConn#connection.process, 'LOGOUT'),
     timer:sleep(100),
     login(PlayerInfo, PlayerConn, player_offline, Args);

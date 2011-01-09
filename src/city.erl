@@ -298,7 +298,11 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             %Convert buildings record to tuple packet form
             NewBuildings = db:dirty_index_read(building, City#city.id, #building.city_id),  
             BuildingsTuple = building:buildings_tuple(NewBuildings),
-            BuildingsQueueTuple = building:buildings_queue_tuple(NewBuildingsQueue),        
+            BuildingsQueueTuple = building:buildings_queue_tuple(NewBuildingsQueue),       
+
+            %Convert claims record to tuple packet form
+            NewClaims = db:dirty_index_read(claim, City#city.id, #claim.city_id),
+            ClaimsTuple = claims_tuple(NewClaims), 
 
             %Save city record
             save_city(NewCity),
@@ -308,7 +312,8 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
                         BuildingsTuple, 
                         BuildingsQueueTuple, 
                         UnitsTuple, 
-                        UnitsQueueTuple};
+                        UnitsQueueTuple,
+                        ClaimsTuple};
         true ->
             NewData = Data,
             CityInfo = {generic, 
@@ -612,7 +617,7 @@ harvest_assignment([Assignment | Rest], CityId) ->
     io:fwrite("Harvest Assignment~n"),
     ImprovementId = Assignment#assignment.task_id,
     [Improvement] = db:dirty_read(improvement, ImprovementId),
-    ResourceGained  = map:harvest_resource(Improvement#improvement.tile_index, 1, Assignment#assignment.amount),
+    ResourceGained  = map:harvest_resource(Improvement#improvement.tile_index, 0, Assignment#assignment.amount),
 
     io:fwrite("ResourceGained: ~w~n",[ResourceGained]),
     item:add_item(CityId, Improvement#improvement.type, ResourceGained),
@@ -805,7 +810,7 @@ process_assignment(_City, Caste, Amount, BuildingQueueId, ?TASK_CONSTRUCTION) ->
         _ ->   
             log4erl:error("~w: Invalid BuildingQueueId ~w", [?MODULE, BuildingQueueId]),
             erlang:error("Invalid BuildingQueueId")
-    end;        
+    end;          
 
 process_assignment(_City, _Caste, _Amount, _TaskId, _TaskType) ->
     do_nothing.     
@@ -829,6 +834,13 @@ cases_unit_queue(_IsPlayer, _IsValidUnitType, _CanAfford = true, _PopAvailable) 
     {false, insufficient_gold};
 cases_unit_queue(_IsPlayer, _IsValidUnitType, _CanAfford, _PopAvailable = true) ->
     {false, insufficient_pop}.
+
+claims_tuple(Claims) ->
+    F = fun(Claim, ClaimList) ->
+            ClaimTuple = {Claim#claim.id, Claim#claim.tile_index, Claim#claim.city_id},
+            [ClaimTuple | ClaimList]
+        end,
+    lists:foldl(F, [], Claims).
 
 save_city(City) ->
     db:dirty_write(City).

@@ -61,8 +61,8 @@ handle_cast(stop, Data) ->
 
 handle_cast({'ADD_PLAYER', PlayerId, ProcessId}, Data) ->
     
-    %Toggle perception flag to send first perception
-    NewUpdatePerceptions = gb_sets:add(PlayerId, Data#game_info.update_perceptions),
+    %Toggle perception flag to send first perception (Not needed)
+    %NewUpdatePerceptions = gb_sets:add(PlayerId, Data#game_info.update_perceptions),
         
     ArmiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_ARMIES_ID_PID', PlayerId}),
     CitiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_CITIES_ID_PID', PlayerId}),
@@ -78,8 +78,8 @@ handle_cast({'ADD_PLAYER', PlayerId, ProcessId}, Data) ->
     
     NewData = Data#game_info {
                               players = NewPlayerList,
-                              entities = NewEntityList,
-                              update_perceptions = NewUpdatePerceptions                             
+                              entities = NewEntityList
+                              %update_perceptions = NewUpdatePerceptions                             
                              },
     {noreply, NewData};
 

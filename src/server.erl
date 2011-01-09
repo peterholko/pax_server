@@ -136,6 +136,7 @@ handle_client(Socket, Client) ->
             log4erl:debug("Socket disconnected"),
             log4erl:debug("Handle_client - self() -> ~w", [self()]),
             log4erl:debug("Handle_client - Client#client.player_pid -> ~w", [Client#client.player_pid]),
+            io:fwrite("server - tcp_closed~n"),
             gen_server:call(Client#client.player_pid, 'LOGOUT'),
             handle_client(Socket, Client);
 
@@ -167,6 +168,7 @@ process_login(Client, Socket, Name, Pass) ->
     end.	
 
 process_logout(Client, _Socket) ->
+    io:fwrite("server : process_logout~n"),
     ok = gen_server:call(Client#client.player_pid, 'LOGOUT'),
     Client.
 
@@ -204,6 +206,7 @@ process_event(Client, Socket, Event) ->
         Client#client.ready == true ->
             gen_server:cast(Client#client.player_pid, Event);
         true ->
+            io:fwrite("server - process_event client not ready~n"),
             ok = gen_server:call(Client#client.player_pid, 'LOGOUT')
     end,
     Client.

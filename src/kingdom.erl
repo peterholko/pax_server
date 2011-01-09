@@ -17,6 +17,7 @@
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([get_gold/1, remove_gold/2]).
 -export([get_name/1, get_info_kingdom/1]).
+-export([get_cities/1, get_cities_id_pid/1]).
 
 -record(module_data, {}).
 %% ====================================================================
@@ -32,6 +33,9 @@ get_gold(PlayerId) ->
 remove_gold(PlayerId, Amount) ->
     gen_server:call({global, kingdom_pid}, {'REMOVE_GOLD', PlayerId, Amount}).
 
+get_cities_id_pid(PlayerId) ->
+    gen_server:call({global, kingdom_pid}, {'GET_CITIES_ID_PID', PlayerId}).
+
 get_name(PlayerId) ->
     [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id),
     Kingdom#kingdom.name.
@@ -39,6 +43,10 @@ get_name(PlayerId) ->
 get_info_kingdom(PlayerId) ->
     [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id),
     {Kingdom#kingdom.id, Kingdom#kingdom.name, Kingdom#kingdom.gold}.
+
+get_cities(PlayerId) ->
+    [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id),
+    Kingdom#kingdom.cities.
 
 %% ====================================================================
 %% Server functions

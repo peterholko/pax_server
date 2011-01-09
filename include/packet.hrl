@@ -74,7 +74,8 @@
                     buildings,
                     buildings_queue,
                     units,
-                    units_queue}).
+                    units_queue,
+                    claims}).
 
 -define (CMD_TRANSPORT_INFO, 55).
 -record(transport_info, {transport_id, 

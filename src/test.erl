@@ -35,10 +35,14 @@ connect(Account) ->
 loop(Socket) ->
     receive
         {tcp, Socket, Bin} ->		
-            case packet:read(Bin) of
+            io:fwrite("Test - Bin: ~w~n", [Bin]),
+            case packet:read(Bin) of 
                 #player_id{id = PlayerId} ->
                     io:fwrite("PlayerId: ~w~n", [PlayerId]),		
                     ok = gen_tcp:send(Socket, <<?CMD_CLIENTREADY>>),
+                    loop(Socket);
+                #info_kingdom{id = Id, name = Name, gold = Gold} ->
+                    io:fwrite("KingdomId: ~w Name: ~w Gold: ~w~n", [Id, Name, Gold]),
                     loop(Socket);
                 #map{tiles = Tiles } ->
                     io:fwrite("Tiles: ~w~n", [Tiles]),
