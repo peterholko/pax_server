@@ -75,7 +75,7 @@ add_improvement(CityId, X, Y, ImprovementType) ->
     gen_server:cast(global:whereis_name({city,CityId}), {'ADD_IMPROVEMENT', X, Y, ImprovementType}).
 
 add_claim(CityId, X, Y) ->
-    gen_server:cast(global:whereis_name({city, CityId}), {'ADD_CLAIM', X, Y}).
+    gen_server:call(global:whereis_name({city, CityId}), {'ADD_CLAIM', X, Y}).
 
 assign_task(CityId, PopulationId, Amount, TaskId, TaskType) ->
     gen_server:call(global:whereis_name({city, CityId}), {'ASSIGN_TASK', PopulationId, Amount, TaskId, TaskType}).
@@ -124,10 +124,13 @@ handle_cast({'ADD_UNIT', UnitId}, Data) ->
 handle_cast({'ADD_IMPROVEMENT', X, Y, ImprovementType}, Data) ->
     City = Data#module_data.city,
 
-    case lists:member({X,Y}, City#city.claims) of
+    CheckClaim = lists:member({X,Y}, City#city.claims),
+    CheckEmpty = improvement:empty(X,Y), 
+
+    case check_improvement(CheckClaim, CheckEmpty) of
         true ->
             ImprovementPid = global:whereis_name(improve_pid),
-            ImprovementId = counter:increment(improvement),
+            ImprovementId = counter:increment(entity),
             improvement:create(ImprovementId, X, Y, Data#module_data.player_id, City#city.id, ImprovementType),
             
             NewImprovements = [ImprovementId | Data#module_data.improvements],
@@ -148,37 +151,6 @@ handle_cast({'ADD_IMPROVEMENT', X, Y, ImprovementType}, Data) ->
 
     {noreply, NewData};
 
-handle_cast({'ADD_CLAIM', X, Y}, Data) ->
-    City = Data#module_data.city,
-    TileIndex = map:convert_coords(X, Y),
-       
-    ValidX = abs(City#city.x - X) =< 6,
-    ValidY = abs(City#city.y - Y) =< 6,
-    Exists = length(db:index_read(claim, TileIndex, #claim.tile_index)) > 0,
-    MaxReached = length(City#city.claims) > 3,
-
-    io:fwrite("ValidX: ~w ValidY: ~w Exists: ~w MaxReached: ~w~n", [ValidX, ValidY, Exists, MaxReached]), 
-
-    case check_claim(ValidX, ValidY, Exists, MaxReached) of
-        true ->
-            log4erl:info("Add claim successful."),
-            NewClaimRecord = #claim {id = counter:increment(claim),
-                                     tile_index = TileIndex,
-                                     city_id = City#city.id},
-            Result = db:write(NewClaimRecord),
-            io:fwrite("Add Claim - result: ~w~n", [Result]),
-
-            NewClaims = [{X, Y} | City#city.claims],
-            NewCity = City#city { claims = NewClaims },
-            NewData = Data#module_data { city = NewCity };
-        false ->
-            NewData = Data
-    end,
-
-    save_city(NewData#module_data.city),
-
-    {noreply, NewData};
-
 handle_cast({'PROCESS_EVENT',_EventTick, _Id, EventType}, Data) ->   
     City = Data#module_data.city,
 
@@ -195,6 +167,40 @@ handle_cast({'PROCESS_EVENT',_EventTick, _Id, EventType}, Data) ->
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
+
+
+handle_call({'ADD_CLAIM', X, Y}, _From, Data) ->
+    City = Data#module_data.city,
+    TileIndex = map:convert_coords(X, Y),
+       
+    ValidX = abs(City#city.x - X) =< 6,
+    ValidY = abs(City#city.y - Y) =< 6,
+    Exists = length(db:index_read(claim, TileIndex, #claim.tile_index)) > 0,
+    MaxReached = length(City#city.claims) > 3,
+
+    log4erl:debug("ValidX: ~w ValidY: ~w Exists: ~w MaxReached: ~w~n", [ValidX, ValidY, Exists, MaxReached]), 
+
+    case check_claim(ValidX, ValidY, Exists, MaxReached) of
+        true ->
+            log4erl:info("Add claim successful."),
+            ClaimId = counter:increment(claim),
+            NewClaimRecord = #claim {id = ClaimId,
+                                     tile_index = TileIndex,
+                                     city_id = City#city.id},
+            db:write(NewClaimRecord),
+            
+            NewClaims = [{X, Y} | City#city.claims],
+            NewCity = City#city { claims = NewClaims },
+            Result = {success, ClaimId},
+            NewData = Data#module_data { city = NewCity };
+        false ->
+            Result = {failure, "Check Failed"},
+            NewData = Data
+    end,
+
+    save_city(NewData#module_data.city),
+
+    {reply, Result, NewData};
 
 handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste}, _From, Data) ->   
     City = Data#module_data.city,
@@ -239,23 +245,23 @@ handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
 
 handle_call({'ASSIGN_TASK', Caste, Amount, TaskId, TaskType}, _From, Data) ->
     City = Data#module_data.city,
-    io:fwrite("Assign task...~n"), 
+    log4erl:info("Assign task...~n"), 
     PopAvailable = get_available_pop(City#city.id, Caste),
-    io:fwrite("PopAvailable: ~w~n", [PopAvailable]),
+    log4erl:info("PopAvailable: ~w~n", [PopAvailable]),
     
     case PopAvailable >= Amount of
         true ->
             case is_valid_task(City#city.id, TaskId, TaskType) of
                 true ->          
                     process_assignment(City#city.id, Caste, Amount, TaskId, TaskType),
-                    store_assigned_task(City#city.id, Caste, Amount, TaskId, TaskType),
-                    Result = {city, assigned_task};
+                    AssignmentId = store_assigned_task(City#city.id, Caste, Amount, TaskId, TaskType),
+                    Result = {success, AssignmentId};
                 false ->
                     log4erl:info("~w: Invalid TaskId", [?MODULE]),
-                    Result = {city, invalid_task}
+                    Result = {failure, invalid_task}
             end;
         false ->
-            Result = {city, insufficient_pop}
+            Result = {failure, insufficient_pop}
     end,
 
     {reply, Result, Data};
@@ -274,13 +280,13 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             BuildingsQueue = db:dirty_index_read(building_queue, City#city.id, #building_queue.city_id),
             BuildingIds = City#city.buildings,
             
-            io:fwrite("BuildingsQueue: ~w~n", [BuildingsQueue]),
+            log4erl:info("BuildingsQueue: ~w~n", [BuildingsQueue]),
 
             %Check if any units or buildings are completed
             {NewUnitsQueue, UnitsToAdd} = check_unit_queue(UnitsQueue),
             {NewBuildingsQueue, BuildingsToAdd} = check_building_queue(BuildingsQueue),
           
-            io:fwrite("NewBuildingsQueue: ~w~n", [NewBuildingsQueue]),
+            log4erl:info("NewBuildingsQueue: ~w~n", [NewBuildingsQueue]),
   
             %Add any units from the queue
             NewUnitIds = add_units_from_queue(UnitIds, UnitsToAdd),
@@ -304,6 +310,21 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             NewClaims = db:dirty_index_read(claim, City#city.id, #claim.city_id),
             ClaimsTuple = claims_tuple(NewClaims), 
 
+            %Convert improvements record to tuple packet form
+            NewImprovements = db:dirty_index_read(improvement, City#city.id, #improvement.city_id),
+            ImprovementsTuple = improvements_tuple(NewImprovements),
+
+            %Convert assginments record to tuple packet form
+            NewAssignments = db:dirty_index_read(assignment, City#city.id, #assignment.city_id),
+            AssignmentsTuple = assignments_tuple(NewAssignments),
+
+            %Convert items record to tuple packet form
+            NewItems = db:dirty_index_read(item, City#city.id, #item.entity_id),
+            ItemsTuple = items_tuple(NewItems),
+
+            NewPopulations = db:dirty_index_read(population, City#city.id, #population.city_id),
+            PopulationsTuple = populations_tuple(NewPopulations), 
+
             %Save city record
             save_city(NewCity),
             
@@ -313,7 +334,11 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
                         BuildingsQueueTuple, 
                         UnitsTuple, 
                         UnitsQueueTuple,
-                        ClaimsTuple};
+                        ClaimsTuple,
+                        ImprovementsTuple,
+                        AssignmentsTuple,
+                        ItemsTuple,
+                        PopulationsTuple};
         true ->
             NewData = Data,
             CityInfo = {generic, 
@@ -400,6 +425,7 @@ handle_call({'GET_STATE', _CityId}, _From, Data) ->
     State = #state {id = City#city.id,
                     player_id = City#city.player_id,
                     type = ?OBJECT_CITY,
+                    subtype = ?OBJECT_BASIC,
                     state = City#city.state,
                     x = City#city.x,
                     y = City#city.y},
@@ -604,22 +630,27 @@ check_claim(_, _, _, _) ->
     log4erl:info("Add claim failed."),
     false.
 
+check_improvement(true, true) ->
+    true;
+check_improvement(_, _) ->
+    false.
+
 harvest(CityId) ->
     % match {assignment, assignment_id, city_id, population_id, amount, task_id, task_type}
-    io:fwrite("Harvest~n"),
+    log4erl:info("Harvest~n"),
     Assignments = db:dirty_match_object({assignment, '_', CityId, '_', '_', '_', ?TASK_IMPROVEMENT}),
     harvest_assignment(Assignments, CityId).
             
 harvest_assignment([], _CityId) ->
-    io:fwrite("Harvest complete~n");
+    log4erl:info("Harvest complete~n");
 
 harvest_assignment([Assignment | Rest], CityId) ->
-    io:fwrite("Harvest Assignment~n"),
+    log4erl:info("Harvest Assignment~n"),
     ImprovementId = Assignment#assignment.task_id,
     [Improvement] = db:dirty_read(improvement, ImprovementId),
     ResourceGained  = map:harvest_resource(Improvement#improvement.tile_index, 0, Assignment#assignment.amount),
 
-    io:fwrite("ResourceGained: ~w~n",[ResourceGained]),
+    log4erl:info("ResourceGained: ~w~n",[ResourceGained]),
     item:add_item(CityId, Improvement#improvement.type, ResourceGained),
 
     harvest_assignment(Rest, CityId).
@@ -627,7 +658,7 @@ harvest_assignment([Assignment | Rest], CityId) ->
 growth(CityId) ->
     Population = db:dirty_index_read(population, CityId, #population.city_id),
     
-    io:fwrite("Population: ~w~n", [Population]),
+    log4erl:info("Population: ~w~n", [Population]),
 
     %Calculate food required
     TotalFoodRequired = total_food_required(Population, 0),
@@ -666,19 +697,19 @@ total_food_required([Caste | Rest], FoodRequired) ->
 food_upkeep(CityId, Population, TotalFoodRequired) ->
     case item:get_item_by_type(CityId, ?ITEM_FOOD) of
         {found, Food} ->
-            io:fwrite("Food upkeep: ~w~n",[Food]),
-            io:fwrite("Food Store: ~w TotalFoodRequired: ~w~n", [Food#item.value, TotalFoodRequired]), 
+            log4erl:info("Food upkeep: ~w~n",[Food]),
+            log4erl:info("Food Store: ~w TotalFoodRequired: ~w~n", [Food#item.value, TotalFoodRequired]), 
             if
                 Food#item.value >= TotalFoodRequired ->
-                    io:fwrite("Add population..."),
+                    log4erl:info("Add population..."),
                     grow_population(Population),
                     NewFoodValue = Food#item.value - TotalFoodRequired;
                 true ->
                     starve_population(Population, TotalFoodRequired - Food#item.value),
                     NewFoodValue = 0
             end,
-            io:fwrite("New Food Store: ~w~n", [NewFoodValue]), 
-            item:set_item(Food#item.id, NewFoodValue);
+            log4erl:info("New Food Store: ~w~n", [round(NewFoodValue)]), 
+            item:set_item(Food#item.id, round(NewFoodValue));
         {not_found} ->
             starve_population(Population, TotalFoodRequired)
     end.         
@@ -689,7 +720,7 @@ grow_population([]) ->
 grow_population([Caste | Rest]) ->
     GrowthRate = growth_rate(Caste#population.caste),
     NewValue = Caste#population.value * GrowthRate,   
-    NewCaste = Caste#population {value = NewValue},
+    NewCaste = Caste#population {value = util:round3(NewValue)},
     db:write(NewCaste),
 
     grow_population(Rest).
@@ -716,27 +747,31 @@ starve_caste(_Caste, 0) ->
     0;
 
 starve_caste(Caste, InsufficientFood) ->
-    io:fwrite("Caste: ~w~n", [Caste]),
-    io:fwrite("InsufficientFood: ~w~n", [InsufficientFood]),
+    log4erl:info("Caste: ~w~n", [Caste]),
+    log4erl:info("InsufficientFood: ~w~n", [InsufficientFood]),
 
-    CasteFoodRequired = Caste#population.value * food_required(Caste#population.caste),
+    CasteFoodRequired = food_required(Caste#population.caste),
+    TotalCasteFoodRequired = Caste#population.value * CasteFoodRequired,
 
     if
-        CasteFoodRequired >= InsufficientFood ->
+        TotalCasteFoodRequired >= InsufficientFood ->
             NewInsufficientFood = 0,
-            NewValue = CasteFoodRequired - InsufficientFood;
+            NewValue = (TotalCasteFoodRequired - InsufficientFood) / CasteFoodRequired;
         true ->
-            NewInsufficientFood = InsufficientFood - CasteFoodRequired,
+            NewInsufficientFood = InsufficientFood - TotalCasteFoodRequired,
             NewValue = 0
     end,
 
-    NewCaste = Caste#population {value = NewValue},
+    NewCaste = Caste#population {value = util:round3(NewValue)},
     db:write(NewCaste),
-    io:fwrite("NewInsufficientFood: ~w~n",[NewInsufficientFood]),
+    log4erl:info("NewInsufficientFood: ~w~n",[NewInsufficientFood]),
     NewInsufficientFood.
 
 get_available_pop(CityId, Caste) ->
-    Assignments = db:dirty_match_object({assignment, '_Assignment', CityId, Caste, '_TaskId', '_TaskType'}),
+    log4erl:info("GetAvailablePop CityId: ~w Caste: ~w",[CityId, Caste]),
+    Assignments = db:dirty_match_object({assignment, '_', CityId, Caste, '_', '_', '_'}),
+    log4erl:info("Assignments: ~w", [Assignments]),
+    
     [TotalPop] = db:dirty_read(population, {CityId, Caste}),
     TotalAssignment = total_assignment(Assignments, 0),
     TotalPop#population.value - TotalAssignment.   
@@ -816,13 +851,15 @@ process_assignment(_City, _Caste, _Amount, _TaskId, _TaskType) ->
     do_nothing.     
 
 store_assigned_task(CityId, Caste, Amount, TaskId, TaskType) ->
-    Assignment = #assignment {  id = counter:increment(assignment),
+    AssignmentId = counter:increment(assignment),
+    Assignment = #assignment {  id = AssignmentId,
                                 city_id = CityId,
                                 caste = Caste,
                                 amount = Amount,
                                 task_id = TaskId,
                                 task_type = TaskType },
-    db:dirty_write(Assignment).
+    db:dirty_write(Assignment),
+    AssignmentId.
    
 cases_unit_queue(_IsPlayer = true, _IsValidUnitType = true, _CanAfford = true, _PopAvailable = true) ->
     true;
@@ -841,6 +878,44 @@ claims_tuple(Claims) ->
             [ClaimTuple | ClaimList]
         end,
     lists:foldl(F, [], Claims).
+
+improvements_tuple(Improvements) ->
+    F = fun(Improvement, ImprovementList) ->
+            ImprovementTuple = {Improvement#improvement.id, 
+                                Improvement#improvement.type},
+            [ImprovementTuple | ImprovementList]
+        end,
+    lists:foldl(F, [], Improvements).
+
+assignments_tuple(Assignments) ->
+    F = fun(Assignment, AssignmentList) ->
+            AssignmentTuple = {Assignment#assignment.id,
+                               Assignment#assignment.caste,
+                               Assignment#assignment.amount,
+                               Assignment#assignment.task_id,
+                               Assignment#assignment.task_type},
+            [AssignmentTuple | AssignmentList]
+        end,
+    lists:foldl(F, [], Assignments).
+
+items_tuple(Items) ->
+    F = fun(Item, ItemList) ->
+        ItemTuple = {Item#item.id,
+                     Item#item.entity_id,
+                     Item#item.type,
+                     Item#item.value},
+        [ItemTuple | ItemList]
+    end,
+    lists:foldl(F, [], Items).
+
+populations_tuple(Populations) ->
+    F = fun(Population, PopulationList) ->
+        PopulationTuple = {Population#population.city_id,
+                           Population#population.caste,
+                           erlang:trunc(Population#population.value)},
+        [PopulationTuple | PopulationList]
+    end,
+    lists:foldl(F, [], Populations).
 
 save_city(City) ->
     db:dirty_write(City).

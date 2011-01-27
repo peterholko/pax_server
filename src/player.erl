@@ -249,6 +249,8 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
                 {generic, BattleId} ->
                     BattleId
             end;
+        ?OBJECT_IMPROVEMENT ->
+            get_info_improvement(Id, Data);
         ?OBJECT_TRANSPORT ->
             case gen_server:call(global:whereis_name(transport_pid), {'GET_INFO', Id}) of
                 {detailed, TransportId, UnitsInfo} ->
@@ -257,7 +259,9 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
                     forward_to_client(R, Data);
                 {generic, TransportId} ->
                     TransportId
-            end
+            end;
+        _ -> 
+            log4erl:error("Invalid object type")
     end, 
     
     {noreply, Data};
@@ -378,7 +382,14 @@ handle_cast(_ = #add_claim{ city_id = CityId,
    
     case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
-            city:add_claim(CityId, X, Y);
+            case city:add_claim(CityId, X, Y) of
+                {success, Id} ->
+                    R = #success { type = ?CMD_ADD_CLAIM,
+                                   id = Id},
+                    forward_to_client(R, Data);
+                {failure, Error} -> 
+                    log4erl:error("Add Claim failed: ~w~n", [Error])
+            end;
         false ->
             log4erl:info("Add Claim - City id does not exist for this player.")        
     end,
@@ -395,7 +406,14 @@ handle_cast(_ = #assign_task{ city_id = CityId,
    
     case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
-            city:assign_task(CityId, PopulationId, Amount, TaskId, TaskType);
+            case city:assign_task(CityId, PopulationId, Amount, TaskId, TaskType) of
+                {success, Id} ->
+                    R = #success { type = ?CMD_ASSIGN_TASK,
+                                   id = Id},
+                    forward_to_client(R, Data);
+                {failure, Error} ->
+                    log4erl:error("Assign task failed: ~w~n", [Error])
+            end;
         false ->
             log4erl:info("Assign task - City id does not exist for this player.")        
     end,
@@ -506,6 +524,7 @@ build_perception(PlayerId) ->
                 [{State#state.id, 
                   State#state.player_id, 				  
                   State#state.type,
+                  State#state.subtype,
                   State#state.state,
                   State#state.x,
                   State#state.y} | PerceptionList]
@@ -567,7 +586,17 @@ get_info_all_cities(Data) ->
     
 get_info_city(Id, Data) ->
     case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
-        {detailed, CityName, BuildingInfo, BuildingsQueueInfo, UnitsInfo, UnitsQueueInfo, Claims} ->
+        {detailed, 
+        CityName, 
+        BuildingInfo, 
+        BuildingsQueueInfo, 
+        UnitsInfo, 
+        UnitsQueueInfo, 
+        Claims,
+        Improvements,
+        Assignments,
+        Items,
+        Populations} ->
             log4erl:debug("BuildingsQueueInfo: ~w~n", [BuildingsQueueInfo]),
             R = #info_city { id = Id,
                              name = CityName, 
@@ -575,7 +604,11 @@ get_info_city(Id, Data) ->
                              buildings_queue = BuildingsQueueInfo, 
                              units = UnitsInfo,
                              units_queue = UnitsQueueInfo,
-                             claims = Claims},
+                             claims = Claims,
+                             improvements = Improvements,
+                             assignments = Assignments,
+                             items = Items,
+                             populations = Populations},
             forward_to_client(R, Data);
         {generic, CityId, CityPlayerId, CityName, KingdomName} ->
             R = #info_generic_city { id = CityId,
@@ -584,5 +617,13 @@ get_info_city(Id, Data) ->
                                      kingdom_name = KingdomName},
             forward_to_client(R, Data);                                             
         _ ->
+            ok
+    end.
+
+get_info_improvement(Id, Data) ->
+    case improvement:info(Id, Data#module_data.player_id) of
+        {detailed, Type} ->
+            ok;
+        _ ->    
             ok
     end.

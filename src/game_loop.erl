@@ -48,7 +48,6 @@ loop(LastTime, GamePID) ->
             NextTime = LastTime + ?GAME_LOOP_TICK,
             SleepTime = CalcSleepTime            
     end,
-    
     timer:sleep(SleepTime),
     %EndTime = util:get_time(),
     %io:fwrite("game_loop - StartLoopTime: ~w CurrentTime: ~w EndTime: ~w SleepTime: ~w LastTime: ~w~n", [StartLoopTime, CurrentTime, EndTime, SleepTime, LastTime]),

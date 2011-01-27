@@ -397,6 +397,7 @@ handle_call({'GET_STATE', _ArmyId}, _From, Data) ->
     State = #state { id = Army#army.id, 
                      player_id = Army#army.player_id, 
                      type = ?OBJECT_ARMY,
+                     subtype = ?OBJECT_BASIC,
                      state = Army#army.state,
                      x = Army#army.x,
                      y = Army#army.y},
@@ -462,7 +463,7 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     %% Update subscription model
     EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
     {ok, SubscriptionPid} = subscription:start(Army#army.id),
-    subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
+    subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, NewArmyX, NewArmyY, EveryObjectList, VisibleList, ObservedByList),
     
     %% Toggle player's perception has been updated.
     update_perception(Army#army.player_id),  
@@ -502,7 +503,7 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
     %% Update subscription model
     EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
     {ok, SubscriptionPid} = subscription:start(Army#army.id),
-    subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, Army#army.x, Army#army.y, EveryObjectList, VisibleList, ObservedByList),
+    subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, NewArmyX, NewArmyY, EveryObjectList, VisibleList, ObservedByList),
     
     %Toggle player's perception has been updated.
     update_perception(Army#army.player_id),  
@@ -646,26 +647,36 @@ tile_modifier(_) ->
 
 entity_update_perception(EntityList) ->
     F = fun({_EntityId, EntityPid}) ->
-            PlayerId = gen_server:call(EntityPid, {'GET_PLAYER_ID'}),
-            case gen_server:call(global:whereis_name(game_pid), {'IS_PLAYER_ONLINE', PlayerId}) of
-                true ->
-                    game:update_perception(PlayerId);
-                false ->
-                    ok
+            case gen_server:call(EntityPid, {'GET_TYPE'}) of
+                ?OBJECT_ARMY ->                                      
+                    check_player_online(EntityPid);
+                ?OBJECT_CITY ->
+                    check_player_online(EntityPid);
+                _OtherTypes ->
+                    no_update
             end
         end,
-    
     lists:foreach(F, EntityList).
-              
-update_perception(PlayerId) ->    
+            
+check_player_online(EntityPid) ->
+    PlayerId = gen_server:call(EntityPid, {'GET_PLAYER_ID'}),
+    case gen_server:call(global:whereis_name(game_pid), {'IS_PLAYER_ONLINE', PlayerId}) of
+        true ->
+            update_perception(PlayerId);
+        false ->
+            no_update
+    end.
+  
+update_perception(PlayerId) ->   
+
     case player:get_type(PlayerId) of
         ?PLAYER_HUMAN ->
             %Toggle within game state that player's perception has been updated.
             gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', PlayerId});
         ?PLAYER_COMPUTER ->
-            ok;
-        _ ->
-            ok            
+            no_update;
+        _PlayerType ->
+            no_update      
     end.
 
 set_discovered_tiles(PlayerId, ArmyId, X, Y) ->

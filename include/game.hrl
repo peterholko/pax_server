@@ -19,6 +19,7 @@
 -record(state, { id,
 				 player_id,
                  type,
+                 subtype,
                  state,
                  x,              
                  y}).

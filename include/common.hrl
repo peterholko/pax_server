@@ -38,6 +38,7 @@
 -define(EVENT_LEAVE_MOVE, 10).
 
 -define(GAME_LOOP_TICK, 200).
+-define(GAME_VISION_RANGE, 50).
 
 -define(OBJECT_TILE, 0).
 -define(OBJECT_ARMY, 1).
@@ -46,6 +47,7 @@
 -define(OBJECT_BATTLE, 4).
 -define(OBJECT_IMPROVEMENT, 5).
 -define(OBJECT_TRANSPORT, 6).
+-define(OBJECT_BASIC, 0).
 
 -define(BUILDING_UNIT_LAND, 1).
 -define(BUILDING_UNIT_SEA, 2).

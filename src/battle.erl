@@ -245,6 +245,7 @@ handle_call({'GET_STATE', _BattleId}, _From, Data) ->
     State = #state { id = Data#module_data.battle_id,
                      player_id = ?PLAYER_NONE,
                      type = ?OBJECT_BATTLE,
+                     subtype = ?OBJECT_BASIC,
                      state = ?STATE_NONE,
                      x = Data#module_data.x,
                      y = Data#module_data.y},

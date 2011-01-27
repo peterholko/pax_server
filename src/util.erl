@@ -13,7 +13,8 @@
 %%
 %% Exported Functions
 %%
--export([get_time/0,
+-export([round3/1,
+         get_time/0,
          get_time_seconds/0,
          unique_list/1,
          is_process_alive/1, 
@@ -23,6 +24,10 @@
 %%
 %% API Functions
 %%
+
+round3(Num) ->
+    RoundedNum = round(Num * 1000),
+    RoundedNum / 1000.     
 
 unique_list(L) ->
     T = ets:new(temp,[set]),

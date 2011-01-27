@@ -1,4 +1,4 @@
-%% Author: Peter
+% Author: Peter
 %% Created: Dec 15, 2008
 %% Description: TODO: Add description to packet
 -module(packet).
@@ -63,7 +63,7 @@ caste() ->
     byte().
 
 improvement_type() ->
-    byte().
+    short().
 
 resource() ->
     tuple({id(), type(), int(), int()}).
@@ -72,7 +72,7 @@ resources() ->
     list(short(), resource()).
 
 entity() ->
-    tuple({id(), player(), type(), state(), x(), y()}).
+    tuple({id(), player(), type(), type(), state(), x(), y()}).
 
 entities() ->
     list(short(), entity()).
@@ -173,6 +173,30 @@ claim() ->
 claims() ->
     list(short(), claim()).
 
+improvement() ->
+    tuple({id(), type()}).
+
+improvements() ->
+    list(short(), improvement()).
+
+assignment() ->
+    tuple({id(), byte(), int(), id(), short()}).
+
+assignments() ->
+    list(short(), assignment()).
+
+item() ->
+    tuple({id(), id(), type(), int()}).
+
+items() ->
+    list(short(), item()).
+
+population() ->
+    tuple({id(), type(), int()}).
+
+populations() ->
+    list(short(), population()).
+
 % packet records
 
 tt() ->
@@ -185,6 +209,10 @@ login() ->
 bad() ->
     record(bad, {byte(),
                  byte()}).
+
+success() ->
+    record(success, {type(),
+                     id()}).
 
 player_id() ->
     record(player_id, {player()}).
@@ -235,7 +263,11 @@ info_city() ->
                        buildings_queue(),
                        units(),
                        units_queue(),
-                       claims()}).
+                       claims(),
+                       improvements(),
+                       assignments(),
+                       items(),
+                       populations()}).
 
 info_tile() ->
     record(info_tile, {int(), %tile_index,
@@ -430,6 +462,9 @@ read(<<?CMD_BATTLE_DAMAGE, Bin/binary>>) ->
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];
+
+write(R) when is_record(R, success) ->
+    [?CMD_SUCCESS|pickle(success(), R)];
 
 write(R) when is_record(R, player_id) ->
     [?CMD_PLAYER_ID|pickle(player_id(), R)];

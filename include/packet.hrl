@@ -28,6 +28,10 @@
                        name,
                        gold}).
 
+-define(CMD_SUCCESS, 20).
+-record(success, {type,
+                  id}).
+
 -define(CMD_EXPLORED_MAP, 39).
 -record(map, {tiles}).
 
@@ -75,7 +79,11 @@
                     buildings_queue,
                     units,
                     units_queue,
-                    claims}).
+                    claims,
+                    improvements,
+                    assignments,
+                    items,
+                    populations}).
 
 -define (CMD_TRANSPORT_INFO, 55).
 -record(transport_info, {transport_id, 

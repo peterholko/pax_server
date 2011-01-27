@@ -47,7 +47,9 @@ init() ->
     % Start up log4erl
     application:start(log4erl),
     log4erl:conf("conf/log4erl.conf"),
-    
+    log4erl:change_log_level(info),
+    log4erl:debug("Debug"),    
+
     % Create schema and load db data
     log4erl:info("Creating schema and loading db data..."), 
     db:create_schema(),

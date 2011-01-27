@@ -17,10 +17,12 @@
 
 %% --------------------------------------------------------------------
 %% External exports
--export([start/0, create/6]).
+-export([start/0, create/6, info/2, empty/2]).
+
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+
 
 -record(module_data, {}).
 %% ====================================================================
@@ -32,6 +34,12 @@ start() ->
 
 create(ImprovementId, X, Y, PlayerId, CityId, Type) ->
     gen_server:cast(global:whereis_name(improve_pid), {'BUILD_IMPROVEMENT', ImprovementId, X, Y, PlayerId, CityId, Type}).
+
+info(ImprovementId, PlayerId) ->
+    gen_server:call(global:whereis_name(improve_pid), {'GET_INFO', ImprovementId, PlayerId}).
+
+empty(X, Y) ->
+    gen_server:call(global:whereis_name(improve_pid), {'CHECK_EMPTY', X, Y}).
 
 %% ====================================================================
 %% Server functions
@@ -62,7 +70,6 @@ handle_cast({'BUILD_IMPROVEMENT', ImprovementId, X, Y, PlayerId, CityId, Type}, 
 
 handle_cast({'ADD_VISIBLE', _ImprovementId, _EntityId, _EntityPid}, Data) ->    
     %Do nothing atm 
-    %[Improvement] = db:dirty_read(improvement, ImprovementId),
     {noreply, Data};
 
 handle_cast({'REMOVE_VISIBLE', _ImprovementId, _EntityId, _EntityPid}, Data) ->
@@ -102,6 +109,18 @@ handle_cast({'PROCESS_EVENT', _EventTick, ImprovementId, EventType}, Data) ->
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
+handle_call({'CHECK_EMPTY', X, Y}, _From, Data) ->
+    TileIndex = map:convert_coords(X, Y),
+
+    case db:dirty_read(improvement, TileIndex, #improvement.tile_index) of
+        [_Improvement] ->
+            Empty = true;
+        _ ->
+            Empty = false
+    end,    
+
+    {reply, Empty, Data};
+
 handle_call('GET_IMPROVEMENTS', _From, Data) ->
     
     [Improvements] = db:dirty_read(improvement),
@@ -115,15 +134,13 @@ handle_call('GET_IMPROVEMENTS', _From, Data) ->
     {reply, ImprovementsIdPid, Data};
 
 handle_call({'GET_STATE', ImprovementId}, _From, Data) ->
-    
-    [Improvement] = db:dirty_read(improvement, ImprovementId),
-    
     case db:dirty_read(improvement, ImprovementId) of
         [Improvement] ->
             {TileX, TileY} = map:convert_coords(Improvement#improvement.tile_index),			
             State = #state {id = ImprovementId,
                             player_id = Improvement#improvement.player_id,
                             type = ?OBJECT_IMPROVEMENT,
+                            subtype = Improvement#improvement.type,
                             state = Improvement#improvement.state,
                             x = TileX,
                             y = TileY};			
@@ -138,6 +155,17 @@ handle_call({'GET_STATE', ImprovementId}, _From, Data) ->
     
     {reply, State, Data};
 
+handle_call({'GET_TYPE'}, _From, Data) ->
+    {reply, ?OBJECT_IMPROVEMENT, Data};
+
+handle_call({'GET_INFO', ImprovementId, PlayerId}, _From, Data) ->   
+    case db:dirty_read(improvement, ImprovementId) of
+        [Improvement] ->
+            Info = {detailed, Improvement#improvement.type};
+        _ ->
+            Info = none
+    end,
+    {reply, Info, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 

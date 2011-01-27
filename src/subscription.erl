@@ -10,6 +10,7 @@
 %% --------------------------------------------------------------------
 %% Include files
 %% --------------------------------------------------------------------
+-include("common.hrl").
 -include("game.hrl").
 %% --------------------------------------------------------------------
 %% External exports
@@ -78,19 +79,18 @@ subscription(EntityId, EntityPid, EntityX, EntityY, EveryObjectList, VisibleList
     NewObservedByList = remove_observed_by_list(EntityId, EntityPid, EntityX, EntityY, ObservedByList),
     
     ObjectList = lists:delete({EntityId, EntityPid}, EveryObjectList),	
-    
+
     VisibleCandidateList = ObjectList -- NewVisibleList, 
     ObservedByCandidateList = ObjectList -- NewObservedByList,	
-    
+
     add_visible_list(EntityId, EntityPid, EntityX, EntityY, VisibleCandidateList),
     add_observed_by_list(EntityId, EntityPid, EntityX, EntityY, ObservedByCandidateList).
 
 remove_visible_list(SourceId, SourcePid, X, Y, Visible) ->	
     F = fun({EntityId, EntityPid}, VisibleList) ->				
                 Distance = calc_distance(X, Y, EntityId, EntityPid),
-                
                 if
-                    Distance >= 50 ->
+                    Distance >= ?GAME_VISION_RANGE ->
                         NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
                         gen_server:cast(SourcePid, {'REMOVE_VISIBLE', SourceId, EntityId, EntityPid}),										
                         gen_server:cast(EntityPid, {'REMOVE_OBSERVED_BY', EntityId, SourceId, SourcePid});
@@ -107,7 +107,7 @@ remove_observed_by_list(SourceId, SourcePid, X, Y, ObservedBy) ->
                 Distance = calc_distance(X, Y, EntityId, EntityPid),
                 
                 if
-                    Distance >= 50 ->
+                    Distance >= ?GAME_VISION_RANGE ->
                         NewObservedByList = lists:delete({EntityId, EntityPid}, ObservedByList),
                         gen_server:cast(SourcePid, {'REMOVE_OBSERVED_BY', SourceId, EntityId, EntityPid}),	
                         gen_server:cast(EntityPid, {'REMOVE_VISIBLE', EntityId, SourceId, SourcePid});										
@@ -124,7 +124,7 @@ add_visible_list(SourceId, SourcePid, X, Y, VisibleCandidateList) ->
                  Distance = calc_distance(X, Y, EntityId, EntityPid),				 
                  
                  if
-                     Distance < 50 ->
+                     Distance < ?GAME_VISION_RANGE ->
                          gen_server:cast(SourcePid, {'ADD_VISIBLE', SourceId, EntityId, EntityPid}),
                          gen_server:cast(EntityPid, {'ADD_OBSERVED_BY', EntityId, SourceId, SourcePid});	
                      true ->
@@ -139,7 +139,7 @@ add_observed_by_list(SourceId, SourcePid, X, Y, ObservedByCandidateList) ->
                  Distance = calc_distance(X, Y, EntityId, EntityPid),				 
                  
                  if
-                     Distance < 50 ->
+                     Distance < ?GAME_VISION_RANGE ->
                          gen_server:cast(SourcePid, {'ADD_OBSERVED_BY', SourceId, EntityId, EntityPid}),
                          gen_server:cast(EntityPid, {'ADD_VISIBLE', EntityId, SourceId, SourcePid});	
                      true ->
@@ -149,7 +149,7 @@ add_observed_by_list(SourceId, SourcePid, X, Y, ObservedByCandidateList) ->
     
     lists:foreach(F2, ObservedByCandidateList).
 
-calc_distance(X, Y, EntityId, EntityPid) ->	
+calc_distance(X, Y, EntityId, EntityPid) ->
     EntityState = gen_server:call(EntityPid, {'GET_STATE', EntityId}),
     DiffX = X - EntityState#state.x,
     DiffY = Y - EntityState#state.y,

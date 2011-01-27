@@ -77,7 +77,8 @@ create_schema() ->
     mnesia:add_table_index(assignment, population_id),
     mnesia:add_table_index(improvement, tile_index),
     mnesia:add_table_index(improvement, city_id),
-    mnesia:add_table_index(population, city_id),
+    mnesia:add_table_index(population, city_id),   
+    mnesia:add_table_index(item, entity_id),
 
     mnesia:add_table_index(unit_queue, city_id),
     mnesia:add_table_index(building_queue, city_id),
@@ -210,6 +211,8 @@ test_tables() ->
     ].
 
 reset_tables() ->
+    counter:reset(entity),
+
     F = fun() ->
                 foreach(fun mnesia:write/1, test_tables())
         end,    
