@@ -68,8 +68,9 @@
 -define (CMD_INFO_ARMY, 53).
 -record(info_army, {id,
                     name,
-                    kingdom_name,
-                    units}).
+                    kingdom_name,                   
+                    units,
+                    items}).
 
 
 -define (CMD_INFO_CITY, 54).
@@ -172,7 +173,10 @@
 
 -define(CMD_TRANSFER_ITEM, 150).
 -record(transfer_item, {item_id,
-                        source_id}).
+                        source_id,
+                        source_type,
+                        target_id,
+                        target_type}).
 
 -define(CMD_DELETE_ITEM, 151).
 -record(delete_item, {item_id}).

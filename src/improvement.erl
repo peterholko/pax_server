@@ -112,11 +112,11 @@ handle_cast(stop, Data) ->
 handle_call({'CHECK_EMPTY', X, Y}, _From, Data) ->
     TileIndex = map:convert_coords(X, Y),
 
-    case db:dirty_read(improvement, TileIndex, #improvement.tile_index) of
+    case db:dirty_index_read(improvement, TileIndex, #improvement.tile_index) of
         [_Improvement] ->
-            Empty = true;
+            Empty = false;
         _ ->
-            Empty = false
+            Empty = true
     end,    
 
     {reply, Empty, Data};

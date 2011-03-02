@@ -74,7 +74,7 @@ terminate(_Reason, _) ->
 %% --------------------------------------------------------------------
 
 subscription(EntityId, EntityPid, EntityX, EntityY, EveryObjectList, VisibleList, ObservedByList) ->
-    
+    io:fwrite("EntityId: ~w EveryObjectList: ~w~n", [EntityId, EveryObjectList]), 
     NewVisibleList = remove_visible_list(EntityId, EntityPid, EntityX, EntityY, VisibleList),
     NewObservedByList = remove_observed_by_list(EntityId, EntityPid, EntityX, EntityY, ObservedByList),
     

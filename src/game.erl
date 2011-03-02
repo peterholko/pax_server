@@ -116,15 +116,16 @@ handle_cast({'CLEAR_EVENTS', Pid}, Data) ->
     NewData = Data#game_info {events = NewEventList},
     {noreply, NewData};
 
-handle_cast({'ADD_BATTLE', BattlePid}, Data) ->
+handle_cast({'ADD_BATTLE',BattleId, BattlePid}, Data) ->
+    log4erl:info("Add Battle."), 	
     BattleList = Data#game_info.battles,
-    NewBattleList = [BattlePid | BattleList],
+    NewBattleList = [{BattleId, BattlePid} | BattleList],
     NewData = Data#game_info { battles = NewBattleList},
     {noreply, NewData};
 
-handle_cast({'DELETE_BATTLE', BattlePid}, Data) ->
+handle_cast({'DELETE_BATTLE', BattleId, BattlePid}, Data) ->
     BattleList = Data#game_info.battles,
-    NewBattleList = lists:delete(BattlePid, BattleList),
+    NewBattleList = lists:delete({BattleId, BattlePid}, BattleList),
     NewData = Data#game_info { battles = NewBattleList},
     {noreply, NewData};
 
@@ -200,8 +201,7 @@ handle_call('GET_CITIES', _From, Data) ->
 
 handle_call('GET_OBJECTS', _From, Data) ->
     
-    %Improvements = gen_server:call(global:whereis_name(improve_pid), 'GET_IMPROVEMENTS'),
-    Objects = Data#game_info.armies ++ Data#game_info.cities,% ++ Data#game_info.battles ++ Improvements,
+    Objects = Data#game_info.armies ++ Data#game_info.cities ++ Data#game_info.battles,
     
     {reply, Objects , Data};
 

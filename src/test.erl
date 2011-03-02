@@ -57,8 +57,15 @@ loop(Socket) ->
                            buildings = Buildings, 
                            buildings_queue = BuildingsQueue,
                            units = Units,
-                           units_queue = UnitsQueue} ->
-                    io:fwrite("Info City: ~w ~w ~w ~w ~w~n", [Id, Buildings, BuildingsQueue, Units, UnitsQueue]),
+                           units_queue = UnitsQueue,
+                           claims = Claims,
+                           improvements = Improvements,
+                           assignments = Assignments,
+                           items = Items,
+                           populations = Populations  
+                           } ->
+                    io:fwrite("Info City: ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n", 
+                               [Id, Buildings, BuildingsQueue, Units, UnitsQueue, Claims, Assignments, Improvements, Items, Populations]),
                     loop(Socket);
                 #battle_info{battle_id = BattleId, armies = Armies} ->
                     io:fwrite("Battle Info: ~w ~w~n", [BattleId, Armies]),
@@ -70,7 +77,8 @@ loop(Socket) ->
                     io:fwrite("Battle Damage: ~w ~w ~w ~w~n", [BattleId, SourceId, TargetId, Damage]),
                     loop(Socket);                
                 _Any ->
-                    io:fwrite("Do not recognize command.~n")
+                    io:fwrite("Do not recognize command.~nBin: ~w~n", [Bin]),
+                    loop(Socket)
             end;							
         {error, closed} ->
             io:fwrite("Connection closed.");

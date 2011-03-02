@@ -32,7 +32,6 @@
 %%
 %% API Functions
 %%
-
 start(CityId, PlayerId) ->
     case db:read(city, CityId) of 
         [City] ->
@@ -167,7 +166,6 @@ handle_cast({'PROCESS_EVENT',_EventTick, _Id, EventType}, Data) ->
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
-
 
 handle_call({'ADD_CLAIM', X, Y}, _From, Data) ->
     City = Data#module_data.city,
@@ -320,7 +318,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
 
             %Convert items record to tuple packet form
             NewItems = db:dirty_index_read(item, City#city.id, #item.entity_id),
-            ItemsTuple = items_tuple(NewItems),
+            ItemsTuple = item:items_tuple(NewItems),
 
             NewPopulations = db:dirty_index_read(population, City#city.id, #population.city_id),
             PopulationsTuple = populations_tuple(NewPopulations), 
@@ -350,6 +348,21 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
     
     io:fwrite("city - CityInfo: ~w~n", [CityInfo]),
     {reply, CityInfo , NewData};
+
+handle_call({'TRANSFER_ITEM', ItemId, TargetId, TargetAtom}, _From, Data) ->
+    log4erl:info("City - TRANSFER_ITEM"),
+    City = Data#module_data.city,
+
+    TargetPid = object:get_pid(TargetAtom, TargetId),
+    case gen_server:call(TargetPid, {'ON_SAME_TILE', City#city.x, City#city.y}) of
+        true ->
+            item:transfer(ItemId, TargetId),
+            TransferItemInfo = {transfer_item, success};
+        false ->
+            TransferItemInfo = {transfer_item, not_same_tile}
+    end,
+
+    {reply, TransferItemInfo, Data};
 
 handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, Data) ->   
     io:fwrite("city - transfer unit.~n"),
@@ -651,7 +664,7 @@ harvest_assignment([Assignment | Rest], CityId) ->
     ResourceGained  = map:harvest_resource(Improvement#improvement.tile_index, 0, Assignment#assignment.amount),
 
     log4erl:info("ResourceGained: ~w~n",[ResourceGained]),
-    item:add_item(CityId, Improvement#improvement.type, ResourceGained),
+    item:add(CityId, Improvement#improvement.type, ResourceGained),
 
     harvest_assignment(Rest, CityId).
 
@@ -695,7 +708,7 @@ total_food_required([Caste | Rest], FoodRequired) ->
     total_food_required(Rest, TotalFoodRequired).
 
 food_upkeep(CityId, Population, TotalFoodRequired) ->
-    case item:get_item_by_type(CityId, ?ITEM_FOOD) of
+    case item:get_by_type(CityId, ?ITEM_FOOD) of
         {found, Food} ->
             log4erl:info("Food upkeep: ~w~n",[Food]),
             log4erl:info("Food Store: ~w TotalFoodRequired: ~w~n", [Food#item.value, TotalFoodRequired]), 
@@ -709,7 +722,7 @@ food_upkeep(CityId, Population, TotalFoodRequired) ->
                     NewFoodValue = 0
             end,
             log4erl:info("New Food Store: ~w~n", [round(NewFoodValue)]), 
-            item:set_item(Food#item.id, round(NewFoodValue));
+            item:set(Food#item.id, round(NewFoodValue));
         {not_found} ->
             starve_population(Population, TotalFoodRequired)
     end.         
@@ -897,16 +910,6 @@ assignments_tuple(Assignments) ->
             [AssignmentTuple | AssignmentList]
         end,
     lists:foldl(F, [], Assignments).
-
-items_tuple(Items) ->
-    F = fun(Item, ItemList) ->
-        ItemTuple = {Item#item.id,
-                     Item#item.entity_id,
-                     Item#item.type,
-                     Item#item.value},
-        [ItemTuple | ItemList]
-    end,
-    lists:foldl(F, [], Items).
 
 populations_tuple(Populations) ->
     F = fun(Population, PopulationList) ->

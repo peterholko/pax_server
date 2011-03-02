@@ -223,11 +223,12 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
             end; 
         ?OBJECT_ARMY ->
             case gen_server:call(global:whereis_name({army, Id}), {'GET_INFO', Data#module_data.player_id}) of
-                {detailed, ArmyId, _ArmyPlayerId, ArmyName, KingdomName, UnitsInfo} ->            
+                {detailed, ArmyId, _ArmyPlayerId, ArmyName, KingdomName, UnitsInfo, ItemsInfo} ->            
                     R = #info_army { id = ArmyId,
                                      name = ArmyName,
                                      kingdom_name = KingdomName,
-                                     units = UnitsInfo},
+                                     units = UnitsInfo,
+                                     items = ItemsInfo},
                     forward_to_client(R, Data);
                 {generic, ArmyId, ArmyPlayerId, ArmyName, KingdomName} ->
                     R = #info_generic_army { id = ArmyId,
@@ -236,6 +237,7 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
                                              kingdom_name = KingdomName},
                     forward_to_client(R, Data);
                 _ ->
+                    log4erl:debug("Unmatched message from Army GET_INFO"),
                     ok
             end;
        ?OBJECT_CITY ->
@@ -286,8 +288,25 @@ handle_cast(_ = #city_queue_building{id = Id, building_type = BuildingType}, Dat
     end,
     {noreply, Data};
 
-handle_cast(_ = #transfer_unit{unit_id = UnitId, source_id = SourceId, source_type = SourceType, target_id = TargetId, target_type = TargetType}, Data) ->
+handle_cast(_ = #transfer_item{item_id = ItemId, source_id = SourceId, source_type= SourceType, target_id = TargetId, target_type = TargetType}, Data) ->
+    SourceAtom = object:get_atom(SourceType),
+    TargetAtom = object:get_atom(TargetType),
+    SourcePid = object:get_pid(SourceAtom, SourceId),
     
+    case gen_server:call(SourcePid, {'TRANSFER_ITEM', ItemId, TargetId, TargetAtom}) of
+        {transfer_item, success} ->
+            RequestSourceInfo = #request_info{ type = SourceType, id = SourceId},
+            gen_server:cast(self(), RequestSourceInfo),            
+            
+            RequestTargetInfo = #request_info{ type = TargetType, id = TargetId},
+            gen_server:cast(self(), RequestTargetInfo);         
+        {transfer_item, Error} ->
+            log4erl:error("Transfer Item Error - ~w", [Error])
+    end, 
+
+    {noreply, Data};
+
+handle_cast(_ = #transfer_unit{unit_id = UnitId, source_id = SourceId, source_type = SourceType, target_id = TargetId, target_type = TargetType}, Data) ->   
     SourceAtom = object:get_atom(SourceType),
     TargetAtom = object:get_atom(TargetType),
     SourcePid = object:get_pid(SourceAtom, SourceId),

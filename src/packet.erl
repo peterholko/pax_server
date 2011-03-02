@@ -162,7 +162,7 @@ armies() ->
     list(short(), army()).
 
 army() ->
-    tuple({id(), player(), units()}).
+    tuple({id(), player(), name(), name(), units()}).
 
 damage() ->
     int().
@@ -253,8 +253,9 @@ info_kingdom() ->
 info_army() ->
     record(info_army, {id(),
                        name(), 
-                       name(), %kingdom name
-                       units()}).
+                       name(), %kingdom name                      
+                       units(),
+                       items()}).
 
 info_city() ->
     record(info_city, {id(),
@@ -294,6 +295,14 @@ city_queue_unit() ->
 city_queue_building() ->
     record(city_queue_building, {id(),
                                  building_type()}).
+
+transfer_item() ->
+    record(transfer_item, {id(),
+                           source_id(),
+                           source_type(),
+                           target_id(),
+                           target_type()}).
+
 transfer_unit() ->
     record(transfer_unit, {unit_id(),
                            source_id(),
@@ -348,10 +357,6 @@ assign_task() ->
                          amount(),
                          id(),
                          type()}).                                              
-
-transfer_item() ->
-    record(transfer_item, {id(),
-                           target_id()}).
 
 delete_item() ->
     record(delete_item, {id()}).

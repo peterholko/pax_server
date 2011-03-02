@@ -363,12 +363,18 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
         true ->
             Units = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
             UnitsInfoTuple = unit:units_tuple(Units),
+
+            %Convert items record to tuple packet form
+            NewItems = db:dirty_index_read(item, Army#army.id, #item.entity_id),
+            ItemsTuple = item:items_tuple(NewItems),
+
             ArmyInfo = {detailed, 
                         Army#army.id, 
                         Army#army.player_id, 
                         Army#army.name,
                         kingdom:get_name(Army#army.player_id),
-                        UnitsInfoTuple};
+                        UnitsInfoTuple,
+                        ItemsTuple};
         false ->
             ArmyInfo = {generic, 
                         Army#army.id,
@@ -379,6 +385,20 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
     
     io:fwrite("army - ArmyInfo: ~w~n", [ArmyInfo]),
     {reply, ArmyInfo , Data};
+
+%Used by battle module for detailed army information
+handle_call({'GET_INFO'}, _From, Data) ->
+    Army = Data#module_data.army,
+
+    Units = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
+    UnitsInfoTuple = unit:units_tuple(Units),
+    ArmyInfo = {Army#army.id, 
+                Army#army.player_id, 
+                Army#army.name,
+                kingdom:get_name(Army#army.player_id),
+                UnitsInfoTuple},
+
+    {reply, ArmyInfo, Data};
 
 handle_call({'GET_UNITS'}, _From, Data) ->
     Army = Data#module_data.army,
@@ -497,6 +517,22 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
     TargetState = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE', Army#army.id}),
     {NewArmyX, NewArmyY} = next_pos(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
     
+    if	
+        (NewArmyX =:= TargetState#state.x) and (NewArmyY =:= TargetState#state.y) -> 
+            io:fwrite("Army - create battle~n"),            
+            BattleId = counter:increment(battle) + 1000000,
+            battle:create(BattleId, TargetState#state.x, TargetState#state.y),
+            battle:setup(BattleId, Army#army.id, Army#army.target),
+            gen_server:cast(global:whereis_name({army, Army#army.target}), {'SET_STATE_COMBAT', BattleId}),
+            
+            NewArmy = state_combat(Army, BattleId, NewArmyX, NewArmyY);
+        true ->
+            {NextX, NextY} = next_pos(NewArmyX, NewArmyY, TargetState#state.x, TargetState#state.y),
+            ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
+            game:add_event(ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)),            
+            NewArmy = event_move(Army, NewArmyX, NewArmyY)
+    end,
+
     %% Set any newly discovered tiles
     set_discovered_tiles(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
 
@@ -511,22 +547,6 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
     %Toggle observedByList perception has been updated due to army move.
     entity_update_perception(ObservedByList),    
 	
-    if	
-        (NewArmyX =:= TargetState#state.x) and (NewArmyY =:= TargetState#state.y) -> 
-            
-            BattleId = counter:increment(battle),
-            battle:create(BattleId, TargetState#state.x, TargetState#state.y),
-            battle:setup(BattleId, Army#army.id, Army#army.target),
-            gen_server:cast(global:whereis_name({army, Army#army.target}), {'SET_STATE_COMBAT', BattleId}),
-            
-            NewArmy = state_combat(Army, BattleId, NewArmyX, NewArmyY);
-        true ->
-            {NextX, NextY} = next_pos(NewArmyX, NewArmyY, TargetState#state.x, TargetState#state.y),
-            ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
-            game:add_event(ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)),            
-            NewArmy = event_move(Army, NewArmyX, NewArmyY)
-    end,
-
     update_last_pos(NewArmy).
 
 next_pos(ArmyX, ArmyY, DestX, DestY) ->

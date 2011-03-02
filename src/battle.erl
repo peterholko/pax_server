@@ -58,17 +58,15 @@ remove_army(BattleId, ArmyId) ->
 init([BattleId, X, Y])
   when is_integer(BattleId) ->
     process_flag(trap_exit, true),
-    
+    log4erl:info("~w: initializing battle.", [?MODULE]),
     Players = sets:new(),
     LastEvents = sets:new(),
     BattlePid = self(),
     Battle = #battle { id = BattleId,
-                       armies = [],
                        x = X,
-                       y = Y},    
-
+                       y = Y},
     db:dirty_write(Battle),
-    gen_server:cast(global:whereis_name(game_pid), {'ADD_BATTLE', BattlePid}),
+    gen_server:cast(global:whereis_name(game_pid), {'ADD_BATTLE', BattleId, BattlePid}),
     
     {ok, #module_data{players = Players, 
                       armies = [], 
@@ -158,6 +156,33 @@ handle_cast({'PROCESS_EVENT', EventTick, EventData, EventType}, Data) ->
     end,      
     
     {noreply, NewData};
+
+handle_cast({'ADD_VISIBLE', _BattleId, _EntityId, _EntityPid}, Data) ->    
+    %Do nothing atm 
+    {noreply, Data};
+
+handle_cast({'REMOVE_VISIBLE', _BattleId, _EntityId, _EntityPid}, Data) ->
+    %Do nothing atm	
+    {noreply, Data};
+
+handle_cast({'ADD_OBSERVED_BY', BattleId, EntityId, EntityPid}, Data) ->    
+    
+    EntityType = gen_server:call(EntityPid, {'GET_TYPE'}),
+        
+    case EntityType of
+        ?OBJECT_ARMY ->
+            add_observed_by(BattleId, EntityId, EntityPid);
+        ?OBJECT_CITY ->
+            add_observed_by(BattleId, EntityId, EntityPid)
+    end, 
+
+    {noreply, Data};
+
+handle_cast({'REMOVE_OBSERVED_BY', BattleId, EntityId, EntityPid}, Data) ->    
+    
+    remove_observed_by(BattleId, EntityId, EntityPid),
+    
+    {noreply, Data};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
@@ -253,7 +278,6 @@ handle_call({'GET_STATE', _BattleId}, _From, Data) ->
     {reply, State, Data};
 
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->
-    
     Result = sets:is_element(PlayerId, Data#module_data.players),
     
     if
@@ -261,7 +285,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             ArmiesInfoTuple = armies_tuple(Data#module_data.armies, []),
             BattleInfo = {detailed, Data#module_data.battle_id, ArmiesInfoTuple};
         true ->
-            BattleInfo = {generic, Data#module_data.battle_id}
+            BattleInfo = {generic, Data#module_data.battle_id, []}
     end,
     
     {reply, BattleInfo, Data};
@@ -347,15 +371,16 @@ unit_attack(EventTick, EventData, Data) ->
     NewData.
 
 unit_target(ArmyId, Unit, Data) ->
-    TargetResult = lists:keysearch(Unit#unit.id, 3, Data#module_data.targets),
-    
+%    TargetResult = lists:keysearch(Unit#unit.id, 3, Data#module_data.targets),  
+%    if
+%        TargetResult =/= false ->	
+%            {value, Target} = TargetResult,
+%            TargetArmyId = Target#target.target_army,
+%            TargetUnitId = Target#target.target_unit,
+    TargetArmies = lists:delete(ArmyId, Data#module_data.armies),
     if
-        TargetResult =/= false ->	
-            {value, Target} = TargetResult,
-            TargetArmyId = Target#target.target_army,
-            TargetUnitId = Target#target.target_unit,
-            
-            %TODO Check TargetArmyId is in battle
+        length(TargetArmies) > 0 ->
+            {TargetUnitId, TargetArmyId} = best_target(TargetArmies),             
             TargetUnit = gen_server:call(global:whereis_name({army, TargetArmyId}), {'GET_UNIT', TargetUnitId}),
             
             NewData = unit_damage(ArmyId, Unit, TargetArmyId, TargetUnit, Data);                       
@@ -364,6 +389,30 @@ unit_target(ArmyId, Unit, Data) ->
     end,
     
     NewData.
+
+best_target(TargetArmies) ->
+    UnitDPSList = unit_dps_list(TargetArmies, []),
+    io:fwrite("UnitDPSList: ~w~n",[UnitDPSList]),
+    {_MaxDPS, UnitId, NewArmyId} = lists:max(UnitDPSList),
+    {UnitId, NewArmyId}.
+
+unit_dps_list([], UnitList) ->
+    UnitList;
+        
+unit_dps_list([ArmyId | Rest], UnitList) ->
+    ArmyUnits = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_UNITS'}),
+    
+    F = fun(Unit, UnitDPSList) ->            
+            [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
+            UnitSpeed = UnitType#unit_type.speed,
+            UnitDamage = UnitType#unit_type.attack,
+            UnitSize = Unit#unit.size,
+            DPS = UnitDamage * UnitSize / UnitSpeed,
+            [{DPS, Unit#unit.id, ArmyId} | UnitDPSList]
+        end,
+
+    NewUnitList = lists:foldl(F, [], ArmyUnits) ++ UnitList,
+    unit_dps_list(Rest, NewUnitList).
 
 unit_damage(_ArmyId, Unit, TargetArmyId, TargetUnit, Data) ->
     
@@ -430,7 +479,7 @@ broadcast_army_event(BattleId, Players, NewPlayerId, ArmyId, ArmyEvent) ->
                     NewPlayerId =/= PlayerId ->
                         case gen_server:call(global:whereis_name(game_pid), {'IS_PLAYER_ONLINE', PlayerId}) of
                             true ->
-                                ArmyInfo = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_INFO'}),
+                                ArmyInfo = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_INFO', PlayerId}),
                                 case ArmyEvent of
                                     {add_army} ->
                                         player:send_battle_add_army(PlayerId, BattleId, ArmyInfo);
@@ -485,4 +534,18 @@ retreat_move(ArmyId) ->
 
 leave_move(ArmyId) ->
     gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_LEAVE_MOVE'}).
+
+add_observed_by(BattleId, EntityId, EntityPid) ->
+    [Battle] = db:dirty_read(battle, BattleId),
+    NewObservedByList = [{EntityId, EntityPid} | Battle#battle.observed_by],
+    NewBattle = Battle#battle { observed_by = NewObservedByList},
+    db:dirty_write(NewBattle).
+
+remove_observed_by(BattleId, EntityId, EntityPid) ->
+    [Battle] = db:dirty_read(battle, BattleId),
+    NewObservedByList = lists:delete({EntityId, EntityPid}, Battle#battle.observed_by),
+    NewBattle = Battle#battle { observed_by = NewObservedByList},
+    db:dirty_write(NewBattle).                                  
+
+
     

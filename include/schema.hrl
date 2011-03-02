@@ -65,6 +65,7 @@
 
 -record(battle, {id,
                  armies = [],
+                 observed_by = [],
                  x,
                  y}).
 

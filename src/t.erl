@@ -54,7 +54,7 @@ transfer2() ->
     gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 1, 1, 1, 1, 6}).
 
 battle() ->
-    gen_server:cast(global:whereis_name(test_sender), {'ATTACK', 1, 6}).
+    gen_server:cast(global:whereis_name(test_sender), {'ATTACK', 1, 3}).
 
 target() ->
     gen_server:cast(global:whereis_name(test_sender), {'TARGET', 1, 1, 1, 3, 9}).
