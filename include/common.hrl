@@ -90,3 +90,6 @@
 -define(TILE_SWAMP_SPEED, 8).
 
 -define(BASE_SPEED, 25).
+
+-define(MARKET_BUY, 0).
+-define(MARKET_SELL, 1).

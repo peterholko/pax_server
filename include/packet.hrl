@@ -181,4 +181,23 @@
 -define(CMD_DELETE_ITEM, 151).
 -record(delete_item, {item_id}).
 
+-define(CMD_CREATE_SELL_ORDER, 170).
+-record(create_sell_order, {item_id,
+                            price}).
+
+-define(CMD_CREATE_BUY_ORDER, 171).
+-record(create_buy_order, {city_id,
+                           item_type,
+                           volume,
+                           price}).
+
+-define(CMD_FILL_SELL_ORDER, 172).
+-record(fill_sell_order, {order_id,
+                          volume}).
+
+
+-define(CMD_FILL_BUY_ORDER, 173).
+-record(fill_buy_order, {order_id,
+                         volume}).
+
 -record(tt, {test}).

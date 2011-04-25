@@ -28,6 +28,11 @@
                  armies = [],
                  cities = []}).
 
+-record(reputation, {id,
+                     player_id,
+                     target_player_id,
+                     value}).
+
 -record(army, {	id,
                 player_id,
                 name,
@@ -95,9 +100,14 @@
                     units}).
 
 -record(item, {id, 
-               entity_id,
+               ref, %% ref = {EntityId, PlayerId}
                type,
-               value}).                    
+               volume}).                   
+
+-record(market_item, {id,
+                      ref, %% ref = {EntityId, PlayerId}
+                      type,
+                      volume}). 
 
 -record(assignment, {id,
                      city_id,
@@ -107,12 +117,29 @@
                      task_type               
                      }).
 
+-record(trade_route, {city_id,
+                      cities = []}).
+
+-record(market_order, {id,
+                       city_id,
+                       player_id,
+                       item_id,
+                       item_type,
+                       item_volume,
+                       price,
+                       type,
+                       start_time,
+                       duration}).
+
 %%% Reference tables %%%
--record(item_type_ref, {entity_type_ref,  %% ref = {EntityId, Type} %%
+-record(item_type_ref, {entity_type_ref,  %% ref = {EntityId, PlayerId, Type} %%
                        item_id}).
 
 -record(player_type, {player_id,
                       type}).
+
+-record(reputation_ref, {ref, %% ref = {PlayerId, TargetPlayerId}
+                         reputation_id}). 
 
 
 %%% Queue tables %%%
@@ -160,8 +187,8 @@
                         name,
                         building_time}).
 
-
-
+-record(item_type, {id,
+                    name}).
 
 
 
