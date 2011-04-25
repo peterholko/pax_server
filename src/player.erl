@@ -293,8 +293,14 @@ handle_cast(_ = #transfer_item{item_id = ItemId, source_id = SourceId, source_ty
     TargetAtom = object:get_atom(TargetType),
     SourcePid = object:get_pid(SourceAtom, SourceId),
     
+    log4erl:info("Transfer Item - ItemId: ~w SourceId: ~w SourceType: ~w TargetId: ~w TargetType: ~w", [ItemId,
+                                                                                                        SourceId,
+                                                                                                        SourceType,
+                                                                                                        TargetId,
+                                                                                                        TargetType]),
     case gen_server:call(SourcePid, {'TRANSFER_ITEM', ItemId, TargetId, TargetAtom}) of
         {transfer_item, success} ->
+            log4erl:info("Transfer Item success"),            
             RequestSourceInfo = #request_info{ type = SourceType, id = SourceId},
             gen_server:cast(self(), RequestSourceInfo),            
             
@@ -436,6 +442,55 @@ handle_cast(_ = #assign_task{ city_id = CityId,
         false ->
             log4erl:info("Assign task - City id does not exist for this player.")        
     end,
+
+    {noreply, Data};
+
+handle_cast(_ = #create_sell_order{ item_id = ItemId,
+                                    price = Price}, Data) ->
+    log4erl:info("Create Sell Order item_id ~w price ~w", [ItemId, Price]),
+    case db:dirty_read(item, ItemId) of
+        [Item] ->
+            {_EntityId, PlayerId} = Item#item.ref,
+            case Data#module_data.player_id =:= PlayerId of
+                true ->
+                    market:create_sell_order(ItemId, Price);
+                false ->
+                    log4erl:error("Cannot create sell order for another player.")
+            end;
+        _ ->
+            log4erl:error("Invalid item")
+    end,
+
+    {noreply, Data};
+
+handle_cast(_ = #create_buy_order{  city_id = CityId,
+                                    item_type = ItemTypeId,
+                                    volume = Volume,
+                                    price = Price}, Data) ->
+    case db:dirty_read(item_type, ItemTypeId) of
+        [_ItemType] ->
+            market:create_buy_order(CityId, 
+                                    Data#module_data.player_id, 
+                                    ItemTypeId, 
+                                    Volume,
+                                    Price);
+        _ ->
+            log4erl:error("Invalid item type")
+    end,
+
+    {noreply, Data};
+
+handle_cast(_ = #fill_sell_order{order_id = OrderId,
+                                 volume = Volume}, Data) ->
+    log4erl:info("Fill sell order id ~w volume ~w", [OrderId, Volume]),
+    market:fill_sell_order(Data#module_data.player_id, OrderId, Volume),
+    
+    {noreply, Data};
+
+handle_cast(_ = #fill_buy_order{order_id = OrderId,
+                                volume = Volume}, Data) ->
+    log4erl:info("Fill buy order id ~w volume ~w", [OrderId, Volume]),
+    market:fill_buy_order(Data#module_data.player_id, OrderId, Volume),
 
     {noreply, Data};
 

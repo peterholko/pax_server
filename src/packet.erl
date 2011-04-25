@@ -186,7 +186,7 @@ assignments() ->
     list(short(), assignment()).
 
 item() ->
-    tuple({id(), id(), type(), int()}).
+    tuple({id(), id(), id(), type(), int()}).
 
 items() ->
     list(short(), item()).
@@ -365,6 +365,24 @@ transport_info() ->
     record(transport_info, {transport_id(),
                             units()}).
 
+create_sell_order() ->
+    record(create_sell_order, {id(),
+                               int()}).
+
+create_buy_order() ->
+    record(create_buy_order, {id(),
+                              type(),
+                              int(),
+                              int()}).
+
+fill_sell_order() ->
+    record(fill_sell_order, {id(),
+                             int()}).            
+
+fill_buy_order() ->
+    record(fill_buy_order, {id(),
+                            int()}).                                        
+
 %%
 %% API Functions
 %%
@@ -430,6 +448,18 @@ read(<<?CMD_TRANSFER_ITEM, Bin/binary>>) ->
 read(<<?CMD_DELETE_ITEM, Bin/binary>>) ->
     unpickle(delete_item(), Bin);
 
+read(<<?CMD_CREATE_SELL_ORDER, Bin/binary>>) ->
+    unpickle(create_sell_order(), Bin);
+
+read(<<?CMD_CREATE_BUY_ORDER, Bin/binary>>) ->
+    unpickle(create_buy_order(), Bin);
+
+read(<<?CMD_FILL_SELL_ORDER, Bin/binary>>) ->
+    unpickle(fill_sell_order(), Bin);
+
+read(<<?CMD_FILL_BUY_ORDER, Bin/binary>>) ->
+    unpickle(fill_buy_order(), Bin);
+
 %% Test Read Packets
 
 read(<<?CMD_PLAYER_ID, Bin/binary>>) ->
@@ -463,7 +493,10 @@ read(<<?CMD_BATTLE_REMOVE_ARMY, Bin/binary>>) ->
     unpickle(battle_remove_army(), Bin);
 
 read(<<?CMD_BATTLE_DAMAGE, Bin/binary>>) ->
-    unpickle(battle_damage(), Bin).
+    unpickle(battle_damage(), Bin);
+
+read(<<?CMD_SUCCESS, Bin/binary>>) ->
+    unpickle(success(), Bin).
 
 write(R) when is_record(R, bad) ->
     [?CMD_BAD|pickle(bad(), R)];
@@ -559,6 +592,18 @@ write(R) when is_record(R, transfer_item) ->
 
 write(R) when is_record(R, delete_item) ->
     [?CMD_DELETE_ITEM|pickle(delete_item(), R)];
+
+write(R) when is_record(R, create_sell_order) ->
+    [?CMD_CREATE_SELL_ORDER|pickle(create_sell_order(), R)];
+
+write(R) when is_record(R, create_buy_order) ->
+    [?CMD_CREATE_BUY_ORDER|pickle(create_buy_order(), R)];
+
+write(R) when is_record(R, fill_sell_order) ->
+    [?CMD_FILL_SELL_ORDER|pickle(fill_sell_order(), R)];
+
+write(R) when is_record(R, fill_buy_order) ->
+    [?CMD_FILL_BUY_ORDER|pickle(fill_buy_order(), R)];
 
 write(R) when is_record(R, tt) ->
     [-1|pickle(tt(), R)].

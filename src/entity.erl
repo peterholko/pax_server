@@ -11,10 +11,20 @@
 %% Exported Functions
 %%
 -export([entity_list/1, add_entities/2]).
-
+-export([get_player_id/1, on_same_tile/3]).
+-export([get_type/1]).
 %%
 %% API Functions
 %%
+
+get_type(TargetPid) ->
+    gen_server:call(TargetPid, {'GET_TYPE'}).
+
+get_player_id(TargetPid) ->
+    gen_server:call(TargetPid, {'GET_PLAYER_ID'}).
+
+on_same_tile(TargetPid, X, Y) ->
+    gen_server:call(TargetPid, {'ON_SAME_TILE', X, Y}).
 
 entity_list(PlayerId) ->
     %Get Player's entities

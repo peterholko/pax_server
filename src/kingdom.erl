@@ -15,7 +15,7 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--export([get_gold/1, remove_gold/2]).
+-export([get_gold/1, add_gold/2, remove_gold/2]).
 -export([get_name/1, get_info_kingdom/1]).
 -export([get_cities/1, get_cities_id_pid/1]).
 
@@ -30,8 +30,14 @@ start() ->
 get_gold(PlayerId) ->
     gen_server:call({global, kingdom_pid}, {'GET_GOLD', PlayerId}).
 
+add_gold(PlayerId, Amount) ->
+    update_gold(PlayerId, Amount).
+
 remove_gold(PlayerId, Amount) ->
-    gen_server:call({global, kingdom_pid}, {'REMOVE_GOLD', PlayerId, Amount}).
+    update_gold(PlayerId, -1*Amount).
+
+update_gold(PlayerId, Amount) ->
+    gen_server:cast({global, kingdom_pid}, {'UPDATE_GOLD', PlayerId, Amount}).
 
 get_cities_id_pid(PlayerId) ->
     gen_server:call({global, kingdom_pid}, {'GET_CITIES_ID_PID', PlayerId}).
@@ -59,6 +65,12 @@ init([]) ->
 handle_cast('TEST', Data) ->   
     {noreply, Data};
 
+handle_cast({'UPDATE_GOLD', PlayerId, Amount}, Data) ->
+    [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
+    NewKingdom = Kingdom#kingdom { gold = Kingdom#kingdom.gold + Amount},
+    db:dirty_write(NewKingdom),
+    {noreply, Data};
+
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
@@ -84,12 +96,6 @@ handle_call({'GET_CITIES_ID_PID', PlayerId}, _From, Data) ->
 
 handle_call({'GET_GOLD', PlayerId}, _From, Data) ->
     [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
-    {reply, Kingdom#kingdom.gold, Data};
-
-handle_call({'REMOVE_GOLD', PlayerId, Amount}, _From, Data) ->
-    [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
-    NewKingdom = Kingdom#kingdom { gold = Kingdom#kingdom.gold + Amount},
-    db:dirty_write(NewKingdom),
     {reply, Kingdom#kingdom.gold, Data};
 
 handle_call(Event, From, Data) ->

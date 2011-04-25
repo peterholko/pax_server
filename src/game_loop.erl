@@ -51,6 +51,7 @@ loop(LastTime, GamePID) ->
     timer:sleep(SleepTime),
     %EndTime = util:get_time(),
     %io:fwrite("game_loop - StartLoopTime: ~w CurrentTime: ~w EndTime: ~w SleepTime: ~w LastTime: ~w~n", [StartLoopTime, CurrentTime, EndTime, SleepTime, LastTime]),
+    log4erl:debug("End loop"),
     loop(NextTime, GamePID).
 %%
 %% Local Functions

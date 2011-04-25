@@ -84,7 +84,7 @@ handle_cast({'ADD_PLAYER', PlayerId, ProcessId}, Data) ->
     {noreply, NewData};
 
 handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
-    io:fwrite("game - delete_player - ProcessId: ~w~n", [ProcessId]),
+    log4erl:info("{~w} delete_player ProcessId: ~w", [?MODULE, ProcessId]),
     
     ArmiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_ARMIES_ID_PID', PlayerId}),
     CitiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_CITIES_ID_PID', PlayerId}),
@@ -97,7 +97,6 @@ handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
                               players = NewPlayerList,
                               entities = NewEntityList
                              },
-    io:fwrite("game - delete_player ~n"),
     {noreply, NewData};
 
 handle_cast({'ADD_EVENT', Pid, Type, EventData, EventTick}, Data) ->

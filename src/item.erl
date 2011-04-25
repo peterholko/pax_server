@@ -15,7 +15,8 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--export([add/3, set/2, update/2, transfer/2, get_by_type/2]).
+-export([create/4, delete/1, set/2, transfer/3, get_by_type/3]).
+-export([add/2, remove/2]).
 -export([items_tuple/1]).
 -record(module_data, {}).
 %% ====================================================================
@@ -25,27 +26,42 @@
 start() ->
     gen_server:start({global, item_pid}, item, [], []).
 
-add(EntityId, Type, Value) ->
-    gen_server:cast({global, item_pid}, {'ADD_ITEM', EntityId, Type, Value}).
+create(EntityId, PlayerId, Type, Volume) ->
+    gen_server:cast({global, item_pid}, {'CREATE_ITEM', EntityId, PlayerId, Type, Volume}).
 
-set(ItemId, Value) ->
-    gen_server:cast({global, item_pid}, {'SET_ITEM', ItemId, Value}).
+delete(ItemId) ->
+    gen_server:cast({global, item_pid}, {'DELETE_ITEM', ItemId}).
 
-update(ItemId, Value) ->
-    gen_server:cast({global, item_pid}, {'UPDATE_ITEM', ItemId, Value}).
+add(ItemId, Volume) ->
+    update(ItemId, Volume).
 
-transfer(ItemId, EntityId) ->
-    gen_server:cast({global, item_pid}, {'TRANSFER_ITEM', ItemId, EntityId}).
+remove(ItemId, Volume) ->
+    update(ItemId, -1*Volume).
 
-get_by_type(EntityId, Type) ->
-    gen_server:call({global, item_pid}, {'GET_ITEM_BY_TYPE', EntityId, Type}).
+set(ItemId, Volume) ->
+    gen_server:cast({global, item_pid}, {'SET_ITEM', ItemId, Volume}).
+
+update(ItemId, Volume) ->
+    gen_server:cast({global, item_pid}, {'UPDATE_ITEM', ItemId, Volume}).
+
+transfer(ItemId, EntityId, PlayerId) ->
+    gen_server:cast({global, item_pid}, {'TRANSFER_ITEM', ItemId, EntityId, PlayerId}).
+
+split(ItemId, Volume) ->
+    gen_server:cast({global, item_pid}, {'SPLIT_ITEM', ItemId, Volume}).
+
+get_by_type(EntityId, PlayerId, Type) ->
+    gen_server:call({global, item_pid}, {'GET_ITEM_BY_TYPE', EntityId, PlayerId, Type}).
+
 
 items_tuple(Items) ->
     F = fun(Item, ItemList) ->
+        {EntityId, PlayerId} = Item#item.ref,
         ItemTuple = {Item#item.id,
-                     Item#item.entity_id,
+                     EntityId,
+                     PlayerId,
                      Item#item.type,
-                     Item#item.value},
+                     Item#item.volume},
         [ItemTuple | ItemList]
     end,
     lists:foldl(F, [], Items).
@@ -58,27 +74,36 @@ init([]) ->
     Data = #module_data {},
     {ok, Data}.
 
-handle_cast({'ADD_ITEM', EntityId, Type, Value}, Data) ->   
-    add_item(EntityId, Type, Value),
+handle_cast({'CREATE_ITEM', EntityId, PlayerId, Type, Volume},Data) ->  
+    log4erl:info("CREATE_ITEM"),  
+    create_item(EntityId, PlayerId, Type, Volume),
     {noreply, Data};
 
-handle_cast({'SET_ITEM', ItemId, Value}, Data) ->
-    set_item(ItemId, Value),
+handle_cast({'DELETE_ITEM', ItemId}, Data) ->
+    delete_item(ItemId),
     {noreply, Data};
 
-handle_cast({'UPDATE_ITEM', ItemId, Value}, Data) ->
-    update_item(ItemId, Value),
+handle_cast({'SET_ITEM', ItemId, Volume}, Data) ->
+    set_item(ItemId, Volume),
     {noreply, Data};
 
-handle_cast({'TRANSFER_ITEM', ItemId, EntityId}, Data) ->
-    transfer_item(ItemId, EntityId),
+handle_cast({'UPDATE_ITEM', ItemId, Volume}, Data) ->
+    log4erl:info("UPDATE_ITEM"),  
+    update_item(ItemId, Volume),
+    {noreply,  Data};
+
+handle_cast({'TRANSFER_ITEM', ItemId, EntityId, PlayerId}, Data) ->
+    transfer_item(ItemId, EntityId, PlayerId),
+    {noreply, Data};
+
+handle_cast({'SPLIT_ITEM', ItemId, Volume}, Data) ->
     {noreply, Data};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
-handle_call({'GET_ITEM_BY_TYPE', EntityId, Type}, _From, Data) ->
-    Item = get_item_by_type(EntityId, Type),
+handle_call({'GET_ITEM_BY_TYPE', EntityId, PlayerId, Type}, _From, Data) ->
+    Item = get_item_by_type(EntityId, PlayerId, Type),
     {reply, Item, Data};
 
 handle_call(Event, From, Data) ->
@@ -106,50 +131,77 @@ terminate(_Reason, _) ->
 %% --------------------------------------------------------------------
 %%% Internal functions
 %% --------------------------------------------------------------------
-add_item(EntityId, Type, Value) ->
-    case db:dirty_read(item_type_ref, {EntityId, Type}) of
+create_item(EntityId, PlayerId, Type, Volume) ->
+    case db:dirty_read(item_type_ref, {EntityId, PlayerId, Type}) of
         [ItemTypeRef] ->
-            io:fwrite("ItemTypeRef: ~w~n", [ItemTypeRef]),
-            update_item(ItemTypeRef#item_type_ref.item_id, Value);
+            update_item(ItemTypeRef#item_type_ref.item_id, Volume);
         _ ->
-            new_item(EntityId, Type, Value)
+            new_item(EntityId, PlayerId, Type, Volume)
     end.
 
-update_item(ItemId, Value) ->
+delete_item(ItemId) ->
     [Item] = db:dirty_read(item, ItemId),
-    CurrentValue = Item#item.value,
-    NewItem = Item#item {value = CurrentValue + Value},
+    {EntityId, PlayerId} = Item#item.ref,
+    db:dirty_delete(item_type_ref, {EntityId, PlayerId, Item#item.type}),
+    db:dirty_delete(item, ItemId).
+
+update_item(ItemId, Volume) ->
+    log4erl:info("begin update_item"),
+    [Item] = db:dirty_read(item, ItemId),
+    CurrentVolume = Item#item.volume,
+    NewItem = Item#item {volume = CurrentVolume + Volume},
+    log4erl:info("update_item itemId: ~w", [Item#item.id]),
     db:dirty_write(NewItem).
 
-transfer_item(ItemId, EntityId) ->
+transfer_item(ItemId, TargetEntityId, TargetPlayerId) ->
     [Item] = db:dirty_read(item, ItemId),
-    NewItem = Item#item { entity_id = EntityId},
-    db:dirty_write(NewItem).
+    {EntityId, PlayerId} = Item#item.ref,
+    db:dirty_delete(item_type_ref, {EntityId, PlayerId, Item#item.type}),
 
-set_item(ItemId, Value) ->
-    [Item] = db:dirty_read(item, ItemId),
-    NewItem = Item#item {value = Value},
-    db:dirty_write(NewItem).
+    ItemRef = {TargetEntityId, TargetPlayerId},
+    NewItem = Item#item { ref = ItemRef},
 
-new_item(EntityId, Type, Value) ->
-    ItemId = counter:increment(item),
-    ItemRef = {EntityId, Type},
-    Item = #item {id = ItemId,
-                  entity_id = EntityId,
-                  type = Type,
-                  value = Value},
-    ItemTypeRef = #item_type_ref {entity_type_ref = ItemRef,
+    ItemTypeRef = #item_type_ref {entity_type_ref = {TargetEntityId, TargetPlayerId, Item#item.type},                                
                                   item_id = ItemId},
+
+    db:dirty_write(NewItem),
+    db:dirty_write(ItemTypeRef).
+
+set_item(ItemId, Volume) ->
+    [Item] = db:dirty_read(item, ItemId),
+    NewItem = Item#item {volume = Volume},
+    db:dirty_write(NewItem).
+
+new_item(EntityId, PlayerId, Type, Volume) ->
+    log4erl:info("Begin new_item"),    
+    ItemId = counter:increment(item),
+    Item = #item {id = ItemId,
+                  ref = {EntityId, PlayerId},
+                  type = Type,
+                  volume = Volume},
+    ItemTypeRef = #item_type_ref {entity_type_ref = {EntityId, PlayerId, Type},                               
+                                  item_id = ItemId},
+
+    log4erl:info("new_item itemId: ~w", [Item#item.id]),
     db:dirty_write(Item),
     db:dirty_write(ItemTypeRef).
 
-get_item_by_type(EntityId, Type) ->
-    case db:dirty_read(item_type_ref, {EntityId, Type}) of
-        [ItemTypeRef] ->
-            [Item] = db:dirty_read(item, ItemTypeRef#item_type_ref.item_id),
-            Result = {found, Item};
-        _ ->
-            Result = {not_found}
-    end,
-    Result.            
+get_item_by_type(EntityId, PlayerId, Type) ->
+    ItemTypeRefList = db:dirty_read(item_type_ref, {EntityId, PlayerId, Type}),
+    ItemList = get_item_list(ItemTypeRefList, []),
+    item_list(ItemList).
 
+item_list([]) ->
+    {not_found};
+item_list(ItemList) ->
+    
+    {found, ItemList}.
+
+get_item_list([], ItemList) ->
+    ItemList;
+
+get_item_list([ItemTypeRef | Rest], ItemList) ->
+    [Item] = db:dirty_read(item, ItemTypeRef#item_type_ref.item_id),
+    
+    NewItemList = [Item | ItemList],
+    get_item_list(Rest, NewItemList).

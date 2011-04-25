@@ -12,7 +12,7 @@
 %%
 %% Exported Functions
 %%
--export([run/1]).
+-export([run/1, market/0]).
 
 %%
 %% API Functions
@@ -27,6 +27,14 @@ connect(Account) ->
     t:login(Account),   
 
     loop(Socket).
+
+market() ->
+    t:add_claim(),
+    timer:sleep(1000),
+    t:build_farm(),
+    timer:sleep(1000),
+    t:assign_task().
+
 
 %%
 %% Local Functions

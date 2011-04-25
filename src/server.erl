@@ -48,7 +48,6 @@ init() ->
     application:start(log4erl),
     log4erl:conf("conf/log4erl.conf"),
     log4erl:change_log_level(info),
-    log4erl:debug("Debug"),    
 
     % Create schema and load db data
     log4erl:info("Creating schema and loading db data..."), 
@@ -58,7 +57,7 @@ init() ->
     db:reset_game_tables(),
     
     % Load map data
-    log4erl:info("Loading map data..."),  
+    log4erl:info("Loading map data..."), 
     map:start(),
     map:load(),
     
@@ -75,6 +74,7 @@ init() ->
     improvement:start(),    
     transport:start(),   
     item:start(),
+    market:start(),
     
     % Start socket listener
     {ok, ListenSocket} = gen_tcp:listen(2345, [binary,

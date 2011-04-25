@@ -16,7 +16,8 @@
 -export([start/1, login/1]).
 -export([build_farm/0, add_claim/0, assign_task/0, transfer/0, transfer2/0, 
          battle/0, target/0, info_army/1, info_city/1, move/3, add_waypoint/3,
-         queue_unit/0, queue_building/0, retreat/0]).
+         queue_unit/0, queue_building/0, retreat/0, create_sell/2, fill_sell/2,
+         create_buy/4, fill_buy/2]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -record(data, {socket}).
@@ -44,7 +45,7 @@ add_claim() ->
     gen_server:cast(global:whereis_name(test_sender), {'ADD_CLAIM', 11, 5, 5}).
 
 assign_task() ->
-    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, 0, 33, 1, ?TASK_IMPROVEMENT}).
+    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, 0, 33, 21, ?TASK_IMPROVEMENT}).
 
 transfer() -> 
     gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 1, 1, 1, 2, 1}),
@@ -74,6 +75,17 @@ move(ArmyId, X, Y) ->
 add_waypoint(ArmyId, X, Y) ->
     gen_server:cast(global:whereis_name(test_sender), {'ADD_WAYPOINT', ArmyId, X, Y}).
 
+create_sell(ItemId, Price) ->
+    gen_server:cast(global:whereis_name(test_sender), {'CREATE_SELL', ItemId, Price}).
+
+create_buy(CityId, ItemTypeId, Volume, Price) ->
+    gen_server:cast(global:whereis_name(test_sender), {'CREATE_BUY', CityId, ItemTypeId, Volume, Price}).
+
+fill_sell(OrderId, Volume) ->
+    gen_server:cast(global:whereis_name(test_sender), {'FILL_SELL', OrderId, Volume}).
+
+fill_buy(OrderId, Volume) ->
+    gen_server:cast(global:whereis_name(test_sender), {'FILL_BUY', OrderId, Volume}).
 
 %% ====================================================================
 %% Server functions
@@ -173,6 +185,36 @@ handle_cast({'RETREAT', BattleId, SourceArmy}, Data) ->
                               source_army_id = SourceArmy},
 
     packet:send(Data#data.socket, Retreat),
+    {noreply, Data};
+
+handle_cast({'CREATE_SELL', ItemId, Price}, Data) ->
+    CreateSell = #create_sell_order{item_id = ItemId,
+                              price = Price},
+
+    packet:send(Data#data.socket, CreateSell),
+    {noreply, Data};
+
+handle_cast({'CREATE_BUY', CityId, ItemTypeId, Volume, Price}, Data) ->
+    CreateBuy = #create_buy_order{city_id = CityId,
+                                   item_type = ItemTypeId,
+                                   volume = Volume,
+                                   price = Price},
+
+    packet:send(Data#data.socket, CreateBuy),
+    {noreply, Data};
+
+handle_cast({'FILL_SELL', OrderId, Volume}, Data) ->
+    FillSell = #fill_sell_order{order_id = OrderId,
+                                volume = Volume},
+
+    packet:send(Data#data.socket, FillSell),
+    {noreply, Data};
+
+handle_cast({'FILL_BUY', OrderId, Volume}, Data) ->
+    FillBuy = #fill_buy_order{order_id = OrderId,
+                                volume = Volume},
+
+    packet:send(Data#data.socket, FillBuy),
     {noreply, Data};
 
 handle_cast(stop, Data) ->

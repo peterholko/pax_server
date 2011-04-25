@@ -158,7 +158,7 @@ handle_cast({'PROCESS_EVENT',_EventTick, _Id, EventType}, Data) ->
             %log4erl:info("Processing Harvest for City ~w~n", [self()]),
             harvest(City#city.id);
         ?EVENT_GROWTH ->
-            growth(City#city.id)            
+            growth(City#city.id, City#city.player_id)            
     end,      
     
     
@@ -243,9 +243,9 @@ handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
 
 handle_call({'ASSIGN_TASK', Caste, Amount, TaskId, TaskType}, _From, Data) ->
     City = Data#module_data.city,
-    log4erl:info("Assign task...~n"), 
+    log4erl:info("Assign task - Caste ~w Amount ~w TaskId ~w TaskType ~w", [Caste, Amount, TaskId, TaskType]), 
     PopAvailable = get_available_pop(City#city.id, Caste),
-    log4erl:info("PopAvailable: ~w~n", [PopAvailable]),
+    log4erl:info("PopAvailable: ~w", [PopAvailable]),
     
     case PopAvailable >= Amount of
         true ->
@@ -317,7 +317,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             AssignmentsTuple = assignments_tuple(NewAssignments),
 
             %Convert items record to tuple packet form
-            NewItems = db:dirty_index_read(item, City#city.id, #item.entity_id),
+            NewItems = db:dirty_index_read(item, {City#city.id, PlayerId}, #item.ref),
             ItemsTuple = item:items_tuple(NewItems),
 
             NewPopulations = db:dirty_index_read(population, City#city.id, #population.city_id),
@@ -354,9 +354,10 @@ handle_call({'TRANSFER_ITEM', ItemId, TargetId, TargetAtom}, _From, Data) ->
     City = Data#module_data.city,
 
     TargetPid = object:get_pid(TargetAtom, TargetId),
-    case gen_server:call(TargetPid, {'ON_SAME_TILE', City#city.x, City#city.y}) of
+    case entity:on_same_tile(TargetPid, City#city.x, City#city.y) of
         true ->
-            item:transfer(ItemId, TargetId),
+            TargetPlayerId = entity:get_player_id(TargetPid), 
+            item:transfer(ItemId, TargetId, TargetPlayerId),
             TransferItemInfo = {transfer_item, success};
         false ->
             TransferItemInfo = {transfer_item, not_same_tile}
@@ -649,35 +650,37 @@ check_improvement(_, _) ->
     false.
 
 harvest(CityId) ->
+    log4erl:info("{~w} Harvest CityId: ~w", [?MODULE, CityId]),
     % match {assignment, assignment_id, city_id, population_id, amount, task_id, task_type}
-    log4erl:info("Harvest~n"),
     Assignments = db:dirty_match_object({assignment, '_', CityId, '_', '_', '_', ?TASK_IMPROVEMENT}),
-    harvest_assignment(Assignments, CityId).
+    harvest_assignment(Assignments).
             
-harvest_assignment([], _CityId) ->
-    log4erl:info("Harvest complete~n");
+harvest_assignment([]) ->
+    log4erl:info("{~w} Harvest Assignment complete", [?MODULE]);
 
-harvest_assignment([Assignment | Rest], CityId) ->
-    log4erl:info("Harvest Assignment~n"),
+harvest_assignment([Assignment | Rest]) ->
+    log4erl:info("{~w} Harvest Assignment", [?MODULE]),
     ImprovementId = Assignment#assignment.task_id,
     [Improvement] = db:dirty_read(improvement, ImprovementId),
     ResourceGained  = map:harvest_resource(Improvement#improvement.tile_index, 0, Assignment#assignment.amount),
 
-    log4erl:info("ResourceGained: ~w~n",[ResourceGained]),
-    item:add(CityId, Improvement#improvement.type, ResourceGained),
+    log4erl:info("{~w} Harvest ResourceGained: ~w",[?MODULE, ResourceGained]),
+    item:create(Improvement#improvement.city_id, 
+                Improvement#improvement.player_id, 
+                Improvement#improvement.type, 
+                ResourceGained),
 
-    harvest_assignment(Rest, CityId).
+    harvest_assignment(Rest).
 
-growth(CityId) ->
-    Population = db:dirty_index_read(population, CityId, #population.city_id),
-    
-    log4erl:info("Population: ~w~n", [Population]),
+growth(CityId, PlayerId) ->
+    Population = db:dirty_index_read(population, CityId, #population.city_id),    
+    log4erl:debug("{~w} Growth Current Population: ~w", [?MODULE, Population]),
 
     %Calculate food required
     TotalFoodRequired = total_food_required(Population, 0),
     
     %Subtract from food stores
-    food_upkeep(CityId, Population, TotalFoodRequired).
+    food_upkeep(CityId, PlayerId, Population, TotalFoodRequired).
 
 
 food_required(?CASTE_SLAVE) ->
@@ -707,26 +710,46 @@ total_food_required([Caste | Rest], FoodRequired) ->
 
     total_food_required(Rest, TotalFoodRequired).
 
-food_upkeep(CityId, Population, TotalFoodRequired) ->
-    case item:get_by_type(CityId, ?ITEM_FOOD) of
-        {found, Food} ->
-            log4erl:info("Food upkeep: ~w~n",[Food]),
-            log4erl:info("Food Store: ~w TotalFoodRequired: ~w~n", [Food#item.value, TotalFoodRequired]), 
+food_upkeep(CityId, PlayerId, Population, TotalFoodRequired) ->
+    case item:get_by_type(CityId, PlayerId, ?ITEM_FOOD) of
+        {found, FoodList} ->
+            log4erl:info("Food upkeep: ~w",[FoodList]),
+            TotalFood = total_food(FoodList, 0),
             if
-                Food#item.value >= TotalFoodRequired ->
+                TotalFood >= TotalFoodRequired ->
                     log4erl:info("Add population..."),
-                    grow_population(Population),
-                    NewFoodValue = Food#item.value - TotalFoodRequired;
+                    grow_population(Population);
                 true ->
-                    starve_population(Population, TotalFoodRequired - Food#item.value),
-                    NewFoodValue = 0
+                    starve_population(Population, TotalFoodRequired - TotalFood)
             end,
-            log4erl:info("New Food Store: ~w~n", [round(NewFoodValue)]), 
-            item:set(Food#item.id, round(NewFoodValue));
+            
+            remove_food(FoodList, TotalFoodRequired);
         {not_found} ->
             starve_population(Population, TotalFoodRequired)
     end.         
-                                     
+
+total_food([], TotalFood) ->
+    TotalFood;
+    
+total_food([Food | Rest], TotalFood) ->
+    NewTotalFood = TotalFood + Food#item.volume,
+    total_food(Rest, NewTotalFood).
+
+remove_food(_FoodList, 0) ->
+    done;
+
+remove_food([Food | Rest], FoodRequired) ->
+    if
+        Food#item.volume > FoodRequired ->
+            NewFood = Food#item {volume = Food#item.volume - FoodRequired},
+            NewFoodRequired = 0,
+            item:set(NewFood#item.id, round(NewFood#item.volume));
+        true ->
+            NewFoodRequired = FoodRequired - Food#item.volume,
+            item:delete(Food#item.id)
+    end,
+    remove_food(Rest, NewFoodRequired).
+        
 grow_population([]) ->
     ok;
 
@@ -760,8 +783,8 @@ starve_caste(_Caste, 0) ->
     0;
 
 starve_caste(Caste, InsufficientFood) ->
-    log4erl:info("Caste: ~w~n", [Caste]),
-    log4erl:info("InsufficientFood: ~w~n", [InsufficientFood]),
+    log4erl:info("Caste: ~w", [Caste]),
+    log4erl:info("InsufficientFood: ~w", [InsufficientFood]),
 
     CasteFoodRequired = food_required(Caste#population.caste),
     TotalCasteFoodRequired = Caste#population.value * CasteFoodRequired,
@@ -777,7 +800,7 @@ starve_caste(Caste, InsufficientFood) ->
 
     NewCaste = Caste#population {value = util:round3(NewValue)},
     db:write(NewCaste),
-    log4erl:info("NewInsufficientFood: ~w~n",[NewInsufficientFood]),
+    log4erl:info("NewInsufficientFood: ~w",[NewInsufficientFood]),
     NewInsufficientFood.
 
 get_available_pop(CityId, Caste) ->

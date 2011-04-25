@@ -50,8 +50,13 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(population, [{disc_copies, [node()]}, {attributes, record_info(fields, population)}]),
     {atomic, ok} = mnesia:create_table(claim, [{disc_copies, [node()]}, {attributes, record_info(fields, claim)}]),   
     {atomic, ok} = mnesia:create_table(item, [{disc_copies, [node()]}, {attributes, record_info(fields, item)}]),   
-    {atomic, ok} = mnesia:create_table(assignment, [{disc_copies, [node()]}, {attributes, record_info(fields, assignment)}]),   
- 
+    {atomic, ok} = mnesia:create_table(assignment, [{disc_copies, [node()]}, {attributes, record_info(fields, assignment)}]),    
+    {atomic, ok} = mnesia:create_table(market_item, [{disc_copies, [node()]}, {attributes, record_info(fields, market_item)}]),   
+
+    {atomic, ok} = mnesia:create_table(trade_route, [{disc_copies, [node()]}, {attributes, record_info(fields, trade_route)}]),  
+    {atomic, ok} = mnesia:create_table(market_order, [{disc_copies, [node()]}, {attributes, record_info(fields, market_order)}]),   
+    {atomic, ok} = mnesia:create_table(reputation, [{disc_copies, [node()]}, {attributes, record_info(fields, reputation)}]),   
+
     {atomic, ok} = mnesia:create_table(tile, [{ram_copies, [node()]}, {attributes, record_info(fields, tile)}]),   
     {atomic, ok} = mnesia:create_table(resource, [{ram_copies, [node()]}, {attributes, record_info(fields, resource)}]),   
 
@@ -59,10 +64,12 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(building_type, [{disc_copies, [node()]}, {attributes, record_info(fields, building_type)}]),
     {atomic, ok} = mnesia:create_table(resource_type, [{disc_copies, [node()]}, {attributes, record_info(fields, resource_type)}]),
     {atomic, ok} = mnesia:create_table(population_type, [{disc_copies, [node()]}, {attributes, record_info(fields, population_type)}]),
-    {atomic, ok} = mnesia:create_table(improvement_type, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement_type)}]),
- 
-    {atomic, ok} = mnesia:create_table(item_type_ref, [{disc_copies, [node()]}, {attributes, record_info(fields, item_type_ref)}]),    
+    {atomic, ok} = mnesia:create_table(improvement_type, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement_type)}]), 
+    {atomic, ok} = mnesia:create_table(item_type, [{disc_copies, [node()]}, {attributes, record_info(fields, item_type)}]),
+
+    {atomic, ok} = mnesia:create_table(item_type_ref, [{disc_copies,  [node()]}, {type, bag}, {attributes, record_info(fields, item_type_ref)}]),    
     {atomic, ok} = mnesia:create_table(player_type, [{disc_copies, [node()]}, {attributes, record_info(fields, player_type)}]),    
+    {atomic, ok} = mnesia:create_table(reputation_ref, [{disc_copies, [node()]}, {attributes, record_info(fields, reputation_ref)}]),    
 
     {atomic, ok} = mnesia:create_table(unit_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_queue)}]),
     {atomic, ok} = mnesia:create_table(building_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, building_queue)}]),
@@ -78,7 +85,10 @@ create_schema() ->
     mnesia:add_table_index(improvement, tile_index),
     mnesia:add_table_index(improvement, city_id),
     mnesia:add_table_index(population, city_id),   
-    mnesia:add_table_index(item, entity_id),
+    mnesia:add_table_index(item, ref),
+
+    mnesia:add_table_index(market_order, city_id),
+    mnesia:add_table_index(market_order, player_id),
 
     mnesia:add_table_index(unit_queue, city_id),
     mnesia:add_table_index(building_queue, city_id),
@@ -156,7 +166,8 @@ game_tables() ->
     [{unit_type, 1, "Footsolider", 	1, 4, 2, 5, 1, 5, 10},
      {unit_type, 2, "Archer", 		2, 5, 1, 10, 2, 5, 10},
      {building_type, 1, "Barracks", 20},
-     {building_type, 2, "Weaponsmith", 4}].
+     {building_type, 2, "Weaponsmith", 4},
+     {item_type, 0, "Food"}].
 
 reset_game_tables() ->
     F = fun() ->
@@ -210,7 +221,11 @@ test_tables() ->
      {population, {11, 1}, 11, 1, 0},
      {population, {11, 2}, 11, 2, 0},
      {population, {11, 3}, 11, 3, 0},
-     {transport, 1, 1, gb_sets:new()}    
+     {transport, 1, 1, gb_sets:new()},
+     {item, 1, {11, 1}, 0, 1000},
+     {item_type_ref, {11, 1, 0}, 1},
+     {item, 2, {11, 1}, 0, 500},
+     {item_type_ref, {11, 1, 0}, 2} 
     ].
 
 reset_tables() ->

@@ -44,7 +44,7 @@ init([Army, PlayerId])
        is_integer(PlayerId) ->
     process_flag(trap_exit, true),
     
-    io:fwrite("army - army_id: ~w player_id: ~w~n", [Army#army.id, PlayerId]),  
+    log4erl:debug("{~w} army_id: ~w player_id: ~w", [?MODULE, Army#army.id, PlayerId]),  
     
     {ok, #module_data{army = Army, player_id = PlayerId, self = self()}}.
 
@@ -56,7 +56,7 @@ stop(ProcessId)
     gen_server:cast(ProcessId, stop).
 
 handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
-    io:fwrite("army - set_state_move ~n"),    
+    log4erl:info("{~w} SET_STATE_MOVE", [?MODULE]),
     Army = Data#module_data.army,
     {NextX, NextY} = next_pos(Army#army.x, Army#army.y, DestX, DestY),
     ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
@@ -77,7 +77,7 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
     {noreply, NewData};
 
 handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
-    io:fwrite("army - set_state_attack ~n"),
+    log4erl:info("{~w} SET_STATE_ATTACK", [?MODULE]),
     Army = Data#module_data.army,
     TargetState = gen_server:call(global:whereis_name({army, TargetId}), {'GET_STATE', Army#army.id}),
     {NextX, NextY} = next_pos(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
@@ -99,7 +99,7 @@ handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     {noreply, NewData};
 
 handle_cast({'SET_STATE_RETREAT_MOVE'}, Data) ->
-    io:fwrite("army - set_state_retreat_move ~n"),
+    log4erl:info("{~w} SET_STATE_RETREAT_MOVE", [?MODULE]),
     Army = Data#module_data.army,
     {LastX, LastY} = Army#army.last_pos,
     
@@ -120,7 +120,7 @@ handle_cast({'SET_STATE_RETREAT_MOVE'}, Data) ->
     {noreply, NewData};   
  
 handle_cast({'SET_STATE_LEAVE_MOVE'}, Data) ->
-    io:fwrite("army - set_state_leave_move ~n"),
+    log4erl:info("{~w} SET_STATE_LEAVE_MOVE", [?MODULE]),
     Army = Data#module_data.army,
     {LastX, LastY} = Army#army.last_pos,
     
@@ -302,7 +302,7 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
                 true ->
                     case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
                         {receive_unit, success} ->
-                            db:dirty_delete(Unit),
+                            db:dirty_delete(unit, Unit),
                             NewUnits = gb_sets:delete(UnitId, Units),
                             NewArmy = Army#army {units = NewUnits},
                             NewData = Data#module_data{army = NewArmy},
@@ -356,6 +356,22 @@ handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
     
     {reply, ReceiveUnitInfo, NewData};    
 
+handle_call({'TRANSFER_ITEM', ItemId, TargetId, TargetAtom}, _From, Data) ->
+    log4erl:info("Army - TRANSFER_ITEM"),
+    Army = Data#module_data.army,
+
+    TargetPid = object:get_pid(TargetAtom, TargetId),
+    case entity:on_same_tile(TargetPid, Army#army.x, Army#army.y) of
+        true ->
+            TargetPlayerId = entity:get_player_id(TargetPid), 
+            item:transfer(ItemId, TargetId, TargetPlayerId),
+            TransferItemInfo = {transfer_item, success};
+        false ->
+            TransferItemInfo = {transfer_item, not_same_tile}
+    end,
+
+    {reply, TransferItemInfo, Data};
+
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->    
     Army = Data#module_data.army,   
 
@@ -365,7 +381,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             UnitsInfoTuple = unit:units_tuple(Units),
 
             %Convert items record to tuple packet form
-            NewItems = db:dirty_index_read(item, Army#army.id, #item.entity_id),
+            NewItems = db:dirty_index_read(item, {Army#army.id, PlayerId}, #item.ref),
             ItemsTuple = item:items_tuple(NewItems),
 
             ArmyInfo = {detailed, 
