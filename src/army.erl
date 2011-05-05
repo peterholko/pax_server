@@ -256,7 +256,7 @@ handle_call({'DAMAGE_UNIT', UnitId, Damage}, _From, Data) ->
         true ->
             [Unit] = db:dirty_read(unit, UnitId),            
             [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
-            TotalHp = Unit#unit.size * UnitType#unit_type.max_hp,            
+            TotalHp = Unit#unit.size * UnitType#unit_type.total_hp,            
             io:fwrite("Army ~w - Damage: ~w~n", [Army#army.id, Damage]),
             
             if
@@ -265,7 +265,7 @@ handle_call({'DAMAGE_UNIT', UnitId, Damage}, _From, Data) ->
                     db:dirty_delete(unit, UnitId),
                     NewUnits = gb_sets:delete(UnitId, Units);
                 true ->
-                    Killed = Damage div UnitType#unit_type.max_hp,
+                    Killed = Damage div UnitType#unit_type.total_hp,
                     io:fwrite("Army ~w - Units killed: ~w~n", [Army#army.id, Killed]),
                     
                     NewSize = Unit#unit.size - Killed,

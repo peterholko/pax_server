@@ -133,16 +133,17 @@ terminate(_Reason, _) ->
 %% --------------------------------------------------------------------
 create_item(EntityId, PlayerId, Type, Volume) ->
     case db:dirty_read(item_type_ref, {EntityId, PlayerId, Type}) of
-        [ItemTypeRef] ->
-            update_item(ItemTypeRef#item_type_ref.item_id, Volume);
-        _ ->
-            new_item(EntityId, PlayerId, Type, Volume)
+        [] ->
+            new_item(EntityId, PlayerId, Type, Volume);
+        [ItemTypeRef | _Rest] ->
+            log4erl:info("ItemTypeRef: ~w", [ItemTypeRef]),
+            update_item(ItemTypeRef#item_type_ref.item_id, Volume)
     end.
 
 delete_item(ItemId) ->
     [Item] = db:dirty_read(item, ItemId),
-    {EntityId, PlayerId} = Item#item.ref,
-    db:dirty_delete(item_type_ref, {EntityId, PlayerId, Item#item.type}),
+    [ItemTypeRef] = db:dirty_index_read(item_type_ref, ItemId, #item_type_ref.item_id),
+    mnesia:dirty_delete_object(item_type_ref, ItemTypeRef),
     db:dirty_delete(item, ItemId).
 
 update_item(ItemId, Volume) ->

@@ -19,7 +19,12 @@
 -export([init/1, handle_call/3, handle_cast/2, 
          handle_info/2, terminate/2, code_change/3]).
 
--export([start/2, stop/1, queue_unit/5, queue_building/3, add_claim/3, add_improvement/4, assign_task/5]).
+-export([start/2, stop/1]).
+-export([queue_unit/6, 
+         queue_building/3, 
+         add_claim/3, 
+         add_improvement/4, 
+         assign_task/6]).
 
 -record(module_data, {city,                       
                       units_queue,
@@ -64,8 +69,8 @@ stop(ProcessId)
   when is_pid(ProcessId) ->
     gen_server:cast(ProcessId, stop).
 
-queue_unit(CityId, PlayerId, UnitType, UnitSize, Caste) ->
-    gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste}).
+queue_unit(CityId, PlayerId, UnitType, UnitSize, Caste, Race) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste, Race}).
 
 queue_building(CityId, PlayerId, BuildingType) ->
     gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_BUILDING', PlayerId, BuildingType}).
@@ -76,8 +81,8 @@ add_improvement(CityId, X, Y, ImprovementType) ->
 add_claim(CityId, X, Y) ->
     gen_server:call(global:whereis_name({city, CityId}), {'ADD_CLAIM', X, Y}).
 
-assign_task(CityId, PopulationId, Amount, TaskId, TaskType) ->
-    gen_server:call(global:whereis_name({city, CityId}), {'ASSIGN_TASK', PopulationId, Amount, TaskId, TaskType}).
+assign_task(CityId, Caste, Race, Amount, TaskId, TaskType) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'ASSIGN_TASK', Caste, Race, Amount, TaskId, TaskType}).
 %%
 %% OTP handlers
 %%
@@ -200,7 +205,7 @@ handle_call({'ADD_CLAIM', X, Y}, _From, Data) ->
 
     {reply, Result, NewData};
 
-handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste}, _From, Data) ->   
+handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste, Race}, _From, Data) ->   
     City = Data#module_data.city,
     UnitsQueue = Data#module_data.units_queue,
 
@@ -209,12 +214,12 @@ handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste}, _From, Data) ->
     CasesUnitQueue = cases_unit_queue(PlayerId =:= City#city.player_id, 
                                       unit:is_valid_unit_type(UnitType),                             
                                       kingdom:get_gold(PlayerId) >= UnitCost,
-                                      get_available_pop(City#city.id, Caste) >= UnitSize),
+                                      get_available_pop(City#city.id, Caste, Race) >= UnitSize),
       
     case CasesUnitQueue of
         true ->                          
             kingdom:remove_gold(PlayerId, UnitCost),
-            remove_population(City#city.id, Caste, UnitSize),                        
+            remove_population(City#city.id, Caste, Race, UnitSize),                        
 
             NewUnitsQueue = add_unit_to_queue(City#city.id, UnitsQueue, UnitType, UnitSize),
             NewData = Data#module_data { units_queue = NewUnitsQueue},
@@ -229,11 +234,10 @@ handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste}, _From, Data) ->
 
 handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
     City = Data#module_data.city,
-    BuildingsQueue = db:dirty_index_read(building_queue, City#city.id, #building_queue.city_id),
         
     case City#city.player_id =:= PlayerId of
         true ->
-            add_building_to_queue(City#city.id, BuildingsQueue, BuildingType),
+            add_building_to_queue(City#city.id, BuildingType),
             Result = {city, queued_building};
         false ->
             Result = {city, error}
@@ -241,18 +245,17 @@ handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
 
     {reply, Result, Data}; 
 
-handle_call({'ASSIGN_TASK', Caste, Amount, TaskId, TaskType}, _From, Data) ->
+handle_call({'ASSIGN_TASK', Caste, Race, Amount, TaskId, TaskType}, _From, Data) ->
     City = Data#module_data.city,
-    log4erl:info("Assign task - Caste ~w Amount ~w TaskId ~w TaskType ~w", [Caste, Amount, TaskId, TaskType]), 
-    PopAvailable = get_available_pop(City#city.id, Caste),
+    log4erl:info("Assign task - Caste ~w Amount ~w Race ~w TaskId ~w TaskType ~w", [Caste, Amount, Race, TaskId, TaskType]), 
+    PopAvailable = get_available_pop(City#city.id, Caste, Race),
     log4erl:info("PopAvailable: ~w", [PopAvailable]),
     
     case PopAvailable >= Amount of
         true ->
             case is_valid_task(City#city.id, TaskId, TaskType) of
                 true ->          
-                    process_assignment(City#city.id, Caste, Amount, TaskId, TaskType),
-                    AssignmentId = store_assigned_task(City#city.id, Caste, Amount, TaskId, TaskType),
+                    AssignmentId = store_assigned_task(City#city.id, Caste, Race, Amount, TaskId, TaskType),
                     Result = {success, AssignmentId};
                 false ->
                     log4erl:info("~w: Invalid TaskId", [?MODULE]),
@@ -274,24 +277,17 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             UnitsQueue = Data#module_data.units_queue,
             UnitIds = City#city.units,
 
-            %Get BuildingQueue and buildings,
-            BuildingsQueue = db:dirty_index_read(building_queue, City#city.id, #building_queue.city_id),
-            BuildingIds = City#city.buildings,
-            
-            log4erl:info("BuildingsQueue: ~w~n", [BuildingsQueue]),
-
-            %Check if any units or buildings are completed
+            %Check if any units are completed
             {NewUnitsQueue, UnitsToAdd} = check_unit_queue(UnitsQueue),
-            {NewBuildingsQueue, BuildingsToAdd} = check_building_queue(BuildingsQueue),
+            
+            %Check building queue and assign any new production 
+            building:check_queue(City#city.id),
           
-            log4erl:info("NewBuildingsQueue: ~w~n", [NewBuildingsQueue]),
-  
             %Add any units from the queue
             NewUnitIds = add_units_from_queue(UnitIds, UnitsToAdd),
-            NewBuildingIds = add_buildings_from_queue(BuildingIds, BuildingsToAdd),
             
             %Assign any changes to module data
-            NewCity = City#city {units = NewUnitIds, buildings = NewBuildingIds}, 
+            NewCity = City#city {units = NewUnitIds}, 
             NewData = Data#module_data {city = NewCity, units_queue = NewUnitsQueue},                                    
 
             %Convert units record to tuple packet form
@@ -301,6 +297,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
 
             %Convert buildings record to tuple packet form
             NewBuildings = db:dirty_index_read(building, City#city.id, #building.city_id),  
+            NewBuildingsQueue = db:dirty_index_read(building_queue, City#city.id, #building_queue.city_id),
             BuildingsTuple = building:buildings_tuple(NewBuildings),
             BuildingsQueueTuple = building:buildings_queue_tuple(NewBuildingsQueue),       
 
@@ -526,34 +523,25 @@ get_queue_unit_time(QueueInfo, CurrentTime) ->
     end,
     StartTime.
 
-add_building_to_queue(CityId, BuildingsQueue, BuildingType) ->
-    CurrentTime = util:get_time_seconds(),
-    StartTime = get_queue_building_time(BuildingsQueue, CurrentTime),
-    
+add_building_to_queue(CityId, BuildingType) ->
+    CurrentTime = util:get_time_seconds(),    
+    BuildingId = counter:increment(building),
+
     BuildingQueue = #building_queue {id = counter:increment(building_queue),
                                      city_id = CityId,
-                                     building_type = BuildingType,
-                                     start_time = StartTime,
-                                     end_time = ?MAX_TIME},
-    db:dirty_write(BuildingQueue),
-    [BuildingQueue | BuildingsQueue].
+                                     building_id = BuildingId,
+                                     start_time = CurrentTime,
+                                     production = 0,
+                                     last_update = CurrentTime},
 
-get_queue_building_time([], CurrentTime) ->
-    CurrentTime;
-
-get_queue_building_time(QueueInfo, CurrentTime) ->
-    SortedQueueInfo = lists:keysort(4, QueueInfo),
-    LastBuildingQueue = lists:last(SortedQueueInfo),
-    EndTime = LastBuildingQueue#building_queue.end_time,
+    Building = #building {id = BuildingId,
+                          city_id = CityId,
+                          type = BuildingType,
+                          hp = 0},
     
-    case EndTime > CurrentTime of
-        true ->
-            StartTime = EndTime;
-        false ->
-            StartTime = CurrentTime
-    end,
-    StartTime.
-
+    db:dirty_write(BuildingQueue),
+    db:dirty_write(Building).
+ 
 check_unit_queue([]) ->
     {[], []};
 
@@ -582,29 +570,6 @@ check_unit_queue(QueueInfo) ->
     io:fwrite("city - check_unit_queue - UnitsRemoved: ~w~n", [UnitsToRemove]),    
     {NewQueueInfo, UnitsToRemove}.  
 
-check_building_queue([]) ->
-    {[], []};
-
-check_building_queue(QueueInfo) ->
-    CurrentTime = util:get_time_seconds(),
-
-    F = fun(BuildingQueue, BuildingsToRemove) ->
-            EndTime = BuildingQueue#building_queue.end_time,
-
-            case EndTime =< CurrentTime of
-                true ->
-                    NewBuildingsToRemove = [BuildingQueue | BuildingsToRemove];
-                false ->
-                    NewBuildingsToRemove = BuildingsToRemove
-            end,
-            
-            NewBuildingsToRemove
-        end,
-
-    BuildingsToRemove = lists:foldl(F, [], QueueInfo),
-    NewQueueInfo = QueueInfo -- BuildingsToRemove,
-    {NewQueueInfo, BuildingsToRemove}.
-
 add_units_from_queue(Units, []) ->
     Units;
 
@@ -621,22 +586,6 @@ add_units_from_queue(Units, UnitsToAdd) ->
     NewUnits = [Unit#unit.id | Units],        
     add_units_from_queue(NewUnits, Rest).
 
-add_buildings_from_queue(Buildings, []) ->
-    Buildings;
-
-add_buildings_from_queue(Buildings, BuildingsToAdd) ->
-    [BuildingQueue | Rest] = BuildingsToAdd,
-    
-    Building = #building {id = counter:increment(building),
-                          city_id = BuildingQueue#building_queue.city_id,
-                          type = BuildingQueue#building_queue.building_type},
-    
-    db:dirty_write(Building),
-    db:dirty_delete(building_queue, BuildingQueue#building_queue.id),
-    NewBuildings = [Building#building.id | Buildings],
-
-    add_buildings_from_queue(NewBuildings, Rest).
-
 %Valid X, Valid Y, Exists, MaxReached
 check_claim(true, true, false, false) ->
     true;
@@ -651,8 +600,8 @@ check_improvement(_, _) ->
 
 harvest(CityId) ->
     log4erl:info("{~w} Harvest CityId: ~w", [?MODULE, CityId]),
-    % match {assignment, assignment_id, city_id, population_id, amount, task_id, task_type}
-    Assignments = db:dirty_match_object({assignment, '_', CityId, '_', '_', '_', ?TASK_IMPROVEMENT}),
+    % match {assignment, assignment_id, city_id, caste, race, amount, task_id, task_type}
+    Assignments = db:dirty_match_object({assignment, '_', CityId, '_', '_', '_', '_', ?TASK_IMPROVEMENT}),
     harvest_assignment(Assignments).
             
 harvest_assignment([]) ->
@@ -722,7 +671,7 @@ food_upkeep(CityId, PlayerId, Population, TotalFoodRequired) ->
                 true ->
                     starve_population(Population, TotalFoodRequired - TotalFood)
             end,
-            
+            log4erl:info("FoodList: ~w TotalFoodRequired: ~w", [FoodList, TotalFoodRequired]),            
             remove_food(FoodList, TotalFoodRequired);
         {not_found} ->
             starve_population(Population, TotalFoodRequired)
@@ -736,6 +685,9 @@ total_food([Food | Rest], TotalFood) ->
     total_food(Rest, NewTotalFood).
 
 remove_food(_FoodList, 0) ->
+    done;
+
+remove_food([], _FoodRequired) ->
     done;
 
 remove_food([Food | Rest], FoodRequired) ->
@@ -761,28 +713,20 @@ grow_population([Caste | Rest]) ->
 
     grow_population(Rest).
 
-remove_population(CityId, Caste, Value) ->
-    [Population] = db:dirty_read(population, {CityId, Caste}),
+remove_population(CityId, Caste, Race, Value) ->
+    [Population] = db:dirty_read(population, {CityId, Caste, Race}),
     NewValue = Population#population.value - Value, 
     NewPopulation = Population#population { value = NewValue},
     db:dirty_write(NewPopulation).
 
 starve_population(Population, InsufficientFood) ->   
-    [Slaves, Soldiers, Commoners, Nobles] = extract_castes(Population),   
+    SortedPopulation = lists:keysort(#population.caste, Population),
+    starve_caste(SortedPopulation, InsufficientFood). 
 
-    starve_caste(Nobles, 
-    starve_caste(Commoners,
-    starve_caste(Soldiers, 
-    starve_caste(Slaves, InsufficientFood)))).
+starve_caste([], _InsufficentFood) ->
+    log4erl:info("Starvation completed.");
 
-extract_castes(Population) ->
-    % Caste is the 5th element of the population record
-    lists:keysort(5, Population).
-
-starve_caste(_Caste, 0) ->
-    0;
-
-starve_caste(Caste, InsufficientFood) ->
+starve_caste([Caste | Rest], InsufficientFood) ->
     log4erl:info("Caste: ~w", [Caste]),
     log4erl:info("InsufficientFood: ~w", [InsufficientFood]),
 
@@ -801,14 +745,14 @@ starve_caste(Caste, InsufficientFood) ->
     NewCaste = Caste#population {value = util:round3(NewValue)},
     db:write(NewCaste),
     log4erl:info("NewInsufficientFood: ~w",[NewInsufficientFood]),
-    NewInsufficientFood.
+    starve_caste(Rest, NewInsufficientFood).
 
-get_available_pop(CityId, Caste) ->
-    log4erl:info("GetAvailablePop CityId: ~w Caste: ~w",[CityId, Caste]),
-    Assignments = db:dirty_match_object({assignment, '_', CityId, Caste, '_', '_', '_'}),
+get_available_pop(CityId, Caste, Race) ->
+    log4erl:info("GetAvailablePop CityId: ~w Caste: ~w Race: ~w",[CityId, Caste, Race]),
+    Assignments = db:dirty_match_object({assignment, '_', CityId, Caste, Race, '_', '_', '_'}),
     log4erl:info("Assignments: ~w", [Assignments]),
     
-    [TotalPop] = db:dirty_read(population, {CityId, Caste}),
+    [TotalPop] = db:dirty_read(population, {CityId, Caste, Race}),
     TotalAssignment = total_assignment(Assignments, 0),
     TotalPop#population.value - TotalAssignment.   
 
@@ -861,36 +805,12 @@ is_valid_task(CityId, BuildingQueueId, ?TASK_CONSTRUCTION) ->
 is_valid_task(_CityId, _TaskId, _TaskType) ->
     false.
 
-process_assignment(_City, Caste, Amount, BuildingQueueId, ?TASK_CONSTRUCTION) ->
-    log4erl:info("~w: Process Assignment", [?MODULE]),
-
-    case db:dirty_read(building_queue, BuildingQueueId) of
-        [BuildingQueue] ->
-            CurrentTime = util:get_time_seconds(),       
-            StartTime = BuildingQueue#building_queue.start_time,
-            EndTime = BuildingQueue#building_queue.end_time,
-            CompletionRate = CurrentTime / (EndTime - StartTime),
-
-            NewBuildingTime = building:calc_building_time(BuildingQueue#building_queue.building_type,
-                                                          CompletionRate,
-                                                          Caste,
-                                                          Amount),
-            StartTime = BuildingQueue#building_queue.start_time,
-            NewBuildingQueue = BuildingQueue#building_queue { end_time = StartTime + NewBuildingTime},
-            db:dirty_write(NewBuildingQueue);
-        _ ->   
-            log4erl:error("~w: Invalid BuildingQueueId ~w", [?MODULE, BuildingQueueId]),
-            erlang:error("Invalid BuildingQueueId")
-    end;          
-
-process_assignment(_City, _Caste, _Amount, _TaskId, _TaskType) ->
-    do_nothing.     
-
-store_assigned_task(CityId, Caste, Amount, TaskId, TaskType) ->
+store_assigned_task(CityId, Caste, Race, Amount, TaskId, TaskType) ->
     AssignmentId = counter:increment(assignment),
     Assignment = #assignment {  id = AssignmentId,
                                 city_id = CityId,
                                 caste = Caste,
+                                race = Race,
                                 amount = Amount,
                                 task_id = TaskId,
                                 task_type = TaskType },
@@ -927,6 +847,7 @@ assignments_tuple(Assignments) ->
     F = fun(Assignment, AssignmentList) ->
             AssignmentTuple = {Assignment#assignment.id,
                                Assignment#assignment.caste,
+                               Assignment#assignment.race,
                                Assignment#assignment.amount,
                                Assignment#assignment.task_id,
                                Assignment#assignment.task_type},
@@ -938,6 +859,7 @@ populations_tuple(Populations) ->
     F = fun(Population, PopulationList) ->
         PopulationTuple = {Population#population.city_id,
                            Population#population.caste,
+                           Population#population.race,
                            erlang:trunc(Population#population.value)},
         [PopulationTuple | PopulationList]
     end,

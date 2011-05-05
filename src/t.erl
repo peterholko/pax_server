@@ -14,7 +14,7 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/1, login/1]).
--export([build_farm/0, add_claim/0, assign_task/0, transfer/0, transfer2/0, 
+-export([build_farm/0, add_claim/0, assign_task/0, assign_task2/0, transfer/0, transfer2/0, 
          battle/0, target/0, info_army/1, info_city/1, move/3, add_waypoint/3,
          queue_unit/0, queue_building/0, retreat/0, create_sell/2, fill_sell/2,
          create_buy/4, fill_buy/2]).
@@ -36,7 +36,7 @@ build_farm() ->
     gen_server:cast(global:whereis_name(test_sender), {'BUILD_IMPROVEMENT', 11, 5, 5, ?IMPROVEMENT_FARM}).
 
 queue_unit() ->
-    gen_server:cast(global:whereis_name(test_sender), {'QUEUE_UNIT', 11, 1, 100, 0}).
+    gen_server:cast(global:whereis_name(test_sender), {'QUEUE_UNIT', 11, 1, 100, ?CASTE_SLAVE, ?RACE_HUMAN}).
 
 queue_building() ->
     gen_server:cast(global:whereis_name(test_sender), {'QUEUE_BUILDING', 11, 1}).
@@ -45,7 +45,10 @@ add_claim() ->
     gen_server:cast(global:whereis_name(test_sender), {'ADD_CLAIM', 11, 5, 5}).
 
 assign_task() ->
-    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, 0, 33, 21, ?TASK_IMPROVEMENT}).
+    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_HUMAN, 33, 21, ?TASK_IMPROVEMENT}).
+
+assign_task2() ->
+    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_HUMAN, 5000, 1, ?TASK_CONSTRUCTION}).
 
 transfer() -> 
     gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 1, 1, 1, 2, 1}),
@@ -95,9 +98,10 @@ init([Socket]) ->
     Data = #data {socket = Socket},
     {ok, Data}.
 
-handle_cast({'ASSIGN_TASK', CityId, PopulationId, Amount, TaskId, TaskType}, Data) ->
+handle_cast({'ASSIGN_TASK', CityId, Caste, Race, Amount, TaskId, TaskType}, Data) ->
     AssignTask = #assign_task { city_id = CityId, 
-                                population_id = PopulationId, 
+                                caste = Caste, 
+                                race = Race,
                                 amount = Amount, 
                                 task_id = TaskId,
                                 task_type = TaskType},
@@ -117,16 +121,18 @@ handle_cast({'BUILD_IMPROVEMENT', CityId, X, Y, ImprovementType}, Data) ->
 
     {noreply, Data};
 
-handle_cast({'QUEUE_UNIT', CityId, UnitType, UnitSize, Caste}, Data) ->
+handle_cast({'QUEUE_UNIT', CityId, UnitType, UnitSize, Caste, Race}, Data) ->
     CityQueueUnit = #city_queue_unit { id = CityId,
                                        unit_type = UnitType,
                                        unit_size = UnitSize,
-                                       caste = Caste},
+                                       caste = Caste,
+                                       race = Race},
     packet:send(Data#data.socket, CityQueueUnit),
     {noreply, Data};
 
 handle_cast({'QUEUE_BUILDING', CityId, BuildingType}, Data) ->
-    CityQueueBuilding = #city_queue_building { id = CityId,
+    CityQueueBuilding = #city_queue_building { building_id = -1,
+                                               city_id = CityId,
                                                building_type = BuildingType},
     packet:send(Data#data.socket, CityQueueBuilding),
     {noreply, Data};

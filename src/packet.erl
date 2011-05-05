@@ -95,6 +95,9 @@ unit_size() ->
 unit_type() ->
     short().
 
+race() ->
+    byte().
+
 start_time() ->
     int().
 
@@ -113,14 +116,13 @@ units() ->
 units_queue() ->
     list(short(), unit_queue()).
 
-building_type() ->
-    short().
-
+%building_id, hp, building_type
 building() ->
-    tuple({id(), building_type()}).
+    tuple({id(), int(), type()}).
 
+%building_queue_id, building_id, production, start_time
 building_queue() ->
-    tuple({id(), building_type(), start_time(), end_time()}).
+    tuple({id(), id(), int(), int()}).
 
 buildings() ->
     list(short(), building()).
@@ -179,8 +181,9 @@ improvement() ->
 improvements() ->
     list(short(), improvement()).
 
+%id, caste, race, amount, task_id, task_type
 assignment() ->
-    tuple({id(), byte(), int(), id(), short()}).
+    tuple({id(), byte(), byte(), int(), id(), short()}).
 
 assignments() ->
     list(short(), assignment()).
@@ -191,8 +194,9 @@ item() ->
 items() ->
     list(short(), item()).
 
+%city_id, caste, race, value
 population() ->
-    tuple({id(), type(), int()}).
+    tuple({id(), byte(), byte(), int()}).
 
 populations() ->
     list(short(), population()).
@@ -290,11 +294,13 @@ city_queue_unit() ->
     record(city_queue_unit, {id(),
                              unit_type(),
                              unit_size(),
-                             caste()}).
+                             caste(),
+                             race()}).
 
 city_queue_building() ->
-    record(city_queue_building, {id(),
-                                 building_type()}).
+    record(city_queue_building, {id(), %building_id
+                                 id(), %city_id
+                                 type()}). %building_type
 
 transfer_item() ->
     record(transfer_item, {id(),
@@ -352,11 +358,12 @@ add_claim() ->
                        y()}).
 
 assign_task() ->
-    record(assign_task, {id(),
-                         id(),
-                         amount(),
-                         id(),
-                         type()}).                                              
+    record(assign_task, {id(), %city_id
+                         byte(), %caste
+                         byte(), %race
+                         amount(), %amount
+                         id(), %task_id
+                         type()}). %task_type                                         
 
 delete_item() ->
     record(delete_item, {id()}).

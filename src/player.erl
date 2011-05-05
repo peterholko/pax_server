@@ -268,8 +268,8 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
     
     {noreply, Data};
 
-handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = UnitSize, caste = Caste}, Data) ->
-    case city:queue_unit(Id, Data#module_data.player_id, UnitType, UnitSize, Caste) of
+handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = UnitSize, caste = Caste, race = Race}, Data) ->
+    case city:queue_unit(Id, Data#module_data.player_id, UnitType, UnitSize, Caste, Race) of
         {city, queued_unit} ->
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = Id},
             gen_server:cast(self(), RequestInfo);
@@ -278,10 +278,10 @@ handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = Unit
     end,                        
     {noreply, Data};
 
-handle_cast(_ = #city_queue_building{id = Id, building_type = BuildingType}, Data) ->
-    case city:queue_building(Id, Data#module_data.player_id, BuildingType) of
+handle_cast(_ = #city_queue_building{building_id = BuildingId, city_id = CityId, building_type = BuildingType}, Data) ->
+    case city:queue_building(CityId, Data#module_data.player_id, BuildingType) of
         {city, queued_building} ->
-            RequestInfo = #request_info{ type = ?OBJECT_CITY, id = Id},
+            RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
             gen_server:cast(self(), RequestInfo);
         {city, Error} ->
             log4erl:error("Queue Building - Error: ~w", [Error])
@@ -422,7 +422,8 @@ handle_cast(_ = #add_claim{ city_id = CityId,
     {noreply, Data};
 
 handle_cast(_ = #assign_task{ city_id = CityId,
-                              population_id = PopulationId,
+                              caste  = Caste,
+                              race = Race,
                               amount = Amount,
                               task_id = TaskId,
                               task_type = TaskType}, Data) ->
@@ -431,7 +432,7 @@ handle_cast(_ = #assign_task{ city_id = CityId,
    
     case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
-            case city:assign_task(CityId, PopulationId, Amount, TaskId, TaskType) of
+            case city:assign_task(CityId, Caste, Race, Amount, TaskId, TaskType) of
                 {success, Id} ->
                     R = #success { type = ?CMD_ASSIGN_TASK,
                                    id = Id},
