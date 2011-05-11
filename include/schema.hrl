@@ -84,11 +84,13 @@
 
 -record(building, {id,
                    city_id,
-                   type}).
+                   type,
+                   hp}).
 
--record(population, {city_caste_ref, % city_caste_ref = {city_id, caste} %
+-record(population, {ref, % ref = {city_id, caste, race} %
                      city_id,
                      caste,
+                     race,
                      value}).                     
 
 -record(claim, {id, 
@@ -112,6 +114,7 @@
 -record(assignment, {id,
                      city_id,
                      caste,
+                     race,
                      amount,
                      task_id,
                      task_type               
@@ -144,6 +147,14 @@
 
 %%% Queue tables %%%
 
+-record(queue, {id,
+                city_id,
+                detailed_queue_id,
+                detailed_queue_type,
+                production,
+                created_time,
+                last_update}).
+
 -record(unit_queue, {id,
                      city_id,
                      unit_type,
@@ -153,9 +164,7 @@
 
 -record(building_queue, {id,
                          city_id,
-                         building_type,
-                         start_time,
-                         end_time}).
+                         building_id}).
 
 -record(improvement_queue, {improvement_id,
                             player_id,
@@ -169,7 +178,7 @@
                     attack,
                     defense,
                     speed,
-                    max_hp,
+                    total_hp,
                     movement,
                     cost}).
 
@@ -185,7 +194,8 @@
 
 -record(building_type, {id,
                         name,
-                        building_time}).
+                        production_cost,
+                        total_hp}).
 
 -record(item_type, {id,
                     name}).

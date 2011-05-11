@@ -17,7 +17,7 @@
 -export([build_farm/0, add_claim/0, assign_task/0, assign_task2/0, transfer/0, transfer2/0, 
          battle/0, target/0, info_army/1, info_city/1, move/3, add_waypoint/3,
          queue_unit/0, queue_building/0, retreat/0, create_sell/2, fill_sell/2,
-         create_buy/4, fill_buy/2]).
+         create_buy/4, fill_buy/2, assign_task_multi/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -record(data, {socket}).
@@ -49,6 +49,11 @@ assign_task() ->
 
 assign_task2() ->
     gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_HUMAN, 5000, 1, ?TASK_CONSTRUCTION}).
+
+assign_task_multi() ->
+    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_HUMAN, 1000, 1, ?TASK_CONSTRUCTION}),
+    timer:sleep(1000),
+    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_ELF, 100, 1, ?TASK_CONSTRUCTION}).
 
 transfer() -> 
     gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 1, 1, 1, 2, 1}),

@@ -103,14 +103,16 @@
                             kingdom_name}).
 
 -define (CMD_CITY_QUEUE_BUILDING, 59). 
--record(city_queue_building, {id,
+-record(city_queue_building, {building_id,
+                              city_id,
                               building_type}).
 
 -define (CMD_CITY_QUEUE_UNIT, 60).
 -record(city_queue_unit, {id,
                           unit_type,
                           unit_size,
-                          caste}).
+                          caste,
+                          race}).
 
 -define (CMD_TRANSFER_UNIT, 61).
 -record(transfer_unit, {unit_id,
@@ -165,7 +167,8 @@
 
 -define(CMD_ASSIGN_TASK, 130).
 -record(assign_task, {city_id,
-                      population_id,
+                      caste,
+                      race,
                       amount,
                       task_id,
                       task_type}).

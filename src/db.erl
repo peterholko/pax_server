@@ -81,7 +81,6 @@ create_schema() ->
     mnesia:add_table_index(claim, tile_index),
     mnesia:add_table_index(claim, city_id),
     mnesia:add_table_index(assignment, city_id),
-    mnesia:add_table_index(assignment, population_id),
     mnesia:add_table_index(improvement, tile_index),
     mnesia:add_table_index(improvement, city_id),
     mnesia:add_table_index(population, city_id),   
@@ -166,8 +165,9 @@ do(Q) ->
 game_tables() ->
     [{unit_type, 1, "Footsolider", 	1, 4, 2, 5, 1, 5, 10},
      {unit_type, 2, "Archer", 		2, 5, 1, 10, 2, 5, 10},
-     {building_type, 0, "Barracks", 150, 20},
-     {building_type, 1, "Weaponsmith", 200, 4},
+     {building_type, 1, "Barracks", 100, 20},
+     {building_type, 2, "Market", 100, 4},
+     {building_type, 3, "Temple", 100, 5},
      {item_type, 0, "Food"}].
 
 reset_game_tables() ->
@@ -219,6 +219,11 @@ test_tables() ->
      {unit, 9, 3, 1, 1, 15, 1},
      {unit, 10, 6, 1, 1, 30, 1},
      {population, {11, 0, 0}, 11, 0, 0, 10000},
+     {population, {11, 1, 1}, 11, 1, 1, 1000},
+     {population, {11, 2, 2}, 11, 2, 2, 20000},
+     {population, {11, 3, 3}, 11, 3, 3, 3000},
+     {population, {11, 0, 1}, 11, 0, 1, 100},
+     {population, {11, 0, 2}, 11, 0, 2, 200},
      {transport, 1, 1, gb_sets:new()},
      {item, 1, {11, 1}, 0, 1230000},
      {item_type_ref, {11, 1, 0}, 1},

@@ -272,7 +272,10 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
     City = Data#module_data.city,
     
     if 
-        City#city.player_id =:= PlayerId ->           
+        City#city.player_id =:= PlayerId ->                      
+            process_assignments(City#city.id),
+
+
             %Get UnitQueue and Units
             UnitsQueue = Data#module_data.units_queue,
             UnitIds = City#city.units,
@@ -524,21 +527,30 @@ get_queue_unit_time(QueueInfo, CurrentTime) ->
     StartTime.
 
 add_building_to_queue(CityId, BuildingType) ->
-    CurrentTime = util:get_time_seconds(),    
+    CurrentTime = util:get_time_seconds(),   
+    QueueId = counter:increment(queue), 
     BuildingId = counter:increment(building),
+    BuildingQueueId = counter:increment(building_queue),
 
-    BuildingQueue = #building_queue {id = counter:increment(building_queue),
+    Queue = #queue {id = QueueId,
+                    city_id = CityId,
+                    detailed_queue_id = BuildingQueueId,
+                    detailed_queue_type = ?QUEUE_BUILDING,
+                    production = 0,
+                    created_time = CurrentTime,
+                    last_update = CurrentTime},
+
+
+    BuildingQueue = #building_queue {id = BuildingQueueId,
                                      city_id = CityId,
-                                     building_id = BuildingId,
-                                     start_time = CurrentTime,
-                                     production = 0,
-                                     last_update = CurrentTime},
+                                     building_id = BuildingId},
 
     Building = #building {id = BuildingId,
                           city_id = CityId,
                           type = BuildingType,
                           hp = 0},
-    
+   
+    db:dirty_write(Queue), 
     db:dirty_write(BuildingQueue),
     db:dirty_write(Building).
  
@@ -776,7 +788,7 @@ is_valid_task(CityId, ImprovementId, ?TASK_IMPROVEMENT) ->
             Result = false
     end,
     Result;
-is_valid_task(CityId, BuildingId, ?TASK_BUILDING) ->
+is_valid_task(CityId, BuildingId, ?TASK_UNIT_TRAINING) ->
     case db:dirty_read(building, BuildingId) of
         [Building] ->
             case Building#building.city_id =:= CityId of
@@ -867,3 +879,9 @@ populations_tuple(Populations) ->
 
 save_city(City) ->
     db:dirty_write(City).
+
+process_assignments(CityId) ->
+    Assignments = db:dirty_index_read(assignment, City#city.id, #assignment.city_id)
+    
+
+

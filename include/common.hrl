@@ -39,6 +39,7 @@
 
 -define(GAME_LOOP_TICK, 200).
 -define(GAME_VISION_RANGE, 50).
+-define(GAME_NUM_HOURS_PER_DAY, 6).
 
 -define(OBJECT_TILE, 0).
 -define(OBJECT_ARMY, 1).
@@ -73,9 +74,14 @@
 -define(CASTE_COMMONER, 2).
 -define(CASTE_NOBLE, 3).
 
+-define(RACE_HUMAN, 0).
+-define(RACE_ELF, 1).
+-define(RACE_DWARF, 2).
+-define(RACE_GOBLIN, 3).
+
 -define(TASK_NONE, 0).
 -define(TASK_IMPROVEMENT, 1).
--define(TASK_BUILDING, 2).
+-define(TASK_UNIT_TRAINING, 2).
 -define(TASK_CONSTRUCTION, 3).
 -define(TASK_RESEARCH, 4).
 
@@ -93,3 +99,12 @@
 
 -define(MARKET_BUY, 0).
 -define(MARKET_SELL, 1).
+
+-define(CASTE_SLAVE_RATE, 0.5).
+-define(CASTE_SOLDIER_RATE, 1.5).
+-define(CASTE_COMMONER_RATE, 2.0).
+-define(CASTE_NOBLE_RATE, 1.0).
+
+-define(QUEUE_BUILDING, 0).
+-define(QUEUE_UNIT, 1).
+-define(QUEUE_IMPROVEMENT, 2).

@@ -51,8 +51,8 @@ buildings_queue_tuple(BuildingsQueue) ->
 check_queue(CityId) ->
     log4erl:info("{~w} Checking Queue", [?MODULE]),
     BuildingsQueue = db:dirty_index_read(building_queue, CityId, #building_queue.city_id),
-    Assignments = db:dirty_match_object({assignment, '_', CityId, '_', '_', '_', ?TASK_CONSTRUCTION}),
-
+    Assignments = db:dirty_match_object({assignment, '_', CityId, '_', '_', '_', '_', ?TASK_CONSTRUCTION}),
+    log4erl:info("{~w} BuildingsQueue ~w Assignments ~w", [?MODULE, BuildingsQueue, Assignments]),
     F = fun(BuildingQueue) ->
             check_assignment(BuildingQueue, Assignments)            
         end,
@@ -63,6 +63,7 @@ check_assignment(BuildingQueue, Assignments) ->
     F = fun(Assignment) ->
             TaskId = Assignment#assignment.task_id,
             BuildingId = BuildingQueue#building_queue.id,
+            log4erl:info("{~w} TaskId ~w BuildingId ~w", [?MODULE, TaskId, BuildingId]),
             case TaskId =:= BuildingId of
                 true ->
                     log4erl:info("{~w} Processing Production", [?MODULE]),
