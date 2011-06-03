@@ -14,18 +14,18 @@
 %%
 %% Exported Functions
 %%
--export([check_queue/1,
-         buildings_tuple/1, 
-         buildings_queue_tuple/1]).
+-export([add_to_queue/2,
+         calc_gold_cost/1,
+         tuple_form/1,
+         queue_tuple_form/1,
+         process_production/3
+         ]).
 
 %%
 %% API Functions
 %%
 
-buildings_tuple([]) ->
-    [];
-
-buildings_tuple(Buildings) ->
+tuple_form(Buildings) ->
     F = fun(Building, BuildingList) ->
             BuildingTuple = {Building#building.id, 
                              trunc(Building#building.hp), 
@@ -35,47 +35,27 @@ buildings_tuple(Buildings) ->
 
     lists:foldl(F, [], Buildings).
 
-buildings_queue_tuple([]) ->
-    [];
-
-buildings_queue_tuple(BuildingsQueue) ->
-    F = fun(BuildingQueue, BuildingQueueList) ->
-            BuildingQueueTuple = {BuildingQueue#building_queue.id,
-                                  BuildingQueue#building_queue.building_id,
+queue_tuple_form(CityId) ->
+    BuildingQueueList = db:dirty_index_read(building_queue, CityId, #building_queue.city_id),
+    
+    F = fun(BuildingQueue, TupleList) ->
+            BuildingQueueTuple = {?TASK_BUILDING,                 
+                                  BuildingQueue#building_queue.building_type,                 
+                                  BuildingQueue#building_queue.id,
+                                  BuildingQueue#building_queue.city_id,
                                   trunc(BuildingQueue#building_queue.production),
-                                  BuildingQueue#building_queue.start_time},
-            [BuildingQueueTuple | BuildingQueueList]
-        end,
-    lists:foldl(F, [], BuildingsQueue).
-
-check_queue(CityId) ->
-    log4erl:info("{~w} Checking Queue", [?MODULE]),
-    BuildingsQueue = db:dirty_index_read(building_queue, CityId, #building_queue.city_id),
-    Assignments = db:dirty_match_object({assignment, '_', CityId, '_', '_', '_', '_', ?TASK_CONSTRUCTION}),
-    log4erl:info("{~w} BuildingsQueue ~w Assignments ~w", [?MODULE, BuildingsQueue, Assignments]),
-    F = fun(BuildingQueue) ->
-            check_assignment(BuildingQueue, Assignments)            
+                                  BuildingQueue#building_queue.created_time},
+            [BuildingQueueTuple | TupleList]
         end,
 
-    lists:foreach(F, BuildingsQueue).
+    lists:foldl(F, [], BuildingQueueList).
 
-check_assignment(BuildingQueue, Assignments) ->
-    F = fun(Assignment) ->
-            TaskId = Assignment#assignment.task_id,
-            BuildingId = BuildingQueue#building_queue.id,
-            log4erl:info("{~w} TaskId ~w BuildingId ~w", [?MODULE, TaskId, BuildingId]),
-            case TaskId =:= BuildingId of
-                true ->
-                    log4erl:info("{~w} Processing Production", [?MODULE]),
-                    process_production(BuildingId, BuildingQueue, Assignment);
-                false ->
-                    nothing
-            end                
-        end,
-
-    lists:foreach(F, Assignments).
+calc_gold_cost(Type) ->
+    [BuildingType] = db:dirty_read(building_type, Type),
+    BuildingType#building_type.gold_cost.
 
 process_production(BuildingId, BuildingQueue, Assignment) ->
+    log4erl:info("{~w} Process Production", [?MODULE]),
     [Building] = db:dirty_read(building, BuildingId),
     [BuildingType] = db:dirty_read(building_type, Building#building.type),
 
@@ -108,9 +88,26 @@ process_production(BuildingId, BuildingQueue, Assignment) ->
             db:dirty_write(NewBuildingQueue)
     end.
             
+add_to_queue(CityId, BuildingType) ->
+    CurrentTime = util:get_time_seconds(),   
+    BuildingId = counter:increment(building),
+    BuildingQueueId = counter:increment(building_queue),
 
-            
-            
-            
+    BuildingQueue = #building_queue {id = BuildingQueueId,
+                                     city_id = CityId,                                   
+                                     building_id = BuildingId,
+                                     building_type = BuildingType,
+                                     production = 0,
+                                     created_time = CurrentTime,
+                                     last_update = CurrentTime},
 
-
+    Building = #building {id = BuildingId,
+                          city_id = CityId,
+                          type = BuildingType,
+                          hp = 0},
+   
+    db:dirty_write(BuildingQueue),
+    db:dirty_write(Building).
+ 
+            
+          

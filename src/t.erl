@@ -48,12 +48,12 @@ assign_task() ->
     gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_HUMAN, 33, 21, ?TASK_IMPROVEMENT}).
 
 assign_task2() ->
-    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_HUMAN, 5000, 1, ?TASK_CONSTRUCTION}).
+    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_HUMAN, 5000, 1, ?TASK_BUILDING}).
 
 assign_task_multi() ->
-    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_HUMAN, 1000, 1, ?TASK_CONSTRUCTION}),
+    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_HUMAN, 1000, 1, ?TASK_BUILDING}),
     timer:sleep(1000),
-    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_ELF, 100, 1, ?TASK_CONSTRUCTION}).
+    gen_server:cast(global:whereis_name(test_sender), {'ASSIGN_TASK', 11, ?CASTE_SLAVE, ?RACE_ELF, 100, 1, ?TASK_BUILDING}).
 
 transfer() -> 
     gen_server:cast(global:whereis_name(test_sender), {'TRANSFER_UNIT', 1, 1, 1, 2, 1}),

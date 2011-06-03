@@ -63,17 +63,15 @@ loop(Socket) ->
                     loop(Socket);
                 #info_city{id = Id, 
                            buildings = Buildings, 
-                           buildings_queue = BuildingsQueue,
                            units = Units,
-                           units_queue = UnitsQueue,
                            claims = Claims,
                            improvements = Improvements,
                            assignments = Assignments,
                            items = Items,
                            populations = Populations  
                            } ->
-                    io:fwrite("Info City: ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n", 
-                               [Id, Buildings, BuildingsQueue, Units, UnitsQueue, Claims, Assignments, Improvements, Items, Populations]),
+                    io:fwrite("Info City: ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n ~w~n", 
+                               [Id, Buildings, Units, Claims, Assignments, Improvements, Items, Populations]),
                     loop(Socket);
                 #battle_info{battle_id = BattleId, armies = Armies} ->
                     io:fwrite("Battle Info: ~w ~w~n", [BattleId, Armies]),

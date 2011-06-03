@@ -18,7 +18,7 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/0, create/6, info/2, empty/2]).
-
+%-export([process_production/3]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -58,6 +58,7 @@ handle_cast({'BUILD_IMPROVEMENT', ImprovementId, X, Y, PlayerId, CityId, Type}, 
                                city_id = CityId,
                                type = Type,                                
                                state = ?STATE_CONSTRUCTING,
+                               hp = 0,
                                observed_by = []},
     
     io:fwrite("Improvement: ~w~n", [Improvement]), 

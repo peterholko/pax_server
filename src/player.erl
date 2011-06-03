@@ -392,7 +392,7 @@ handle_cast(_ = #build_improvement{city_id = CityId,
 
     case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
-            city:add_improvement(CityId, X, Y, ImprovementType);
+            city:queue_improvement(CityId, X, Y, ImprovementType);
         false ->
             log4erl:info("Add Improvement - City id does not exist for this player.")        
     end,
@@ -664,26 +664,23 @@ get_info_city(Id, Data) ->
         {detailed, 
         CityName, 
         BuildingInfo, 
-        BuildingsQueueInfo, 
         UnitsInfo, 
-        UnitsQueueInfo, 
         Claims,
         Improvements,
         Assignments,
         Items,
-        Populations} ->
-            log4erl:debug("BuildingsQueueInfo: ~w~n", [BuildingsQueueInfo]),
+        Populations,
+        Queues} ->
             R = #info_city { id = Id,
                              name = CityName, 
                              buildings = BuildingInfo,
-                             buildings_queue = BuildingsQueueInfo, 
                              units = UnitsInfo,
-                             units_queue = UnitsQueueInfo,
                              claims = Claims,
                              improvements = Improvements,
                              assignments = Assignments,
                              items = Items,
-                             populations = Populations},
+                             populations = Populations,
+                             queues = Queues},
             forward_to_client(R, Data);
         {generic, CityId, CityPlayerId, CityName, KingdomName} ->
             R = #info_generic_city { id = CityId,

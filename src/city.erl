@@ -22,8 +22,8 @@
 -export([start/2, stop/1]).
 -export([queue_unit/6, 
          queue_building/3, 
+         queue_improvement/4, 
          add_claim/3, 
-         add_improvement/4, 
          assign_task/6]).
 
 -record(module_data, {city,                       
@@ -75,8 +75,8 @@ queue_unit(CityId, PlayerId, UnitType, UnitSize, Caste, Race) ->
 queue_building(CityId, PlayerId, BuildingType) ->
     gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_BUILDING', PlayerId, BuildingType}).
 
-add_improvement(CityId, X, Y, ImprovementType) ->
-    gen_server:cast(global:whereis_name({city,CityId}), {'ADD_IMPROVEMENT', X, Y, ImprovementType}).
+queue_improvement(CityId, X, Y, ImprovementType) ->
+    gen_server:cast(global:whereis_name({city,CityId}), {'QUEUE_IMPROVEMENT', X, Y, ImprovementType}).
 
 add_claim(CityId, X, Y) ->
     gen_server:call(global:whereis_name({city, CityId}), {'ADD_CLAIM', X, Y}).
@@ -125,7 +125,7 @@ handle_cast({'ADD_UNIT', UnitId}, Data) ->
  
     {noreply, NewData};
 
-handle_cast({'ADD_IMPROVEMENT', X, Y, ImprovementType}, Data) ->
+handle_cast({'QUEUE_IMPROVEMENT', X, Y, ImprovementType}, Data) ->
     City = Data#module_data.city,
 
     CheckClaim = lists:member({X,Y}, City#city.claims),
@@ -207,10 +207,8 @@ handle_call({'ADD_CLAIM', X, Y}, _From, Data) ->
 
 handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste, Race}, _From, Data) ->   
     City = Data#module_data.city,
-    UnitsQueue = Data#module_data.units_queue,
 
-    UnitCost = unit:calc_new_unit_cost(UnitType, UnitSize), 
-
+    UnitCost = unit:calc_unit_cost(UnitType, UnitSize), 
     CasesUnitQueue = cases_unit_queue(PlayerId =:= City#city.player_id, 
                                       unit:is_valid_unit_type(UnitType),                             
                                       kingdom:get_gold(PlayerId) >= UnitCost,
@@ -221,23 +219,25 @@ handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste, Race}, _From, Da
             kingdom:remove_gold(PlayerId, UnitCost),
             remove_population(City#city.id, Caste, Race, UnitSize),                        
 
-            NewUnitsQueue = add_unit_to_queue(City#city.id, UnitsQueue, UnitType, UnitSize),
-            NewData = Data#module_data { units_queue = NewUnitsQueue},
+            unit:add_to_queue(City#city.id, UnitType, UnitSize),
             Result = {city, queued_unit};
         {false, ErrorMsg} ->
-            NewData = Data,
             io:fwrite("QueueUnit Error: ~w~n", [ErrorMsg]),
             Result = {city, ErrorMsg}
     end,
     
-    {reply, Result, NewData};
+    {reply, Result, Data};
 
 handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
     City = Data#module_data.city,
         
     case City#city.player_id =:= PlayerId of
-        true ->
-            add_building_to_queue(City#city.id, BuildingType),
+        true ->                        
+            building:add_to_queue(City#city.id, BuildingType),
+            
+            BuildingCost = building:calc_gold_cost(BuildingType),
+            kingdom:remove_gold(PlayerId, BuildingCost),
+
             Result = {city, queued_building};
         false ->
             Result = {city, error}
@@ -273,72 +273,51 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
     
     if 
         City#city.player_id =:= PlayerId ->                      
-            process_assignments(City#city.id),
+            %Convert assginments record to tuple packet form
+            Assignments = db:dirty_index_read(assignment, City#city.id, #assignment.city_id),
+            AssignmentsTuple = assignment:tuple_form(Assignments),
 
+            %Process assignments and queue production
+            assignment:process_assignments(Assignments),
 
-            %Get UnitQueue and Units
-            UnitsQueue = Data#module_data.units_queue,
-            UnitIds = City#city.units,
-
-            %Check if any units are completed
-            {NewUnitsQueue, UnitsToAdd} = check_unit_queue(UnitsQueue),
-            
-            %Check building queue and assign any new production 
-            building:check_queue(City#city.id),
-          
-            %Add any units from the queue
-            NewUnitIds = add_units_from_queue(UnitIds, UnitsToAdd),
-            
-            %Assign any changes to module data
-            NewCity = City#city {units = NewUnitIds}, 
-            NewData = Data#module_data {city = NewCity, units_queue = NewUnitsQueue},                                    
+            %Combined all the queues into a single tuple packet form
+            QueueTuple = combine_queues(City#city.id),
 
             %Convert units record to tuple packet form
-            NewUnits = db:dirty_index_read(unit, City#city.id, #unit.entity_id),
-            UnitsTuple = unit:units_tuple(NewUnits),
-            UnitsQueueTuple = unit:units_queue_tuple(NewUnitsQueue),
+            Units = db:dirty_index_read(unit, City#city.id, #unit.entity_id),
+            UnitsTuple = unit:tuple_form(Units),
 
             %Convert buildings record to tuple packet form
-            NewBuildings = db:dirty_index_read(building, City#city.id, #building.city_id),  
-            NewBuildingsQueue = db:dirty_index_read(building_queue, City#city.id, #building_queue.city_id),
-            BuildingsTuple = building:buildings_tuple(NewBuildings),
-            BuildingsQueueTuple = building:buildings_queue_tuple(NewBuildingsQueue),       
+            Buildings = db:dirty_index_read(building, City#city.id, #building.city_id),  
+            BuildingsTuple = building:tuple_form(Buildings),
 
             %Convert claims record to tuple packet form
-            NewClaims = db:dirty_index_read(claim, City#city.id, #claim.city_id),
-            ClaimsTuple = claims_tuple(NewClaims), 
+            Claims = db:dirty_index_read(claim, City#city.id, #claim.city_id),
+            ClaimsTuple = claims_tuple(Claims), 
 
             %Convert improvements record to tuple packet form
             NewImprovements = db:dirty_index_read(improvement, City#city.id, #improvement.city_id),
             ImprovementsTuple = improvements_tuple(NewImprovements),
 
-            %Convert assginments record to tuple packet form
-            NewAssignments = db:dirty_index_read(assignment, City#city.id, #assignment.city_id),
-            AssignmentsTuple = assignments_tuple(NewAssignments),
-
             %Convert items record to tuple packet form
-            NewItems = db:dirty_index_read(item, {City#city.id, PlayerId}, #item.ref),
-            ItemsTuple = item:items_tuple(NewItems),
+            Items = db:dirty_index_read(item, {City#city.id, PlayerId}, #item.ref),
+            ItemsTuple = item:tuple_form(Items),
 
+            %Convert population record to tuple packet form
             NewPopulations = db:dirty_index_read(population, City#city.id, #population.city_id),
             PopulationsTuple = populations_tuple(NewPopulations), 
 
-            %Save city record
-            save_city(NewCity),
-            
             CityInfo = {detailed, 
                         City#city.name,
                         BuildingsTuple, 
-                        BuildingsQueueTuple, 
                         UnitsTuple, 
-                        UnitsQueueTuple,
                         ClaimsTuple,
                         ImprovementsTuple,
                         AssignmentsTuple,
                         ItemsTuple,
-                        PopulationsTuple};
+                        PopulationsTuple,
+                        QueueTuple};
         true ->
-            NewData = Data,
             CityInfo = {generic, 
                         City#city.id, 
                         City#city.player_id, 
@@ -347,7 +326,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
     end,
     
     io:fwrite("city - CityInfo: ~w~n", [CityInfo]),
-    {reply, CityInfo , NewData};
+    {reply, CityInfo , Data};
 
 handle_call({'TRANSFER_ITEM', ItemId, TargetId, TargetAtom}, _From, Data) ->
     log4erl:info("City - TRANSFER_ITEM"),
@@ -494,109 +473,6 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 %% Local Functions
 %%
-
-add_unit_to_queue(CityId, UnitsQueue, UnitType, UnitSize) ->
-    CurrentTime = util:get_time_seconds(),
-    StartTime = get_queue_unit_time(UnitsQueue, CurrentTime),   
-    io:fwrite("city - db_queue_unit - StartTime: ~w~n", [StartTime]),
-    
-    UnitQueue = #unit_queue {id = counter:increment(unit_queue),
-                             city_id = CityId,
-                             unit_type = UnitType,
-                             unit_size = UnitSize,
-                             start_time = StartTime,
-                             end_time = StartTime + 30},
-    
-    [UnitQueue | UnitsQueue].
-
-get_queue_unit_time([], CurrentTime) ->
-    CurrentTime;
-
-get_queue_unit_time(QueueInfo, CurrentTime) ->
-    io:fwrite("city - get_queue_unit_time - QueueInfo: ~w~n", [QueueInfo]),
-    SortedQueueInfo = lists:keysort(5, QueueInfo),    
-    LastUnitQueue = lists:last(SortedQueueInfo),  
-    EndTime = LastUnitQueue#unit_queue.end_time,
-    
-    if
-        EndTime > CurrentTime ->
-            StartTime = EndTime;
-        true ->
-            StartTime = CurrentTime
-    end,
-    StartTime.
-
-add_building_to_queue(CityId, BuildingType) ->
-    CurrentTime = util:get_time_seconds(),   
-    QueueId = counter:increment(queue), 
-    BuildingId = counter:increment(building),
-    BuildingQueueId = counter:increment(building_queue),
-
-    Queue = #queue {id = QueueId,
-                    city_id = CityId,
-                    detailed_queue_id = BuildingQueueId,
-                    detailed_queue_type = ?QUEUE_BUILDING,
-                    production = 0,
-                    created_time = CurrentTime,
-                    last_update = CurrentTime},
-
-
-    BuildingQueue = #building_queue {id = BuildingQueueId,
-                                     city_id = CityId,
-                                     building_id = BuildingId},
-
-    Building = #building {id = BuildingId,
-                          city_id = CityId,
-                          type = BuildingType,
-                          hp = 0},
-   
-    db:dirty_write(Queue), 
-    db:dirty_write(BuildingQueue),
-    db:dirty_write(Building).
- 
-check_unit_queue([]) ->
-    {[], []};
-
-check_unit_queue(QueueInfo) ->
-    CurrentTime = util:get_time_seconds(),
-    
-    io:fwrite("city - check_unit_queue - CurrentTime: ~w~n", [CurrentTime]),  
-    
-    F = fun(UnitQueue, UnitsToRemove) ->
-                EndTime = UnitQueue#unit_queue.end_time,
-                
-                if
-                    EndTime =< CurrentTime ->    
-                        io:fwrite("city - check_unit_queue - UnitQueue: ~w~n", [UnitQueue]),    
-                        NewUnitsToRemove = [UnitQueue | UnitsToRemove];
-                    true ->
-                        NewUnitsToRemove = UnitsToRemove
-                end,
-                
-                NewUnitsToRemove
-        end,
-    
-    UnitsToRemove = lists:foldl(F, [], QueueInfo),
-    
-    NewQueueInfo = QueueInfo -- UnitsToRemove,
-    io:fwrite("city - check_unit_queue - UnitsRemoved: ~w~n", [UnitsToRemove]),    
-    {NewQueueInfo, UnitsToRemove}.  
-
-add_units_from_queue(Units, []) ->
-    Units;
-
-add_units_from_queue(Units, UnitsToAdd) ->    
-    [UnitQueue | Rest] = UnitsToAdd,
-    
-    Unit = #unit {id = counter:increment(unit),
-                  entity_id = UnitQueue#unit_queue.city_id,
-                  entity_type = ?OBJECT_CITY,
-                  type = UnitQueue#unit_queue.unit_type,
-                  size = UnitQueue#unit_queue.unit_size},
-    
-    db:dirty_write(Unit),
-    NewUnits = [Unit#unit.id | Units],        
-    add_units_from_queue(NewUnits, Rest).
 
 %Valid X, Valid Y, Exists, MaxReached
 check_claim(true, true, false, false) ->
@@ -788,7 +664,7 @@ is_valid_task(CityId, ImprovementId, ?TASK_IMPROVEMENT) ->
             Result = false
     end,
     Result;
-is_valid_task(CityId, BuildingId, ?TASK_UNIT_TRAINING) ->
+is_valid_task(CityId, BuildingId, ?TASK_UNIT) ->
     case db:dirty_read(building, BuildingId) of
         [Building] ->
             case Building#building.city_id =:= CityId of
@@ -801,7 +677,7 @@ is_valid_task(CityId, BuildingId, ?TASK_UNIT_TRAINING) ->
             Result = false
     end,
     Result;
-is_valid_task(CityId, BuildingQueueId, ?TASK_CONSTRUCTION) ->
+is_valid_task(CityId, BuildingQueueId, ?TASK_BUILDING) ->
     case db:dirty_read(building_queue, BuildingQueueId) of
         [BuildingQueue] ->
             case BuildingQueue#building_queue.city_id =:= CityId of
@@ -855,18 +731,6 @@ improvements_tuple(Improvements) ->
         end,
     lists:foldl(F, [], Improvements).
 
-assignments_tuple(Assignments) ->
-    F = fun(Assignment, AssignmentList) ->
-            AssignmentTuple = {Assignment#assignment.id,
-                               Assignment#assignment.caste,
-                               Assignment#assignment.race,
-                               Assignment#assignment.amount,
-                               Assignment#assignment.task_id,
-                               Assignment#assignment.task_type},
-            [AssignmentTuple | AssignmentList]
-        end,
-    lists:foldl(F, [], Assignments).
-
 populations_tuple(Populations) ->
     F = fun(Population, PopulationList) ->
         PopulationTuple = {Population#population.city_id,
@@ -877,11 +741,13 @@ populations_tuple(Populations) ->
     end,
     lists:foldl(F, [], Populations).
 
+combine_queues(CityId) ->
+    log4erl:info("{~w} Combining Queues", [?MODULE]),
+    BuildingQueue = building:queue_tuple_form(CityId),
+    UnitQueue = unit:queue_tuple_form(CityId),
+
+    BuildingQueue ++ UnitQueue.
+
 save_city(City) ->
     db:dirty_write(City).
-
-process_assignments(CityId) ->
-    Assignments = db:dirty_index_read(assignment, City#city.id, #assignment.city_id)
-    
-
 

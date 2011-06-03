@@ -92,6 +92,7 @@ create_schema() ->
 
     mnesia:add_table_index(unit_queue, city_id),
     mnesia:add_table_index(building_queue, city_id),
+    mnesia:add_table_index(building_queue, building_id),
 
     mnesia:stop().
 
@@ -163,11 +164,11 @@ do(Q) ->
 
 %% Table Data
 game_tables() ->
-    [{unit_type, 1, "Footsolider", 	1, 4, 2, 5, 1, 5, 10},
-     {unit_type, 2, "Archer", 		2, 5, 1, 10, 2, 5, 10},
-     {building_type, 1, "Barracks", 100, 20},
-     {building_type, 2, "Market", 100, 4},
-     {building_type, 3, "Temple", 100, 5},
+    [{unit_type, 1, "Footsolider", 	1, 4, 2, 5, 1, 5, 10, 10},
+     {unit_type, 2, "Archer", 		2, 5, 1, 10, 2, 5, 10, 10},
+     {building_type, 1, "Barracks", 100, 20, 1},
+     {building_type, 2, "Market", 100, 4, 1},
+     {building_type, 3, "Temple", 100, 5, 1},
      {item_type, 0, "Food"}].
 
 reset_game_tables() ->

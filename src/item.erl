@@ -17,7 +17,7 @@
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([create/4, delete/1, set/2, transfer/3, get_by_type/3]).
 -export([add/2, remove/2]).
--export([items_tuple/1]).
+-export([tuple_form/1]).
 -record(module_data, {}).
 %% ====================================================================
 %% External functions
@@ -54,7 +54,7 @@ get_by_type(EntityId, PlayerId, Type) ->
     gen_server:call({global, item_pid}, {'GET_ITEM_BY_TYPE', EntityId, PlayerId, Type}).
 
 
-items_tuple(Items) ->
+tuple_form(Items) ->
     F = fun(Item, ItemList) ->
         {EntityId, PlayerId} = Item#item.ref,
         ItemTuple = {Item#item.id,

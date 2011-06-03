@@ -98,37 +98,19 @@ unit_type() ->
 race() ->
     byte().
 
-start_time() ->
-    int().
-
-end_time() ->
-    int().
 
 unit() ->
     tuple({unit_id(), unit_type(), unit_size()}).
 
-unit_queue() ->
-    tuple({unit_id(), unit_type(), unit_size(), start_time(), end_time()}).
-
 units() ->
     list(short(), unit()).
-
-units_queue() ->
-    list(short(), unit_queue()).
 
 %building_id, hp, building_type
 building() ->
     tuple({id(), int(), type()}).
 
-%building_queue_id, building_id, production, start_time
-building_queue() ->
-    tuple({id(), id(), int(), int()}).
-
 buildings() ->
     list(short(), building()).
-
-buildings_queue() ->
-    list(short(), building_queue()).
 
 source_id() ->
     id().
@@ -201,6 +183,13 @@ population() ->
 populations() ->
     list(short(), population()).
 
+%queue_type (task_type), object_type, id, city_id, production, created_time
+queue() ->
+    tuple({byte(), short(), id(), id(), int(), int()}).
+
+queues() ->
+    list(short(), queue()).
+
 % packet records
 
 tt() ->
@@ -265,14 +254,13 @@ info_city() ->
     record(info_city, {id(),
                        name(),
                        buildings(),
-                       buildings_queue(),
                        units(),
-                       units_queue(),
                        claims(),
                        improvements(),
                        assignments(),
                        items(),
-                       populations()}).
+                       populations(),
+                       queues()}).
 
 info_tile() ->
     record(info_tile, {int(), %tile_index,
