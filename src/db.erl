@@ -71,8 +71,11 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(player_type, [{disc_copies, [node()]}, {attributes, record_info(fields, player_type)}]),    
     {atomic, ok} = mnesia:create_table(reputation_ref, [{disc_copies, [node()]}, {attributes, record_info(fields, reputation_ref)}]),    
 
+    {atomic, ok} = mnesia:create_table(contract, [{disc_copies, [node()]}, {attributes, record_info(fields, contract)}]),
     {atomic, ok} = mnesia:create_table(unit_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_queue)}]),
     {atomic, ok} = mnesia:create_table(building_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, building_queue)}]),
+    {atomic, ok} = mnesia:create_table(improvement_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement_queue)}]),
+    {atomic, ok} = mnesia:create_table(item_queue, [{disc_copies, [node()]}, {attributes, record_info(fields, item_queue)}]),
 
     mnesia:add_table_index(player, name),
     mnesia:add_table_index(kingdom, player_id),
@@ -80,7 +83,6 @@ create_schema() ->
     mnesia:add_table_index(building, city_id),
     mnesia:add_table_index(claim, tile_index),
     mnesia:add_table_index(claim, city_id),
-    mnesia:add_table_index(assignment, city_id),
     mnesia:add_table_index(improvement, tile_index),
     mnesia:add_table_index(improvement, city_id),
     mnesia:add_table_index(population, city_id),   
@@ -90,9 +92,11 @@ create_schema() ->
     mnesia:add_table_index(market_order, city_id),
     mnesia:add_table_index(market_order, player_id),
 
-    mnesia:add_table_index(unit_queue, city_id),
-    mnesia:add_table_index(building_queue, city_id),
-    mnesia:add_table_index(building_queue, building_id),
+    mnesia:add_table_index(contract, city_id),
+    mnesia:add_table_index(contract, target_ref),
+    
+    mnesia:add_table_index(assignment, city_id),
+    mnesia:add_table_index(assignment, target_ref),
 
     mnesia:stop().
 
@@ -169,7 +173,8 @@ game_tables() ->
      {building_type, 1, "Barracks", 100, 20, 1},
      {building_type, 2, "Market", 100, 4, 1},
      {building_type, 3, "Temple", 100, 5, 1},
-     {item_type, 0, "Food"}].
+     {item_type, 1, "Food", 100},
+     {improvement_type, 1, "Farm", 100, 10}].
 
 reset_game_tables() ->
     F = fun() ->

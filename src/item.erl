@@ -17,7 +17,8 @@
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([create/4, delete/1, set/2, transfer/3, get_by_type/3]).
 -export([add/2, remove/2]).
--export([tuple_form/1]).
+-export([tuple_form/1, check_item_improvement_type/1, add_to_queue/5]).
+-export([check_type/1]).
 -record(module_data, {}).
 %% ====================================================================
 %% External functions
@@ -53,7 +54,6 @@ split(ItemId, Volume) ->
 get_by_type(EntityId, PlayerId, Type) ->
     gen_server:call({global, item_pid}, {'GET_ITEM_BY_TYPE', EntityId, PlayerId, Type}).
 
-
 tuple_form(Items) ->
     F = fun(Item, ItemList) ->
         {EntityId, PlayerId} = Item#item.ref,
@@ -65,6 +65,45 @@ tuple_form(Items) ->
         [ItemTuple | ItemList]
     end,
     lists:foldl(F, [], Items).
+
+check_item_improvement_type(ItemType) ->
+    case db:dirty_read(item_improvement_ref, ItemType) of
+        [_ItemImprovemntRef] ->
+            Result = true;
+        _ ->
+            Result = false
+    end,
+    Result.
+
+check_type(ItemTypeId) ->
+    case db:dirty_read(item_type, ItemTypeId) of
+        [_ItemType] ->
+            Result = true;
+        _ ->
+            Result = false
+    end,
+    Result.
+
+add_to_queue(PlayerId, CityId, TargetRef, ItemType, ItemSize) ->
+    CurrentTime = util:get_time_seconds(),
+    ContractId = counter:increment(contract),
+
+    Contract = #contract {id = ContractId,
+                          city_id = CityId,
+                          target_ref = TargetRef,
+                          object_type = ItemType,
+                          production = 0,
+                          created_time = CurrentTime,
+                          last_update = CurrentTime},
+    
+    ItemQueue = #item_queue {contract_id = ContractId,
+                             player_id = PlayerId,
+                             item_type = ItemType,
+                             item_size = ItemSize},
+
+    db:dirty_write(Contract),
+    db:dirty_write(ItemQueue).
+    
 
 %% ====================================================================
 %% Server functions

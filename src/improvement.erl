@@ -17,8 +17,8 @@
 
 %% --------------------------------------------------------------------
 %% External exports
--export([start/0, create/6, info/2, empty/2]).
-%-export([process_production/3]).
+-export([start/0, queue/6, complete/1, info/2, empty/2, update_hp/3]).
+-export([is_valid/3, check_type/1, find_available/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -32,14 +32,45 @@
 start() ->
     gen_server:start({global, improve_pid}, improvement, [], []).
 
-create(ImprovementId, X, Y, PlayerId, CityId, Type) ->
-    gen_server:cast(global:whereis_name(improve_pid), {'BUILD_IMPROVEMENT', ImprovementId, X, Y, PlayerId, CityId, Type}).
+queue(ImprovementId, X, Y, PlayerId, CityId, Type) ->
+    gen_server:cast(global:whereis_name(improve_pid), {'QUEUE', ImprovementId, X, Y, PlayerId, CityId, Type}).
+
+complete(ImprovementId) ->
+    gen_server:cast(global:whereis_name(improve_pid), {'COMPLETE', ImprovementId}).
+
+update_hp(ImprovementId, TotalHp, CompletionRatio) ->
+    gen_server:cast(global:whereis_name(improve_pid), {'UPDATE_HP', ImprovementId, TotalHp, CompletionRatio}).
 
 info(ImprovementId, PlayerId) ->
     gen_server:call(global:whereis_name(improve_pid), {'GET_INFO', ImprovementId, PlayerId}).
 
 empty(X, Y) ->
     gen_server:call(global:whereis_name(improve_pid), {'CHECK_EMPTY', X, Y}).
+
+is_valid(_CheckClaim = true, _CheckEmpty = true, _CheckType = true) ->
+    true;
+is_valid(_CheckClaim = false, _CheckEmpty, _CheckType) ->
+    {false, not_claimed};
+is_valid(_CheckClaim, _CheckEmpty = false, _CheckType) ->
+    {false, not_empty};
+is_valid(_CheckClaim, _CheckEmpty, _CheckType = false) ->
+    {false, invalid_type}.
+
+check_type(TypeId) ->
+    case db:dirty_read(improvement_type, TypeId) of
+        [_ImprovementType] ->
+            Result = true;
+        _ ->
+            Result = false
+    end,
+    Result.
+
+find_available(CityId, ItemType) ->
+    ItemImprovementRef = db:dirty_read(item_improvement_ref, ItemType),
+    ImprovementType = ItemImprovementRef#item_improvement_ref.improvement_type,
+    Improvements = db:dirty_index_read(improvement, CityId, #improvement.city_id),
+
+    check_available(Improvements, ItemType, ImprovementType).
 
 %% ====================================================================
 %% Server functions
@@ -49,8 +80,7 @@ init([]) ->
     Data = #module_data {},
     {ok, Data}.
 
-handle_cast({'BUILD_IMPROVEMENT', ImprovementId, X, Y, PlayerId, CityId, Type}, Data) ->
-    
+handle_cast({'QUEUE', ImprovementId, X, Y, PlayerId, CityId, Type}, Data) ->
     TileIndex = map:convert_coords(X, Y),
     Improvement = #improvement{id = ImprovementId,
                                tile_index = TileIndex,
@@ -60,13 +90,50 @@ handle_cast({'BUILD_IMPROVEMENT', ImprovementId, X, Y, PlayerId, CityId, Type}, 
                                state = ?STATE_CONSTRUCTING,
                                hp = 0,
                                observed_by = []},
+
+    CurrentTime = util:get_time_seconds(),
+    ContractId = counter:increment(contract),
+    TargetRef = {ImprovementId, ?CONTRACT_IMPROVEMENT},
+
+    Contract = #contract {id = ContractId,
+                          city_id = CityId,
+                          target_ref = TargetRef,
+                          object_type = Type,
+                          production = 0,
+                          created_time = CurrentTime,
+                          last_update = CurrentTime},
+
+    ImprovementQueue = #improvement_queue {contract_id = ContractId,
+                                           improvement_id = ImprovementId,
+                                           improvement_type = Type},
     
     io:fwrite("Improvement: ~w~n", [Improvement]), 
+
+    db:dirty_write(Contract),
+    db:dirty_write(ImprovementQueue),
     db:dirty_write(Improvement),
     
-    %% Add completion event 
-    game:add_event(self(), ?EVENT_IMPROVEMENT_COMPLETED, ImprovementId, 10),
-    
+    {noreply, Data};
+
+handle_cast({'COMPLETE', ImprovementId}, Data) ->
+    [Improvement] = db:dirty_read(improvement, ImprovementId),
+    [ImprovementType] = db:dirty_read(improvement_type, Improvement#improvement.type),
+
+    TotalHp = ImprovementType#improvement_type.total_hp,
+    NewImprovement = Improvement#improvement {hp = TotalHp,
+                                              state = ?STATE_COMPLETED},
+
+    db:dirty_write(NewImprovement),
+    update_observers(NewImprovement),
+
+    {noreply, Data};
+
+handle_cast({'UPDATE_HP', ImprovementId, TotalHp, CompletionRatio}, Data) ->
+    [Improvement] = db:dirty_read(improvement, ImprovementId),
+    NewHp = util:round3(TotalHp * CompletionRatio),
+    NewImprovement = Improvement#improvement {hp = NewHp},
+
+    db:dirty_write(NewImprovement),
     {noreply, Data};
 
 handle_cast({'ADD_VISIBLE', _ImprovementId, _EntityId, _EntityPid}, Data) ->    
@@ -96,14 +163,11 @@ handle_cast({'REMOVE_OBSERVED_BY', ImprovementId, EntityId, EntityPid}, Data) ->
     
     {noreply, Data};
 
-handle_cast({'PROCESS_EVENT', _EventTick, ImprovementId, EventType}, Data) ->
+handle_cast({'PROCESS_EVENT', _EventTick, _ImprovementId, _EventType}, Data) ->
     
-    case EventType of
-        ?EVENT_IMPROVEMENT_COMPLETED ->  
-            [Improvement] = db:dirty_read(improvement, ImprovementId),
-            state_completed(Improvement),
-            update_observers(Improvement)
-    end,      
+    %case EventType of
+        %?EVENT_IMPROVEMENT_COMPLETED ->  
+   %end,      
     
     {noreply, Data};
 
@@ -159,7 +223,7 @@ handle_call({'GET_STATE', ImprovementId}, _From, Data) ->
 handle_call({'GET_TYPE'}, _From, Data) ->
     {reply, ?OBJECT_IMPROVEMENT, Data};
 
-handle_call({'GET_INFO', ImprovementId, PlayerId}, _From, Data) ->   
+handle_call({'GET_INFO', ImprovementId, _PlayerId}, _From, Data) ->   
     case db:dirty_read(improvement, ImprovementId) of
         [Improvement] ->
             Info = {detailed, Improvement#improvement.type};
@@ -194,11 +258,6 @@ terminate(_Reason, _) ->
 %% Internal functions
 %% ====================================================================
 
-state_completed(Improvement) ->
-    log4erl:info("Improvement completed"),
-    NewImprovement = Improvement#improvement{state = ?STATE_COMPLETED},
-    db:dirty_write(NewImprovement).
-
 update_observers(Improvement) ->
     ObservedByList = Improvement#improvement.observed_by, 
     
@@ -221,19 +280,22 @@ remove_observed_by(ImprovementId, EntityId, EntityPid) ->
     NewImprovement = Improvement#improvement { observed_by = NewObservedByList},
     db:dirty_write(NewImprovement).                                  
 
-%% check_queue(Improvement) ->
-%%     [ImprovementQueue] = db:dirty_read(improvement_queue, Improvement#improvement.id),
-%%     
-%%     CurrentTime = util:get_time_seconds(),
-%%     
-%%     if
-%%         ImprovementQueue#improvement_queue.end_time =< CurrentTime ->
-%%             log4erl:info("Improvement Complete"),
-%%             
-%%             NewImprovement = Improvement#improvement {state = ?STATE_COMPLETE},			
-%%             db:dirty_delete(improvement_queue, Improvement#improvement.id),
-%%             db:dirty_write(NewImprovement);
-%%         true ->
-%%             ok
-%%     end.
+check_available([], _ImprovementType, none) ->
+    none;
 
+check_available(_Improvements, _ImprovementType, {found, Improvement}) ->
+    {found, Improvement};
+
+check_available([Improvement | Rest], ImprovementType, Status) ->
+    MatchType = Improvement#improvement.type =:= ImprovementType,
+    ContractExists = contract:exists(Improvement#improvement.city_id,
+                                     Improvement#improvement.id,
+                                     ?CONTRACT_HARVEST),
+    case MatchType and not ContractExists of
+        true ->
+            NewStatus = {found, Improvement};
+        false ->
+            NewStatus = Status
+    end,
+
+    check_available(Rest, ImprovementType, NewStatus).

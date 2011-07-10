@@ -108,8 +108,8 @@ handle_cast({'ASSIGN_TASK', CityId, Caste, Race, Amount, TaskId, TaskType}, Data
                                 caste = Caste, 
                                 race = Race,
                                 amount = Amount, 
-                                task_id = TaskId,
-                                task_type = TaskType},
+                                target_id = TaskId,
+                                target_type = TaskType},
     packet:send(Data#data.socket, AssignTask),
     
     {noreply, Data};

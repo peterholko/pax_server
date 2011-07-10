@@ -14,7 +14,7 @@
 %%
 %% Exported Functions
 %%
--export([add_to_queue/3,
+-export([add_to_queue/4,
          is_valid_unit_type/1,
          calc_unit_cost/2,
          calc_retreat_time/1,
@@ -22,40 +22,30 @@
          get_unit/2,
          highest_unit_movement/1,
          units_id/1, 
-         tuple_form/1, 
-         queue_tuple_form/1,
-         process_production/2]).
+         tuple_form/1]).
 
 %%
 %% API Functions
 %%
-add_to_queue(CityId, UnitType, UnitSize) ->
+add_to_queue(CityId, BuildingId, UnitType, UnitSize) ->
     CurrentTime = util:get_time_seconds(),
-    
-    UnitQueue = #unit_queue {id = counter:increment(unit_queue),
-                             city_id = CityId,
+    ContractId = counter:increment(contract),
+
+    TargetRef = {BuildingId, ?CONTRACT_UNIT},
+    Contract = #contract {id = ContractId,
+                          city_id = CityId,
+                          target_ref = TargetRef,
+                          object_type = UnitType,
+                          production = 0,
+                          created_time = CurrentTime,
+                          last_update = CurrentTime},
+
+    UnitQueue = #unit_queue {contract_id = ContractId,
                              unit_type = UnitType,
-                             unit_size = UnitSize,
-                             production = 0,
-                             created_time = CurrentTime,
-                             last_update = CurrentTime},
+                             unit_size = UnitSize},
 
+    db:dirty_write(Contract),
     db:dirty_write(UnitQueue).    
-
-queue_tuple_form(CityId) ->
-    UnitQueueList = db:dirty_index_read(unit_queue, CityId, #unit_queue.city_id),
-    
-    F = fun(UnitQueue, TupleList) ->
-            UnitQueueTuple = {?TASK_UNIT,
-                              UnitQueue#unit_queue.unit_type,
-                              UnitQueue#unit_queue.id,
-                              UnitQueue#unit_queue.city_id,
-                              trunc(UnitQueue#unit_queue.production),
-                              UnitQueue#unit_queue.created_time},
-            [UnitQueueTuple | TupleList]
-        end,
-
-    lists:foldl(F, [], UnitQueueList).
 
 is_valid_unit_type(UnitType) ->
     case db:dirty_read(unit_type, UnitType) of
@@ -126,37 +116,3 @@ tuple_form(Units) ->
     
     lists:foldl(F, [], Units).
 
-process_production(UnitQueue, Assignment) ->
-    [UnitType] = db:dirty_read(unit_type, UnitQueue#unit_queue.unit_type),
-
-    CurrentTime = util:get_time_seconds(),
-    LastUpdateTime = UnitQueue#unit_queue.last_update,
-    NumGameDays = util:diff_game_days(LastUpdateTime, CurrentTime),
-    
-    Production = UnitQueue#unit_queue.production,
-    CasteRate = caste:get_production_rate(Assignment#assignment.caste),
-    NewProduction = Production + (CasteRate * NumGameDays * Assignment#assignment.amount),
-    
-    case NewProduction >= UnitType#unit_type.production_cost of
-        true ->
-            log4erl:info("{~w} Unit Complete", [?MODULE]),
-            
-            Unit = #unit { id = counter:increment(unit),
-                           entity_id = UnitQueue#unit_queue.city_id,
-                           entity_type = ?OBJECT_CITY,
-                           type = UnitQueue#unit_queue.unit_type,
-                           size = UnitQueue#unit_queue.unit_size,
-                           hp = UnitType#unit_type.total_hp},
-
-            db:dirty_write(Unit),
-            db:dirty_delete(unit_queue, UnitQueue#unit_queue.id);
-        false ->
-            log4erl:info("{~w} Updating Unit Production: ~w", [?MODULE, NewProduction]),
-            
-            RoundedProduction = util:round3(NewProduction),
-            NewUnitQueue = UnitQueue#unit_queue {production = RoundedProduction,
-                                                 last_update = CurrentTime},
-            
-            db:dirty_write(NewUnitQueue)
-    end.   
-                           

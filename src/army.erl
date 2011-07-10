@@ -378,11 +378,11 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
     case Army#army.player_id =:= PlayerId of
         true ->
             Units = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
-            UnitsInfoTuple = unit:units_tuple(Units),
+            UnitsInfoTuple = unit:tuple_form(Units),
 
             %Convert items record to tuple packet form
             NewItems = db:dirty_index_read(item, {Army#army.id, PlayerId}, #item.ref),
-            ItemsTuple = item:items_tuple(NewItems),
+            ItemsTuple = item:tuple_form(NewItems),
 
             ArmyInfo = {detailed, 
                         Army#army.id, 
@@ -407,7 +407,7 @@ handle_call({'GET_INFO'}, _From, Data) ->
     Army = Data#module_data.army,
 
     Units = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
-    UnitsInfoTuple = unit:units_tuple(Units),
+    UnitsInfoTuple = unit:tuple_form(Units),
     ArmyInfo = {Army#army.id, 
                 Army#army.player_id, 
                 Army#army.name,

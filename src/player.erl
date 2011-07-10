@@ -268,23 +268,35 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
     
     {noreply, Data};
 
-handle_cast(_ = #city_queue_unit{id = Id, unit_type = UnitType, unit_size = UnitSize, caste = Caste, race = Race}, Data) ->
-    case city:queue_unit(Id, Data#module_data.player_id, UnitType, UnitSize, Caste, Race) of
+handle_cast(_ = #city_queue_unit{city_id = CityId, unit_type = UnitType, unit_size = UnitSize, caste = Caste, race = Race}, Data) ->
+    case city:queue_unit(CityId, Data#module_data.player_id, UnitType, UnitSize, Caste, Race) of
         {city, queued_unit} ->
-            RequestInfo = #request_info{ type = ?OBJECT_CITY, id = Id},
+            RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
             gen_server:cast(self(), RequestInfo);
         {city, Error} ->            
             log4erl:error("Queue Unit - Error: ~w", [Error])        
     end,                        
     {noreply, Data};
 
-handle_cast(_ = #city_queue_building{building_id = BuildingId, city_id = CityId, building_type = BuildingType}, Data) ->
+handle_cast(_ = #city_queue_building{city_id = CityId, building_type = BuildingType}, Data) ->
     case city:queue_building(CityId, Data#module_data.player_id, BuildingType) of
         {city, queued_building} ->
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
             gen_server:cast(self(), RequestInfo);
         {city, Error} ->
             log4erl:error("Queue Building - Error: ~w", [Error])
+    end,
+    {noreply, Data};
+
+handle_cast(_ = #city_queue_harvest{city_id = CityId, 
+                                    item_type = ItemType, 
+                                    item_size = ItemSize}, Data) ->
+    case city:queue_harvest(CityId, ItemType, ItemSize) of
+        {city, queued_harvest} ->
+            RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
+            gen_server:cast(self(), RequestInfo);
+        {city, Error} ->            
+            log4erl:error("Queue Unit - Error: ~w", [Error])
     end,
     {noreply, Data};
 
@@ -383,10 +395,10 @@ handle_cast(_ = #battle_leave{battle_id = BattleId,
     end,
     {noreply, Data};
 
-handle_cast(_ = #build_improvement{city_id = CityId,
-                                   x = X,
-                                   y = Y,
-                                   improvement_type = ImprovementType }, Data) ->
+handle_cast(_ = #city_queue_improvement{city_id = CityId,
+                                        x = X,
+                                        y = Y,
+                                        improvement_type = ImprovementType }, Data) ->
     
     [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
 
@@ -425,8 +437,8 @@ handle_cast(_ = #assign_task{ city_id = CityId,
                               caste  = Caste,
                               race = Race,
                               amount = Amount,
-                              task_id = TaskId,
-                              task_type = TaskType}, Data) ->
+                              target_id = TaskId,
+                              target_type = TaskType}, Data) ->
 
     [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
    
@@ -670,7 +682,7 @@ get_info_city(Id, Data) ->
         Assignments,
         Items,
         Populations,
-        Queues} ->
+        Contracts} ->
             R = #info_city { id = Id,
                              name = CityName, 
                              buildings = BuildingInfo,
@@ -680,7 +692,7 @@ get_info_city(Id, Data) ->
                              assignments = Assignments,
                              items = Items,
                              populations = Populations,
-                             queues = Queues},
+                             contracts = Contracts},
             forward_to_client(R, Data);
         {generic, CityId, CityPlayerId, CityName, KingdomName} ->
             R = #info_generic_city { id = CityId,
@@ -694,7 +706,7 @@ get_info_city(Id, Data) ->
 
 get_info_improvement(Id, Data) ->
     case improvement:info(Id, Data#module_data.player_id) of
-        {detailed, Type} ->
+        {detailed, _Type} ->
             ok;
         _ ->    
             ok

@@ -62,9 +62,6 @@ y() ->
 caste() ->
     byte().
 
-improvement_type() ->
-    short().
-
 resource() ->
     tuple({id(), type(), int(), int()}).
 
@@ -163,7 +160,7 @@ improvement() ->
 improvements() ->
     list(short(), improvement()).
 
-%id, caste, race, amount, task_id, task_type
+%id, caste, race, amount, target_id, target_type
 assignment() ->
     tuple({id(), byte(), byte(), int(), id(), short()}).
 
@@ -183,12 +180,12 @@ population() ->
 populations() ->
     list(short(), population()).
 
-%queue_type (task_type), object_type, id, city_id, production, created_time
-queue() ->
-    tuple({byte(), short(), id(), id(), int(), int()}).
+%id, city_id, target_type, target_id, object_type, production, created_time, update_time
+contract() ->
+    tuple({id(), id(), type(), id(), type(), int(), int(), int()}).
 
-queues() ->
-    list(short(), queue()).
+contracts() ->
+    list(short(), contract()).
 
 % packet records
 
@@ -260,7 +257,7 @@ info_city() ->
                        assignments(),
                        items(),
                        populations(),
-                       queues()}).
+                       contracts()}).
 
 info_tile() ->
     record(info_tile, {int(), %tile_index,
@@ -286,9 +283,18 @@ city_queue_unit() ->
                              race()}).
 
 city_queue_building() ->
-    record(city_queue_building, {id(), %building_id
-                                 id(), %city_id
+    record(city_queue_building, {id(), %city_id
                                  type()}). %building_type
+
+city_queue_harvest() ->
+    record(city_queue_harvest, {id(), %city_id
+                                type(), %item_type
+                                int()}). %item_size
+city_queue_improvement() ->
+    record(city_queue_improvement, {id(), %city_id
+                                    x(), 
+                                    y(), 
+                                    type()}). %improvement_type
 
 transfer_item() ->
     record(transfer_item, {id(),
@@ -334,11 +340,6 @@ battle_retreat() ->
 battle_leave() ->
     record(battle_leave, {battle_id(),
                           source_id()}).
-build_improvement() ->
-    record(build_improvement, {id(),
-                               x(),
-                               y(),
-                               improvement_type()}).
 
 add_claim() ->
     record(add_claim, {id(),
@@ -350,8 +351,8 @@ assign_task() ->
                          byte(), %caste
                          byte(), %race
                          amount(), %amount
-                         id(), %task_id
-                         type()}). %task_type                                         
+                         id(), %target_id
+                         type()}). %target_type                                         
 
 delete_item() ->
     record(delete_item, {id()}).
@@ -416,6 +417,12 @@ read(<<?CMD_CITY_QUEUE_UNIT, Bin/binary>>) ->
 read(<<?CMD_CITY_QUEUE_BUILDING, Bin/binary>>) ->
     unpickle(city_queue_building(), Bin);
 
+read(<<?CMD_CITY_QUEUE_IMPROVEMENT, Bin/binary>>) ->
+    unpickle(city_queue_improvement(), Bin);
+
+read(<<?CMD_CITY_QUEUE_HARVEST, Bin/binary>>) ->
+    unpickle(city_queue_harvest(), Bin);
+
 read(<<?CMD_TRANSFER_UNIT, Bin/binary>>) ->
     unpickle(transfer_unit(), Bin);
 
@@ -427,9 +434,6 @@ read(<<?CMD_BATTLE_RETREAT, Bin/binary>>) ->
 
 read(<<?CMD_BATTLE_LEAVE, Bin/binary>>) ->
     unpickle(battle_leave(), Bin);
-
-read(<<?CMD_BUILD_IMPROVEMENT, Bin/binary>>) ->
-    unpickle(build_improvement(), Bin);
 
 read(<<?CMD_ADD_CLAIM, Bin/binary>>) ->
     unpickle(add_claim(), Bin);
@@ -549,8 +553,8 @@ write(R) when is_record(R, move) ->
 write(R) when is_record(R, add_waypoint) ->
     [?CMD_MOVE|pickle(add_waypoint(), R)];
 
-write(R) when is_record(R, build_improvement) ->
-    [?CMD_BUILD_IMPROVEMENT|pickle(build_improvement(), R)];
+write(R) when is_record(R, city_queue_improvement) ->
+    [?CMD_CITY_QUEUE_IMPROVEMENT|pickle(city_queue_improvement(), R)];
 
 write(R) when is_record(R, add_claim) ->
     [?CMD_ADD_CLAIM|pickle(add_claim(), R)];

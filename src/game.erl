@@ -177,8 +177,7 @@ handle_call('SETUP_EVENTS', _From, Data) ->
     log4erl:info("Setup events..."),
     {ok, EventPid} = event:start(),
     
-    {_HarvetEventId, HarvestData} = add_event(EventPid, ?EVENT_HARVEST, none, ?HARVEST_TICK, Data),
-    {_GrowthEventId, GrowthData} = add_event(EventPid, ?EVENT_GROWTH, none, ?GROWTH_TICK, HarvestData),
+    {_GrowthEventId, GrowthData} = add_event(EventPid, ?EVENT_GROWTH, none, ?GROWTH_TICK, Data),
 
     {reply, ok, GrowthData};
 
