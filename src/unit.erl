@@ -31,9 +31,10 @@ add_to_queue(CityId, BuildingId, UnitType, UnitSize) ->
     CurrentTime = util:get_time_seconds(),
     ContractId = counter:increment(contract),
 
-    TargetRef = {BuildingId, ?CONTRACT_UNIT},
+    TargetRef = {BuildingId, ?OBJECT_BUILDING},
     Contract = #contract {id = ContractId,
                           city_id = CityId,
+                          type = ?CONTRACT_UNIT,
                           target_ref = TargetRef,
                           object_type = UnitType,
                           production = 0,

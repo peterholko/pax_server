@@ -72,19 +72,17 @@
                     units,
                     items}).
 
-
 -define (CMD_INFO_CITY, 54).
 -record(info_city, {id,
                     name,
                     buildings,
-                    buildings_queue,
                     units,
-                    units_queue,
                     claims,
                     improvements,
                     assignments,
                     items,
-                    populations}).
+                    populations,
+                    contracts}).
 
 -define (CMD_TRANSPORT_INFO, 55).
 -record(transport_info, {transport_id, 
@@ -101,25 +99,6 @@
                             player_id,
                             name,
                             kingdom_name}).
-
--define (CMD_CITY_QUEUE_BUILDING, 59). 
--record(city_queue_building, {building_id,
-                              city_id,
-                              building_type}).
-
--define (CMD_CITY_QUEUE_UNIT, 60).
--record(city_queue_unit, {id,
-                          unit_type,
-                          unit_size,
-                          caste,
-                          race}).
-
--define (CMD_TRANSFER_UNIT, 61).
--record(transfer_unit, {unit_id,
-                        source_id,
-                        source_type,
-                        target_id,
-                        target_type}).
 
 -define (CMD_BATTLE_INFO, 70).
 -record(battle_info, {battle_id,
@@ -154,11 +133,27 @@
 -record(battle_leave, {battle_id,
                        source_army_id}).
 
--define(CMD_BUILD_IMPROVEMENT, 100).
--record(build_improvement, {city_id,
-                            x,
-                            y,
-                            improvement_type}).
+-define (CMD_CITY_QUEUE_UNIT, 100).
+-record(city_queue_unit, {city_id,
+                          unit_type,
+                          unit_size,
+                          caste,
+                          race}).
+
+-define (CMD_CITY_QUEUE_BUILDING, 101). 
+-record(city_queue_building, {city_id,
+                              building_type}).
+
+-define(CMD_CITY_QUEUE_IMPROVEMENT, 102).
+-record(city_queue_improvement, {city_id,
+                                 x,
+                                 y,
+                                 improvement_type}).
+
+-define(CMD_CITY_QUEUE_ITEM, 103).
+-record(city_queue_item, {city_id,
+                          item_type,
+                          item_size}).
 
 -define(CMD_ADD_CLAIM, 125).
 -record(add_claim, {city_id,
@@ -170,8 +165,8 @@
                       caste,
                       race,
                       amount,
-                      task_id,
-                      task_type}).
+                      target_id,
+                      target_type}).
 
 
 -define(CMD_TRANSFER_ITEM, 150).
@@ -183,6 +178,13 @@
 
 -define(CMD_DELETE_ITEM, 151).
 -record(delete_item, {item_id}).
+
+-define (CMD_TRANSFER_UNIT, 155).
+-record(transfer_unit, {unit_id,
+                        source_id,
+                        source_type,
+                        target_id,
+                        target_type}).
 
 -define(CMD_CREATE_SELL_ORDER, 170).
 -record(create_sell_order, {item_id,

@@ -18,8 +18,9 @@
          calc_gold_cost/1,
          tuple_form/1,
          is_valid/2,
-         check_type/1
-         ]).
+         check_type/1,
+         get_building/2,
+         find_available/2]).
 
 %%
 %% API Functions
@@ -44,15 +45,15 @@ add_to_queue(CityId, BuildingType) ->
     BuildingId = counter:increment(building),
     ContractId = counter:increment(contract),
     
-    TargetRef = {BuildingId, ?CONTRACT_BUILDING},
+    TargetRef = {BuildingId, ?OBJECT_BUILDING},
     Contract = #contract {id = ContractId,
                           city_id = CityId,
+                          type = ?CONTRACT_BUILDING, 
                           target_ref = TargetRef,
                           object_type = BuildingType,
                           production = 0,
                           created_time = CurrentTime,
                           last_update = CurrentTime},
-
 
     BuildingQueue = #building_queue {contract_id = ContractId,
                                      building_id = BuildingId,
@@ -61,7 +62,8 @@ add_to_queue(CityId, BuildingType) ->
     Building = #building {id = BuildingId,
                           city_id = CityId,
                           type = BuildingType,
-                          hp = 0},
+                          hp = 0,
+                          state = ?STATE_CONSTRUCTING},
     db:dirty_write(Contract),
     db:dirty_write(BuildingQueue),
     db:dirty_write(Building).
@@ -86,3 +88,30 @@ get_building(CityId, BuildingType) ->
     Buildings = db:dirty_index_read(building, CityId, #building.city_id),
 
     lists:keyfind(BuildingType, #building.type, Buildings).
+
+find_available(CityId, ItemTypeId) ->
+    ItemType = db:dirty_read(item_type, ItemTypeId),
+    {BuildingTypeId, _ObjectType}  = ItemType#item_type.structure_req,
+    Buildings = db:dirty_index_read(building, CityId, #building.city_id),
+
+    check_available(Buildings, BuildingTypeId, none).
+
+check_available([], _BuildingTypeId, none) ->
+    none;
+
+check_available(_Buildings, _BuildingTypeId, {found, Building}) ->
+    {found, Building};
+
+check_available([Building | Rest], BuildingTypeId, Status) ->
+    MatchType = Building#building.type =:= BuildingTypeId,
+    ContractExists = contract:exists(Building#building.city_id,
+                                     Building#building.id,
+                                     ?CONTRACT_ITEM),
+    case MatchType and not ContractExists of
+        true ->
+            NewStatus = {found, Building};
+        false ->
+            NewStatus = Status
+    end,
+
+    check_available(Rest, BuildingTypeId, NewStatus).

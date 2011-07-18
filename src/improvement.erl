@@ -65,12 +65,12 @@ check_type(TypeId) ->
     end,
     Result.
 
-find_available(CityId, ItemType) ->
-    ItemImprovementRef = db:dirty_read(item_improvement_ref, ItemType),
-    ImprovementType = ItemImprovementRef#item_improvement_ref.improvement_type,
+find_available(CityId, ItemTypeId) ->
+    [ItemType] = db:dirty_read(item_type, ItemTypeId),
+    {ImprovementTypeId, _ObjectType}  = ItemType#item_type.structure_req,
     Improvements = db:dirty_index_read(improvement, CityId, #improvement.city_id),
 
-    check_available(Improvements, ItemType, ImprovementType).
+    check_available(Improvements, ImprovementTypeId, none).
 
 %% ====================================================================
 %% Server functions
@@ -93,10 +93,11 @@ handle_cast({'QUEUE', ImprovementId, X, Y, PlayerId, CityId, Type}, Data) ->
 
     CurrentTime = util:get_time_seconds(),
     ContractId = counter:increment(contract),
-    TargetRef = {ImprovementId, ?CONTRACT_IMPROVEMENT},
+    TargetRef = {ImprovementId, ?OBJECT_IMPROVEMENT},
 
     Contract = #contract {id = ContractId,
                           city_id = CityId,
+                          type = ?CONTRACT_IMPROVEMENT,
                           target_ref = TargetRef,
                           object_type = Type,
                           production = 0,

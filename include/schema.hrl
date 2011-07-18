@@ -80,12 +80,14 @@
                       city_id,
                       type,
                       state,
+                      hp,
                       observed_by}).
 
 -record(building, {id,
                    city_id,
                    type,
-                   hp}).
+                   hp,
+                   state}).
 
 -record(population, {ref, % ref = {city_id, caste, race} %
                      city_id,
@@ -116,8 +118,7 @@
                      caste,
                      race,
                      amount,
-                     task_id,
-                     task_type               
+                     target_ref %% target_id, target_type
                      }).
 
 -record(trade_route, {city_id,
@@ -147,29 +148,32 @@
 
 %%% Queue tables %%%
 
--record(queue, {id,
-                city_id,
-                detailed_queue_id,
-                detailed_queue_type,
-                production,
-                created_time,
-                last_update}).
+-record(contract, {id,
+                   city_id,
+                   type, %% contract type
+                   target_ref, %% {target_id, target_type}
+                   object_type,
+                   production,
+                   created_time,
+                   last_update}).
 
--record(unit_queue, {id,
-                     city_id,
+-record(unit_queue, {contract_id,                     
                      unit_type,
-                     unit_size,
-                     start_time,
-                     end_time}).
+                     unit_size}).
 
--record(building_queue, {id,
-                         city_id,
-                         building_id}).
+-record(building_queue, {contract_id,
+                         building_id,
+                         building_type
+                         }).
 
--record(improvement_queue, {improvement_id,
-                            player_id,
-                            start_time,
-                            end_time}).
+-record(improvement_queue, {contract_id,
+                            improvement_id,
+                            improvement_type}).
+
+-record(item_queue, {contract_id,
+                     player_id,
+                     item_type,
+                     item_size}).
 
 %%% Type tables %%%
 -record(unit_type, {id,
@@ -180,7 +184,9 @@
                     speed,
                     total_hp,
                     movement,
-                    cost}).
+                    production_cost,
+                    gold_cost
+                    }).
 
 -record(population_type, {id,
                           name}).
@@ -190,15 +196,20 @@
                         name}).
 
 -record(improvement_type, {id,
-                           name}).
+                           name,
+                           total_hp,
+                           production_cost}).
 
 -record(building_type, {id,
                         name,
+                        total_hp,
                         production_cost,
-                        total_hp}).
+                        gold_cost}).
 
 -record(item_type, {id,
-                    name}).
+                    name,
+                    production_cost,
+                    structure_req = {}}).
 
 
 

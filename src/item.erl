@@ -17,7 +17,7 @@
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([create/4, delete/1, set/2, transfer/3, get_by_type/3]).
 -export([add/2, remove/2]).
--export([tuple_form/1, check_item_improvement_type/1, add_to_queue/5]).
+-export([tuple_form/1, is_harvestable/1, add_to_queue/6]).
 -export([check_type/1]).
 -record(module_data, {}).
 %% ====================================================================
@@ -66,12 +66,19 @@ tuple_form(Items) ->
     end,
     lists:foldl(F, [], Items).
 
-check_item_improvement_type(ItemType) ->
-    case db:dirty_read(item_improvement_ref, ItemType) of
-        [_ItemImprovemntRef] ->
-            Result = true;
+is_harvestable(ItemTypeId) ->
+    case db:dirty_read(item_type, ItemTypeId) of
+        [ItemType] ->            
+            case ItemType#item_type.structure_req of
+                {_ObjectId, ?OBJECT_IMPROVEMENT} ->
+                    Result = {item, harvestable};
+                {_ObjectId, ?OBJECT_BUILDING} ->
+                    Result = {item, standard};     
+                _ ->
+                    Result = {item, invalid_req}
+            end;
         _ ->
-            Result = false
+            Result = {item, invalid_type}
     end,
     Result.
 
@@ -84,18 +91,19 @@ check_type(ItemTypeId) ->
     end,
     Result.
 
-add_to_queue(PlayerId, CityId, TargetRef, ItemType, ItemSize) ->
+add_to_queue(PlayerId, CityId, ContractType, TargetRef, ItemType, ItemSize) ->
     CurrentTime = util:get_time_seconds(),
     ContractId = counter:increment(contract),
 
     Contract = #contract {id = ContractId,
                           city_id = CityId,
+                          type = ContractType,
                           target_ref = TargetRef,
                           object_type = ItemType,
                           production = 0,
                           created_time = CurrentTime,
                           last_update = CurrentTime},
-    
+   
     ItemQueue = #item_queue {contract_id = ContractId,
                              player_id = PlayerId,
                              item_type = ItemType,
@@ -114,7 +122,7 @@ init([]) ->
     {ok, Data}.
 
 handle_cast({'CREATE_ITEM', EntityId, PlayerId, Type, Volume},Data) ->  
-    log4erl:info("CREATE_ITEM"),  
+    log4erl:info("{~w} Create Item", [?MODULE]),  
     create_item(EntityId, PlayerId, Type, Volume),
     {noreply, Data};
 
@@ -214,7 +222,7 @@ set_item(ItemId, Volume) ->
 
 new_item(EntityId, PlayerId, Type, Volume) ->
     log4erl:info("Begin new_item"),    
-    ItemId = counter:increment(item),
+    ItemId = counter:increment(item) + 1000,
     Item = #item {id = ItemId,
                   ref = {EntityId, PlayerId},
                   type = Type,
@@ -234,7 +242,6 @@ get_item_by_type(EntityId, PlayerId, Type) ->
 item_list([]) ->
     {not_found};
 item_list(ItemList) ->
-    
     {found, ItemList}.
 
 get_item_list([], ItemList) ->
@@ -245,3 +252,4 @@ get_item_list([ItemTypeRef | Rest], ItemList) ->
     
     NewItemList = [Item | ItemList],
     get_item_list(Rest, NewItemList).
+

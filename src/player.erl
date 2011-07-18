@@ -288,15 +288,19 @@ handle_cast(_ = #city_queue_building{city_id = CityId, building_type = BuildingT
     end,
     {noreply, Data};
 
-handle_cast(_ = #city_queue_harvest{city_id = CityId, 
-                                    item_type = ItemType, 
-                                    item_size = ItemSize}, Data) ->
-    case city:queue_harvest(CityId, ItemType, ItemSize) of
+handle_cast(_ = #city_queue_item{city_id = CityId, 
+                                 item_type = ItemType, 
+                                 item_size = ItemSize}, Data) ->
+
+    case city:queue_item(CityId, ItemType, ItemSize) of
         {city, queued_harvest} ->
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
             gen_server:cast(self(), RequestInfo);
+        {city, queued_item} ->
+            RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
+            gen_server:cast(self(), RequestInfo);
         {city, Error} ->            
-            log4erl:error("Queue Unit - Error: ~w", [Error])
+            log4erl:error("Queue Item - Error: ~w", [Error])
     end,
     {noreply, Data};
 

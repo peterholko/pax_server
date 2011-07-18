@@ -79,11 +79,11 @@
 -define(RACE_DWARF, 2).
 -define(RACE_GOBLIN, 3).
 
--define(TASK_NONE, 0).
--define(TASK_IMPROVEMENT, 1).
--define(TASK_UNIT_TRAINING, 2).
--define(TASK_CONSTRUCTION, 3).
--define(TASK_RESEARCH, 4).
+-define(TASK_BUILDING, 0).
+-define(TASK_UNIT, 1).
+-define(TASK_IMPROVEMENT, 2).
+-define(TASK_ITEM, 3).
+-define(TASK_HARVEST, 4).
 
 -define(TILE_MOUNTAIN, 0).
 -define(TILE_FOREST, 1).
@@ -105,6 +105,8 @@
 -define(CASTE_COMMONER_RATE, 2.0).
 -define(CASTE_NOBLE_RATE, 1.0).
 
--define(QUEUE_BUILDING, 0).
--define(QUEUE_UNIT, 1).
--define(QUEUE_IMPROVEMENT, 2).
+-define(CONTRACT_BUILDING, 0).
+-define(CONTRACT_UNIT, 1).
+-define(CONTRACT_IMPROVEMENT, 2).
+-define(CONTRACT_ITEM, 3).
+-define(CONTRACT_HARVEST, 4).

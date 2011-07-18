@@ -44,19 +44,14 @@ get_explored_map(TileIndexList) ->
     gen_server:call({global, map}, {'GET_EXPLORED_MAP', TileIndexList}).
 
 get_surrounding_tiles(X, Y) ->
-    io:fwrite("map - get_surrounding_tiles x: ~w y: ~w~n",[X,Y]),
     Tiles2D = surrounding_tiles_2D(X, Y, 1),
-    io:fwrite("map - get_surrounding_tiles Tiles2D: ~w~n",[Tiles2D]),
     TileList = surrounding_tiles(Tiles2D),
-    io:fwrite("map - get_surrounding_tiles TileList: ~w~n",[TileList]),
     TileList.
 
 harvest_resource(TileIndex, ResourceType, Amount) ->
     gen_server:call({global, map}, {'HARVEST_RESOURCE', TileIndex, ResourceType, Amount}).
 
 is_tile_explored(TileIndex, ExploredMap) ->
-    io:fwrite("TileIndex: ~w~n", [TileIndex]),
-    io:fwrite("ExploredMap: ~w~n", [ExploredMap]),
     case lists:keyfind(TileIndex, 1, ExploredMap) of
         false ->
             Result = false;
@@ -125,11 +120,11 @@ handle_call({'GET_TILE_TYPE', TileIndex}, _From, Data) ->
 handle_call({'HARVEST_RESOURCE', TileIndex, ResourceType, Amount}, _From, Data) ->
     [Tile] = db:dirty_read(tile, TileIndex), 
     Resources = Tile#tile.resources,
-    io:fwrite("map - Resources: ~w~n", Resources),
+    log4erl:info("{~w} - Resources: ~w~n", [?MODULE, Resources]),
     case lists:keyfind(ResourceType, 2, Resources) of
         false ->
             HarvestAmount = 0,
-            log4erl:error("~w: Could not find resource type ~w", [?MODULE, ResourceType]),
+            log4erl:error("{~w}: Could not find resource type ~w", [?MODULE, ResourceType]),
             erlang:error("Could not find resource type.");
         {ResourceId, _ResType} ->
             HarvestAmount = get_harvest_amount(ResourceId, Amount)                
@@ -189,7 +184,7 @@ load_resources(ResourceListFileRef, Time, _, TileIndex) ->
             ResourceFileName = re:split(Data,"[\n]",[{return,list},trim]), 
             case file:open(ResourceFileName, read) of
                 {ok, ResourceFileRef} ->
-                    load_resource_regen(ResourceFileRef, 0, Time, false, 0);
+                    load_resource_regen(ResourceFileRef, 1, Time, false, 0);
                 Any ->
                     io:fwrite("Failed to open ResourceFileName: ~w - ~w", [ResourceFileName, Any])
             end,
@@ -242,7 +237,7 @@ update_resource(Resource, Amount) ->
     DiffTime = CurrentTime - Resource#resource.last_update,
     
     Total = Resource#resource.total,
-    ResourceGrowth = erlang:round(DiffTime / 1000) * Resource#resource.regen_rate,
+    ResourceGrowth = erlang:round(DiffTime / 10) * Resource#resource.regen_rate,
 
     case (Total + ResourceGrowth - Amount) < 0 of
         true ->
@@ -279,12 +274,14 @@ get_resources([{ResourceId, _ResourceType} | Rest], Resources) ->
 update_resource(Resource) ->
     CurrentTime = util:get_time_seconds(),
     DiffTime = CurrentTime - Resource#resource.last_update,
-
-    ResourceGrowth = erlang:round(DiffTime / 1000) * Resource#resource.regen_rate,
+    log4erl:info("~w", [DiffTime]),
+    log4erl:info("{~w} Resource Total ~w", [?MODULE, Resource#resource.total]),
+    ResourceGrowth = erlang:round(DiffTime / 10) * Resource#resource.regen_rate,
     NewTotal = Resource#resource.total + ResourceGrowth,    
 
     NewResource = Resource#resource {total = NewTotal,
                                      last_update = CurrentTime},
+    log4erl:info("{~w} New Resource Total ~w", [?MODULE, NewResource#resource.total]),
     db:dirty_write(NewResource),
 
     {NewResource#resource.id, 

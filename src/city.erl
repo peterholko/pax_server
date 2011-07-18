@@ -23,7 +23,7 @@
 -export([queue_unit/6, 
          queue_building/3, 
          queue_improvement/4,
-         queue_harvest/3, 
+         queue_item/3, 
          add_claim/3, 
          assign_task/6]).
 
@@ -74,9 +74,6 @@ queue_building(CityId, PlayerId, BuildingType) ->
 
 queue_improvement(CityId, X, Y, ImprovementType) ->
     gen_server:call(global:whereis_name({city,CityId}), {'QUEUE_IMPROVEMENT', X, Y, ImprovementType}).
-
-queue_harvest(CityId, ItemType, ItemSize) ->
-    gen_server:call(global:whereis_name({city,CityId}), {'QUEUE_HARVEST', ItemType, ItemSize}).
 
 queue_item(CityId, ItemType, ItemSize) ->
     gen_server:call(global:whereis_name({city,CityId}), {'QUEUE_ITEM', ItemType, ItemSize}).
@@ -264,28 +261,53 @@ handle_call({'QUEUE_IMPROVEMENT', X, Y, ImprovementType}, _From, Data) ->
 
 
 
-handle_call({'QUEUE_HARVEST', ItemType, ItemSize}, _From, Data) ->
+handle_call({'QUEUE_ITEM', ItemType, ItemSize}, _From, Data) ->
     City = Data#module_data.city,
-    CheckType = item:check_item_improvement_type(ItemType),
+    IsHarvestable = item:is_harvestable(ItemType),
 
-    case CheckType of
-        true ->
+    case IsHarvestable of
+        {item, harvestable} ->
             case improvement:find_available(City#city.id, ItemType) of
                 {found, Improvement} ->
                     item:add_to_queue(City#city.player_id,
                                       City#city.id,
-                                      {Improvement#improvement.id, ?CONTRACT_HARVEST},
+                                      ?CONTRACT_HARVEST,
+                                      {Improvement#improvement.id, ?OBJECT_IMPROVEMENT},
                                       ItemType,
                                       ItemSize),
                     Result = {city, queued_harvest};
                 none ->
                     Result = {city, invalid_improvement}
             end;
-        false ->
+        {item, standard} ->
+            case building:find_available(City#city.id, ItemType) of
+                {found, Building} ->
+                    item:add_to_queue(City#city.player_id,
+                                      City#city.id,
+                                      ?CONTRACT_ITEM,
+                                      {Building#building.id, ?OBJECT_BUILDING},
+                                      ItemType,
+                                      ItemSize),
+                    Result = {city, queued_item};
+                none ->
+                    Result = {city, invalid_building}
+            end;
+        {item, invalid_type} ->
             Result = {city, invalid_item_type}
     end,
 
     {reply, Result, Data};
+
+%handle_call({'QUEUE_ITEM', ItemType, ItemSize}, _From, Data) ->
+%    City = Data#module_data.city,
+%    CheckType = item:check_type(ItemType),
+
+%    case CheckType of 
+%        true ->
+%            case building:find_available(City#city.id, ItemType) of
+%                {found, Building} ->
+%                    item
+
 
 handle_call({'ASSIGN_TASK', Caste, Race, Amount, TaskId, TaskType}, _From, Data) ->
     City = Data#module_data.city,
@@ -295,17 +317,14 @@ handle_call({'ASSIGN_TASK', Caste, Race, Amount, TaskId, TaskType}, _From, Data)
     
     case PopAvailable >= Amount of
         true ->
-            case is_valid_task(City#city.id, TaskId, TaskType) of
-                true ->          
-                    AssignmentId = store_assigned_task(City#city.id, Caste, Race, Amount, TaskId, TaskType),
-                    Result = {success, AssignmentId};
-                false ->
-    
-    case PopAvailable >= Amount of
-        true ->
-            case is_valid_task(City#city.id, TaskId, TaskType) of
-                true ->          
-                    AssignmentId = store_assigned_task(City#city.id, Caste, Race, Amount, TaskId, TaskType),
+            case assignment:is_valid_task(City#city.id, TaskId, TaskType) of
+                true ->
+                    AssignmentId = assignment:add(City#city.id, 
+                                                  Caste, 
+                                                  Race, 
+                                                  Amount,
+                                                  TaskId, 
+                                                  TaskType),
                     Result = {success, AssignmentId};
                 false ->
                     log4erl:info("~w: Invalid TaskId", [?MODULE]),
@@ -325,10 +344,13 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
         City#city.player_id =:= PlayerId ->
             %Convert contracts record to tuple packet form 
             Contracts = db:dirty_index_read(contract, City#city.id, #contract.city_id),
-            ContractsTuple = contract:tuple_form(Contracts),
             
             %Process contract production 
-            contract:process_contracts(Contracts),            
+            contract:process_contracts(Contracts),           
+ 
+            %Convert contracts record to tuple packet form 
+            NewContracts = db:dirty_index_read(contract, City#city.id, #contract.city_id),
+            ContractsTuple = contract:tuple_form(NewContracts),
  
             %Convert assginments record to tuple packet form
             Assignments = db:dirty_index_read(assignment, City#city.id, #assignment.city_id),
@@ -674,46 +696,7 @@ total_assignment([Assignment | Rest], TotalAssignment) ->
     NewTotalAssignment = Assignment#assignment.amount + TotalAssignment,
     total_assignment(Rest, NewTotalAssignment).
 
-is_valid_task(CityId, ImprovementId, ?TASK_IMPROVEMENT) ->
-    case db:dirty_read(improvement, ImprovementId) of
-        [Improvement] ->
-            case Improvement#improvement.city_id =:= CityId of
-                true ->
-                    Result = true;
-                false ->
-                    Result = false
-            end;
-        _ ->
-            Result = false
-    end,
-    Result;
-is_valid_task(CityId, BuildingId, ?TASK_BUILDING) ->
-    case db:dirty_read(building, BuildingId) of
-        [Building] ->
-            case Building#building.city_id =:= CityId of
-                true ->
-                    Result = true;
-                false ->
-                    Result = false
-            end;
-        _ ->
-            Result = false
-    end,
-    Result;
-is_valid_task(_CityId, _TaskId, _TaskType) ->
-    false.
-
-store_assigned_task(CityId, Caste, Race, Amount, TaskId, TaskType) ->
-    AssignmentId = counter:increment(assignment),
-    Assignment = #assignment {  id = AssignmentId,
-                                city_id = CityId,
-                                caste = Caste,
-                                race = Race,
-                                amount = Amount,
-                                target_ref = {TaskId, TaskType}},
-    db:dirty_write(Assignment),
-    AssignmentId.
-   
+          
 cases_unit_queue(_IsPlayer = true, _IsValidUnitType = true, _CanAfford = true, _PopAvailable = true) ->
     true;
 cases_unit_queue(_IsPlayer = false, _IsValidUnitType, _CanAfford, _PopAvailable) ->

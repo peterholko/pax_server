@@ -8,6 +8,7 @@
 %%
 -import(lists, [reverse/1, foreach/2]).
 
+-include("common.hrl").
 -include("game.hrl").
 -include("schema.hrl").
 
@@ -19,6 +20,7 @@
 -export([create_schema/0, start/0, 
          write/1, read/2, delete/2, index_read/3,
          dirty_write/1, dirty_read/2, dirty_index_read/3, dirty_delete/2, dirty_match_object/1,
+         dirty_delete_object/1,
          reset_game_tables/0, reset_tables/0, dump/1, select_armies/0,
          select_cities/0, select_battles/0, 
          select_all_armies/0, select_all_players/0,
@@ -136,6 +138,9 @@ dirty_write(R) ->
 dirty_delete(T, K) ->
     mnesia:dirty_delete(T, K). 
 
+dirty_delete_object(P) ->
+    mnesia:dirty_delete_object(P).
+
 dirty_match_object(P) ->
     mnesia:dirty_match_object(P).
 
@@ -170,10 +175,10 @@ do(Q) ->
 game_tables() ->
     [{unit_type, 1, "Footsolider", 	1, 4, 2, 5, 1, 5, 10, 10},
      {unit_type, 2, "Archer", 		2, 5, 1, 10, 2, 5, 10, 10},
-     {building_type, 1, "Barracks", 100, 20, 1},
-     {building_type, 2, "Market", 100, 4, 1},
-     {building_type, 3, "Temple", 100, 5, 1},
-     {item_type, 1, "Food", 100},
+     {building_type, 1, "Barracks", 100, 100, 1},
+     {building_type, 2, "Market", 100, 200, 1},
+     {building_type, 3, "Temple", 100, 150, 1},
+     {item_type, 1, "Plant", 100, {1, ?OBJECT_IMPROVEMENT}},
      {improvement_type, 1, "Farm", 100, 10}].
 
 reset_game_tables() ->
@@ -231,9 +236,9 @@ test_tables() ->
      {population, {11, 0, 1}, 11, 0, 1, 100},
      {population, {11, 0, 2}, 11, 0, 2, 200},
      {transport, 1, 1, gb_sets:new()},
-     {item, 1, {11, 1}, 0, 1230000},
+     {item, 1, {11, 1}, 1, 1230000},
      {item_type_ref, {11, 1, 0}, 1},
-     {item, 2, {11, 1}, 0, 500},
+     {item, 2, {11, 1}, 1, 500},
      {item_type_ref, {11, 1, 0}, 2} 
     ].
 

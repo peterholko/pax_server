@@ -180,9 +180,9 @@ population() ->
 populations() ->
     list(short(), population()).
 
-%id, city_id, target_type, target_id, object_type, production, created_time, update_time
+%id, city_id, contract_type, target_type, target_id, object_type, production, created_time, update_time
 contract() ->
-    tuple({id(), id(), type(), id(), type(), int(), int(), int()}).
+    tuple({id(), id(), type(),  type(), id(), type(), int(), int(), int()}).
 
 contracts() ->
     list(short(), contract()).
@@ -286,10 +286,10 @@ city_queue_building() ->
     record(city_queue_building, {id(), %city_id
                                  type()}). %building_type
 
-city_queue_harvest() ->
-    record(city_queue_harvest, {id(), %city_id
-                                type(), %item_type
-                                int()}). %item_size
+city_queue_item() ->
+    record(city_queue_item, {id(), %city_id
+                             type(), %item_type
+                             int()}). %item_size
 city_queue_improvement() ->
     record(city_queue_improvement, {id(), %city_id
                                     x(), 
@@ -420,8 +420,8 @@ read(<<?CMD_CITY_QUEUE_BUILDING, Bin/binary>>) ->
 read(<<?CMD_CITY_QUEUE_IMPROVEMENT, Bin/binary>>) ->
     unpickle(city_queue_improvement(), Bin);
 
-read(<<?CMD_CITY_QUEUE_HARVEST, Bin/binary>>) ->
-    unpickle(city_queue_harvest(), Bin);
+read(<<?CMD_CITY_QUEUE_ITEM, Bin/binary>>) ->
+    unpickle(city_queue_item(), Bin);
 
 read(<<?CMD_TRANSFER_UNIT, Bin/binary>>) ->
     unpickle(transfer_unit(), Bin);
