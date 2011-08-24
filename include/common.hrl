@@ -24,18 +24,21 @@
 -define(STATE_RETREAT_MOVE, 8).
 -define(STATE_LEAVE, 9).
 -define(STATE_LEAVE_MOVE, 10).
+-define(STATE_IN_PROGRESS, 11).
+-define(STATE_CLAIM, 12).
 
 -define(EVENT_NONE, 0).
 -define(EVENT_MOVE, 1).
 -define(EVENT_ATTACK, 2).
 -define(EVENT_UNIT_ATTACK, 3).
--define(EVENT_IMPROVEMENT_COMPLETED, 4).
--define(EVENT_HARVEST, 5).
--define(EVENT_GROWTH, 6).
 -define(EVENT_RETREAT, 7).
 -define(EVENT_RETREAT_MOVE, 8).
 -define(EVENT_LEAVE, 9).
 -define(EVENT_LEAVE_MOVE, 10).
+-define(EVENT_GROWTH, 20).
+-define(EVENT_CLAIM, 21).
+-define(EVENT_IMPROVEMENT_COMPLETED, 30).
+
 
 -define(GAME_LOOP_TICK, 200).
 -define(GAME_VISION_RANGE, 50).
@@ -66,7 +69,7 @@
 -define(PLAYER_COMPUTER, 1).
 -define(PLAYER_GM, 2).
 
--define(HARVEST_TICK, 100).
+-define(CLAIM_TICK, 100).
 -define(GROWTH_TICK, 500).
 
 -define(CASTE_SLAVE, 0).
@@ -110,3 +113,8 @@
 -define(CONTRACT_IMPROVEMENT, 2).
 -define(CONTRACT_ITEM, 3).
 -define(CONTRACT_HARVEST, 4).
+
+-define(INFO(MSG), log4erl:info("{~w} ~s", [?MODULE, MSG])).
+-define(INFO(MSG, DATA), log4erl:info("{~w} ~s: ~w", [?MODULE, MSG, DATA])).
+-define(ERROR(MSG), log4erl:error("{~w:~w} ~s", [?MODULE, ?LINE, MSG)).
+-define(ERROR(MSG, DATA), log4erl:error("{~w:~w} ~s", [?MODULE, ?LINE, MSG, DATA])).

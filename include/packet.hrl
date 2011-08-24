@@ -135,6 +135,7 @@
 
 -define (CMD_CITY_QUEUE_UNIT, 100).
 -record(city_queue_unit, {city_id,
+                          building_id,
                           unit_type,
                           unit_size,
                           caste,
@@ -157,8 +158,13 @@
 
 -define(CMD_ADD_CLAIM, 125).
 -record(add_claim, {city_id,
+                    army_id,
                     x,
                     y}).
+
+-define(CMD_REMOVE_CLAIM, 126).
+-record(remove_claim, {city_id,
+                       claim_id}).
 
 -define(CMD_ASSIGN_TASK, 130).
 -record(assign_task, {city_id,
@@ -168,6 +174,9 @@
                       target_id,
                       target_type}).
 
+-define(CMD_REMOVE_TASK, 131).
+-record(remove_task, {city_id,
+                      assignment_id}).
 
 -define(CMD_TRANSFER_ITEM, 150).
 -record(transfer_item, {item_id,

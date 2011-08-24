@@ -30,21 +30,6 @@ start() ->
 init([]) ->
     {ok, none}.
 
-handle_cast({'PROCESS_EVENT', EventTick, _EventData, ?EVENT_HARVEST}, Data) ->
-    log4erl:info("Processing Event Harvest"),  
- 
-    Cities = game:get_cities(),
-
-    F = fun({_CityId, CityPid}) ->            
-            gen_server:cast(CityPid, {'PROCESS_EVENT', EventTick, _EventData, ?EVENT_HARVEST})                
-        end,
-    
-    lists:foreach(F, Cities),      
-
-    game:add_event(self(), ?EVENT_HARVEST, none, ?HARVEST_TICK),
-    
-    {noreply, Data};
-
 handle_cast({'PROCESS_EVENT', EventTick, _EventData, ?EVENT_GROWTH}, Data) ->
     log4erl:info("Processing Event Growth"),  
  

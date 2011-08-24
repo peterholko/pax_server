@@ -14,7 +14,7 @@
 %% Exported Functions
 %%
 -export([start/0, load_entities/0, setup_perception/0, setup_events/0, add_event/4, update_perception/1]).
--export([get_cities/0, add_event_get_id/4, delete_event/1]).
+-export([get_cities/0, add_event_get_id/4, delete_event/1, clear_events/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 
@@ -42,6 +42,9 @@ add_event_get_id(ObjectPid, EventType, EventData, EventTick) ->
 
 delete_event(EventId) ->
     gen_server:cast({global, game_pid}, {'DELETE_EVENT', EventId}).
+
+clear_events(Pid) ->
+    gen_server:cast({global, game_pid}, {'CLEAR_EVENTS', Pid}).
 
 update_perception(PlayerId) ->
     gen_server:cast({global, game_pid}, {'UPDATE_PERCEPTION', PlayerId}).
@@ -254,6 +257,7 @@ entities_perception(Entities, EveryEntity) ->
     log4erl:info("All perception updated.").
 
 add_event(Pid, Type, EventData, EventTick, Data) ->
+    ?INFO("Adding event type", Type),
     EventId = counter:increment(event),
     CurrentTick = Data#game_info.tick,
     Events = Data#game_info.events,

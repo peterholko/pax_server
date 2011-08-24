@@ -20,6 +20,7 @@
          is_valid/2,
          check_type/1,
          get_building/2,
+         is_available/1,
          find_available/2]).
 
 %%
@@ -88,6 +89,21 @@ get_building(CityId, BuildingType) ->
     Buildings = db:dirty_index_read(building, CityId, #building.city_id),
 
     lists:keyfind(BuildingType, #building.type, Buildings).
+
+is_available(BuildingId) ->
+    TargetRef = {BuildingId, ?OBJECT_BUILDING},
+    case db:dirty_read(building, BuildingId) of
+        [Building] ->
+            case db:dirty_index_read(contract, TargetRef, #contract.target_ref) of
+                [Contract] ->
+                    Result = false;
+                _ ->
+                    Result = true
+            end;
+        _ ->
+            Result = false
+    end,
+    Result.
 
 find_available(CityId, ItemTypeId) ->
     ItemType = db:dirty_read(item_type, ItemTypeId),

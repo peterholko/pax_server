@@ -145,8 +145,6 @@ handle_cast({'SET_DISCOVERED_TILES', _, EntityX, EntityY}, Data) ->
     io:fwrite("Data: ~w~n", [Data]),
     TileIndexList = map:get_surrounding_tiles(EntityX, EntityY),
     TileList = map:get_explored_map(TileIndexList),
-    io:fwrite("TileList: ~w~n", [TileList]),
-    io:fwrite("Data#module_data.explored_map: ~w~n",[Data#module_data.explored_map]),
     ExploredMap = Data#module_data.explored_map,
     NewExploredMap = ExploredMap ++ TileList,
     
@@ -159,8 +157,8 @@ handle_cast(_ = #move{ id = ArmyId, x = X, y = Y}, Data) ->
     [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id), 
     
     case lists:member(ArmyId, Kingdom#kingdom.armies) of
-        true -> 
-            gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_MOVE', X, Y});           
+        true ->
+            army:move(ArmyId, X, Y);
         false ->
             log4erl:error("Army ~w is not owned by Player ~w", [ArmyId, #kingdom.player_id])
     end,
@@ -177,8 +175,8 @@ handle_cast(_ = #attack{ id = ArmyId, target_id = TargetId}, Data) ->
             Guard = (lists:member(ArmyId, Kingdom#kingdom.armies)) and
                     (Data#module_data.player_id =/= TargetArmy#army.player_id),
             if
-                Guard ->		 
-                    gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_ATTACK', TargetId});
+                Guard ->		
+                    army:attack(ArmyId, TargetId);
                 true ->
                     log4erl:error("Army ~w is not owned by Player ~w and
                                    Target ~w is the same as Player ~w", [ArmyId, 
@@ -268,8 +266,13 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
     
     {noreply, Data};
 
-handle_cast(_ = #city_queue_unit{city_id = CityId, unit_type = UnitType, unit_size = UnitSize, caste = Caste, race = Race}, Data) ->
-    case city:queue_unit(CityId, Data#module_data.player_id, UnitType, UnitSize, Caste, Race) of
+handle_cast(_ = #city_queue_unit{city_id = CityId, 
+                                 building_id = BuildingId,
+                                 unit_type = UnitType, 
+                                 unit_size = UnitSize, 
+                                 caste = Caste, 
+                                 race = Race}, Data) ->
+    case city:queue_unit(CityId, Data#module_data.player_id, BuildingId, UnitType, UnitSize, Caste, Race) of
         {city, queued_unit} ->
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
             gen_server:cast(self(), RequestInfo);
@@ -286,6 +289,29 @@ handle_cast(_ = #city_queue_building{city_id = CityId, building_type = BuildingT
         {city, Error} ->
             log4erl:error("Queue Building - Error: ~w", [Error])
     end,
+    {noreply, Data};
+
+handle_cast(_ = #city_queue_improvement{city_id = CityId,
+                                        x = X,
+                                        y = Y,
+                                        improvement_type = ImprovementType }, Data) ->
+    
+    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
+
+    case lists:member(CityId, Kingdom#kingdom.cities) of
+        true ->
+            case city:queue_improvement(CityId, X, Y, ImprovementType) of
+                {city, queued_improvement} ->
+                    R = #success { type = ?CMD_CITY_QUEUE_IMPROVEMENT,
+                                   id = -1},
+                    forward_to_client(R, Data);               
+                {city, Error} ->
+                    log4erl:error("Queue Improvement - Error: ~w", [Error])
+            end;
+        false ->
+            log4erl:info("Queue Improvement - City id does not exist for this player.")        
+    end,
+    
     {noreply, Data};
 
 handle_cast(_ = #city_queue_item{city_id = CityId, 
@@ -399,40 +425,49 @@ handle_cast(_ = #battle_leave{battle_id = BattleId,
     end,
     {noreply, Data};
 
-handle_cast(_ = #city_queue_improvement{city_id = CityId,
-                                        x = X,
-                                        y = Y,
-                                        improvement_type = ImprovementType }, Data) ->
-    
-    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
-
-    case lists:member(CityId, Kingdom#kingdom.cities) of
-        true ->
-            city:queue_improvement(CityId, X, Y, ImprovementType);
-        false ->
-            log4erl:info("Add Improvement - City id does not exist for this player.")        
-    end,
-    
-    {noreply, Data};
-
 handle_cast(_ = #add_claim{ city_id = CityId,
+                            army_id = ArmyId,
                             x = X,
                             y = Y}, Data) ->
 
     [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
    
-    case lists:member(CityId, Kingdom#kingdom.cities) of
+    IsValid = (lists:member(CityId, Kingdom#kingdom.cities) and
+               lists:member(ArmyId, Kingdom#kingdom.armies)),
+    case IsValid of
         true ->
-            case city:add_claim(CityId, X, Y) of
-                {success, Id} ->
+            case city:add_claim(CityId, ArmyId, X, Y) of
+                {success, ClaimId} ->
+                    %Set Army State to Claim
+                    army:claim(ArmyId, ClaimId),
+
                     R = #success { type = ?CMD_ADD_CLAIM,
-                                   id = Id},
+                                   id = ClaimId},
                     forward_to_client(R, Data);
                 {failure, Error} -> 
-                    log4erl:error("Add Claim failed: ~w~n", [Error])
+                    log4erl:error("Add Claim failed: ~w", [Error])
             end;
         false ->
             log4erl:info("Add Claim - City id does not exist for this player.")        
+    end,
+    
+    {noreply, Data};
+
+handle_cast(_ = #remove_claim{ city_id = CityId, claim_id = ClaimId}, Data) ->
+    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
+    
+    case lists:member(CityId, Kingdom#kingdom.cities) of
+        true ->
+            case city:remove_claim(CityId, ClaimId) of
+                {success, Id} ->
+                    R = #success { type = ?CMD_REMOVE_CLAIM,
+                                   id = Id},
+                    forward_to_client(R, Data);
+                {failure, Error} ->
+                    log4erl:error("{~w} Remove Claim error: ~w", [?MODULE, Error])
+            end;
+        false ->
+            log4erl:info("{~w} Remove Claim - city id does not exist for this player.")
     end,
     
     {noreply, Data};
@@ -454,7 +489,7 @@ handle_cast(_ = #assign_task{ city_id = CityId,
                                    id = Id},
                     forward_to_client(R, Data);
                 {failure, Error} ->
-                    log4erl:error("Assign task failed: ~w~n", [Error])
+                    log4erl:error("Assign task failed: ~w", [Error])
             end;
         false ->
             log4erl:info("Assign task - City id does not exist for this player.")        
@@ -462,6 +497,26 @@ handle_cast(_ = #assign_task{ city_id = CityId,
 
     {noreply, Data};
 
+handle_cast(_ = #remove_task{ city_id = CityId,
+                              assignment_id = AssignmentId}, Data) ->
+    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
+   
+    case lists:member(CityId, Kingdom#kingdom.cities) of
+        true ->
+            case city:remove_task(CityId, AssignmentId) of
+                {success, Id} ->
+                    R = #success { type = ?CMD_REMOVE_TASK,
+                                   id = Id},
+                    forward_to_client(R, Data);
+                {failure, Error} ->
+                    log4erl:error("{~w} Remove task failed: ~w", [?MODULE, Error])
+            end;
+        false ->
+            log4erl:info("{~w} Remove task failed - city id does not exist for this player.")
+    end,
+
+    {noreply, Data}; 
+    
 handle_cast(_ = #create_sell_order{ item_id = ItemId,
                                     price = Price}, Data) ->
     log4erl:info("Create Sell Order item_id ~w price ~w", [ItemId, Price]),

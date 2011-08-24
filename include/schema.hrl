@@ -97,7 +97,9 @@
 
 -record(claim, {id, 
         		tile_index,
-		        city_id}).
+		        city_id,
+                army_id,
+                state}).
 
 -record(transport, {id,
                     player_id,

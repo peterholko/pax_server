@@ -120,14 +120,14 @@ handle_cast({'ADD_CLAIM', CityId, X, Y}, Data) ->
     
     {noreply, Data};
 
-handle_cast({'BUILD_IMPROVEMENT', CityId, X, Y, ImprovementType}, Data) ->
-    BuildImprovement = #build_improvement {city_id = CityId, x = X, y = Y, improvement_type = ImprovementType},
-    packet:send(Data#data.socket, BuildImprovement),
+%handle_cast({'BUILD_IMPROVEMENT', CityId, X, Y, ImprovementType}, Data) ->
+%    BuildImprovement = #build_improvement {city_id = CityId, x = X, y = Y, improvement_type = ImprovementType},
+%    packet:send(Data#data.socket, BuildImprovement),
 
-    {noreply, Data};
+ %   {noreply, Data};
 
 handle_cast({'QUEUE_UNIT', CityId, UnitType, UnitSize, Caste, Race}, Data) ->
-    CityQueueUnit = #city_queue_unit { id = CityId,
+    CityQueueUnit = #city_queue_unit { city_id = CityId,
                                        unit_type = UnitType,
                                        unit_size = UnitSize,
                                        caste = Caste,
@@ -136,8 +136,7 @@ handle_cast({'QUEUE_UNIT', CityId, UnitType, UnitSize, Caste, Race}, Data) ->
     {noreply, Data};
 
 handle_cast({'QUEUE_BUILDING', CityId, BuildingType}, Data) ->
-    CityQueueBuilding = #city_queue_building { building_id = -1,
-                                               city_id = CityId,
+    CityQueueBuilding = #city_queue_building { city_id = CityId,
                                                building_type = BuildingType},
     packet:send(Data#data.socket, CityQueueBuilding),
     {noreply, Data};

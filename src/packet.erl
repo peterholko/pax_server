@@ -276,11 +276,12 @@ info_generic_city() ->
                                name()}). %kingdom name
 
 city_queue_unit() ->
-    record(city_queue_unit, {id(),
-                             unit_type(),
-                             unit_size(),
-                             caste(),
-                             race()}).
+    record(city_queue_unit, {id(), %city_id
+                             id(), %building_id
+                             unit_type(), %unit_type
+                             unit_size(), %unit_size
+                             caste(), %caste
+                             race()}). %race
 
 city_queue_building() ->
     record(city_queue_building, {id(), %city_id
@@ -342,9 +343,15 @@ battle_leave() ->
                           source_id()}).
 
 add_claim() ->
-    record(add_claim, {id(),
-                       x(),
-                       y()}).
+    record(add_claim, {id(),  %city_id
+                       id(),  %army_id 
+                       x(),   %x
+                       y()}). %y
+
+remove_claim() ->
+    record(remove_claim, {id(),
+                          x(),
+                          y()}).
 
 assign_task() ->
     record(assign_task, {id(), %city_id
@@ -353,6 +360,10 @@ assign_task() ->
                          amount(), %amount
                          id(), %target_id
                          type()}). %target_type                                         
+
+remove_task() ->
+    record(remove_task, {id(), %city_id
+                         id()}). %assignment_id
 
 delete_item() ->
     record(delete_item, {id()}).
@@ -438,7 +449,13 @@ read(<<?CMD_BATTLE_LEAVE, Bin/binary>>) ->
 read(<<?CMD_ADD_CLAIM, Bin/binary>>) ->
     unpickle(add_claim(), Bin);
 
+read(<<?CMD_REMOVE_CLAIM, Bin/binary>>) ->
+    unpickle(remove_claim(), Bin);
+
 read(<<?CMD_ASSIGN_TASK, Bin/binary>>) ->
+    unpickle(assign_task(), Bin);
+
+read(<<?CMD_REMOVE_TASK, Bin/binary>>) ->
     unpickle(assign_task(), Bin);
 
 read(<<?CMD_TRANSFER_ITEM, Bin/binary>>) ->

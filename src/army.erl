@@ -16,9 +16,8 @@
 %%
 %% Exported Functions
 %%
--export([init/1, handle_call/3, handle_cast/2, 
-         handle_info/2, terminate/2, code_change/3]).
-
+-export([move/3, attack/2, claim/2]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([start/2, stop/1]).
 
 -record(module_data, {army,  
@@ -30,6 +29,15 @@
 %%
 %% API Functions
 %%
+
+move(ArmyId, DestX, DestY) ->
+    gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_MOVE', DestX, DestY}).
+
+attack(ArmyId, TargetId) ->
+    gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_ATTACK', TargetId}).
+
+claim(ArmyId, ClaimId) ->
+    gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_CLAIM', ClaimId}).
 
 start(ArmyId, PlayerId) ->
     case db:read(army, ArmyId) of
@@ -61,12 +69,18 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
     {NextX, NextY} = next_pos(Army#army.x, Army#army.y, DestX, DestY),
     ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
     
-    if
-        (Army#army.state =/= ?STATE_MOVE) and (Army#army.state =/= ?STATE_COMBAT) ->
-            io:fwrite("army - ArmyId: ~w ArmyState: ~w expression: ~w~n", [Army#army.id, Army#army.state, (Army#army.state =/= ?STATE_MOVE) and (Army#army.state =/= ?STATE_COMBAT)]),
-            gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
-            gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)});
-        true ->
+    case Army#army.state of
+        ?STATE_NONE ->
+            add_event_move(Data#module_data.self, ArmySpeed);
+        ?STATE_ATTACK ->
+            add_event_move(Data#module_data.self, ArmySpeed);
+        ?STATE_MOVE ->
+            add_event_move(Data#module_data.self, ArmySpeed);
+        ?STATE_CLAIM ->
+            claim:cancel(Army#army.id),        
+            add_event_move(Data#module_data.self, ArmySpeed); 
+
+       true ->
             ok
     end,         
     
@@ -171,6 +185,18 @@ handle_cast({'SET_STATE_LEAVE', BattleId}, Data) ->
 
     {noreply, NewData};
 
+handle_cast({'SET_STATE_CLAIM', ClaimId}, Data) ->
+    ?INFO("Set State Claim Id", ClaimId),
+    Army = Data#module_data.army,
+    
+    add_event_claim(Data#module_data.self, ClaimId),    
+
+    NewArmy = state_claim(Army),
+    NewData = Data#module_data {army = NewArmy},
+    save_army(NewArmy),
+
+    {noreply, NewData};
+
 handle_cast({'SET_STATE_NONE'}, Data) ->
     NewArmy = state_none(Data#module_data.army),
     NewData = Data#module_data {army = NewArmy},    
@@ -185,29 +211,31 @@ handle_cast({'ADD_WAYPOINT', X, Y}, Data) ->
     
     {noreply, NewData};
 
-handle_cast({'PROCESS_EVENT', _EventTick, _EventData, EventType}, Data) ->
-    
+handle_cast({'PROCESS_EVENT', _EventTick, EventData, EventType}, Data) ->
+    ?INFO("Processing Event Type", EventType),
+    Army = Data#module_data.army,
+
     case EventType of
         ?EVENT_MOVE ->
-            NewArmy = do_move(Data#module_data.army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by),
-            NewData = Data#module_data {army = NewArmy};
+            NewArmy = do_move(Army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by);
         ?EVENT_ATTACK ->
-            NewArmy = do_attack(Data#module_data.army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by),
-            NewData = Data#module_data {army = NewArmy};
+            NewArmy = do_attack(Army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by);
         ?EVENT_RETREAT_MOVE ->
-            Army = Data#module_data.army,
             battle:remove_army(Army#army.battle, Army#army.id),
-            NewArmy = do_move(Data#module_data.army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by),            
-            NewData = Data#module_data {army = NewArmy};
+            NewArmy = do_move(Army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by);
         ?EVENT_LEAVE_MOVE ->
-            Army = Data#module_data.army,
             battle:remove_army(Army#army.battle, Army#army.id),
-            NewArmy = do_move(Data#module_data.army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by),            
-            NewData = Data#module_data {army = NewArmy};
+            NewArmy = do_move(Army, Data#module_data.self, Data#module_data.visible, Data#module_data.observed_by);
+        ?EVENT_CLAIM ->
+            ClaimId = EventData,
+            claim:complete(ClaimId),
+            NewArmy = state_none(Army);
         ?EVENT_NONE ->
-            NewData = Data
+            NewArmy = Army
     end,     
  
+    NewData = Data#module_data {army = NewArmy},
+
     save_army(NewData#module_data.army),
  
     {noreply, NewData};
@@ -602,6 +630,14 @@ update_last_pos(Army) ->
     LastPos = {Army#army.x, Army#army.y},
     Army#army { last_pos = LastPos}.
 
+add_event_move(Pid, ArmySpeed) ->
+    game:clear_events(Pid),
+    game:add_event(Pid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)).
+
+add_event_claim(Pid, ClaimId) ->
+    game:clear_events(Pid),
+    game:add_event(Pid, ?EVENT_CLAIM, ClaimId, ?CLAIM_TICK).
+ 
 state_move(Army, DestX, DestY) ->
     Army#army{dest = [{DestX, DestY}],
               state = ?STATE_MOVE}.
@@ -638,6 +674,9 @@ state_combat(Army, BattleId, X, Y) ->
 
 state_dead(Army) ->
     Army#army{state = ?STATE_DEAD}.
+
+state_claim(Army) ->
+    Army#army{state = ?STATE_CLAIM}.
 
 state_none(Army, X, Y) ->
     Army#army{state = ?STATE_NONE,

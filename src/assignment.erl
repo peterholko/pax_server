@@ -34,7 +34,7 @@ tuple_form(Assignments) ->
     lists:foldl(F, [], Assignments).
 
 add(CityId, Caste, Race, Amount, TaskId, TaskType) ->
-    case db:dirty_match_object({assignment, '_', CityId, Caste, Race, TaskId, TaskType}) of
+    case db:dirty_match_object({assignment, '_', CityId, Caste, Race, '_', {TaskId, TaskType}}) of
         [Assignment] ->
             NewAmount = Assignment#assignment.amount + Amount,
             NewAssignment = Assignment#assignment { amount = NewAmount},

@@ -50,7 +50,8 @@ init() ->
     log4erl:change_log_level(info),
 
     % Create schema and load db data
-    log4erl:info("Creating schema and loading db data..."), 
+    ?INFO("Creating schema and loading db data..."), 
+    %log4erl:info("Creating schema and loading db data..."), 
     db:create_schema(),
     ok = db:start(),
     db:reset_tables(),

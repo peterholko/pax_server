@@ -24,8 +24,10 @@
          queue_building/3, 
          queue_improvement/4,
          queue_item/3, 
-         add_claim/3, 
-         assign_task/6]).
+         add_claim/4, 
+         remove_claim/2, 
+         assign_task/6,
+         remove_task/2]).
 
 -record(module_data, {city,                       
                       units_queue,
@@ -78,11 +80,18 @@ queue_improvement(CityId, X, Y, ImprovementType) ->
 queue_item(CityId, ItemType, ItemSize) ->
     gen_server:call(global:whereis_name({city,CityId}), {'QUEUE_ITEM', ItemType, ItemSize}).
 
-add_claim(CityId, X, Y) ->
-    gen_server:call(global:whereis_name({city, CityId}), {'ADD_CLAIM', X, Y}).
+add_claim(CityId, ArmyId, X, Y) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'ADD_CLAIM', ArmyId, X, Y}).
+
+remove_claim(CityId, ClaimId) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'REMOVE_CLAIM', ClaimId}).
 
 assign_task(CityId, Caste, Race, Amount, TaskId, TaskType) ->
     gen_server:call(global:whereis_name({city, CityId}), {'ASSIGN_TASK', Caste, Race, Amount, TaskId, TaskType}).
+
+remove_task(CityId, AssignmentId) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'REMOVE_TASK', CityId, AssignmentId}).
+
 %%
 %% OTP handlers
 %%
@@ -115,68 +124,67 @@ handle_cast({'REMOVE_OBSERVED_BY', _CityId, EntityId, EntityPid}, Data) ->
     
     {noreply, NewData};
 
-handle_cast({'ADD_UNIT', UnitId}, Data) ->
-    City = Data#module_data.city,
-    Units = City#city.units,
-    NewUnits = [UnitId | Units],
-    NewCity = City#city { units = NewUnits},
-    NewData = Data#module_data {city = NewCity},
-    save_city(NewCity),    
- 
-    {noreply, NewData};
-
-handle_cast({'PROCESS_EVENT',_EventTick, _Id, EventType}, Data) ->   
+handle_cast({'PROCESS_EVENT',_EventTick, _EventData, EventType}, Data) ->   
     City = Data#module_data.city,
 
     case EventType of
-        ?EVENT_HARVEST -> 
-            %log4erl:info("Processing Harvest for City ~w~n", [self()]),
-            %harvest(City#city.id);
-            ok;
         ?EVENT_GROWTH ->
-            growth(City#city.id, City#city.player_id)            
+            growth(City#city.id, City#city.player_id) 
     end,      
-    
     
     {noreply, Data};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
-handle_call({'ADD_CLAIM', X, Y}, _From, Data) ->
+handle_call({'ADD_CLAIM', ArmyId, X, Y}, _From, Data) ->
     City = Data#module_data.city,
     TileIndex = map:convert_coords(X, Y),
        
     ValidX = abs(City#city.x - X) =< 6,
     ValidY = abs(City#city.y - Y) =< 6,
     Exists = length(db:index_read(claim, TileIndex, #claim.tile_index)) > 0,
-    MaxReached = length(City#city.claims) > 3,
+    MaxReached = length(db:index_read(claim, City#city.id, #claim.city_id)) > 3,
 
-    log4erl:debug("ValidX: ~w ValidY: ~w Exists: ~w MaxReached: ~w~n", [ValidX, ValidY, Exists, MaxReached]), 
+    %log4erl:debug("ValidX: ~w ValidY: ~w Exists: ~w MaxReached: ~w~n", [ValidX, ValidY, Exists, MaxReached]), 
 
-    case check_claim(ValidX, ValidY, Exists, MaxReached) of
+    case claim:is_valid(ValidX, ValidY, Exists, MaxReached) of
         true ->
-            log4erl:info("Add claim successful."),
+            log4erl:info("{~w} Add claim successful.", [?MODULE]),         
             ClaimId = counter:increment(claim),
+
             NewClaimRecord = #claim {id = ClaimId,
                                      tile_index = TileIndex,
-                                     city_id = City#city.id},
+                                     city_id = City#city.id,
+                                     army_id = ArmyId, 
+                                     state = ?STATE_IN_PROGRESS},
             db:write(NewClaimRecord),
-            
-            NewClaims = [{X, Y} | City#city.claims],
-            NewCity = City#city { claims = NewClaims },
-            Result = {success, ClaimId},
-            NewData = Data#module_data { city = NewCity };
+            Result = {success, ClaimId};
         false ->
-            Result = {failure, "Check Failed"},
-            NewData = Data
+            Result = {failure, "Check Failed"}
     end,
 
-    save_city(NewData#module_data.city),
+    {reply, Result, Data};
 
-    {reply, Result, NewData};
+handle_call({'REMOVE_CLAIM', ClaimId}, _From, Data) ->
+    City = Data#module_data.city,
+   
+    case db:read(claim, ClaimId) of
+        [Claim] ->
+            case Claim#claim.city_id =:= City#city.id of
+                true ->
+                    db:delete(Claim, ClaimId),
+                    Result = {success, ClaimId};
+                false ->
+                    Result = {failure, "Claim does not belong to city"}
+            end;
+        _ ->
+            Result = {failure, "Claim does not exist"}
+    end,
 
-handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste, Race}, _From, Data) ->   
+    {reply, Result, Data};
+
+handle_call({'QUEUE_UNIT', PlayerId, BuildingId, UnitType, UnitSize, Caste, Race}, _From, Data) ->   
     City = Data#module_data.city,
 
     UnitCost = unit:calc_unit_cost(UnitType, UnitSize), 
@@ -187,26 +195,26 @@ handle_call({'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste, Race}, _From, Da
       
     case CasesUnitQueue of
         true ->                        
-            case building:get_building(City#city.id, 1) of
-                false ->
-                    log4erl:info("{~w} Building not found", [?MODULE]),
-                    Result = {city, "Building not found"};
-                Building ->
+            case building:is_available(BuildingId) of
+               true ->
                     kingdom:remove_gold(PlayerId, UnitCost),
                     remove_population(City#city.id, Caste, Race, UnitSize),                        
 
-                    unit:add_to_queue(City#city.id, Building#building.id, UnitType, UnitSize),
-                    Result = {city, queued_unit}
+                    unit:add_to_queue(City#city.id, BuildingId, UnitType, UnitSize),
+                    Result = {city, queued_unit};
+               false ->                    
+                    ?INFO("Building not found"),
+                    Result = {city, "Building not found"}
             end;
         {false, ErrorMsg} ->
-            io:fwrite("QueueUnit Error: ~w~n", [ErrorMsg]),
+            ?ERROR("QueueUnit Error", ErrorMsg),
             Result = {city, ErrorMsg}
     end,
     
     {reply, Result, Data};
 
 handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
-    log4erl:info("{~w} Queue Building PlayerId: ~w BuildingType: ~w", [?MODULE, PlayerId, BuildingType]),
+    ?INFO("Queue Building Type", BuildingType),
     City = Data#module_data.city,        
     IsValid = building:is_valid(PlayerId =:= City#city.player_id,
                                building:check_type(BuildingType)),
@@ -227,8 +235,11 @@ handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
 
 handle_call({'QUEUE_IMPROVEMENT', X, Y, ImprovementType}, _From, Data) ->
     City = Data#module_data.city,
+    TileIndex = map:convert_coords(X,Y),
 
-    CheckClaim = lists:member({X,Y}, City#city.claims),
+    Claims = db:index_read(claim, City#city.id, #claim.city_id),
+
+    CheckClaim = lists:keymember(TileIndex, #claim.tile_index, Claims),
     CheckEmpty = improvement:empty(X,Y), 
     CheckType = improvement:check_type(ImprovementType),
 
@@ -258,8 +269,6 @@ handle_call({'QUEUE_IMPROVEMENT', X, Y, ImprovementType}, _From, Data) ->
     end,
 
     {reply, Result, Data};
-
-
 
 handle_call({'QUEUE_ITEM', ItemType, ItemSize}, _From, Data) ->
     City = Data#module_data.city,
@@ -298,17 +307,6 @@ handle_call({'QUEUE_ITEM', ItemType, ItemSize}, _From, Data) ->
 
     {reply, Result, Data};
 
-%handle_call({'QUEUE_ITEM', ItemType, ItemSize}, _From, Data) ->
-%    City = Data#module_data.city,
-%    CheckType = item:check_type(ItemType),
-
-%    case CheckType of 
-%        true ->
-%            case building:find_available(City#city.id, ItemType) of
-%                {found, Building} ->
-%                    item
-
-
 handle_call({'ASSIGN_TASK', Caste, Race, Amount, TaskId, TaskType}, _From, Data) ->
     City = Data#module_data.city,
     log4erl:info("Assign task - Caste ~w Amount ~w Race ~w TaskId ~w TaskType ~w", [Caste, Amount, Race, TaskId, TaskType]), 
@@ -327,7 +325,7 @@ handle_call({'ASSIGN_TASK', Caste, Race, Amount, TaskId, TaskType}, _From, Data)
                                                   TaskType),
                     Result = {success, AssignmentId};
                 false ->
-                    log4erl:info("~w: Invalid TaskId", [?MODULE]),
+                    log4erl:info("{~w}: Invalid TaskId", [?MODULE]),
                     Result = {failure, invalid_task}
             end;
         false ->
@@ -336,6 +334,24 @@ handle_call({'ASSIGN_TASK', Caste, Race, Amount, TaskId, TaskType}, _From, Data)
 
     {reply, Result, Data};
 
+handle_call({'REMOVE_TASK', AssignmentId}, _From, Data) ->
+    City = Data#module_data.city,
+    
+    case db:read(assignment, AssignmentId) of
+        [Assignment] ->
+            case Assignment#assignment.city_id =:= City#city.id of
+                true ->
+                    db:delete(assignment, AssignmentId),
+                    Result = {success, AssignmentId};
+                false ->
+                    log4erl:info("{~w} Assignment does not belong to city ~w", [?MODULE, City#city.id]),
+                    Result = {failure, invalid_owner}
+            end;
+        _ ->
+            Result = {failure, invalid_assignment}
+    end,
+   
+    {reply, Result, Data};
 
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->    
     City = Data#module_data.city,
@@ -366,7 +382,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
 
             %Convert claims record to tuple packet form
             Claims = db:dirty_index_read(claim, City#city.id, #claim.city_id),
-            ClaimsTuple = claims_tuple(Claims), 
+            ClaimsTuple = claim:tuple_form(Claims), 
 
             %Convert improvements record to tuple packet form
             NewImprovements = db:dirty_index_read(improvement, City#city.id, #improvement.city_id),
@@ -454,7 +470,7 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
     {reply, TransferUnitInfo , NewData};
 
 handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->   
-    io:fwrite("city - receive unit.~n"),   
+    ?INFO("Receive unit"),   
     City = Data#module_data.city,
     Units = City#city.units,
     
@@ -546,13 +562,6 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 %% Local Functions
 %%
-
-%Valid X, Valid Y, Exists, MaxReached
-check_claim(true, true, false, false) ->
-    true;
-check_claim(_, _, _, _) ->
-    log4erl:info("Add claim failed."),
-    false.
 
 growth(CityId, PlayerId) ->
     Population = db:dirty_index_read(population, CityId, #population.city_id),    
@@ -707,13 +716,6 @@ cases_unit_queue(_IsPlayer, _IsValidUnitType, _CanAfford = true, _PopAvailable) 
     {false, insufficient_gold};
 cases_unit_queue(_IsPlayer, _IsValidUnitType, _CanAfford, _PopAvailable = true) ->
     {false, insufficient_pop}.
-
-claims_tuple(Claims) ->
-    F = fun(Claim, ClaimList) ->
-            ClaimTuple = {Claim#claim.id, Claim#claim.tile_index, Claim#claim.city_id},
-            [ClaimTuple | ClaimList]
-        end,
-    lists:foldl(F, [], Claims).
 
 improvements_tuple(Improvements) ->
     F = fun(Improvement, ImprovementList) ->
