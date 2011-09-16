@@ -149,7 +149,7 @@ damage() ->
     int().
 
 claim() ->
-    tuple({id(), tile_index(), id()}).
+    tuple({id(), tile_index(), id(), state()}).
 
 claims() ->
     list(short(), claim()).
@@ -456,7 +456,7 @@ read(<<?CMD_ASSIGN_TASK, Bin/binary>>) ->
     unpickle(assign_task(), Bin);
 
 read(<<?CMD_REMOVE_TASK, Bin/binary>>) ->
-    unpickle(assign_task(), Bin);
+    unpickle(remove_task(), Bin);
 
 read(<<?CMD_TRANSFER_ITEM, Bin/binary>>) ->
     unpickle(transfer_item(), Bin);

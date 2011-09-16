@@ -12,7 +12,7 @@
 %%
 %% Exported Functions
 %%
--export([tuple_form/1, complete/1, cancel/1, is_valid/4]).
+-export([tuple_form/1, complete/1, cancel/1, check_status/1, is_valid/4]).
 %%
 %% API Functions
 %%
@@ -45,6 +45,20 @@ cancel(ArmyId) ->
         _ ->
             ?INFO("Claim not found for army id: ", ArmyId)
     end.
+
+check_status(TileIndex) ->
+    case db:dirty_index_read(claim, TileIndex, #claim.tile_index) of
+        [Claim] ->
+            case Claim#claim.state of
+                ?STATE_COMPLETED ->
+                    Result = true;
+                _ ->
+                    Result = false
+            end;
+        _ ->
+            Result = false
+    end,
+    Result.
 
 %Valid X, Valid Y, Exists, MaxReached
 is_valid(true, true, false, false) ->

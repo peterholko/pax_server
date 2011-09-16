@@ -90,7 +90,7 @@ assign_task(CityId, Caste, Race, Amount, TaskId, TaskType) ->
     gen_server:call(global:whereis_name({city, CityId}), {'ASSIGN_TASK', Caste, Race, Amount, TaskId, TaskType}).
 
 remove_task(CityId, AssignmentId) ->
-    gen_server:call(global:whereis_name({city, CityId}), {'REMOVE_TASK', CityId, AssignmentId}).
+    gen_server:call(global:whereis_name({city, CityId}), {'REMOVE_TASK', AssignmentId}).
 
 %%
 %% OTP handlers
@@ -237,13 +237,11 @@ handle_call({'QUEUE_IMPROVEMENT', X, Y, ImprovementType}, _From, Data) ->
     City = Data#module_data.city,
     TileIndex = map:convert_coords(X,Y),
 
-    Claims = db:index_read(claim, City#city.id, #claim.city_id),
-
-    CheckClaim = lists:keymember(TileIndex, #claim.tile_index, Claims),
+    CheckClaimStatus = claim:check_status(TileIndex), 
     CheckEmpty = improvement:empty(X,Y), 
     CheckType = improvement:check_type(ImprovementType),
 
-    IsValid = improvement:is_valid(CheckClaim,
+    IsValid = improvement:is_valid(CheckClaimStatus,
                                    CheckEmpty,
                                    CheckType),
 

@@ -227,7 +227,7 @@ process_production(Contract, Assignment, ProductionCost) ->
     CasteRate = caste:get_production_rate(Assignment#assignment.caste),
     CasteAmount = Assignment#assignment.amount,
     NewProduction = Production + (CasteRate * NumGameDays * CasteAmount),
-    
+    log4erl:info("Diff: ~w Production: ~w Caste: ~w NumGameDays: ~w CasteAmount: ~w", [(NewProduction - Production), Production, CasteRate, NumGameDays * 1000000, CasteAmount]),
     case NewProduction >= ProductionCost of
         true ->
             log4erl:info("{~w} Contract complete", [?MODULE]),
@@ -236,7 +236,8 @@ process_production(Contract, Assignment, ProductionCost) ->
         false ->
             log4erl:info("{~w} Updating Production: ~w", [?MODULE, NewProduction]),
             RoundedProduction = util:round3(NewProduction),
-            NewContract = Contract#contract {production = RoundedProduction},            
+            NewContract = Contract#contract {production = RoundedProduction,
+                                             last_update = CurrentTime},            
             ProductionStatus = incomplete
     end,
 

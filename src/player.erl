@@ -434,6 +434,10 @@ handle_cast(_ = #add_claim{ city_id = CityId,
    
     IsValid = (lists:member(CityId, Kingdom#kingdom.cities) and
                lists:member(ArmyId, Kingdom#kingdom.armies)),
+
+    log4erl:info("Player - isValid: ~w", [IsValid]),
+    log4erl:info("Player - ~w", [Kingdom#kingdom.armies]),
+
     case IsValid of
         true ->
             case city:add_claim(CityId, ArmyId, X, Y) of

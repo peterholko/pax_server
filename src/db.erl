@@ -180,7 +180,7 @@ game_tables() ->
      {building_type, 2, "Market", 100, 200, 1},
      {building_type, 3, "Temple", 100, 150, 1},
      {item_type, 1, "Plant", 100, {1, ?OBJECT_IMPROVEMENT}},
-     {improvement_type, 1, "Farm", 100, 10}].
+     {improvement_type, 1, "Farm", 100, 100}].
 
 reset_game_tables() ->
     F = fun() ->
