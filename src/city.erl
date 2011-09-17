@@ -157,7 +157,8 @@ handle_call({'ADD_CLAIM', ArmyId, X, Y}, _From, Data) ->
                                      tile_index = TileIndex,
                                      city_id = City#city.id,
                                      army_id = ArmyId, 
-                                     state = ?STATE_IN_PROGRESS},
+                                     state = ?STATE_IN_PROGRESS,
+                                     created_time = util:get_time_seconds()},
             db:write(NewClaimRecord),
             Result = {success, ClaimId};
         false ->

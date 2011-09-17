@@ -211,9 +211,11 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
                 true ->
                     log4erl:debug("tile is explored~n"),
                     {TileType, Resources} = map:get_tile_info(TileIndex),
+                    ClaimTuple = claim:info(TileIndex),
                     R = #info_tile { tile_index = TileIndex,
                                      tile_type = TileType,
-                                     resources = Resources},
+                                     resources = Resources,
+                                     claim = ClaimTuple},
                     forward_to_client(R, Data);
                 false ->
                     log4erl:debug("tile is not explored~n"),

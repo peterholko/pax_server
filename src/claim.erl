@@ -12,20 +12,34 @@
 %%
 %% Exported Functions
 %%
--export([tuple_form/1, complete/1, cancel/1, check_status/1, is_valid/4]).
+-export([tuple_form/1, info/1, complete/1, cancel/1, check_status/1, is_valid/4]).
 %%
 %% API Functions
 %%
 
-%%
-%% Local Functions
-%%
 tuple_form(Claims) ->
     F = fun(Claim, ClaimList) ->
-            ClaimTuple = {Claim#claim.id, Claim#claim.tile_index, Claim#claim.city_id, Claim#claim.state},
+            ClaimTuple = {Claim#claim.id, 
+                          Claim#claim.tile_index, 
+                          Claim#claim.city_id,
+                          Claim#claim.state,
+                          Claim#claim.created_time},
             [ClaimTuple | ClaimList]
         end,
     lists:foldl(F, [], Claims).
+
+info(TileIndex) ->
+    case db:dirty_index_read(claim, TileIndex, #claim.tile_index) of
+        [Claim] ->
+            ClaimTuple = {Claim#claim.id, 
+                          Claim#claim.tile_index, 
+                          Claim#claim.city_id, 
+                          Claim#claim.state,
+                          Claim#claim.created_time};
+        _ ->
+            ClaimTuple = {-1, -1, -1, -1, -1}
+    end,
+    ClaimTuple.
 
 complete(ClaimId) ->
     ?INFO("Completed Claim Id", ClaimId),

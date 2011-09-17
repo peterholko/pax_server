@@ -78,10 +78,9 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
             add_event_move(Data#module_data.self, ArmySpeed);
         ?STATE_CLAIM ->
             claim:cancel(Army#army.id),        
-            add_event_move(Data#module_data.self, ArmySpeed); 
-
-       true ->
-            ok
+            add_event_move(Data#module_data.self, ArmySpeed);
+        _ ->
+            add_event_move(Data#module_data.self, ArmySpeed)
     end,         
     
     NewArmy = state_move(Army, DestX, DestY),  
@@ -450,9 +449,7 @@ handle_call({'GET_UNITS'}, _From, Data) ->
     {reply, Units, Data};
 
 handle_call({'GET_UNIT', UnitId}, _From, Data) ->
-    Army = Data#module_data.army,
-    Units = Army#army.units,
-    Unit = unit:get_unit(UnitId, Units),
+    Unit = unit:get_unit(UnitId),
     {reply, Unit, Data};
 
 handle_call({'GET_STATE', _ArmyId}, _From, Data) ->

@@ -99,7 +99,8 @@
         		tile_index,
 		        city_id,
                 army_id,
-                state}).
+                state,
+                created_time}).
 
 -record(transport, {id,
                     player_id,

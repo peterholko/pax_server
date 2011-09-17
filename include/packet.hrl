@@ -63,7 +63,8 @@
 -define (CMD_INFO_TILE, 52).
 -record(info_tile, {tile_index,
                     tile_type,
-                    resources}).
+                    resources,
+                    claim}).
 
 -define (CMD_INFO_ARMY, 53).
 -record(info_army, {id,

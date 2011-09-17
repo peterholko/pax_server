@@ -149,7 +149,7 @@ damage() ->
     int().
 
 claim() ->
-    tuple({id(), tile_index(), id(), state()}).
+    tuple({id(), tile_index(), id(), state(), int()}).
 
 claims() ->
     list(short(), claim()).
@@ -262,7 +262,8 @@ info_city() ->
 info_tile() ->
     record(info_tile, {int(), %tile_index,
                        short(), %tile_type,
-                       resources()}).
+                       resources(),
+                       claim()}).
 
 info_generic_army() ->
     record(info_generic_army, {id(),   

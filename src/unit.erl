@@ -77,14 +77,13 @@ get_unit_ids(ListUnits, UnitIds) ->
     get_unit_ids(Rest, NewUnitIds).
 
 get_unit(UnitId, Units) ->
-    io:fwrite("Units: ~w UnitId: ~w~n", [Units, UnitId]),
-    case gb_sets:is_member(UnitId, Units) of
-        true ->
-            [Unit] = db:dirty_read(unit, UnitId);
-        false ->
-            Unit = false
+    case db:dirty_read(unit, UnitId) of
+        [Unit] ->
+            Result = Unit;
+        _ ->
+            Result = false
     end,
-    Unit.
+    Result.
 
 highest_unit_movement(ArmyId) ->
     Units = db:dirty_index_read(unit, ArmyId, #unit.entity_id), 
