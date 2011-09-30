@@ -159,9 +159,9 @@ process_type(?CONTRACT_IMPROVEMENT, Contract, Assignment) ->
 process_type(?CONTRACT_HARVEST, Contract, Assignment) ->
     log4erl:info("{~w} - Process CONTRACT_HARVEST",[?MODULE]),
     [ItemQueue] = db:dirty_read(item_queue, Contract#contract.id),
-    [ItemType] = db:dirty_read(item_type, ItemQueue#item_queue.item_type),
+    [ResourceType] = db:dirty_read(resource_type, ItemQueue#item_queue.item_type),
 
-    ProductionCost = ItemType#item_type.production_cost,
+    ProductionCost = ResourceType#resource_type.production_cost,
     {TargetId, _TargetType} = Assignment#assignment.target_ref,
 
     Result = process_production(Contract, Assignment, ProductionCost),
@@ -174,13 +174,17 @@ process_type(?CONTRACT_HARVEST, Contract, Assignment) ->
 
             ResourceType = ItemQueue#item_queue.item_type,
             ResourceGained = map:harvest_resource(Improvement#improvement.tile_index,
-                                                  ResourceType,
+                                                  ResourceType#resource_type.id,
                                                   ItemQueue#item_queue.item_size),
 
-            item:create(NewContract#contract.city_id,
-                        ItemQueue#item_queue.player_id,
-                        ItemQueue#item_queue.item_type,
-                        ResourceGained),
+            F = fun(ItemTypeId) ->
+                    item:create(NewContract#contract.city_id,
+                                ItemQueue#item_queue.player_id,
+                                ItemTypeId,
+                                ResourceGained)
+                end,
+
+            lists:foreach(F, ResourceType#resource_type.produces),
 
             db:dirty_delete(item_queue, NewContract#contract.id),
             db:dirty_delete(contract, NewContract#contract.id);

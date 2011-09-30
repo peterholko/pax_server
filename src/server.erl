@@ -61,6 +61,14 @@ init() ->
     log4erl:info("Loading map data..."), 
     map:start(),
     map:load(),
+ 
+    % Start managers
+    kingdom:start(),
+    improvement:start(),    
+    map_object:start(),
+    transport:start(),   
+    item:start(),
+    market:start(),    
     
     % Create game loop
     log4erl:info("Starting game process...") ,
@@ -70,14 +78,7 @@ init() ->
     ok = game:setup_events(),  
     spawn(fun() -> game_loop:loop(util:get_time(), global:whereis_name(game_pid)) end),
     
-    % Start managers
-    kingdom:start(),
-    improvement:start(),    
-    transport:start(),   
-    item:start(),
-    market:start(),
-    
-    % Start socket listener
+   % Start socket listener
     {ok, ListenSocket} = gen_tcp:listen(2345, [binary,
                                                {active, once},
                                                {keepalive, true},

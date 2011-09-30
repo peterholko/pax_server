@@ -14,8 +14,7 @@
 -include("game.hrl").
 %% --------------------------------------------------------------------
 %% External exports
--export([start/1, update_perception/8]).
-
+-export([start/1, update_perception/7]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -record(module_data, {}).
@@ -27,8 +26,8 @@
 start(EntityId) ->
     gen_server:start({global, {subscription, EntityId}}, subscription, [], []).
 
-update_perception(Pid, EntityId, EntityPid, EntityX, EntityY, EveryObjectList, VisibleList, ObservedByList) ->
-    spawn(fun() -> gen_server:call(Pid, {'UPDATE_PERCEPTION', EntityId, EntityPid, EntityX, EntityY, EveryObjectList, VisibleList, ObservedByList}), gen_server:cast(Pid, stop) end).
+update_perception(Pid, EntityId, EntityPid, EntityX, EntityY, VisibleList, ObservedByList) ->
+    spawn(fun() -> gen_server:call(Pid, {'UPDATE_PERCEPTION', EntityId, EntityPid, EntityX, EntityY, VisibleList, ObservedByList}), gen_server:cast(Pid, stop) end).
 
 %% ====================================================================
 %% Server functions
@@ -41,9 +40,9 @@ init([]) ->
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
-handle_call({'UPDATE_PERCEPTION', EntityId, EntityPid, EntityX, EntityY, EveryObjectList, VisibleList, ObservedByList}, _From, Data) ->
+handle_call({'UPDATE_PERCEPTION', EntityId, EntityPid, EntityX, EntityY, VisibleList, ObservedByList}, _From, Data) ->
     
-    subscription(EntityId, EntityPid, EntityX, EntityY, EveryObjectList, VisibleList, ObservedByList),
+    subscription(EntityId, EntityPid, EntityX, EntityY, VisibleList, ObservedByList),
     
     {reply, ok, Data};
 
@@ -73,10 +72,11 @@ terminate(_Reason, _) ->
 %%% Internal functions
 %% --------------------------------------------------------------------
 
-subscription(EntityId, EntityPid, EntityX, EntityY, EveryObjectList, VisibleList, ObservedByList) ->
+subscription(EntityId, EntityPid, EntityX, EntityY, VisibleList, ObservedByList) ->
     NewVisibleList = remove_visible_list(EntityId, EntityPid, EntityX, EntityY, VisibleList),
     NewObservedByList = remove_observed_by_list(EntityId, EntityPid, EntityX, EntityY, ObservedByList),
     
+    EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
     ObjectList = lists:delete({EntityId, EntityPid}, EveryObjectList),	
 
     VisibleCandidateList = ObjectList -- NewVisibleList, 

@@ -104,7 +104,6 @@ handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
             ok
     end,         
     
-    
     NewArmy = state_attack(Data#module_data.army, TargetId),
     NewData = Data#module_data {army = NewArmy},
     save_army(NewArmy),
@@ -171,6 +170,19 @@ handle_cast({'SET_STATE_RETREAT', BattleId}, Data) ->
     NewArmy = state_retreat(Army, BattleId),
     NewData = Data#module_data {army = NewArmy},
     save_army(NewArmy),
+
+    VisibleList = Data#module_data.visible,
+    ObservedByList = Data#module_data.observed_by,
+
+    %% Update subscription model
+    {ok, SubscriptionPid} = subscription:start(Army#army.id),
+    subscription:update_perception(SubscriptionPid, Army#army.id, self(), Army#army.x, Army#army.y, VisibleList, ObservedByList),
+    
+    %% Toggle player's perception has been updated.
+    update_perception(Army#army.player_id),  
+ 
+    %% Toggle observedByList perception has been updated due to state change.
+    entity_update_perception(ObservedByList),    	
 
     {noreply, NewData};
 
@@ -522,9 +534,8 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     set_discovered_tiles(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
  
     %% Update subscription model
-    EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
     {ok, SubscriptionPid} = subscription:start(Army#army.id),
-    subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, NewArmyX, NewArmyY, EveryObjectList, VisibleList, ObservedByList),
+    subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, NewArmyX, NewArmyY, VisibleList, ObservedByList),
     
     %% Toggle player's perception has been updated.
     update_perception(Army#army.player_id),  
@@ -578,9 +589,8 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
     set_discovered_tiles(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
 
     %% Update subscription model
-    EveryObjectList = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
     {ok, SubscriptionPid} = subscription:start(Army#army.id),
-    subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, NewArmyX, NewArmyY, EveryObjectList, VisibleList, ObservedByList),
+    subscription:update_perception(SubscriptionPid, Army#army.id, ArmyPid, NewArmyX, NewArmyY, VisibleList, ObservedByList),
     
     %Toggle player's perception has been updated.
     update_perception(Army#army.player_id),  

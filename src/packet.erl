@@ -290,6 +290,8 @@ city_queue_building() ->
 
 city_queue_item() ->
     record(city_queue_item, {id(), %city_id
+                             id(), %source_id
+                             type(), %source_type
                              type(), %item_type
                              int()}). %item_size
 city_queue_improvement() ->
@@ -316,13 +318,10 @@ battle_info() ->
     record(battle_info, {battle_id(),
                          armies()}).
 
-battle_add_army() ->
-    record(battle_add_army, {battle_id(),
-                             army()}).
-battle_remove_army() ->
-    record(battle_remove_army, {battle_id(),
-                             army()}).
-
+battle_event() ->
+    record(battle_event, {type(), %battle_event_type
+                          battle_id(), %battle_id
+                          army()}). %army
 battle_target() ->
     record(battle_target, {battle_id(),
                            source_army_id(),
@@ -503,11 +502,8 @@ read(<<?CMD_BATTLE_INFO, Bin/binary>>) ->
 read(<<?CMD_TRANSPORT_INFO, Bin/binary>>) ->
     unpickle(transport_info(), Bin);
 
-read(<<?CMD_BATTLE_ADD_ARMY, Bin/binary>>) ->
-    unpickle(battle_add_army(), Bin);
-
-read(<<?CMD_BATTLE_REMOVE_ARMY, Bin/binary>>) ->
-    unpickle(battle_remove_army(), Bin);
+read(<<?CMD_BATTLE_EVENT, Bin/binary>>) ->
+    unpickle(battle_event(), Bin);
 
 read(<<?CMD_BATTLE_DAMAGE, Bin/binary>>) ->
     unpickle(battle_damage(), Bin);
@@ -557,8 +553,8 @@ write(R) when is_record(R, battle_info) ->
 write(R) when is_record(R, transport_info) ->
     [?CMD_TRANSPORT_INFO|pickle(transport_info(), R)];
 
-write(R) when is_record(R, battle_add_army) ->
-    [?CMD_BATTLE_ADD_ARMY|pickle(battle_add_army(), R)];
+write(R) when is_record(R, battle_event) ->
+    [?CMD_BATTLE_EVENT|pickle(battle_event(), R)];
 
 write(R) when is_record(R, battle_damage) ->
     [?CMD_BATTLE_DAMAGE|pickle(battle_damage(), R)];

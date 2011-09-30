@@ -23,7 +23,7 @@
 -export([queue_unit/6, 
          queue_building/3, 
          queue_improvement/4,
-         queue_item/3, 
+         queue_item/5, 
          add_claim/4, 
          remove_claim/2, 
          assign_task/6,
@@ -77,8 +77,8 @@ queue_building(CityId, PlayerId, BuildingType) ->
 queue_improvement(CityId, X, Y, ImprovementType) ->
     gen_server:call(global:whereis_name({city,CityId}), {'QUEUE_IMPROVEMENT', X, Y, ImprovementType}).
 
-queue_item(CityId, ItemType, ItemSize) ->
-    gen_server:call(global:whereis_name({city,CityId}), {'QUEUE_ITEM', ItemType, ItemSize}).
+queue_item(CityId, SourceId, SourceType, ItemType, ItemSize) ->
+    gen_server:call(global:whereis_name({city,CityId}), {'QUEUE_ITEM', SourceId, SourceType, ItemType, ItemSize}).
 
 add_claim(CityId, ArmyId, X, Y) ->
     gen_server:call(global:whereis_name({city, CityId}), {'ADD_CLAIM', ArmyId, X, Y}).
@@ -197,7 +197,7 @@ handle_call({'QUEUE_UNIT', PlayerId, BuildingId, UnitType, UnitSize, Caste, Race
     case CasesUnitQueue of
         true ->                        
             case building:is_available(BuildingId) of
-               true ->
+               {true, Building} ->
                     kingdom:remove_gold(PlayerId, UnitCost),
                     remove_population(City#city.id, Caste, Race, UnitSize),                        
 
@@ -253,9 +253,8 @@ handle_call({'QUEUE_IMPROVEMENT', X, Y, ImprovementType}, _From, Data) ->
             improvement:queue(ImprovementId, X, Y, Data#module_data.player_id, City#city.id, ImprovementType),
             
             %Subscription update
-            EveryObject = gen_server:call(global:whereis_name(game_pid), 'GET_OBJECTS'),
             {ok, SubPid} = subscription:start(ImprovementId),
-            subscription:update_perception(SubPid, ImprovementId, ImprovementPid, X, Y, EveryObject, [], []),
+            subscription:update_perception(SubPid, ImprovementId, ImprovementPid, X, Y, [], []),
 
             %Toggle player's perception has been updated.
             game:update_perception(Data#module_data.player_id),
@@ -269,39 +268,48 @@ handle_call({'QUEUE_IMPROVEMENT', X, Y, ImprovementType}, _From, Data) ->
 
     {reply, Result, Data};
 
-handle_call({'QUEUE_ITEM', ItemType, ItemSize}, _From, Data) ->
+handle_call({'QUEUE_ITEM', SourceId, SourceType, ItemType, ItemSize}, _From, Data) ->
     City = Data#module_data.city,
-    IsHarvestable = item:is_harvestable(ItemType),
 
-    case IsHarvestable of
-        {item, harvestable} ->
-            case improvement:find_available(City#city.id, ItemType) of
-                {found, Improvement} ->
-                    item:add_to_queue(City#city.player_id,
-                                      City#city.id,
-                                      ?CONTRACT_HARVEST,
-                                      {Improvement#improvement.id, ?OBJECT_IMPROVEMENT},
-                                      ItemType,
-                                      ItemSize),
-                    Result = {city, queued_harvest};
-                none ->
+    case SourceType of 
+        ?OBJECT_IMPROVEMENT ->
+            case improvement:is_available(SourceId) of
+                {true, Improvement} ->
+                    case item:check_type(ItemType) of
+                        true -> 
+                            item:add_to_queue(City#city.player_id,
+                                              City#city.id,
+                                              ?CONTRACT_HARVEST,
+                                              {SourceId, ?OBJECT_IMPROVEMENT},
+                                              -1,
+                                              ItemSize),
+                            Result = {city, queued_harvest};
+                        false ->
+                            Result = {city, invalid_item_type}
+                    end;
+                false ->
                     Result = {city, invalid_improvement}
             end;
-        {item, standard} ->
-            case building:find_available(City#city.id, ItemType) of
-                {found, Building} ->
-                    item:add_to_queue(City#city.player_id,
-                                      City#city.id,
-                                      ?CONTRACT_ITEM,
-                                      {Building#building.id, ?OBJECT_BUILDING},
-                                      ItemType,
-                                      ItemSize),
-                    Result = {city, queued_item};
-                none ->
+        ?OBJECT_BUILDING ->
+            case building:is_available(SourceId) of
+                {true, Building} ->
+                    case item:check_type(ItemType) of
+                        true ->
+                            item:add_to_queue(City#city.player_id,
+                                              City#city.id,
+                                              ?CONTRACT_ITEM,
+                                              {SourceId, ?OBJECT_BUILDING},
+                                              ItemType,
+                                              ItemSize),
+                            Result = {city, queued_item};
+                        false ->
+                            Result = {city, invalid_item_type}
+                    end;
+                false ->
                     Result = {city, invalid_building}
             end;
-        {item, invalid_type} ->
-            Result = {city, invalid_item_type}
+        _ ->
+            Result = {city, invalid_source_type}
     end,
 
     {reply, Result, Data};

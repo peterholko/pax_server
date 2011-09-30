@@ -19,7 +19,7 @@
          calc_unit_cost/2,
          calc_retreat_time/1,
          get_unit_ids/2, 
-         get_unit/2,
+         get_unit/1,
          highest_unit_movement/1,
          units_id/1, 
          tuple_form/1]).
@@ -76,7 +76,7 @@ get_unit_ids(ListUnits, UnitIds) ->
     NewUnitIds = [Unit#unit.id | UnitIds],
     get_unit_ids(Rest, NewUnitIds).
 
-get_unit(UnitId, Units) ->
+get_unit(UnitId) ->
     case db:dirty_read(unit, UnitId) of
         [Unit] ->
             Result = Unit;

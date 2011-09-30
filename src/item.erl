@@ -17,8 +17,8 @@
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([create/4, delete/1, set/2, transfer/3, get_by_type/3]).
 -export([add/2, remove/2]).
--export([tuple_form/1, is_harvestable/1, add_to_queue/6]).
--export([check_type/1]).
+-export([tuple_form/1, add_to_queue/6]).
+-export([check_type/1, check_building_req/2, check_improvement_req/2]).
 -record(module_data, {}).
 %% ====================================================================
 %% External functions
@@ -66,26 +66,28 @@ tuple_form(Items) ->
     end,
     lists:foldl(F, [], Items).
 
-is_harvestable(ItemTypeId) ->
-    case db:dirty_read(item_type, ItemTypeId) of
-        [ItemType] ->            
-            case ItemType#item_type.structure_req of
-                {_ObjectId, ?OBJECT_IMPROVEMENT} ->
-                    Result = {item, harvestable};
-                {_ObjectId, ?OBJECT_BUILDING} ->
-                    Result = {item, standard};     
-                _ ->
-                    Result = {item, invalid_req}
-            end;
-        _ ->
-            Result = {item, invalid_type}
-    end,
-    Result.
-
 check_type(ItemTypeId) ->
     case db:dirty_read(item_type, ItemTypeId) of
         [_ItemType] ->
             Result = true;
+        _ ->
+            Result = false
+    end,
+    Result.
+
+check_improvement_req(ImprovementType, ItemTypeId) ->
+    case db:dirty_read(item_type, ItemTypeId) of
+        [ItemType] ->
+            Result = ImprovementType =:= ItemType#item_type.improvement_req;
+        _ ->
+            Result = false
+    end,
+    Result.
+
+check_building_req(BuildingType, ItemTypeId) ->
+    case db:dirty_read(item_type, ItemTypeId) of
+        [ItemType] ->
+            Result = BuildingType =:= ItemType#item_type.building_req;
         _ ->
             Result = false
     end,

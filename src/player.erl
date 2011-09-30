@@ -19,7 +19,7 @@
          handle_info/2, terminate/2, code_change/3]).
 
 -export([start/1, stop/1, stop/2, get_explored_map/1, get_type/1]).
--export([send_battle_add_army/3, send_battle_remove_army/3]).
+-export([send_battle_event/4]).
 -export([get_info_kingdom/1]).
 %%
 %% Records
@@ -42,11 +42,8 @@ get_type(PlayerId) ->
     [PlayerType] = db:read(player_type, PlayerId),
     PlayerType#player_type.type.
 
-send_battle_add_army(PlayerId, BattleId, ArmyInfo) ->
-    gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_BATTLE_ADD_ARMY', BattleId, ArmyInfo}).
-
-send_battle_remove_army(PlayerId, BattleId, ArmyInfo) ->
-    gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_BATTLE_REMOVE_ARMY', BattleId, ArmyInfo}).
+send_battle_event(PlayerId, BattleEvent, BattleId, ArmyInfo) ->
+    gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_BATTLE_EVENT', BattleEvent, BattleId, ArmyInfo}).
 
 start(Name) 
   when is_binary(Name) ->
@@ -118,17 +115,11 @@ handle_cast({'SEND_BATTLE_INFO', BattleId, Armies}, Data) ->
     forward_to_client(R, Data),
     {noreply, Data}; 
 
-handle_cast({'SEND_BATTLE_ADD_ARMY', BattleId, ArmyInfo}, Data) ->
-    R = #battle_add_army {battle_id = BattleId,
-                          army = ArmyInfo},
+handle_cast({'SEND_BATTLE_EVENT', BattleEvent, BattleId, ArmyInfo}, Data) ->
+    R = #battle_event {battle_event = BattleEvent, 
+                       battle_id = BattleId,
+                       army = ArmyInfo},
     
-    forward_to_client(R, Data),
-    {noreply, Data};
-
-handle_cast({'SEND_BATTLE_REMOVE_ARMY', BattleId, ArmyInfo}, Data) ->
-    R = #battle_remove_army {battle_id = BattleId,
-                             army = ArmyInfo},
-
     forward_to_client(R, Data),
     {noreply, Data};
 
@@ -317,10 +308,12 @@ handle_cast(_ = #city_queue_improvement{city_id = CityId,
     {noreply, Data};
 
 handle_cast(_ = #city_queue_item{city_id = CityId, 
+                                 source_id = SourceId,
+                                 source_type = SourceType,
                                  item_type = ItemType, 
                                  item_size = ItemSize}, Data) ->
 
-    case city:queue_item(CityId, ItemType, ItemSize) of
+    case city:queue_item(CityId, SourceId, SourceType, ItemType, ItemSize) of
         {city, queued_harvest} ->
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
             gen_server:cast(self(), RequestInfo);

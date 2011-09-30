@@ -157,7 +157,7 @@ terminate(_Reason, _) ->
 %%% Internal functions
 
 load_tiles(_FileRef, true, _TileIndex) ->
-    io:fwrite("loading tiles done~n"),
+    ?INFO("loading tiles done"),
     done;
 
 load_tiles(FileRef, _, TileIndex) ->
@@ -173,7 +173,7 @@ load_tiles(FileRef, _, TileIndex) ->
     load_tiles(FileRef, EOF, TileIndex + 1).
             
 load_resources(_ResourceListFileRef, _Time, true, _TileIndex) ->
-    io:fwrite("loading resources done~n"),
+    ?INFO("Loading resources done"),
     done;
 
 load_resources(ResourceListFileRef, Time, _, TileIndex) ->
@@ -184,7 +184,18 @@ load_resources(ResourceListFileRef, Time, _, TileIndex) ->
             ResourceFileName = re:split(Data,"[\n]",[{return,list},trim]), 
             case file:open(ResourceFileName, read) of
                 {ok, ResourceFileRef} ->
-                    load_resource_regen(ResourceFileRef, 1, Time, false, 0);
+                    [FileName] = ResourceFileName,
+                    [ResourceName, _Ext] = re:split(FileName, "[.]", [{return, list}, trim]),
+                    case db:dirty_match_object({resource_type, '_', '_', list_to_binary(ResourceName), '_'}) of
+                        [ResourceType] ->
+                            load_resource_regen(ResourceFileRef, 
+                                                ResourceType#resource_type.id, 
+                                                Time, 
+                                                false, 
+                                                0);
+                        _ ->
+                            ?ERROR("Invalid resource type")
+                    end;
                 Any ->
                     io:fwrite("Failed to open ResourceFileName: ~w - ~w", [ResourceFileName, Any])
             end,
@@ -207,7 +218,7 @@ load_resource_regen(ResourceFileRef, ResourceType, Time, _, TileIndex) ->
                     NewResources = [{ResourceId, ResourceType} | Tile#tile.resources],
                     NewTile = Tile#tile { resources = NewResources},       
                     Resource = #resource {id = ResourceId,
-                                          type = 1,
+                                          type = ResourceType,
                                           total = 0,
                                           regen_rate = ResourceRegen,
                                           last_update = Time},

@@ -18,7 +18,7 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/0, queue/6, complete/1, info/2, empty/2, update_hp/3]).
--export([is_valid/3, check_type/1, find_available/2]).
+-export([is_valid/3, check_type/1, is_available/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -65,12 +65,22 @@ check_type(TypeId) ->
     end,
     Result.
 
-find_available(CityId, ItemTypeId) ->
-    [ItemType] = db:dirty_read(item_type, ItemTypeId),
-    {ImprovementTypeId, _ObjectType}  = ItemType#item_type.structure_req,
-    Improvements = db:dirty_index_read(improvement, CityId, #improvement.city_id),
-
-    check_available(Improvements, ImprovementTypeId, none).
+is_available(ImprovementId) ->
+    case db:dirty_read(improvement, ImprovementId) of
+        [Improvement] ->
+            ContractExists = contract:exists(Improvement#improvement.city_id,
+                                             Improvement#improvement.id,
+                                             ?CONTRACT_HARVEST),
+            case ContractExists of
+                true ->
+                    IsAvailable = false;
+                false ->
+                    IsAvailable = {true, Improvement}
+            end;
+        _ ->
+            IsAvailable = false
+    end,
+    IsAvailable.        
 
 %% ====================================================================
 %% Server functions
@@ -114,6 +124,8 @@ handle_cast({'QUEUE', ImprovementId, X, Y, PlayerId, CityId, Type}, Data) ->
     db:dirty_write(ImprovementQueue),
     db:dirty_write(Improvement),
     
+    game:add_improvement(ImprovementId, self()),
+
     {noreply, Data};
 
 handle_cast({'COMPLETE', ImprovementId}, Data) ->
@@ -281,22 +293,3 @@ remove_observed_by(ImprovementId, EntityId, EntityPid) ->
     NewImprovement = Improvement#improvement { observed_by = NewObservedByList},
     db:dirty_write(NewImprovement).                                  
 
-check_available([], _ImprovementType, none) ->
-    none;
-
-check_available(_Improvements, _ImprovementType, {found, Improvement}) ->
-    {found, Improvement};
-
-check_available([Improvement | Rest], ImprovementType, Status) ->
-    MatchType = Improvement#improvement.type =:= ImprovementType,
-    ContractExists = contract:exists(Improvement#improvement.city_id,
-                                     Improvement#improvement.id,
-                                     ?CONTRACT_HARVEST),
-    case MatchType and not ContractExists of
-        true ->
-            NewStatus = {found, Improvement};
-        false ->
-            NewStatus = Status
-    end,
-
-    check_available(Rest, ImprovementType, NewStatus).

@@ -94,16 +94,19 @@ is_available(BuildingId) ->
     TargetRef = {BuildingId, ?OBJECT_BUILDING},
     case db:dirty_read(building, BuildingId) of
         [Building] ->
-            case db:dirty_index_read(contract, TargetRef, #contract.target_ref) of
-                [Contract] ->
-                    Result = false;
-                _ ->
-                    Result = true
+            ContractExists = contract:exists(Building#building.city_id,
+                                             Building#building.id,
+                                             ?CONTRACT_ITEM),
+            case ContractExists of
+                true ->
+                    IsAvailable = false;
+                false ->
+                    IsAvailable = {true, Building}
             end;
         _ ->
-            Result = false
+            IsAvailable = false
     end,
-    Result.
+    IsAvailable.
 
 find_available(CityId, ItemTypeId) ->
     ItemType = db:dirty_read(item_type, ItemTypeId),

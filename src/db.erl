@@ -21,8 +21,9 @@
          write/1, read/2, delete/2, index_read/3,
          dirty_write/1, dirty_read/2, dirty_index_read/3, dirty_delete/2, dirty_match_object/1,
          dirty_delete_object/1,
-         reset_game_tables/0, reset_tables/0, dump/1, select_armies/0,
-         select_cities/0, select_battles/0, 
+         reset_game_tables/0, reset_tables/0, dump/1, 
+         select_armies/0, select_cities/0, select_battles/0, 
+         select_improvements/1, 
          select_all_armies/0, select_all_players/0,
          do/1
         ]).
@@ -61,6 +62,8 @@ create_schema() ->
 
     {atomic, ok} = mnesia:create_table(tile, [{ram_copies, [node()]}, {attributes, record_info(fields, tile)}]),   
     {atomic, ok} = mnesia:create_table(resource, [{ram_copies, [node()]}, {attributes, record_info(fields, resource)}]),   
+
+    {atomic, ok} = mnesia:create_table(map_object, [{ram_copies, [node()]}, {attributes, record_info(fields, map_object)}]),   
 
     {atomic, ok} = mnesia:create_table(unit_type, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_type)}]),
     {atomic, ok} = mnesia:create_table(building_type, [{disc_copies, [node()]}, {attributes, record_info(fields, building_type)}]),
@@ -157,6 +160,9 @@ select_cities() ->
 select_battles() ->
     do(qlc:q([{X#battle.id} || X <- mnesia:table(battle)])).
 
+select_improvements(ImprovementPid) ->
+    do(qlc:q([{X#improvement.id, ImprovementPid} || X <- mnesia:table(improvement)])).
+
 select_all_armies() ->
     do(qlc:q([X || X <- mnesia:table(army)])).
 
@@ -179,8 +185,27 @@ game_tables() ->
      {building_type, 1, "Barracks", 100, 100, 1},
      {building_type, 2, "Market", 100, 200, 1},
      {building_type, 3, "Temple", 100, 150, 1},
-     {item_type, 1, "Plant", 100, {1, ?OBJECT_IMPROVEMENT}},
-     {improvement_type, 1, "Farm", 100, 100}].
+     {item_type, 19, "Bristlespine Pig", 100, -1, 2, []},
+     {item_type, 20, "Chistoan Tuber", 100, -1, 1, []},
+     {item_type, 21, "Chistoan Leaf", 100, -1, 1, []},
+     {item_type, 22, "Cragroot Lumber", 100, -1, 3, []},
+     {item_type, 23, "Cragroot Sap", 100, -1, 3, []},
+     {item_type, 24, "Fletcher's Grain", 100, -1, 1, []},
+     {improvement_type, 1, "Farm", 100, 100},
+     {improvement_type, 2, "Trapper", 100, 100},
+     {improvement_type, 3, "Lumbermill", 100, 100},
+     {improvement_type, 4, "Mine", 100, 100},
+     {improvement_type, 5, "Quarry", 100, 100},
+     {resource_type, 1, "bristlespine"},
+     {resource_type, 2, "chisotan"},
+     {resource_type, 3, "cragroot"},
+     {resource_type, 4, "fletcher"},
+     {resource_type, 5, "flowstate"},
+     {resource_type, 6, "husk"},
+     {resource_type, 7, "lumenite"},
+     {resource_type, 8, "spiralstone"},
+     {resource_type, 9, "tannhauser"},
+     {resource_type, 10, "wirecoat"}].
 
 reset_game_tables() ->
     F = fun() ->
@@ -216,7 +241,7 @@ test_tables() ->
      {army, 3, 2, <<"Army Three">>,  3,  3, [], none, none, 0, 0, {1,{9,nil,nil}}, none},
      {army, 4, 3, <<"Army Four">>, 10, 10, [], none, none, 0, 0, {0, nil}, none},
      {army, 5, 4, <<"Army Five">>, 15,  2, [], none, none, 0, 0, {0, nil}, none},
-     {army, 6, -1, <<"NPC Army">>, 7,  7, [], none, none, 0, 0, {0, nil}, none},
+     {army, 6, -1, <<"NPC Army">>, 7,  7, [], none, none, 0, 0, {2, {3, nil, {10, nil, nil}}}, none},
      {hero, 1, 1, 1},
      {unit, 1, 1, 1, 1, 25, 1},
      {unit, 2, 1, 1, 2, 20, 1},

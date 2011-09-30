@@ -16,7 +16,7 @@
 -export([start/0, load_entities/0, setup_perception/0, setup_events/0, add_event/4, update_perception/1]).
 -export([get_cities/0, add_event_get_id/4, delete_event/1, clear_events/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
-
+-export([add_improvement/2, delete_improvement/2, add_map_object/2, delete_map_object/2]).
 
 %%
 %% API Functions
@@ -52,6 +52,18 @@ update_perception(PlayerId) ->
 get_cities() ->
     gen_server:call({global, game_pid}, 'GET_CITIES').
 
+add_improvement(ImprovementId, ImprovementPid) ->
+    gen_server:cast({global, game_pid}, {'ADD_IMPROVEMENT', ImprovementId, ImprovementPid}).
+
+delete_improvement(ImprovementId, ImprovementPid) ->
+    gen_server:cast({global, game_pid}, {'DELETE_IMPROVEMENT', ImprovementId, ImprovementPid}).
+
+add_map_object(MapObjectId, MapObjectPid) ->
+    gen_server:cast({global, game_pid}, {'ADD_MAP_OBJECT', MapObjectId, MapObjectPid}).
+
+delete_map_object(MapObjectId, MapObjectPid) ->
+    gen_server:cast({global, game_pid}, {'DELETE_MAP_OBJECT', MapObjectId, MapObjectPid}).
+
 init([]) ->    
     Data = #game_info {update_perceptions = gb_sets:new() },
     {ok, Data}.
@@ -63,43 +75,18 @@ handle_cast(stop, Data) ->
     {stop, normal, Data};
 
 handle_cast({'ADD_PLAYER', PlayerId, ProcessId}, Data) ->
-    
     %Toggle perception flag to send first perception (Not needed)
-    %NewUpdatePerceptions = gb_sets:add(PlayerId, Data#game_info.update_perceptions),
-        
-    ArmiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_ARMIES_ID_PID', PlayerId}),
-    CitiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_CITIES_ID_PID', PlayerId}),
-    
-    NewEntities = ArmiesIdPid ++ CitiesIdPid,
-    
-    EntityList = Data#game_info.entities,
-    NewEntityList = lists:append(NewEntities, EntityList),	
-    
     NewPlayer = #player_process{player_id = PlayerId, process = ProcessId},
     PlayerList = Data#game_info.players,
     NewPlayerList = [NewPlayer|PlayerList],    
     
-    NewData = Data#game_info {
-                              players = NewPlayerList,
-                              entities = NewEntityList
-                              %update_perceptions = NewUpdatePerceptions                             
-                             },
+    NewData = Data#game_info {players = NewPlayerList},
     {noreply, NewData};
 
 handle_cast({'DELETE_PLAYER', PlayerId, ProcessId}, Data) ->
     log4erl:info("{~w} delete_player ProcessId: ~w", [?MODULE, ProcessId]),
-    
-    ArmiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_ARMIES_ID_PID', PlayerId}),
-    CitiesIdPid = gen_server:call(global:whereis_name(kingdom_pid), {'GET_CITIES_ID_PID', PlayerId}),
-    
-    Entities = ArmiesIdPid ++ CitiesIdPid,
-    
-    NewEntityList = Data#game_info.entities -- Entities,    
     NewPlayerList = lists:keydelete(PlayerId, 2, Data#game_info.players),
-    NewData = Data#game_info {
-                              players = NewPlayerList,
-                              entities = NewEntityList
-                             },
+    NewData = Data#game_info {players = NewPlayerList},
     {noreply, NewData};
 
 handle_cast({'ADD_EVENT', Pid, Type, EventData, EventTick}, Data) ->
@@ -118,17 +105,31 @@ handle_cast({'CLEAR_EVENTS', Pid}, Data) ->
     NewData = Data#game_info {events = NewEventList},
     {noreply, NewData};
 
-handle_cast({'ADD_BATTLE',BattleId, BattlePid}, Data) ->
+handle_cast({'ADD_MAP_OBJECT', MapObjectId, MapObjectPid}, Data) ->
     log4erl:info("Add Battle."), 	
-    BattleList = Data#game_info.battles,
-    NewBattleList = [{BattleId, BattlePid} | BattleList],
-    NewData = Data#game_info { battles = NewBattleList},
+    MapObjectList = Data#game_info.map_objects,
+    NewMapObjectList = [{MapObjectId, MapObjectPid} | MapObjectList],
+    NewData = Data#game_info { map_objects = NewMapObjectList},
     {noreply, NewData};
 
-handle_cast({'DELETE_BATTLE', BattleId, BattlePid}, Data) ->
-    BattleList = Data#game_info.battles,
-    NewBattleList = lists:delete({BattleId, BattlePid}, BattleList),
-    NewData = Data#game_info { battles = NewBattleList},
+handle_cast({'DELETE_MAP_OBJECT', MapObjectId, MapObjectPid}, Data) ->
+    MapObjectList = Data#game_info.map_objects,
+    NewMapObjectList = lists:delete({MapObjectId, MapObjectPid}, MapObjectList),
+    NewData = Data#game_info { map_objects = NewMapObjectList},
+    {noreply, NewData};
+
+handle_cast({'ADD_IMPROVEMENT', ImprovementId, ImprovementPid}, Data) ->
+    ?INFO("Add Improvement"),
+    ImprovementList = Data#game_info.improvements,
+    NewImprovementList = [{ImprovementId, ImprovementPid} | ImprovementList],
+    NewData = Data#game_info  { improvements = NewImprovementList },
+    {noreply, NewData};
+
+handle_cast({'DELETE_IMPROVEMENT', ImprovementId, ImprovementPid}, Data) ->
+    ?INFO("Delete improvement"),
+    ImprovementList = Data#game_info.improvements,
+    NewImprovementList = lists:delete({ImprovementId, ImprovementPid}, ImprovementList),
+    NewData = Data#game_info { improvements = NewImprovementList },
     {noreply, NewData};
 
 handle_cast('NEXT_TICK', Data) ->
@@ -166,14 +167,21 @@ handle_call('LOAD_ENTITIES', _From, Data) ->
     Armies = lists:foldr(fun({ArmyId,_}, Armies) -> [{ArmyId, global:whereis_name({army, ArmyId})} | Armies] end, [], ArmyIds),
     Cities = lists:foldr(fun({CityId,_}, Cities) -> [{CityId, global:whereis_name({city, CityId})} | Cities] end, [], CityIds),
     Battles = lists:foldr(fun(BattleId, Battles) -> [{BattleId, global:whereis_name({battle, BattleId})} | Battles] end, [], BattleIds),
+    Improvements = db:select_improvements(global:whereis_name(improve_pid)),
     
-    NewData = Data#game_info {armies = Armies, cities = Cities, battles = Battles},
+    NewData = Data#game_info {armies = Armies, 
+                              cities = Cities, 
+                              battles = Battles,
+                              improvements = Improvements},
     log4erl:info("All entities have been loaded."),	
     {reply, ok, NewData};
 
 handle_call('SETUP_PERCEPTION', _From, Data) ->
     log4erl:info("Setup perception..."),
-    entities_perception(Data#game_info.armies ++ Data#game_info.cities, Data#game_info.armies ++ Data#game_info.cities),		
+    Objects = Data#game_info.armies ++ 
+              Data#game_info.cities ++
+              Data#game_info.improvements,
+    spawn(fun() -> entities_perception(Objects) end),
     {reply, ok, Data};
 
 handle_call('SETUP_EVENTS', _From, Data) ->
@@ -201,13 +209,11 @@ handle_call('GET_CITIES', _From, Data) ->
     {reply, Data#game_info.cities, Data};
 
 handle_call('GET_OBJECTS', _From, Data) ->
-    
-    Objects = Data#game_info.armies ++ Data#game_info.cities ++ Data#game_info.battles,
-    
+    Objects = Data#game_info.armies ++ 
+              Data#game_info.cities ++
+              Data#game_info.improvements ++ 
+              Data#game_info.map_objects,
     {reply, Objects , Data};
-
-handle_call('GET_ENTITIES', _From, Data) ->
-    {reply, Data#game_info.entities, Data};
 
 handle_call('GET_BATTLES', _From, Data) ->
     {reply, Data#game_info.battles, Data};
@@ -245,12 +251,12 @@ code_change(_OldVsn, Data, _Extra) ->
 %% Local Functions
 %%
 
-entities_perception(Entities, EveryEntity) ->	
+entities_perception(Entities) ->	
     log4erl:info("Updating all entities perception."),
     F = fun({EntityId, EntityPid}) ->
                 {EntityX, EntityY, VisibleList, ObservedByList} = gen_server:call(EntityPid, 'GET_SUBSCRIPTION_DATA'),
                 {ok, SubscriptionPid} = subscription:start(EntityId),									
-                subscription:update_perception(SubscriptionPid, EntityId, EntityPid, EntityX, EntityY, EveryEntity, VisibleList, ObservedByList)
+                subscription:update_perception(SubscriptionPid, EntityId, EntityPid, EntityX, EntityY, VisibleList, ObservedByList)
         end,
     
     lists:foreach(F, Entities),
