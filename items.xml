@@ -1,0 +1,974 @@
+<items>
+<row>
+  <id>1</id>
+  <item_type>Mana</item_type>
+  <name>Divine Mana Shard</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Divine Temple</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>2</id>
+  <item_type>Mana</item_type>
+  <name>Divine Mana Fragment</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>1</material_type>
+</row>
+<row>
+  <id>3</id>
+  <item_type>Mana</item_type>
+  <name>Divine Mana Gem</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>2</material_type>
+</row>
+<row>
+  <id>4</id>
+  <item_type>Mana</item_type>
+  <name>Corrupt Mana Shard</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Corrupt Temple</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>5</id>
+  <item_type>Mana</item_type>
+  <name>Corrupt Mana Fragment</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>4</material_type>
+</row>
+<row>
+  <id>6</id>
+  <item_type>Mana</item_type>
+  <name>Corrupt Mana Gem</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>5</material_type>
+</row>
+<row>
+  <id>7</id>
+  <item_type>Mana</item_type>
+  <name>Water Mana Shard</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Water Temple</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>8</id>
+  <item_type>Mana</item_type>
+  <name>Water Mana Fragment</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>7</material_type>
+</row>
+<row>
+  <id>9</id>
+  <item_type>Mana</item_type>
+  <name>Water Mana Gem</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>8</material_type>
+</row>
+<row>
+  <id>10</id>
+  <item_type>Mana</item_type>
+  <name>Nature Mana Shard</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Nature Temple</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>11</id>
+  <item_type>Mana</item_type>
+  <name>Nature Mana Fragment</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>10</material_type>
+</row>
+<row>
+  <id>12</id>
+  <item_type>Mana</item_type>
+  <name>Nature Mana Gem</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>11</material_type>
+</row>
+<row>
+  <id>13</id>
+  <item_type>Mana</item_type>
+  <name>Fire Mana Shard</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Fire Temple</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>14</id>
+  <item_type>Mana</item_type>
+  <name>Fire Mana Fragment</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>13</material_type>
+</row>
+<row>
+  <id>15</id>
+  <item_type>Mana</item_type>
+  <name>Fire Mana Gem</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>14</material_type>
+</row>
+<row>
+  <id>16</id>
+  <item_type>Mana</item_type>
+  <name>Earth Mana Shard</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Earth Temple</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>17</id>
+  <item_type>Mana</item_type>
+  <name>Earth Mana Fragment</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>18</id>
+  <item_type>Mana</item_type>
+  <name>Earth Mana Gem</name>
+  <production_cost>0</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>100</material_amount>
+  <material_type>17</material_type>
+</row>
+<row>
+  <id>19</id>
+  <item_type>Animal</item_type>
+  <name>Bristlespine Pig Resource</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>20</id>
+  <item_type>Vegetable</item_type>
+  <name>Chisotan Root Resource</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>21</id>
+  <item_type>Lumber</item_type>
+  <name>Cragroot Lumber Resource</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>22</id>
+  <item_type>Grain</item_type>
+  <name>Fletcher's Grain Resource</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>23</id>
+  <item_type>Ore</item_type>
+  <name>Flowstate Ore Resource</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>24</id>
+  <item_type>Grain</item_type>
+  <name>Husk Rice Resource</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>25</id>
+  <item_type>Stone Block</item_type>
+  <name>Lumenite Block Resource</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>26</id>
+  <item_type>Stone Block</item_type>
+  <name>Tannhauser Block Resource</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>27</id>
+  <item_type>Animal</item_type>
+  <name>Wirecoat Goat Resource</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>28</id>
+  <item_type>Gem Stone</item_type>
+  <name>Spiralstone Gem Resource</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>29</id>
+  <item_type>Animal</item_type>
+  <name>Bristlespine Pig</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>Farm</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>30</id>
+  <item_type>Vegetable</item_type>
+  <name>Harvested Chisotan Root</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>Farm</improvement_req>
+  <produces>31;32</produces>
+  <material_amount>1</material_amount>
+  <material_type>20</material_type>
+</row>
+<row>
+  <id>31</id>
+  <item_type>Vegetable</item_type>
+  <name>Chisotan Tuber</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>20</material_type>
+</row>
+<row>
+  <id>32</id>
+  <item_type>Plant</item_type>
+  <name>Chisotan Leaf</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>20</material_type>
+</row>
+<row>
+  <id>33</id>
+  <item_type>Lumber</item_type>
+  <name>Harvested Cragroot Poplar</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>Lumbermill</improvement_req>
+  <produces>34;35</produces>
+  <material_amount>1</material_amount>
+  <material_type>21</material_type>
+</row>
+<row>
+  <id>34</id>
+  <item_type>Lumber</item_type>
+  <name>Cragroot Lumber</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>21</material_type>
+</row>
+<row>
+  <id>35</id>
+  <item_type>Plant</item_type>
+  <name>Cragroot Leaf</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>21</material_type>
+</row>
+<row>
+  <id>36</id>
+  <item_type>Grain</item_type>
+  <name>Fletcher&apos;s Grain</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>Farm</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>22</material_type>
+</row>
+<row>
+  <id>37</id>
+  <item_type>Ore</item_type>
+  <name>Flowstate Ore</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>Mine</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>23</material_type>
+</row>
+<row>
+  <id>38</id>
+  <item_type>Grain</item_type>
+  <name>Harvested Husk Rice</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>Farm</improvement_req>
+  <produces>39;40</produces>
+  <material_amount>1</material_amount>
+  <material_type>24</material_type>
+</row>
+<row>
+  <id>39</id>
+  <item_type>Grain</item_type>
+  <name>Husk Rice</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>24</material_type>
+</row>
+<row>
+  <id>40</id>
+  <item_type>Plant</item_type>
+  <name>Husk Blossom</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>24</material_type>
+</row>
+<row>
+  <id>41</id>
+  <item_type>Stone Block</item_type>
+  <name>Lumenite Block</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>Quarry</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>25</material_type>
+</row>
+<row>
+  <id>42</id>
+  <item_type>Stone Block</item_type>
+  <name>Tannhauser Block</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>Quarry</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>26</material_type>
+</row>
+<row>
+  <id>43</id>
+  <item_type>Animal</item_type>
+  <name>Wirecoat Goat</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>Trapper</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>27</material_type>
+</row>
+<row>
+  <id>44</id>
+  <item_type>Gem Stone</item_type>
+  <name>Spiralstone Gem</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>Mine</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>28</material_type>
+</row>
+<row>
+  <id>45</id>
+  <item_type>Animal</item_type>
+  <name>Butchered Bristlespine Pig</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Butcher</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>46;47;48;49</produces>
+  <material_amount>1</material_amount>
+  <material_type>29</material_type>
+</row>
+<row>
+  <id>46</id>
+  <item_type>Blood</item_type>
+  <name>Bristlespine Blood</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Butcher</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>45</material_type>
+</row>
+<row>
+  <id>47</id>
+  <item_type>Bone</item_type>
+  <name>Bristlespine Bone</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>45</material_type>
+</row>
+<row>
+  <id>48</id>
+  <item_type>Hide</item_type>
+  <name>Bristlespine Hide</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>45</material_type>
+</row>
+<row>
+  <id>49</id>
+  <item_type>Meat</item_type>
+  <name>Bristlespine Pork</name>
+  <production_cost>100</production_cost>
+  <batch_amount>4</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>45</material_type>
+</row>
+<row>
+  <id>50</id>
+  <item_type>Animal</item_type>
+  <name>Butchered Wirecoat Goat</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Butcher</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>51;52;53;54</produces>
+  <material_amount>1</material_amount>
+  <material_type>27</material_type>
+</row>
+<row>
+  <id>51</id>
+  <item_type>Blood</item_type>
+  <name>Wirecoat Blood</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Butcher</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>50</material_type>
+</row>
+<row>
+  <id>52</id>
+  <item_type>Bone</item_type>
+  <name>Wirecoat Bone</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Butcher</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>50</material_type>
+</row>
+<row>
+  <id>53</id>
+  <item_type>Meat</item_type>
+  <name>Wirecoat Mutton</name>
+  <production_cost>100</production_cost>
+  <batch_amount>2</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>50</material_type>
+</row>
+<row>
+  <id>54</id>
+  <item_type>Fiber</item_type>
+  <name>Wirecoat Wool</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>50</material_type>
+</row>
+<row>
+  <id>55</id>
+  <item_type>Ore Ingot</item_type>
+  <name>Flowstate Ingot</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Foundry</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>37</material_type>
+</row>
+<row>
+  <id>56</id>
+  <item_type>Ore Dust</item_type>
+  <name>Flowstate Dust</name>
+  <production_cost>100</production_cost>
+  <batch_amount>10</batch_amount>
+  <buildin_req>Foundry</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>37</material_type>
+</row>
+<row>
+  <id>57</id>
+  <item_type>Stone Shard</item_type>
+  <name>Lumenite Shards</name>
+  <production_cost>100</production_cost>
+  <batch_amount>20</batch_amount>
+  <buildin_req>Mason</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>41</material_type>
+</row>
+<row>
+  <id>58</id>
+  <item_type>Stone Shard</item_type>
+  <name>Tannhauser Shards</name>
+  <production_cost>100</production_cost>
+  <batch_amount>20</batch_amount>
+  <buildin_req>Mason</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>26</material_type>
+</row>
+<row>
+  <id>59</id>
+  <item_type>Food</item_type>
+  <name>Fletcher&apos;s Flour</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Mill</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>22</material_type>
+</row>
+<row>
+  <id>60</id>
+  <item_type>Leather</item_type>
+  <name>Bristlespine Leather</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Tanner</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>48</material_type>
+</row>
+<row>
+  <id>61</id>
+  <item_type>Cloth</item_type>
+  <name>Chisotan Cloth</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Weaver</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>32</material_type>
+</row>
+<row>
+  <id>62</id>
+  <item_type>Cloth</item_type>
+  <name>Wirecoat Cloth</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Weaver</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>54</material_type>
+</row>
+<row>
+  <id>63</id>
+  <item_type>Gem Dust</item_type>
+  <name>Spiralstone Dust</name>
+  <production_cost>100</production_cost>
+  <batch_amount>10</batch_amount>
+  <buildin_req>Jeweler</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>44</material_type>
+</row>
+<row>
+  <id>64</id>
+  <item_type>Citizen</item_type>
+  <name>Human</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>65</id>
+  <item_type>Citizen</item_type>
+  <name>Sacrificed Human</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Temple</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>66;67</produces>
+  <material_amount>1</material_amount>
+  <material_type>64</material_type>
+</row>
+<row>
+  <id>66</id>
+  <item_type>Blood</item_type>
+  <name>Human Blood</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>65</material_type>
+</row>
+<row>
+  <id>67</id>
+  <item_type>Bone</item_type>
+  <name>Human Bone</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>65</material_type>
+</row>
+<row>
+  <id>68</id>
+  <item_type>Citizen</item_type>
+  <name>Elf</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>69</id>
+  <item_type>Citizen</item_type>
+  <name>Sacrificed Elf</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Temple</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>70;71</produces>
+  <material_amount>1</material_amount>
+  <material_type>68</material_type>
+</row>
+<row>
+  <id>70</id>
+  <item_type>Blood</item_type>
+  <name>Elf Blood</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>69</material_type>
+</row>
+<row>
+  <id>71</id>
+  <item_type>Bone</item_type>
+  <name>Elf Bone</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>69</material_type>
+</row>
+<row>
+  <id>72</id>
+  <item_type>Citizen</item_type>
+  <name>Goblin</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>73</id>
+  <item_type>Citizen</item_type>
+  <name>Sacrificed Goblin</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Temple</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>74;75</produces>
+  <material_amount>1</material_amount>
+  <material_type>72</material_type>
+</row>
+<row>
+  <id>74</id>
+  <item_type>Blood</item_type>
+  <name>Goblin Blood</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>73</material_type>
+</row>
+<row>
+  <id>75</id>
+  <item_type>Bone</item_type>
+  <name>Goblin Bone</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>73</material_type>
+</row>
+<row>
+  <id>76</id>
+  <item_type>Citizen</item_type>
+  <name>Dwarf</name>
+  <production_cost>0</production_cost>
+  <batch_amount>0</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>0</material_amount>
+  <material_type>None</material_type>
+</row>
+<row>
+  <id>77</id>
+  <item_type>Citizen</item_type>
+  <name>Sacrificed Dwarf</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>Temple</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>78;79</produces>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>78</id>
+  <item_type>Blood</item_type>
+  <name>Dwarf Blood</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>77</material_type>
+</row>
+<row>
+  <id>79</id>
+  <item_type>Bone</item_type>
+  <name>Dwarf Bone</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>77</material_type>
+</row>
+<row>
+  <id>80</id>
+  <item_type>Blood</item_type>
+  <name>Kingsblood</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>54;57;60;63</material_type>
+</row>
+<row>
+  <id>81</id>
+  <item_type>Bone</item_type>
+  <name>Bone of Heroes</name>
+  <production_cost>100</production_cost>
+  <batch_amount>1</batch_amount>
+  <buildin_req>None</buildin_req>
+  <improvement_req>None</improvement_req>
+  <produces>None</produces>
+  <material_amount>1</material_amount>
+  <material_type>54;57;60;63</material_type>
+</row>
+</items>
