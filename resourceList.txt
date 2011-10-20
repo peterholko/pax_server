@@ -1,1 +1,10 @@
-resourceA.bin
+bristlespine.bin
+chisotan.bin
+cragroot.bin
+fletcher.bin
+flowstate.bin
+husk.bin
+lumenite.bin
+spiralstone.bin
+tannhauser.bin
+wirecoat.bin

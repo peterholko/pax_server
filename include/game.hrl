@@ -11,7 +11,8 @@
                     cities = [],
                     npcs = [],
                     battles = [],
-                    objects = [],
+                    improvements = [],
+                    map_objects = [],
                     events = [],
 					update_perceptions
                     }).

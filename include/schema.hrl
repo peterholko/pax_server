@@ -74,6 +74,12 @@
                  x,
                  y}).
 
+-record(map_object, {id,
+                     type,
+                     observed_by = [], 
+                     x,
+                     y}).
+                     
 -record(improvement, {id,
                       tile_index,
                       player_id,
@@ -194,14 +200,13 @@
 -record(population_type, {id,
                           name}).
 
--record(resource_type, {id,
-                        tile_max,
-                        name}).
-
 -record(improvement_type, {id,
                            name,
                            total_hp,
                            production_cost}).
+
+-record(resource_type, {id, 
+                        name}).
 
 -record(building_type, {id,
                         name,
@@ -210,9 +215,15 @@
                         gold_cost}).
 
 -record(item_type, {id,
+                    type,
                     name,
                     production_cost,
-                    structure_req = {}}).
+                    batch_amount,
+                    building_req,
+                    improvement_req,
+                    produces = [],
+                    material_amount = [],
+                    material_type = []}).
 
 
 

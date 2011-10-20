@@ -186,7 +186,7 @@ load_resources(ResourceListFileRef, Time, _, TileIndex) ->
                 {ok, ResourceFileRef} ->
                     [FileName] = ResourceFileName,
                     [ResourceName, _Ext] = re:split(FileName, "[.]", [{return, list}, trim]),
-                    case db:dirty_match_object({resource_type, '_', '_', list_to_binary(ResourceName), '_'}) of
+                    case db:dirty_match_object({resource_type, '_', ResourceName}) of
                         [ResourceType] ->
                             load_resource_regen(ResourceFileRef, 
                                                 ResourceType#resource_type.id, 

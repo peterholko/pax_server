@@ -275,13 +275,13 @@ handle_call({'QUEUE_ITEM', SourceId, SourceType, ItemType, ItemSize}, _From, Dat
         ?OBJECT_IMPROVEMENT ->
             case improvement:is_available(SourceId) of
                 {true, Improvement} ->
-                    case item:check_type(ItemType) of
+                    case item:check_req(Improvement#improvement.type, ?OBJECT_IMPROVEMENT, ItemType) of
                         true -> 
                             item:add_to_queue(City#city.player_id,
                                               City#city.id,
                                               ?CONTRACT_HARVEST,
                                               {SourceId, ?OBJECT_IMPROVEMENT},
-                                              -1,
+                                              ItemType,
                                               ItemSize),
                             Result = {city, queued_harvest};
                         false ->
@@ -293,7 +293,7 @@ handle_call({'QUEUE_ITEM', SourceId, SourceType, ItemType, ItemSize}, _From, Dat
         ?OBJECT_BUILDING ->
             case building:is_available(SourceId) of
                 {true, Building} ->
-                    case item:check_type(ItemType) of
+                    case item:check_req(Building#building.type, ?OBJECT_BUILDING, ItemType) of
                         true ->
                             item:add_to_queue(City#city.player_id,
                                               City#city.id,

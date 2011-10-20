@@ -105,9 +105,10 @@
 -record(battle_info, {battle_id,
                       armies}).
 
--define (CMD_BATTLE_ADD_ARMY, 71).
--record(battle_add_army, {battle_id,
-                          army}).
+-define (CMD_BATTLE_EVENT, 71).
+-record(battle_event, {battle_event,
+                       battle_id,
+                       army}).
 
 -define (CMD_BATTLE_REMOVE_ARMY, 72).
 -record(battle_remove_army, {battle_id, 
@@ -154,6 +155,8 @@
 
 -define(CMD_CITY_QUEUE_ITEM, 103).
 -record(city_queue_item, {city_id,
+                          source_id,
+                          source_type,
                           item_type,
                           item_size}).
 

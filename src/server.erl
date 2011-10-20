@@ -56,6 +56,9 @@ init() ->
     ok = db:start(),
     db:reset_tables(),
     db:reset_game_tables(),
+
+    % Load game data
+    data:load(),
     
     % Load map data
     log4erl:info("Loading map data..."), 

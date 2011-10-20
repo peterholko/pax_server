@@ -185,27 +185,21 @@ game_tables() ->
      {building_type, 1, "Barracks", 100, 100, 1},
      {building_type, 2, "Market", 100, 200, 1},
      {building_type, 3, "Temple", 100, 150, 1},
-     {item_type, 19, "Bristlespine Pig", 100, -1, 2, []},
-     {item_type, 20, "Chistoan Tuber", 100, -1, 1, []},
-     {item_type, 21, "Chistoan Leaf", 100, -1, 1, []},
-     {item_type, 22, "Cragroot Lumber", 100, -1, 3, []},
-     {item_type, 23, "Cragroot Sap", 100, -1, 3, []},
-     {item_type, 24, "Fletcher's Grain", 100, -1, 1, []},
      {improvement_type, 1, "Farm", 100, 100},
      {improvement_type, 2, "Trapper", 100, 100},
      {improvement_type, 3, "Lumbermill", 100, 100},
      {improvement_type, 4, "Mine", 100, 100},
      {improvement_type, 5, "Quarry", 100, 100},
-     {resource_type, 1, "bristlespine"},
-     {resource_type, 2, "chisotan"},
-     {resource_type, 3, "cragroot"},
-     {resource_type, 4, "fletcher"},
-     {resource_type, 5, "flowstate"},
-     {resource_type, 6, "husk"},
-     {resource_type, 7, "lumenite"},
-     {resource_type, 8, "spiralstone"},
-     {resource_type, 9, "tannhauser"},
-     {resource_type, 10, "wirecoat"}].
+     {resource_type, 19, "bristlespine"},
+     {resource_type, 20, "chisotan"},
+     {resource_type, 21, "cragroot"},
+     {resource_type, 22, "fletcher"},
+     {resource_type, 23, "flowstate"},
+     {resource_type, 24, "husk"},
+     {resource_type, 25, "lumenite"},
+     {resource_type, 26, "spiralstone"},
+     {resource_type, 27, "tannhauser"},
+     {resource_type, 28, "wirecoat"}].
 
 reset_game_tables() ->
     F = fun() ->
@@ -259,11 +253,7 @@ test_tables() ->
      {population, {11, 3, 3}, 11, 3, 3, 3000},
      {population, {11, 0, 1}, 11, 0, 1, 100},
      {population, {11, 0, 2}, 11, 0, 2, 200},
-     {transport, 1, 1, gb_sets:new()},
-     {item, 1, {11, 1}, 1, 1230000},
-     {item_type_ref, {11, 1, 0}, 1},
-     {item, 2, {11, 1}, 1, 500},
-     {item_type_ref, {11, 1, 0}, 2} 
+     {transport, 1, 1, gb_sets:new()}
     ].
 
 reset_tables() ->

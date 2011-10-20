@@ -39,7 +39,6 @@
 -define(EVENT_CLAIM, 21).
 -define(EVENT_IMPROVEMENT_COMPLETED, 30).
 
-
 -define(GAME_LOOP_TICK, 200).
 -define(GAME_VISION_RANGE, 50).
 -define(GAME_NUM_HOURS_PER_DAY, 6).
@@ -114,7 +113,12 @@
 -define(CONTRACT_ITEM, 3).
 -define(CONTRACT_HARVEST, 4).
 
+-define(BATTLE_ADD_ARMY, 0).
+-define(BATTLE_REMOVE_ARMY, 1).
+-define(BATTLE_RETREAT, 2).
+-define(BATTLE_MOVE, 3).
+
 -define(INFO(MSG), log4erl:info("{~w} ~s", [?MODULE, MSG])).
 -define(INFO(MSG, DATA), log4erl:info("{~w} ~s: ~w", [?MODULE, MSG, DATA])).
--define(ERROR(MSG), log4erl:error("{~w:~w} ~s", [?MODULE, ?LINE, MSG)).
+-define(ERROR(MSG), log4erl:error("{~w:~w} ~s", [?MODULE, ?LINE, MSG])).
 -define(ERROR(MSG, DATA), log4erl:error("{~w:~w} ~s", [?MODULE, ?LINE, MSG, DATA])).

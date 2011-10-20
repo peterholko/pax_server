@@ -20,8 +20,7 @@
          is_valid/2,
          check_type/1,
          get_building/2,
-         is_available/1,
-         find_available/2]).
+         is_available/1]).
 
 %%
 %% API Functions
@@ -108,29 +107,29 @@ is_available(BuildingId) ->
     end,
     IsAvailable.
 
-find_available(CityId, ItemTypeId) ->
-    ItemType = db:dirty_read(item_type, ItemTypeId),
-    {BuildingTypeId, _ObjectType}  = ItemType#item_type.structure_req,
-    Buildings = db:dirty_index_read(building, CityId, #building.city_id),
+%find_available(CityId, ItemTypeId) ->
+%    ItemType = db:dirty_read(item_type, ItemTypeId),
+%    {BuildingTypeId, _ObjectType}  = ItemType#item_type.structure_req,
+%    Buildings = db:dirty_index_read(building, CityId, #building.city_id),
+%
+%    check_available(Buildings, BuildingTypeId, none).
 
-    check_available(Buildings, BuildingTypeId, none).
+%check_available([], _BuildingTypeId, none) ->
+%    none;
 
-check_available([], _BuildingTypeId, none) ->
-    none;
+%check_available(_Buildings, _BuildingTypeId, {found, Building}) ->
+%    {found, Building};
 
-check_available(_Buildings, _BuildingTypeId, {found, Building}) ->
-    {found, Building};
+%check_available([Building | Rest], BuildingTypeId, Status) ->
+%    MatchType = Building#building.type =:= BuildingTypeId,
+%    ContractExists = contract:exists(Building#building.city_id,
+%                                     Building#building.id,
+%                                     ?CONTRACT_ITEM),
+%    case MatchType and not ContractExists of
+%        true ->
+%            NewStatus = {found, Building};
+%        false ->
+%            NewStatus = Status
+%    end,
 
-check_available([Building | Rest], BuildingTypeId, Status) ->
-    MatchType = Building#building.type =:= BuildingTypeId,
-    ContractExists = contract:exists(Building#building.city_id,
-                                     Building#building.id,
-                                     ?CONTRACT_ITEM),
-    case MatchType and not ContractExists of
-        true ->
-            NewStatus = {found, Building};
-        false ->
-            NewStatus = Status
-    end,
-
-    check_available(Rest, BuildingTypeId, NewStatus).
+%    check_available(Rest, BuildingTypeId, NewStatus).

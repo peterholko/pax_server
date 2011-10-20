@@ -18,7 +18,7 @@
 -export([create/4, delete/1, set/2, transfer/3, get_by_type/3]).
 -export([add/2, remove/2]).
 -export([tuple_form/1, add_to_queue/6]).
--export([check_type/1, check_building_req/2, check_improvement_req/2]).
+-export([check_type/1, check_req/3]).
 -record(module_data, {}).
 %% ====================================================================
 %% External functions
@@ -75,16 +75,16 @@ check_type(ItemTypeId) ->
     end,
     Result.
 
-check_improvement_req(ImprovementType, ItemTypeId) ->
+check_req(ImprovementType, ?OBJECT_IMPROVEMENT, ItemTypeId) ->
     case db:dirty_read(item_type, ItemTypeId) of
         [ItemType] ->
             Result = ImprovementType =:= ItemType#item_type.improvement_req;
         _ ->
             Result = false
     end,
-    Result.
+    Result;
 
-check_building_req(BuildingType, ItemTypeId) ->
+check_req(BuildingType, ?OBJECT_BUILDING, ItemTypeId) ->
     case db:dirty_read(item_type, ItemTypeId) of
         [ItemType] ->
             Result = BuildingType =:= ItemType#item_type.building_req;
