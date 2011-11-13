@@ -71,6 +71,7 @@ create_schema() ->
     {atomic, ok} = mnesia:create_table(population_type, [{disc_copies, [node()]}, {attributes, record_info(fields, population_type)}]),
     {atomic, ok} = mnesia:create_table(improvement_type, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement_type)}]), 
     {atomic, ok} = mnesia:create_table(item_type, [{disc_copies, [node()]}, {attributes, record_info(fields, item_type)}]),
+    {atomic, ok} = mnesia:create_table(item_category, [{disc_copies, [node()]}, {attributes, record_info(fields, item_category)}]),
 
     {atomic, ok} = mnesia:create_table(item_type_ref, [{disc_copies,  [node()]}, {type, bag}, {attributes, record_info(fields, item_type_ref)}]),    
     {atomic, ok} = mnesia:create_table(player_type, [{disc_copies, [node()]}, {attributes, record_info(fields, player_type)}]),    

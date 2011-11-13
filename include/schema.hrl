@@ -225,9 +225,8 @@
                     material_amount = [],
                     material_type = []}).
 
-
-
-
-
+-record(item_category, {id, 
+                        name,
+                        contains}).
 
 

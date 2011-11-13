@@ -121,4 +121,4 @@
 -define(INFO(MSG), log4erl:info("{~w} ~s", [?MODULE, MSG])).
 -define(INFO(MSG, DATA), log4erl:info("{~w} ~s: ~w", [?MODULE, MSG, DATA])).
 -define(ERROR(MSG), log4erl:error("{~w:~w} ~s", [?MODULE, ?LINE, MSG])).
--define(ERROR(MSG, DATA), log4erl:error("{~w:~w} ~s", [?MODULE, ?LINE, MSG, DATA])).
+-define(ERROR(MSG, DATA), log4erl:error("{~w:~w} ~s: ~w", [?MODULE, ?LINE, MSG, DATA])).
