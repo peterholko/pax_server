@@ -119,9 +119,8 @@ handle_call({'GET_TILE_TYPE', TileIndex}, _From, Data) ->
 
 handle_call({'HARVEST_RESOURCE', TileIndex, ResourceType, Amount}, _From, Data) ->
     [Tile] = db:dirty_read(tile, TileIndex), 
-    Resources = Tile#tile.resources,
-    log4erl:info("{~w} - Resources: ~w~n", [?MODULE, Resources]),
-    case lists:keyfind(ResourceType, 2, Resources) of
+    ?INFO("Resources: ", Tile#tile.resources),
+    case lists:keyfind(ResourceType, #tile.resources, Tile#tile.resources) of
         false ->
             HarvestAmount = 0,
             log4erl:error("{~w}: Could not find resource type ~w", [?MODULE, ResourceType]),

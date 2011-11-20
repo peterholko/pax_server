@@ -69,7 +69,7 @@
 -define(PLAYER_GM, 2).
 
 -define(CLAIM_TICK, 300).
--define(GROWTH_TICK, 500).
+-define(GROWTH_TICK, 500000).
 
 -define(CASTE_SLAVE, 0).
 -define(CASTE_SOLDIER, 1).

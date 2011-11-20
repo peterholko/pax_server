@@ -190,18 +190,7 @@ game_tables() ->
      {improvement_type, 2, "Trapper", 100, 100},
      {improvement_type, 3, "Lumbermill", 100, 100},
      {improvement_type, 4, "Mine", 100, 100},
-     {improvement_type, 5, "Quarry", 100, 100},
-     {resource_type, 19, "bristlespine"},
-     {resource_type, 20, "chisotan"},
-     {resource_type, 21, "cragroot"},
-     {resource_type, 22, "fletcher"},
-     {resource_type, 23, "flowstate"},
-     {resource_type, 24, "husk"},
-     {resource_type, 25, "lumenite"},
-     {resource_type, 26, "spiralstone"},
-     {resource_type, 27, "tannhauser"},
-     {resource_type, 28, "wirecoat"}].
-
+     {improvement_type, 5, "Quarry", 100, 100}].
 reset_game_tables() ->
     F = fun() ->
                 foreach(fun mnesia:write/1, game_tables())

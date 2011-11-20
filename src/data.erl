@@ -8,9 +8,11 @@
 load() ->
     {ItemType, _} = xmerl_scan:file("item_type.xml"),
     {ItemCategory, _} = xmerl_scan:file("item_category.xml"),
+    {ResourceType, _} = xmerl_scan:file("resource_type.xml"),
 
     extract_item_type(ItemType, []),
-    extract_item_category(ItemCategory, []).
+    extract_item_category(ItemCategory, []),
+    extract_resource_type(ResourceType, []).
 
 extract_item_type(R, List) when is_record(R, xmlElement) ->
     case R#xmlElement.name of
@@ -66,6 +68,24 @@ extract_item_category(#xmlText{parents=[{contains, _}, {row, _}, _], value=V}, L
 extract_item_category(_XMLTEXT, L) ->
     L.
 
+extract_resource_type(R, List) when is_record(R, xmlElement) ->
+    case R#xmlElement.name of
+        row ->
+            DataList = lists:reverse(lists:foldl(fun extract_resource_type/2, [], R#xmlElement.content)),
+            RecordDataList = [ resource_type | DataList], 
+            RecordData = list_to_tuple(RecordDataList),
+            db:write(RecordData);
+        _ ->
+            lists:foldl(fun extract_resource_type/2, List, R#xmlElement.content)
+    end;
+
+
+extract_resource_type(#xmlText{parents=[{id,_}, {row, _}, _], value=V}, L) ->
+    [ convert_to_int(V) | L];
+extract_resource_type(#xmlText{parents=[{name,_}, {row, _}, _], value=V}, L) ->
+    [ V | L];
+extract_resource_type(_XMLTEXT, L) ->
+    L.
 
 
 convert_to_int("None") ->
