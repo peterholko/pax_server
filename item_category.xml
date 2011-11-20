@@ -1,0 +1,387 @@
+<item_category>
+<row>
+  <item_category_id>1</item_category_id>
+  <name>Animal</name>
+  <contains>1029; 1043</contains>
+</row>
+<row>
+  <item_category_id>2</item_category_id>
+  <name>Blood</name>
+  <contains>1046; 1051; 1066; 1069; 1073; 1077; 1080</contains>
+</row>
+<row>
+  <item_category_id>3</item_category_id>
+  <name>Bone</name>
+  <contains>1047; 1052; 1067; 1071; 1075; 1079; 1081</contains>
+</row>
+<row>
+  <item_category_id>4</item_category_id>
+  <name>Citizen</name>
+  <contains>1064; 1068; 1072; 1076</contains>
+</row>
+<row>
+  <item_category_id>5</item_category_id>
+  <name>Cloth</name>
+  <contains>1061; 1062; 299</contains>
+</row>
+<row>
+  <item_category_id>6</item_category_id>
+  <name>Fiber</name>
+  <contains>1054</contains>
+</row>
+<row>
+  <item_category_id>7</item_category_id>
+  <name>Gem Dust</name>
+  <contains>1063</contains>
+</row>
+<row>
+  <item_category_id>8</item_category_id>
+  <name>Gem Stone</name>
+  <contains>1044</contains>
+</row>
+<row>
+  <item_category_id>9</item_category_id>
+  <name>Grain</name>
+  <contains>1036; 1039</contains>
+</row>
+<row>
+  <item_category_id>10</item_category_id>
+  <name>Hide</name>
+  <contains>1048</contains>
+</row>
+<row>
+  <item_category_id>11</item_category_id>
+  <name>Leather</name>
+  <contains>1060</contains>
+</row>
+<row>
+  <item_category_id>12</item_category_id>
+  <name>Mana</name>
+  <contains>1001; 1002; 1003; 1004; 1005; 1006; 1007; 1008; 1009; 1010; 1011; 1012; 1013; 1014; 1015; 1016; 1017; 1018</contains>
+</row>
+<row>
+  <item_category_id>13</item_category_id>
+  <name>Meat</name>
+  <contains>1049; 1053</contains>
+</row>
+<row>
+  <item_category_id>14</item_category_id>
+  <name>Ore</name>
+  <contains>1037</contains>
+</row>
+<row>
+  <item_category_id>15</item_category_id>
+  <name>Ore Dust</name>
+  <contains>1056</contains>
+</row>
+<row>
+  <item_category_id>16</item_category_id>
+  <name>Ore Ingot</name>
+  <contains>1055</contains>
+</row>
+<row>
+  <item_category_id>17</item_category_id>
+  <name>Plant</name>
+  <contains>1032; 1035; 1040</contains>
+</row>
+<row>
+  <item_category_id>18</item_category_id>
+  <name>Stone Block</name>
+  <contains>1041; 1042</contains>
+</row>
+<row>
+  <item_category_id>19</item_category_id>
+  <name>Stone Shard</name>
+  <contains>1057; 1058</contains>
+</row>
+<row>
+  <item_category_id>20</item_category_id>
+  <name>Vegetable</name>
+  <contains>1031</contains>
+</row>
+<row>
+  <item_category_id>21</item_category_id>
+  <name>Airship Engine</name>
+  <contains>343; 403</contains>
+</row>
+<row>
+  <item_category_id>22</item_category_id>
+  <name>Airship Gear</name>
+  <contains>256</contains>
+</row>
+<row>
+  <item_category_id>23</item_category_id>
+  <name>Airship Hold</name>
+  <contains>273; 295; 312;  432</contains>
+</row>
+<row>
+  <item_category_id>24</item_category_id>
+  <name>Alchemical</name>
+  <contains>377; 378; 379; 380; 382; 416; 423; 424; 425 </contains>
+</row>
+<row>
+  <item_category_id>25</item_category_id>
+  <name>Ammo</name>
+  <contains>258; 271; 291; 305; 385 </contains>
+</row>
+<row>
+  <item_category_id>26</item_category_id>
+  <name>Arquebus Barrel</name>
+  <contains>257</contains>
+</row>
+<row>
+  <item_category_id>27</item_category_id>
+  <name>Arrow Head</name>
+  <contains>357; 414</contains>
+</row>
+<row>
+  <item_category_id>28</item_category_id>
+  <name>Arrow Shaft</name>
+  <contains>445</contains>
+</row>
+<row>
+  <item_category_id>29</item_category_id>
+  <name>Auxiliary Gear</name>
+  <contains>283; 285; 302; 303; 316; 320; 322; 340; 341; 342; 344; 354; 362; 364; 367; 376; 392; 393; 394; 430; 441; 443 </contains>
+</row>
+<row>
+  <item_category_id>30</item_category_id>
+  <name>Axe Head</name>
+  <contains>358; 415</contains>
+</row>
+<row>
+  <item_category_id>31</item_category_id>
+  <name>Ballista Bolt Head</name>
+  <contains>359</contains>
+</row>
+<row>
+  <item_category_id>32</item_category_id>
+  <name>Battle Axe Head</name>
+  <contains>360; 417</contains>
+</row>
+<row>
+  <item_category_id>33</item_category_id>
+  <name>Boiler</name>
+  <contains>270</contains>
+</row>
+<row>
+  <item_category_id>34</item_category_id>
+  <name>Bolt Head</name>
+  <contains>361</contains>
+</row>
+<row>
+  <item_category_id>35</item_category_id>
+  <name>Bolt Shaft</name>
+  <contains>446</contains>
+</row>
+<row>
+  <item_category_id>36</item_category_id>
+  <name>Bomb</name>
+  <contains>333; 336; 351; 352; 407; 408</contains>
+</row>
+<row>
+  <item_category_id>37</item_category_id>
+  <name>Chroma Cloth</name>
+  <contains>299</contains>
+</row>
+<row>
+  <item_category_id>38</item_category_id>
+  <name>Chroma Core</name>
+  <contains>300</contains>
+</row>
+<row>
+  <item_category_id>39</item_category_id>
+  <name>Chroma Thread</name>
+  <contains>301</contains>
+</row>
+<row>
+  <item_category_id>40</item_category_id>
+  <name>Crafts</name>
+  <contains>276; 418; 449</contains>
+</row>
+<row>
+  <item_category_id>41</item_category_id>
+  <name>Explosive</name>
+  <contains>325; 348; 355</contains>
+</row>
+<row>
+  <item_category_id>42</item_category_id>
+  <name>Food</name>
+  <contains>264; 265; 290; 292; 307; 327; 387; 396; 398; 410; 412; 413; 429; 444 </contains>
+</row>
+<row>
+  <item_category_id>43</item_category_id>
+  <name>Furnace</name>
+  <contains>309</contains>
+</row>
+<row>
+  <item_category_id>44</item_category_id>
+  <name>Great Sword Blade</name>
+  <contains>365</contains>
+</row>
+<row>
+  <item_category_id>45</item_category_id>
+  <name>Grenado Casing</name>
+  <contains>311</contains>
+</row>
+<row>
+  <item_category_id>46</item_category_id>
+  <name>Haft</name>
+  <contains>379; 450</contains>
+</row>
+<row>
+  <item_category_id>47</item_category_id>
+  <name>Hammer</name>
+  <contains>366; 421; 451</contains>
+</row>
+<row>
+  <item_category_id>48</item_category_id>
+  <name>Hand Axe Head</name>
+  <contains>420</contains>
+</row>
+<row>
+  <item_category_id>49</item_category_id>
+  <name>Heavy Armor</name>
+  <contains>281; 308; 314; 345</contains>
+</row>
+<row>
+  <item_category_id>50</item_category_id>
+  <name>Herbal</name>
+  <contains>266; 267; 268; 269; 276; 277; 286; 287; 383</contains>
+</row>
+<row>
+  <item_category_id>51</item_category_id>
+  <name>Hilt</name>
+  <contains>280; 453</contains>
+</row>
+<row>
+  <item_category_id>52</item_category_id>
+  <name>Large Bomb Casing</name>
+  <contains>329</contains>
+</row>
+<row>
+  <item_category_id>53</item_category_id>
+  <name>Light Amor</name>
+  <contains>323; 388</contains>
+</row>
+<row>
+  <item_category_id>54</item_category_id>
+  <name>Long Sword Blade</name>
+  <contains>368</contains>
+</row>
+<row>
+  <item_category_id>55</item_category_id>
+  <name>Medium Armor</name>
+  <contains> 274; 298; 339; 389; 397; 411; 428</contains>
+</row>
+<row>
+  <item_category_id>56</item_category_id>
+  <name>Medium Bomb Casing</name>
+  <contains>353</contains>
+</row>
+<row>
+  <item_category_id>57</item_category_id>
+  <name>Melee Weapon (1H)</name>
+  <contains>259; 275; 315; 346; 350; 401; 448</contains>
+</row>
+<row>
+  <item_category_id>58</item_category_id>
+  <name>Melee Weapon (2H)</name>
+  <contains>263; 282; 310; 381; 404; 409; 442; 452</contains>
+</row>
+<row>
+  <item_category_id>59</item_category_id>
+  <name>Musket Barrel</name>
+  <contains>375</contains>
+</row>
+<row>
+  <item_category_id>60</item_category_id>
+  <name>Off-hand</name>
+  <contains>447; 456; 363; 369</contains>
+</row>
+<row>
+  <item_category_id>61</item_category_id>
+  <name>Off-hand (2H)</name>
+  <contains>372; 458</contains>
+</row>
+<row>
+  <item_category_id>62</item_category_id>
+  <name>Piston</name>
+  <contains>384</contains>
+</row>
+<row>
+  <item_category_id>63</item_category_id>
+  <name>Ranged Weapon (1H)</name>
+  <contains>284; 304; 306; 386; 454</contains>
+</row>
+<row>
+  <item_category_id>64</item_category_id>
+  <name>Ranged Weapon (2H)</name>
+  <contains>256; 289; 321; 346; 373; 374; 390</contains>
+</row>
+<row>
+  <item_category_id>65</item_category_id>
+  <name>Rifle Barrel</name>
+  <contains>391</contains>
+</row>
+<row>
+  <item_category_id>66</item_category_id>
+  <name>Shaft</name>
+  <contains>455; 459</contains>
+</row>
+<row>
+  <item_category_id>67</item_category_id>
+  <name>Ship Engine</name>
+  <contains>400; 395; 460</contains>
+</row>
+<row>
+  <item_category_id>68</item_category_id>
+  <name>Ship Gear</name>
+  <contains>399</contains>
+</row>
+<row>
+  <item_category_id>69</item_category_id>
+  <name>Ship Hold</name>
+  <contains>296; 313</contains>
+</row>
+<row>
+  <item_category_id>70</item_category_id>
+  <name>Short Sword Blade</name>
+  <contains>370; 426</contains>
+</row>
+<row>
+  <item_category_id>71</item_category_id>
+  <name>Siege Ammo</name>
+  <contains>261; 294; 1; 4; 18</contains>
+</row>
+<row>
+  <item_category_id>72</item_category_id>
+  <name>Siege Weapon</name>
+  <contains>260; 262; 273; 293; 297; 317; 318; 319; 328; 402; 406; 431</contains>
+</row>
+<row>
+  <item_category_id>73</item_category_id>
+  <name>Small Bomb Casing</name>
+  <contains>405</contains>
+</row>
+<row>
+  <item_category_id>74</item_category_id>
+  <name>Spear Head</name>
+  <contains>371; 427</contains>
+</row>
+<row>
+  <item_category_id>75</item_category_id>
+  <name>Stock</name>
+  <contains>288; 457</contains>
+</row>
+<row>
+  <item_category_id>76</item_category_id>
+  <name>Lumber</name>
+  <contains>1034</contains>
+</row>
+<row>
+  <item_category_id>77</item_category_id>
+  <name>Poison</name>
+  <contains>326; 349; 356</contains>
+</row>
+</item_category>
