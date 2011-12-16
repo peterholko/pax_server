@@ -743,5 +743,6 @@ populations_tuple(Populations) ->
     lists:foldl(F, [], Populations).
 
 save_city(City) ->
+	
     db:dirty_write(City).
 

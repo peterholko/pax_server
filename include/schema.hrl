@@ -203,7 +203,10 @@
 -record(improvement_type, {id,
                            name,
                            total_hp,
-                           production_cost}).
+                           production_cost,
+			   gold_cost,
+			   lumber_cost,
+			   stone_cost}).
 
 -record(resource_type, {id, 
                         name}).

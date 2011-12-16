@@ -9,10 +9,12 @@ load() ->
     {ItemType, _} = xmerl_scan:file("item_type.xml"),
     {ItemCategory, _} = xmerl_scan:file("item_category.xml"),
     {ResourceType, _} = xmerl_scan:file("resource_type.xml"),
+    {ImprovementType, _} = xmerl_scan:file("improvement_type.xml"),
 
     extract_item_type(ItemType, []),
     extract_item_category(ItemCategory, []),
-    extract_resource_type(ResourceType, []).
+    extract_resource_type(ResourceType, []),
+    extract_improvement_type(ImprovementType, []).
 
 extract_item_type(R, List) when is_record(R, xmlElement) ->
     case R#xmlElement.name of
@@ -87,6 +89,33 @@ extract_resource_type(#xmlText{parents=[{name,_}, {row, _}, _], value=V}, L) ->
 extract_resource_type(_XMLTEXT, L) ->
     L.
 
+extract_improvement_type(R, List) when is_record(R, xmlElement) ->
+    case R#xmlElement.name of
+        row ->
+            DataList = lists:reverse(lists:foldl(fun extract_improvement_type/2, [], R#xmlElement.content)),
+            RecordDataList = [ improvement_type | DataList], 
+            RecordData = list_to_tuple(RecordDataList),
+            db:write(RecordData);
+        _ ->
+            lists:foldl(fun extract_improvement_type/2, List, R#xmlElement.content)
+    end;
+
+extract_improvement_type(#xmlText{parents=[{'Id',_}, {row, _}, _], value=V}, L) ->
+    [ convert_to_int(V) | L];
+extract_improvement_type(#xmlText{parents=[{'Name',_}, {row, _}, _], value=V}, L) ->
+    [ V | L];
+extract_improvement_type(#xmlText{parents=[{'Total_Hp',_}, {row, _}, _], value=V}, L) ->
+    [ convert_to_int(V) | L];
+extract_improvement_type(#xmlText{parents=[{'Production_Cost',_}, {row, _}, _], value=V}, L) ->
+    [ convert_to_int(V) | L];
+extract_improvement_type(#xmlText{parents=[{'Gold_Cost',_}, {row, _}, _], value=V}, L) ->
+    [ convert_to_int(V) | L];
+extract_improvement_type(#xmlText{parents=[{'Lumber_Cost',_}, {row, _}, _], value=V}, L) ->
+    [ convert_to_int(V) | L];
+extract_improvement_type(#xmlText{parents=[{'Stone_Cost',_}, {row, _}, _], value=V}, L) ->
+    [ convert_to_int(V) | L];
+extract_improvement_type(_XMLTEXT, L) ->
+    L.
 
 convert_to_int("None") ->
     -1;

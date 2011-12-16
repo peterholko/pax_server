@@ -58,24 +58,35 @@ check_contracts([]) ->
 check_contracts([Contract | Rest]) ->
     log4erl:info("{~w} Checking contract: ~w", [?MODULE, Contract]),
     Assignments = db:dirty_index_read(assignment, Contract#contract.target_ref, #assignment.target_ref),
-    process_assignments(Contract, Assignments, incomplete),
+
+    CurrentTime = util:get_time_seconds(),
+    LastUpdateTime = Contract#contract.last_update,
+    NumGameDays = util:diff_game_days(LastUpdateTime, CurrentTime),
+
+    case process_assignments(Contract, Assignments, NumGameDays, incomplete) of
+        {NewContract, complete} ->
+	    db:dirty_delete(contract, NewContract#contract.id);
+	{NewContract, incomplete} ->
+	    UpdatedContract = NewContract#contract { last_update = CurrentTime},
+            db:dirty_write(UpdatedContract)
+    end,
 
     check_contracts(Rest).
 
-process_assignments(_Contract, [], _ContractStatus) ->
-    done;
+process_assignments(NewContract, [], _NumGameDays, NewContractStatus) ->
+    {NewContract, NewContractStatus};
 
-process_assignments(_Contract, _Assignments, complete) ->
-    done;
+process_assignments(NewContract, _Assignments, _NumGameDays, complete) ->
+    {NewContract, complete};
 
-process_assignments(Contract, [Assignment | Rest], _ContractStatus) ->
+process_assignments(Contract, [Assignment | Rest], NumGameDays, incomplete) ->
     log4erl:info("{~w} Contract and Assignment matched: ~w == ~w", [?MODULE, Contract, Assignment]),
     ContractType = Contract#contract.type, 
-    {NewContract, NewContractStatus} = process_type(ContractType, Contract, Assignment),
+    {NewContract, NewContractStatus} = process_type(ContractType, Contract, Assignment, NumGameDays),
 
-    process_assignments(NewContract, Rest, NewContractStatus).
+    process_assignments(NewContract, Rest, NumGameDays, NewContractStatus).
     
-process_type(?CONTRACT_BUILDING, Contract, Assignment) ->
+process_type(?CONTRACT_BUILDING, Contract, Assignment, NumGameDays) ->
     log4erl:info("{~w} - Process CONTRACT_BUILDING type",[?MODULE]),
 
     {TargetId, _TargetType} = Assignment#assignment.target_ref,
@@ -86,25 +97,23 @@ process_type(?CONTRACT_BUILDING, Contract, Assignment) ->
     ProductionCost = BuildingType#building_type.production_cost,
     TotalHp = BuildingType#building_type.total_hp,
 
-    Result = process_production(Contract, Assignment, ProductionCost),
+    Result = process_production(Contract, Assignment, NumGameDays, ProductionCost),
 
     case Result of
-        {NewContract, complete} ->                       
+        {_NewContract, complete} ->                       
             NewBuilding = Building#building {hp = TotalHp,
                                              state = ?STATE_CONSTRUCTING },
-            db:dirty_write(NewBuilding),
-            db:dirty_delete(contract, NewContract#contract.id);
+            db:dirty_write(NewBuilding);
         {NewContract, incomplete} ->
             CompletionRatio = NewContract#contract.production / ProductionCost,
             NewBuildingHp = util:round3(TotalHp * CompletionRatio),
             NewBuilding = Building#building {hp = NewBuildingHp},
 
-            db:dirty_write(NewBuilding),
-            db:dirty_write(NewContract)
+            db:dirty_write(NewBuilding)
     end,
     Result;
 
-process_type(?CONTRACT_UNIT, Contract, Assignment) ->
+process_type(?CONTRACT_UNIT, Contract, Assignment, NumGameDays) ->
     log4erl:info("{~w} - Process CONTRACT_UNIT type",[?MODULE]),
     
     [UnitQueue] = db:dirty_read(unit_queue, Contract#contract.id),
@@ -112,7 +121,7 @@ process_type(?CONTRACT_UNIT, Contract, Assignment) ->
 
     ProductionCost = UnitType#unit_type.production_cost,
 
-    Result = process_production(Contract, Assignment, ProductionCost),
+    Result = process_production(Contract, Assignment, ProductionCost, NumGameDays),
     case Result of
         {NewContract, complete} ->
 
@@ -124,14 +133,13 @@ process_type(?CONTRACT_UNIT, Contract, Assignment) ->
                           hp = UnitType#unit_type.total_hp},
 
             db:dirty_write(Unit),
-            db:dirty_delete(unit_queue, NewContract#contract.id),
-            db:dirty_delete(contract, NewContract#contract.id);
-        {NewContract, incomplete} ->
-            db:dirty_write(NewContract)
+            db:dirty_delete(unit_queue, NewContract#contract.id);
+        {_NewContract, incomplete} ->
+            ok
     end,
     Result;
 
-process_type(?CONTRACT_IMPROVEMENT, Contract, Assignment) ->
+process_type(?CONTRACT_IMPROVEMENT, Contract, Assignment, NumGameDays) ->
     log4erl:info("{~w} - Process CONTRACT_IMPROVEMENT",[?MODULE]),
 
     TypeId = Contract#contract.object_type,
@@ -142,21 +150,17 @@ process_type(?CONTRACT_IMPROVEMENT, Contract, Assignment) ->
     {TargetId, _TargetType} = Assignment#assignment.target_ref,
     ImprovementId = TargetId,
 
-    Result = process_production(Contract, Assignment, ProductionCost),
+    Result = process_production(Contract, Assignment, ProductionCost, NumGameDays),
     case Result of
-        {NewContract, complete} ->
-            improvement:complete(ImprovementId),
-
-            db:dirty_delete(contract, NewContract#contract.id);
+        {_NewContract, complete} ->
+            improvement:complete(ImprovementId);
         {NewContract, incomplete} ->
             CompletionRatio = NewContract#contract.production / ProductionCost,
-            improvement:update_hp(ImprovementId, TotalHp, CompletionRatio),
-
-            db:dirty_write(NewContract)
+            improvement:update_hp(ImprovementId, TotalHp, CompletionRatio)
     end,
     Result;
 
-process_type(?CONTRACT_HARVEST, Contract, Assignment) ->
+process_type(?CONTRACT_HARVEST, Contract, Assignment, NumGameDays) ->
     log4erl:info("{~w} - Process CONTRACT_HARVEST",[?MODULE]),
     [ItemQueue] = db:dirty_read(item_queue, Contract#contract.id),
     [ItemType] = db:dirty_read(item_type, ItemQueue#item_queue.item_type),
@@ -164,10 +168,9 @@ process_type(?CONTRACT_HARVEST, Contract, Assignment) ->
     ProductionCost = ItemType#item_type.production_cost,
     {TargetId, _TargetType} = Assignment#assignment.target_ref,
 
-    Result = process_production(Contract, Assignment, ProductionCost),
+    Result = process_production(Contract, Assignment, ProductionCost, NumGameDays),
     case Result of 
         {NewContract, complete} ->
-
             {TargetId, _TargetType} = Assignment#assignment.target_ref,
             ImprovementId = TargetId,
             [Improvement] = db:dirty_read(improvement, ImprovementId),            
@@ -185,14 +188,13 @@ process_type(?CONTRACT_HARVEST, Contract, Assignment) ->
 
             lists:foreach(F, ItemType#item_type.produces),
 
-            db:dirty_delete(item_queue, NewContract#contract.id),
-            db:dirty_delete(contract, NewContract#contract.id);
-        {NewContract, incomplete} ->
-            db:dirty_write(NewContract)
+            db:dirty_delete(item_queue, NewContract#contract.id);
+        {_NewContract, incomplete} ->
+            ok
     end,
     Result;
   
-process_type(?CONTRACT_ITEM, Contract, Assignment) ->
+process_type(?CONTRACT_ITEM, Contract, Assignment, NumGameDays) ->
     log4erl:info("{~w} - Process CONTRACT_ITEM type", [?MODULE]),
     
     [ItemQueue] = db:dirty_read(item_queue, Contract#contract.id),
@@ -200,7 +202,7 @@ process_type(?CONTRACT_ITEM, Contract, Assignment) ->
     
     ProductionCost = ItemType#item_type.production_cost,
 
-    Result = process_production(Contract, Assignment, ProductionCost),
+    Result = process_production(Contract, Assignment, ProductionCost, NumGameDays),
     case Result of
         {NewContract, complete} ->
 
@@ -209,23 +211,18 @@ process_type(?CONTRACT_ITEM, Contract, Assignment) ->
                         ItemQueue#item_queue.item_type,
                         ItemQueue#item_queue.item_size),
 
-            db:dirty_delete(item_queue, NewContract#contract.id),
-            db:dirty_delete(contract, NewContract#contract.id);
-        {NewContract, incomplete} ->
-            db:dirty_write(NewContract)
+            db:dirty_delete(item_queue, NewContract#contract.id);
+        {_NewContract, incomplete} ->
+            ok
     end,
     Result;
 
-process_type(ContractType, _Contract, _Assignment) ->
+process_type(ContractType, _Contract, _Assignment, _NumGameDays) ->
     log4erl:info("{~w} Invalid Contract Type: ~w", [?MODULE, ContractType]).
                         
-process_production(Contract, Assignment, ProductionCost) ->
+process_production(Contract, Assignment, ProductionCost, NumGameDays) ->
     log4erl:info("{~w} Process Production", [?MODULE]),
     
-    CurrentTime = util:get_time_seconds(),
-    LastUpdateTime = Contract#contract.last_update,
-    NumGameDays = util:diff_game_days(LastUpdateTime, CurrentTime),
-
     Production = Contract#contract.production,
     CasteRate = caste:get_production_rate(Assignment#assignment.caste),
     CasteAmount = Assignment#assignment.amount,
@@ -239,8 +236,7 @@ process_production(Contract, Assignment, ProductionCost) ->
         false ->
             log4erl:info("{~w} Updating Production: ~w", [?MODULE, NewProduction]),
             RoundedProduction = util:round3(NewProduction),
-            NewContract = Contract#contract {production = RoundedProduction,
-                                             last_update = CurrentTime},            
+            NewContract = Contract#contract {production = RoundedProduction},            
             ProductionStatus = incomplete
     end,
 

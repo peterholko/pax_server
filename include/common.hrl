@@ -102,10 +102,10 @@
 -define(MARKET_BUY, 0).
 -define(MARKET_SELL, 1).
 
--define(CASTE_SLAVE_RATE, 0.5).
--define(CASTE_SOLDIER_RATE, 1.5).
--define(CASTE_COMMONER_RATE, 2.0).
--define(CASTE_NOBLE_RATE, 1.0).
+-define(CASTE_SLAVE_RATE, 50).
+-define(CASTE_SOLDIER_RATE, 150).
+-define(CASTE_COMMONER_RATE, 200).
+-define(CASTE_NOBLE_RATE, 100).
 
 -define(CONTRACT_BUILDING, 0).
 -define(CONTRACT_UNIT, 1).

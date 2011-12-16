@@ -183,14 +183,14 @@ do(Q) ->
 game_tables() ->
     [{unit_type, 1, "Footsolider", 	1, 4, 2, 5, 1, 5, 10, 10},
      {unit_type, 2, "Archer", 		2, 5, 1, 10, 2, 5, 10, 10},
-     {building_type, 1, "Barracks", 100, 100, 1},
-     {building_type, 2, "Market", 100, 200, 1},
-     {building_type, 3, "Temple", 100, 150, 1},
-     {improvement_type, 1, "Farm", 100, 100},
-     {improvement_type, 2, "Trapper", 100, 100},
-     {improvement_type, 3, "Lumbermill", 100, 100},
-     {improvement_type, 4, "Mine", 100, 100},
-     {improvement_type, 5, "Quarry", 100, 100}].
+     {building_type, 42, "Barracks", 100, 100, 1},
+     {building_type, 267, "Market", 100, 200, 1},
+     {building_type, 3, "Temple", 100, 150, 1}].
+     %{improvement_type, 1, "Farm", 500, 100},
+     %{improvement_type, 6, "Trapper", 100, 100},
+     %{improvement_type, 3, "Lumbermill", 100, 100},
+     %{improvement_type, 4, "Mine", 100, 100},
+     %{improvement_type, 5, "Quarry", 100, 100}].
 reset_game_tables() ->
     F = fun() ->
                 foreach(fun mnesia:write/1, game_tables())

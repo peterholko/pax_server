@@ -1,0 +1,827 @@
+<improvements>
+<row>
+  <Id>1</Id>
+  <Imp_Type>Farm</Imp_Type>
+  <Imp_Level>1</Imp_Level>
+  <Name>Tiny Farm</Name>
+  <Total_Hp>500</Total_Hp>
+  <Population_Cap>500</Population_Cap>
+  <Production_Cost>2000</Production_Cost>
+  <Gold_Cost>50</Gold_Cost>
+  <Lumber_Cost>100</Lumber_Cost>
+  <Stone_Cost>25</Stone_Cost>
+  <Upkeep__g_day_>1</Upkeep__g_day_>
+  <Bonuses>Allows collection of plant-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>2</Id>
+  <Imp_Type>Farm</Imp_Type>
+  <Imp_Level>2</Imp_Level>
+  <Name>Small Farm</Name>
+  <Total_Hp>750</Total_Hp>
+  <Population_Cap>750</Population_Cap>
+  <Production_Cost>3000</Production_Cost>
+  <Gold_Cost>75</Gold_Cost>
+  <Lumber_Cost>250</Lumber_Cost>
+  <Stone_Cost>50</Stone_Cost>
+  <Upkeep__g_day_>2</Upkeep__g_day_>
+  <Bonuses>Allows collection of plant-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>3</Id>
+  <Imp_Type>Farm</Imp_Type>
+  <Imp_Level>3</Imp_Level>
+  <Name>Farm</Name>
+  <Total_Hp>1000</Total_Hp>
+  <Population_Cap>1000</Population_Cap>
+  <Production_Cost>4000</Production_Cost>
+  <Gold_Cost>100</Gold_Cost>
+  <Lumber_Cost>500</Lumber_Cost>
+  <Stone_Cost>75</Stone_Cost>
+  <Upkeep__g_day_>3</Upkeep__g_day_>
+  <Bonuses>Allows collection of plant-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>4</Id>
+  <Imp_Type>Farm</Imp_Type>
+  <Imp_Level>4</Imp_Level>
+  <Name>Large Farm</Name>
+  <Total_Hp>1500</Total_Hp>
+  <Population_Cap>1500</Population_Cap>
+  <Production_Cost>6000</Production_Cost>
+  <Gold_Cost>150</Gold_Cost>
+  <Lumber_Cost>750</Lumber_Cost>
+  <Stone_Cost>100</Stone_Cost>
+  <Upkeep__g_day_>4</Upkeep__g_day_>
+  <Bonuses>Allows collection of plant-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>5</Id>
+  <Imp_Type>Farm</Imp_Type>
+  <Imp_Level>5</Imp_Level>
+  <Name>Huge Farm</Name>
+  <Total_Hp>2000</Total_Hp>
+  <Population_Cap>2000</Population_Cap>
+  <Production_Cost>8000</Production_Cost>
+  <Gold_Cost>200</Gold_Cost>
+  <Lumber_Cost>1000</Lumber_Cost>
+  <Stone_Cost>150</Stone_Cost>
+  <Upkeep__g_day_>5</Upkeep__g_day_>
+  <Bonuses>Allows collection of plant-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>6</Id>
+  <Imp_Type>Trapper</Imp_Type>
+  <Imp_Level>1</Imp_Level>
+  <Name>Tiny Trapper</Name>
+  <Total_Hp>500</Total_Hp>
+  <Population_Cap>500</Population_Cap>
+  <Production_Cost>2000</Production_Cost>
+  <Gold_Cost>50</Gold_Cost>
+  <Lumber_Cost>100</Lumber_Cost>
+  <Stone_Cost>25</Stone_Cost>
+  <Upkeep__g_day_>1</Upkeep__g_day_>
+  <Bonuses>Allows collection of animal-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>7</Id>
+  <Imp_Type>Trapper</Imp_Type>
+  <Imp_Level>2</Imp_Level>
+  <Name>Small Trapper</Name>
+  <Total_Hp>750</Total_Hp>
+  <Population_Cap>750</Population_Cap>
+  <Production_Cost>3000</Production_Cost>
+  <Gold_Cost>75</Gold_Cost>
+  <Lumber_Cost>250</Lumber_Cost>
+  <Stone_Cost>50</Stone_Cost>
+  <Upkeep__g_day_>2</Upkeep__g_day_>
+  <Bonuses>Allows collection of animal-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>8</Id>
+  <Imp_Type>Trapper</Imp_Type>
+  <Imp_Level>3</Imp_Level>
+  <Name>Trapper</Name>
+  <Total_Hp>1000</Total_Hp>
+  <Population_Cap>1000</Population_Cap>
+  <Production_Cost>4000</Production_Cost>
+  <Gold_Cost>100</Gold_Cost>
+  <Lumber_Cost>500</Lumber_Cost>
+  <Stone_Cost>75</Stone_Cost>
+  <Upkeep__g_day_>3</Upkeep__g_day_>
+  <Bonuses>Allows collection of animal-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>9</Id>
+  <Imp_Type>Trapper</Imp_Type>
+  <Imp_Level>4</Imp_Level>
+  <Name>Large Trapper</Name>
+  <Total_Hp>1500</Total_Hp>
+  <Population_Cap>1500</Population_Cap>
+  <Production_Cost>6000</Production_Cost>
+  <Gold_Cost>150</Gold_Cost>
+  <Lumber_Cost>750</Lumber_Cost>
+  <Stone_Cost>100</Stone_Cost>
+  <Upkeep__g_day_>4</Upkeep__g_day_>
+  <Bonuses>Allows collection of animal-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>10</Id>
+  <Imp_Type>Trapper</Imp_Type>
+  <Imp_Level>5</Imp_Level>
+  <Name>Huge Trapper</Name>
+  <Total_Hp>2000</Total_Hp>
+  <Population_Cap>2000</Population_Cap>
+  <Production_Cost>8000</Production_Cost>
+  <Gold_Cost>200</Gold_Cost>
+  <Lumber_Cost>1000</Lumber_Cost>
+  <Stone_Cost>150</Stone_Cost>
+  <Upkeep__g_day_>5</Upkeep__g_day_>
+  <Bonuses>Allows collection of animal-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>11</Id>
+  <Imp_Type>Lumbermill</Imp_Type>
+  <Imp_Level>1</Imp_Level>
+  <Name>Tiny Lumbermill</Name>
+  <Total_Hp>500</Total_Hp>
+  <Population_Cap>500</Population_Cap>
+  <Production_Cost>2000</Production_Cost>
+  <Gold_Cost>50</Gold_Cost>
+  <Lumber_Cost>100</Lumber_Cost>
+  <Stone_Cost>25</Stone_Cost>
+  <Upkeep__g_day_>1</Upkeep__g_day_>
+  <Bonuses>Allows collection of tree-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>12</Id>
+  <Imp_Type>Lumbermill</Imp_Type>
+  <Imp_Level>2</Imp_Level>
+  <Name>Small Lumbermill</Name>
+  <Total_Hp>750</Total_Hp>
+  <Population_Cap>750</Population_Cap>
+  <Production_Cost>3000</Production_Cost>
+  <Gold_Cost>75</Gold_Cost>
+  <Lumber_Cost>250</Lumber_Cost>
+  <Stone_Cost>50</Stone_Cost>
+  <Upkeep__g_day_>2</Upkeep__g_day_>
+  <Bonuses>Allows collection of tree-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>13</Id>
+  <Imp_Type>Lumbermill</Imp_Type>
+  <Imp_Level>3</Imp_Level>
+  <Name>Lumbermill</Name>
+  <Total_Hp>1000</Total_Hp>
+  <Population_Cap>1000</Population_Cap>
+  <Production_Cost>4000</Production_Cost>
+  <Gold_Cost>100</Gold_Cost>
+  <Lumber_Cost>500</Lumber_Cost>
+  <Stone_Cost>75</Stone_Cost>
+  <Upkeep__g_day_>3</Upkeep__g_day_>
+  <Bonuses>Allows collection of tree-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>14</Id>
+  <Imp_Type>Lumbermill</Imp_Type>
+  <Imp_Level>4</Imp_Level>
+  <Name>Large Lumbermill</Name>
+  <Total_Hp>1500</Total_Hp>
+  <Population_Cap>1500</Population_Cap>
+  <Production_Cost>6000</Production_Cost>
+  <Gold_Cost>150</Gold_Cost>
+  <Lumber_Cost>750</Lumber_Cost>
+  <Stone_Cost>100</Stone_Cost>
+  <Upkeep__g_day_>4</Upkeep__g_day_>
+  <Bonuses>Allows collection of tree-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>15</Id>
+  <Imp_Type>Lumbermill</Imp_Type>
+  <Imp_Level>5</Imp_Level>
+  <Name>Huge Lumbermill</Name>
+  <Total_Hp>2000</Total_Hp>
+  <Population_Cap>2000</Population_Cap>
+  <Production_Cost>8000</Production_Cost>
+  <Gold_Cost>200</Gold_Cost>
+  <Lumber_Cost>1000</Lumber_Cost>
+  <Stone_Cost>150</Stone_Cost>
+  <Upkeep__g_day_>5</Upkeep__g_day_>
+  <Bonuses>Allows collection of tree-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>16</Id>
+  <Imp_Type>Mine</Imp_Type>
+  <Imp_Level>1</Imp_Level>
+  <Name>Tiny Mine</Name>
+  <Total_Hp>500</Total_Hp>
+  <Population_Cap>500</Population_Cap>
+  <Production_Cost>2000</Production_Cost>
+  <Gold_Cost>50</Gold_Cost>
+  <Lumber_Cost>100</Lumber_Cost>
+  <Stone_Cost>25</Stone_Cost>
+  <Upkeep__g_day_>1</Upkeep__g_day_>
+  <Bonuses>Allows collection of ore-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>17</Id>
+  <Imp_Type>Mine</Imp_Type>
+  <Imp_Level>2</Imp_Level>
+  <Name>Small Mine</Name>
+  <Total_Hp>750</Total_Hp>
+  <Population_Cap>750</Population_Cap>
+  <Production_Cost>3000</Production_Cost>
+  <Gold_Cost>75</Gold_Cost>
+  <Lumber_Cost>250</Lumber_Cost>
+  <Stone_Cost>50</Stone_Cost>
+  <Upkeep__g_day_>2</Upkeep__g_day_>
+  <Bonuses>Allows collection of ore-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>18</Id>
+  <Imp_Type>Mine</Imp_Type>
+  <Imp_Level>3</Imp_Level>
+  <Name>Mine</Name>
+  <Total_Hp>1000</Total_Hp>
+  <Population_Cap>1000</Population_Cap>
+  <Production_Cost>4000</Production_Cost>
+  <Gold_Cost>100</Gold_Cost>
+  <Lumber_Cost>500</Lumber_Cost>
+  <Stone_Cost>75</Stone_Cost>
+  <Upkeep__g_day_>3</Upkeep__g_day_>
+  <Bonuses>Allows collection of ore-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>19</Id>
+  <Imp_Type>Mine</Imp_Type>
+  <Imp_Level>4</Imp_Level>
+  <Name>Large Mine</Name>
+  <Total_Hp>1500</Total_Hp>
+  <Population_Cap>1500</Population_Cap>
+  <Production_Cost>6000</Production_Cost>
+  <Gold_Cost>150</Gold_Cost>
+  <Lumber_Cost>750</Lumber_Cost>
+  <Stone_Cost>100</Stone_Cost>
+  <Upkeep__g_day_>4</Upkeep__g_day_>
+  <Bonuses>Allows collection of ore-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>20</Id>
+  <Imp_Type>Mine</Imp_Type>
+  <Imp_Level>5</Imp_Level>
+  <Name>Huge Mine</Name>
+  <Total_Hp>2000</Total_Hp>
+  <Population_Cap>2000</Population_Cap>
+  <Production_Cost>8000</Production_Cost>
+  <Gold_Cost>200</Gold_Cost>
+  <Lumber_Cost>1000</Lumber_Cost>
+  <Stone_Cost>150</Stone_Cost>
+  <Upkeep__g_day_>5</Upkeep__g_day_>
+  <Bonuses>Allows collection of ore-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>21</Id>
+  <Imp_Type>Quarry</Imp_Type>
+  <Imp_Level>1</Imp_Level>
+  <Name>Tiny Quarry</Name>
+  <Total_Hp>500</Total_Hp>
+  <Population_Cap>500</Population_Cap>
+  <Production_Cost>2000</Production_Cost>
+  <Gold_Cost>50</Gold_Cost>
+  <Lumber_Cost>100</Lumber_Cost>
+  <Stone_Cost>25</Stone_Cost>
+  <Upkeep__g_day_>1</Upkeep__g_day_>
+  <Bonuses>Allows collection of stone-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>22</Id>
+  <Imp_Type>Quarry</Imp_Type>
+  <Imp_Level>2</Imp_Level>
+  <Name>Small Quarry</Name>
+  <Total_Hp>750</Total_Hp>
+  <Population_Cap>750</Population_Cap>
+  <Production_Cost>3000</Production_Cost>
+  <Gold_Cost>75</Gold_Cost>
+  <Lumber_Cost>250</Lumber_Cost>
+  <Stone_Cost>50</Stone_Cost>
+  <Upkeep__g_day_>2</Upkeep__g_day_>
+  <Bonuses>Allows collection of stone-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>23</Id>
+  <Imp_Type>Quarry</Imp_Type>
+  <Imp_Level>3</Imp_Level>
+  <Name>Quarry</Name>
+  <Total_Hp>1000</Total_Hp>
+  <Population_Cap>1000</Population_Cap>
+  <Production_Cost>4000</Production_Cost>
+  <Gold_Cost>100</Gold_Cost>
+  <Lumber_Cost>500</Lumber_Cost>
+  <Stone_Cost>75</Stone_Cost>
+  <Upkeep__g_day_>3</Upkeep__g_day_>
+  <Bonuses>Allows collection of stone-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>24</Id>
+  <Imp_Type>Quarry</Imp_Type>
+  <Imp_Level>4</Imp_Level>
+  <Name>Large Quarry</Name>
+  <Total_Hp>1500</Total_Hp>
+  <Population_Cap>1500</Population_Cap>
+  <Production_Cost>6000</Production_Cost>
+  <Gold_Cost>150</Gold_Cost>
+  <Lumber_Cost>750</Lumber_Cost>
+  <Stone_Cost>100</Stone_Cost>
+  <Upkeep__g_day_>4</Upkeep__g_day_>
+  <Bonuses>Allows collection of stone-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>25</Id>
+  <Imp_Type>Quarry</Imp_Type>
+  <Imp_Level>5</Imp_Level>
+  <Name>Huge Quarry</Name>
+  <Total_Hp>2000</Total_Hp>
+  <Population_Cap>2000</Population_Cap>
+  <Production_Cost>8000</Production_Cost>
+  <Gold_Cost>200</Gold_Cost>
+  <Lumber_Cost>1000</Lumber_Cost>
+  <Stone_Cost>150</Stone_Cost>
+  <Upkeep__g_day_>5</Upkeep__g_day_>
+  <Bonuses>Allows collection of stone-type resources. </Bonuses>
+  <Restrictions>Must be built on own claimed land.</Restrictions>
+</row>
+<row>
+  <Id>26</Id>
+  <Imp_Type>Fort</Imp_Type>
+  <Imp_Level>1</Imp_Level>
+  <Name>Tower</Name>
+  <Total_Hp>500</Total_Hp>
+  <Population_Cap>500</Population_Cap>
+  <Production_Cost>2500</Production_Cost>
+  <Gold_Cost>100</Gold_Cost>
+  <Lumber_Cost>50</Lumber_Cost>
+  <Stone_Cost>250</Stone_Cost>
+  <Upkeep__g_day_>2</Upkeep__g_day_>
+  <Bonuses>20% DEF bonus </Bonuses>
+  <Restrictions>Only Soldier Caste population may be assigned to forts.</Restrictions>
+</row>
+<row>
+  <Id>27</Id>
+  <Imp_Type>Fort</Imp_Type>
+  <Imp_Level>2</Imp_Level>
+  <Name>Keep</Name>
+  <Total_Hp>1000</Total_Hp>
+  <Population_Cap>1000</Population_Cap>
+  <Production_Cost>5000</Production_Cost>
+  <Gold_Cost>250</Gold_Cost>
+  <Lumber_Cost>250</Lumber_Cost>
+  <Stone_Cost>500</Stone_Cost>
+  <Upkeep__g_day_>4</Upkeep__g_day_>
+  <Bonuses>40% DEF bonus </Bonuses>
+  <Restrictions>Only Soldier Caste population may be assigned to forts.</Restrictions>
+</row>
+<row>
+  <Id>28</Id>
+  <Imp_Type>Fort</Imp_Type>
+  <Imp_Level>3</Imp_Level>
+  <Name>Castle</Name>
+  <Total_Hp>2500</Total_Hp>
+  <Population_Cap>2500</Population_Cap>
+  <Production_Cost>10000</Production_Cost>
+  <Gold_Cost>500</Gold_Cost>
+  <Lumber_Cost>500</Lumber_Cost>
+  <Stone_Cost>1500</Stone_Cost>
+  <Upkeep__g_day_>6</Upkeep__g_day_>
+  <Bonuses>60% DEF bonus </Bonuses>
+  <Restrictions>Only Soldier Caste population may be assigned to forts.</Restrictions>
+</row>
+<row>
+  <Id>29</Id>
+  <Imp_Type>Fort</Imp_Type>
+  <Imp_Level>4</Imp_Level>
+  <Name>Stronghold</Name>
+  <Total_Hp>5000</Total_Hp>
+  <Population_Cap>5000</Population_Cap>
+  <Production_Cost>20000</Production_Cost>
+  <Gold_Cost>1000</Gold_Cost>
+  <Lumber_Cost>1000</Lumber_Cost>
+  <Stone_Cost>3000</Stone_Cost>
+  <Upkeep__g_day_>10</Upkeep__g_day_>
+  <Bonuses>80% DEF bonus </Bonuses>
+  <Restrictions>Only Soldier Caste population may be assigned to forts.</Restrictions>
+</row>
+<row>
+  <Id>30</Id>
+  <Imp_Type>Fort</Imp_Type>
+  <Imp_Level>5</Imp_Level>
+  <Name>Fortress</Name>
+  <Total_Hp>10000</Total_Hp>
+  <Population_Cap>10000</Population_Cap>
+  <Production_Cost>40000</Production_Cost>
+  <Gold_Cost>2500</Gold_Cost>
+  <Lumber_Cost>2000</Lumber_Cost>
+  <Stone_Cost>6000</Stone_Cost>
+  <Upkeep__g_day_>20</Upkeep__g_day_>
+  <Bonuses>100% DEF bonus </Bonuses>
+  <Restrictions>Only Soldier Caste population may be assigned to forts.</Restrictions>
+</row>
+<row>
+  <Id>31</Id>
+  <Imp_Type>War Camp</Imp_Type>
+  <Imp_Level>1</Imp_Level>
+  <Name>Tiny War Camp</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>0</Population_Cap>
+  <Production_Cost>10</Production_Cost>
+  <Gold_Cost>0</Gold_Cost>
+  <Lumber_Cost>0</Lumber_Cost>
+  <Stone_Cost>0</Stone_Cost>
+  <Upkeep__g_day_>1</Upkeep__g_day_>
+  <Bonuses>10% DEF bonus </Bonuses>
+  <Restrictions>Destroyed if own army has not been on the tile for 1 game day (6 hours).</Restrictions>
+</row>
+<row>
+  <Id>32</Id>
+  <Imp_Type>War Camp</Imp_Type>
+  <Imp_Level>2</Imp_Level>
+  <Name>Small War Camp</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>0</Population_Cap>
+  <Production_Cost>15</Production_Cost>
+  <Gold_Cost>0</Gold_Cost>
+  <Lumber_Cost>0</Lumber_Cost>
+  <Stone_Cost>0</Stone_Cost>
+  <Upkeep__g_day_>2</Upkeep__g_day_>
+  <Bonuses>15% DEF bonus </Bonuses>
+  <Restrictions>Destroyed if own army has not been on the tile for 1 game day (6 hours).</Restrictions>
+</row>
+<row>
+  <Id>33</Id>
+  <Imp_Type>War Camp</Imp_Type>
+  <Imp_Level>3</Imp_Level>
+  <Name>War Camp</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>0</Population_Cap>
+  <Production_Cost>20</Production_Cost>
+  <Gold_Cost>0</Gold_Cost>
+  <Lumber_Cost>0</Lumber_Cost>
+  <Stone_Cost>0</Stone_Cost>
+  <Upkeep__g_day_>3</Upkeep__g_day_>
+  <Bonuses>20% DEF bonus </Bonuses>
+  <Restrictions>Destroyed if own army has not been on the tile for 1 game day (6 hours).</Restrictions>
+</row>
+<row>
+  <Id>34</Id>
+  <Imp_Type>War Camp</Imp_Type>
+  <Imp_Level>4</Imp_Level>
+  <Name>Large War Camp</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>0</Population_Cap>
+  <Production_Cost>25</Production_Cost>
+  <Gold_Cost>0</Gold_Cost>
+  <Lumber_Cost>0</Lumber_Cost>
+  <Stone_Cost>0</Stone_Cost>
+  <Upkeep__g_day_>4</Upkeep__g_day_>
+  <Bonuses>25% DEF bonus </Bonuses>
+  <Restrictions>Destroyed if own army has not been on the tile for 1 game day (6 hours).</Restrictions>
+</row>
+<row>
+  <Id>35</Id>
+  <Imp_Type>War Camp</Imp_Type>
+  <Imp_Level>5</Imp_Level>
+  <Name>Huge War Camp</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>0</Population_Cap>
+  <Production_Cost>30</Production_Cost>
+  <Gold_Cost>0</Gold_Cost>
+  <Lumber_Cost>0</Lumber_Cost>
+  <Stone_Cost>0</Stone_Cost>
+  <Upkeep__g_day_>5</Upkeep__g_day_>
+  <Bonuses>30% DEF bonus </Bonuses>
+  <Restrictions>Destroyed if own army has not been on the tile for 1 game day (6 hours).</Restrictions>
+</row>
+<row>
+  <Id>36</Id>
+  <Imp_Type>Resource Camp</Imp_Type>
+  <Imp_Level>1</Imp_Level>
+  <Name>Tiny Resource Camp</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>0</Population_Cap>
+  <Production_Cost>10</Production_Cost>
+  <Gold_Cost>0</Gold_Cost>
+  <Lumber_Cost>0</Lumber_Cost>
+  <Stone_Cost>0</Stone_Cost>
+  <Upkeep__g_day_>1</Upkeep__g_day_>
+  <Bonuses>Harvests 5-10 common resources per day. </Bonuses>
+  <Restrictions>Destroyed if own army has not been on the tile for 1 game day (6 hours).</Restrictions>
+</row>
+<row>
+  <Id>37</Id>
+  <Imp_Type>Resource Camp</Imp_Type>
+  <Imp_Level>2</Imp_Level>
+  <Name>Small Resource Camp</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>0</Population_Cap>
+  <Production_Cost>15</Production_Cost>
+  <Gold_Cost>0</Gold_Cost>
+  <Lumber_Cost>0</Lumber_Cost>
+  <Stone_Cost>0</Stone_Cost>
+  <Upkeep__g_day_>2</Upkeep__g_day_>
+  <Bonuses>Harvests 8-12 (90% common) resources per day.  </Bonuses>
+  <Restrictions>Destroyed if own army has not been on the tile for 1 game day (6 hours).</Restrictions>
+</row>
+<row>
+  <Id>38</Id>
+  <Imp_Type>Resource Camp</Imp_Type>
+  <Imp_Level>3</Imp_Level>
+  <Name>Resource Camp</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>0</Population_Cap>
+  <Production_Cost>20</Production_Cost>
+  <Gold_Cost>0</Gold_Cost>
+  <Lumber_Cost>0</Lumber_Cost>
+  <Stone_Cost>0</Stone_Cost>
+  <Upkeep__g_day_>3</Upkeep__g_day_>
+  <Bonuses>Harvests 12-16 (80% common) resources per day.</Bonuses>
+  <Restrictions>Destroyed if own army has not been on the tile for 1 game day (6 hours).</Restrictions>
+</row>
+<row>
+  <Id>39</Id>
+  <Imp_Type>Resource Camp</Imp_Type>
+  <Imp_Level>4</Imp_Level>
+  <Name>Large Resource Camp</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>0</Population_Cap>
+  <Production_Cost>25</Production_Cost>
+  <Gold_Cost>0</Gold_Cost>
+  <Lumber_Cost>0</Lumber_Cost>
+  <Stone_Cost>0</Stone_Cost>
+  <Upkeep__g_day_>4</Upkeep__g_day_>
+  <Bonuses>Harvests 16-20 (70% common) resources per day.  </Bonuses>
+  <Restrictions>Destroyed if own army has not been on the tile for 1 game day (6 hours).</Restrictions>
+</row>
+<row>
+  <Id>40</Id>
+  <Imp_Type>Resource Camp</Imp_Type>
+  <Imp_Level>5</Imp_Level>
+  <Name>Huge Resource Camp</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>0</Population_Cap>
+  <Production_Cost>30</Production_Cost>
+  <Gold_Cost>0</Gold_Cost>
+  <Lumber_Cost>0</Lumber_Cost>
+  <Stone_Cost>0</Stone_Cost>
+  <Upkeep__g_day_>5</Upkeep__g_day_>
+  <Bonuses>Harvests 20-25 (60% common) resources per day.  </Bonuses>
+  <Restrictions>Destroyed if own army has not been on the tile for 1 game day (6 hours).</Restrictions>
+</row>
+<row>
+  <Id>41</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>1</Imp_Level>
+  <Name>Hamlet I</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>500</Population_Cap>
+  <Production_Cost>0</Production_Cost>
+  <Gold_Cost>50</Gold_Cost>
+  <Lumber_Cost>100</Lumber_Cost>
+  <Stone_Cost>100</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>42</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>2</Imp_Level>
+  <Name>Hamlet II</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>750</Population_Cap>
+  <Production_Cost>7500</Production_Cost>
+  <Gold_Cost>75</Gold_Cost>
+  <Lumber_Cost>150</Lumber_Cost>
+  <Stone_Cost>150</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>43</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>3</Imp_Level>
+  <Name>Hamlet III</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>1000</Population_Cap>
+  <Production_Cost>10000</Production_Cost>
+  <Gold_Cost>100</Gold_Cost>
+  <Lumber_Cost>250</Lumber_Cost>
+  <Stone_Cost>250</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>44</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>4</Imp_Level>
+  <Name>Village I</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>1500</Population_Cap>
+  <Production_Cost>15000</Production_Cost>
+  <Gold_Cost>150</Gold_Cost>
+  <Lumber_Cost>500</Lumber_Cost>
+  <Stone_Cost>500</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>45</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>5</Imp_Level>
+  <Name>Village II</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>2000</Population_Cap>
+  <Production_Cost>20000</Production_Cost>
+  <Gold_Cost>200</Gold_Cost>
+  <Lumber_Cost>750</Lumber_Cost>
+  <Stone_Cost>750</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>46</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>6</Imp_Level>
+  <Name>Village III</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>2500</Population_Cap>
+  <Production_Cost>25000</Production_Cost>
+  <Gold_Cost>250</Gold_Cost>
+  <Lumber_Cost>1000</Lumber_Cost>
+  <Stone_Cost>1000</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>47</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>7</Imp_Level>
+  <Name>Town I</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>5000</Population_Cap>
+  <Production_Cost>50000</Production_Cost>
+  <Gold_Cost>500</Gold_Cost>
+  <Lumber_Cost>1500</Lumber_Cost>
+  <Stone_Cost>1500</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>48</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>8</Imp_Level>
+  <Name>Town II</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>7500</Population_Cap>
+  <Production_Cost>75000</Production_Cost>
+  <Gold_Cost>750</Gold_Cost>
+  <Lumber_Cost>2000</Lumber_Cost>
+  <Stone_Cost>2000</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>49</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>9</Imp_Level>
+  <Name>Town III</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>10000</Population_Cap>
+  <Production_Cost>100000</Production_Cost>
+  <Gold_Cost>1000</Gold_Cost>
+  <Lumber_Cost>2500</Lumber_Cost>
+  <Stone_Cost>2500</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>50</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>10</Imp_Level>
+  <Name>City I</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>15000</Population_Cap>
+  <Production_Cost>150000</Production_Cost>
+  <Gold_Cost>1500</Gold_Cost>
+  <Lumber_Cost>5000</Lumber_Cost>
+  <Stone_Cost>5000</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>51</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>11</Imp_Level>
+  <Name>City II</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>25000</Population_Cap>
+  <Production_Cost>250000</Production_Cost>
+  <Gold_Cost>2500</Gold_Cost>
+  <Lumber_Cost>10000</Lumber_Cost>
+  <Stone_Cost>10000</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>52</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>12</Imp_Level>
+  <Name>City III</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>50000</Population_Cap>
+  <Production_Cost>500000</Production_Cost>
+  <Gold_Cost>5000</Gold_Cost>
+  <Lumber_Cost>15000</Lumber_Cost>
+  <Stone_Cost>15000</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>53</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>13</Imp_Level>
+  <Name>Large City I</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>75000</Population_Cap>
+  <Production_Cost>750000</Production_Cost>
+  <Gold_Cost>7500</Gold_Cost>
+  <Lumber_Cost>30000</Lumber_Cost>
+  <Stone_Cost>30000</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>54</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>14</Imp_Level>
+  <Name>Large City II</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>100000</Population_Cap>
+  <Production_Cost>1000000</Production_Cost>
+  <Gold_Cost>10000</Gold_Cost>
+  <Lumber_Cost>45000</Lumber_Cost>
+  <Stone_Cost>45000</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+<row>
+  <Id>55</Id>
+  <Imp_Type>Settlement</Imp_Type>
+  <Imp_Level>15</Imp_Level>
+  <Name>Large City III</Name>
+  <Total_Hp>0</Total_Hp>
+  <Population_Cap>0</Population_Cap>
+  <Production_Cost>1500000</Production_Cost>
+  <Gold_Cost>15000</Gold_Cost>
+  <Lumber_Cost>60000</Lumber_Cost>
+  <Stone_Cost>60000</Stone_Cost>
+  <Upkeep__g_day_>Variable</Upkeep__g_day_>
+  <Bonuses>Upkeep depends on # buildings, imps and contracts.</Bonuses>
+  <Restrictions>Destroyed if pop = 0, or all buildings and palace have been destroyed.</Restrictions>
+</row>
+</improvements>
