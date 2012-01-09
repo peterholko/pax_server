@@ -1,0 +1,2268 @@
+<item_template>
+<row>
+  <id>255</id>
+  <item_category>Airship Gear</item_category>
+  <name>Airship Plating</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Foundry</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>40</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>256</id>
+  <item_category>Ranged Weapon (2H)</item_category>
+  <name>Arquebus</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>257; 75</material_type>
+</row>
+<row>
+  <id>257</id>
+  <item_category>Arquebus Barrel</item_category>
+  <name>Arquebus Barrel</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Foundry</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>258</id>
+  <item_category>Ammo</item_category>
+  <name>Arrow</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bowyer</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>27; 28</material_type>
+</row>
+<row>
+  <id>259</id>
+  <item_category>Melee Weapon (1H)</item_category>
+  <name>Axe</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>30; 46</material_type>
+</row>
+<row>
+  <id>260</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Ballista </name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bowyer</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>10</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>261</id>
+  <item_category>Siege Ammo</item_category>
+  <name>Ballista Bolt</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bowyer</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>31; 76</material_type>
+</row>
+<row>
+  <id>262</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Battering Ram</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Siege Shop</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>5; 5</material_amount>
+  <material_type>16; 76</material_type>
+</row>
+<row>
+  <id>263</id>
+  <item_category>Melee Weapon (2H)</item_category>
+  <name>Battle Axe</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>32; 46</material_type>
+</row>
+<row>
+  <id>264</id>
+  <item_category>Food</item_category>
+  <name>Beer</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Brewery</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>9</material_type>
+</row>
+<row>
+  <id>265</id>
+  <item_category>Food</item_category>
+  <name>Biscuit</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bakery</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>9</material_type>
+</row>
+<row>
+  <id>266</id>
+  <item_category>Herbal</item_category>
+  <name>Blood Draught</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Herbalist</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>2; 1</material_amount>
+  <material_type>264</material_type>
+</row>
+<row>
+  <id>267</id>
+  <item_category>Herbal</item_category>
+  <name>Blood Elixir</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Herbalist</building_req>
+  <building_level_req>4</building_level_req>
+  <material_amount>4; 1</material_amount>
+  <material_type>2; 410</material_type>
+</row>
+<row>
+  <id>268</id>
+  <item_category>Herbal</item_category>
+  <name>Blood Oil</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Herbalist</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>2</material_type>
+</row>
+<row>
+  <id>269</id>
+  <item_category>Herbal</item_category>
+  <name>Blood Potion</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Herbalist</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>3; 1</material_amount>
+  <material_type>2; 444</material_type>
+</row>
+<row>
+  <id>270</id>
+  <item_category>Boiler</item_category>
+  <name>Boiler</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Foundry</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>20</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>271</id>
+  <item_category>Ammo</item_category>
+  <name>Bolt</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bowyer</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>34; 35</material_type>
+</row>
+<row>
+  <id>272</id>
+  <item_category>Airship Hold</item_category>
+  <name>Bomb Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Airstrip</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>40; 40</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>273</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Bombard</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>4</building_level_req>
+  <material_amount>100</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>274</id>
+  <item_category>Medium Armor</item_category>
+  <name>Bone Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bonecarver</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>6; 1</material_amount>
+  <material_type>3; 11</material_type>
+</row>
+<row>
+  <id>275</id>
+  <item_category>Melee Weapon (1H)</item_category>
+  <name>Bone Club</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bonecarver</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>3</material_type>
+</row>
+<row>
+  <id>276</id>
+  <item_category>Crafts</item_category>
+  <name>Bone Crafts</name>
+  <production_cost>10</production_cost>
+  <batch_amount>4</batch_amount>
+  <building_req>Bonecarver</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>3</material_type>
+</row>
+<row>
+  <id>277</id>
+  <item_category>Herbal</item_category>
+  <name>Bone Draught</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Herbalist</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>2; 1</material_amount>
+  <material_type>3; 264</material_type>
+</row>
+<row>
+  <id>278</id>
+  <item_category>Herbal</item_category>
+  <name>Bone Elixir</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Herbalist</building_req>
+  <building_level_req>4</building_level_req>
+  <material_amount>4; 1</material_amount>
+  <material_type>3; 410</material_type>
+</row>
+<row>
+  <id>279</id>
+  <item_category>Haft</item_category>
+  <name>Bone Haft</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bonecarver</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>3</material_type>
+</row>
+<row>
+  <id>280</id>
+  <item_category>Hilt</item_category>
+  <name>Bone Hilt</name>
+  <production_cost>10</production_cost>
+  <batch_amount>2</batch_amount>
+  <building_req>Bonecarver</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>3</material_type>
+</row>
+<row>
+  <id>281</id>
+  <item_category>Heavy Armor</item_category>
+  <name>Bone Heavy Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>12; 2</material_amount>
+  <material_type>3; 11</material_type>
+</row>
+<row>
+  <id>282</id>
+  <item_category>Melee Weapon (2H)</item_category>
+  <name>Bone Heavy Club</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bonecarver</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>3</material_type>
+</row>
+<row>
+  <id>283</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Bone Heavy Mount Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bonecarver</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>20; 8  </material_amount>
+  <material_type>3; 16</material_type>
+</row>
+<row>
+  <id>284</id>
+  <item_category>Ranged Weapon (1H)</item_category>
+  <name>Bone Javelin</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bonecarver</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>3</material_type>
+</row>
+<row>
+  <id>285</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Bone Mount Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bonecarver</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>10; 4</material_amount>
+  <material_type>3; 16</material_type>
+</row>
+<row>
+  <id>286</id>
+  <item_category>Herbal</item_category>
+  <name>Bone Oil</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Herbalist</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>3</material_type>
+</row>
+<row>
+  <id>287</id>
+  <item_category>Herbal</item_category>
+  <name>Bone Potion</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Herbalist</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>3; 1</material_amount>
+  <material_type>3; 444</material_type>
+</row>
+<row>
+  <id>288</id>
+  <item_category>Stock</item_category>
+  <name>Bone Stock</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bonecarver</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>3</material_type>
+</row>
+<row>
+  <id>289</id>
+  <item_category>Ranged Weapon (2H)</item_category>
+  <name>Bow</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bowyer</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>290</id>
+  <item_category>Food</item_category>
+  <name>Bread</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bakery</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>9</material_type>
+</row>
+<row>
+  <id>291</id>
+  <item_category>Ammo</item_category>
+  <name>Bullet</name>
+  <production_cost>10</production_cost>
+  <batch_amount>10</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>292</id>
+  <item_category>Food</item_category>
+  <name>Cake</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bakery</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>9</material_type>
+</row>
+<row>
+  <id>293</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Cannon</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>40</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>294</id>
+  <item_category>Siege Ammo</item_category>
+  <name>Cannon Ball</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>295</id>
+  <item_category>Airship Hold</item_category>
+  <name>Cargo Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Airstrip</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>40</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>296</id>
+  <item_category>Ship Hold</item_category>
+  <name>Cargo Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Shipyard</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>20</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>297</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Catapult</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Siege Shop</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>20</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>298</id>
+  <item_category>Medium Armor</item_category>
+  <name>Chain Mail Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2; 1</material_amount>
+  <material_type>16; 11</material_type>
+</row>
+<row>
+  <id>299</id>
+  <item_category>Cloth</item_category>
+  <name>Chroma Cloth</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>1; 1; 5</material_amount>
+  <material_type>5; 39; 15</material_type>
+</row>
+<row>
+  <id>300</id>
+  <item_category>Chroma Core</item_category>
+  <name>Chroma Core</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mechanist</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>20; 5; 20; 20</material_amount>
+  <material_type>1044; 16; 1018; 1015</material_type>
+</row>
+<row>
+  <id>301</id>
+  <item_category>Chroma Thread</item_category>
+  <name>Chroma Thread</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>1; 1; 1</material_amount>
+  <material_type>1044; 1009; 1012</material_type>
+</row>
+<row>
+  <id>302</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Cloak</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>5</material_type>
+</row>
+<row>
+  <id>303</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Hood</name>
+  <production_cost>10</production_cost>
+  <batch_amount>2</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>5</material_type>
+</row>
+<row>
+  <id>304</id>
+  <item_category>Ranged Weapon (1H)</item_category>
+  <name>Crossbow</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bowyer</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>16; 75</material_type>
+</row>
+<row>
+  <id>305</id>
+  <item_category>Ammo</item_category>
+  <name>Fire Bullet</name>
+  <production_cost>10</production_cost>
+  <batch_amount>10</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>16; 41</material_type>
+</row>
+<row>
+  <id>306</id>
+  <item_category>Ranged Weapon (1H)</item_category>
+  <name>Fire Grenado</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 2</material_amount>
+  <material_type>45; 41</material_type>
+</row>
+<row>
+  <id>307</id>
+  <item_category>Food</item_category>
+  <name>Fruit Pie</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bakery</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>2; 1</material_amount>
+  <material_type>78; 9</material_type>
+</row>
+<row>
+  <id>308</id>
+  <item_category>Heavy Armor</item_category>
+  <name>Full Plate Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>15</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>309</id>
+  <item_category>Furnace</item_category>
+  <name>Furnace</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Foundry</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>10</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>310</id>
+  <item_category>Melee Weapon (2H)</item_category>
+  <name>Great Sword</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>44; 51</material_type>
+</row>
+<row>
+  <id>311</id>
+  <item_category>Grenado Casing</item_category>
+  <name>Grenado Casing</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Foundry</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>312</id>
+  <item_category>Airship Hold</item_category>
+  <name>Gun Deck</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Airstrip</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>40; 40</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>313</id>
+  <item_category>Ship Hold</item_category>
+  <name>Gun Deck</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Shipyard</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>20; 20</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>314</id>
+  <item_category>Heavy Armor</item_category>
+  <name>Half Plate Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>10</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>315</id>
+  <item_category>Melee Weapon (1H)</item_category>
+  <name>Hand Axe</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>48; 46</material_type>
+</row>
+<row>
+  <id>316</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Harness</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Leatherworks</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>11</material_type>
+</row>
+<row>
+  <id>317</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Heavy Ballista</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bowyer</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>20</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>318</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Heavy Battering Ram</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Siege Shop</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>15; 15</material_amount>
+  <material_type>16; 76</material_type>
+</row>
+<row>
+  <id>319</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Heavy Cannon</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>4</building_level_req>
+  <material_amount>60</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>320</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Heavy Cloak</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>5</material_type>
+</row>
+<row>
+  <id>321</id>
+  <item_category>Ranged Weapon (2H)</item_category>
+  <name>Heavy Crossbow</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bowyer</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>3; 1</material_amount>
+  <material_type>16; 75</material_type>
+</row>
+<row>
+  <id>322</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Heavy Mount Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>15</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>323</id>
+  <item_category>Light Armor</item_category>
+  <name>Heavy Quilted Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>10</material_amount>
+  <material_type>5</material_type>
+</row>
+<row>
+  <id>324</id>
+  <item_category>Light Amor</item_category>
+  <name>Heavy Robe</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>6</material_amount>
+  <material_type>5</material_type>
+</row>
+<row>
+  <id>325</id>
+  <item_category>Explosive</item_category>
+  <name>High-grade Explosive</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>4</building_level_req>
+  <material_amount>15; 15</material_amount>
+  <material_type>7; 410</material_type>
+</row>
+<row>
+  <id>326</id>
+  <item_category>Poison</item_category>
+  <name>High-grade Poison</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>4</building_level_req>
+  <material_amount>15; 15</material_amount>
+  <material_type>17; 410</material_type>
+</row>
+<row>
+  <id>327</id>
+  <item_category>Food</item_category>
+  <name>Jerky</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Butcher</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>13</material_type>
+</row>
+<row>
+  <id>328</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Ladders</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Siege Shop</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>329</id>
+  <item_category>Large Bomb Casing</item_category>
+  <name>Large Bomb Casing</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Foundry</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>12</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>330</id>
+  <item_category>Airship Hold (2H)</item_category>
+  <name>Large Bomb Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Shipyard</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>80; 80</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>331</id>
+  <item_category>Airship Hold (2H)</item_category>
+  <name>Large Cargo Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Airstrip</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>80</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>332</id>
+  <item_category>Ship Hold (2H)</item_category>
+  <name>Large Cargo Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Shipyard</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>40</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>333</id>
+  <item_category>Bomb</item_category>
+  <name>Large Fire Bomb</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>1; 30</material_amount>
+  <material_type>52; 41</material_type>
+</row>
+<row>
+  <id>334</id>
+  <item_category>Airship Hold (2H)</item_category>
+  <name>Large Gun Deck</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Airstrip</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>80; 80</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>335</id>
+  <item_category>Ship Hold (2H)</item_category>
+  <name>Large Gun Deck</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Shipyard</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>40; 40</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>336</id>
+  <item_category>Bomb</item_category>
+  <name>Large Poison Bomb</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>1; 30</material_amount>
+  <material_type>52; 77</material_type>
+</row>
+<row>
+  <id>337</id>
+  <item_category>Airship Hold (2H)</item_category>
+  <name>Large Troop Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Airstrip</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>80; 80</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>338</id>
+  <item_category>Ship Hold (2H)</item_category>
+  <name>Large Troop Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Shipyard</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>40; 40</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>339</id>
+  <item_category>Medium Armor</item_category>
+  <name>Leather Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Leatherworks</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>11</material_type>
+</row>
+<row>
+  <id>340</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Leather Boots</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Leatherworks</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>11</material_type>
+</row>
+<row>
+  <id>341</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Leather Gloves</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Leatherworks</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>11</material_type>
+</row>
+<row>
+  <id>342</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Leather Helm</name>
+  <production_cost>10</production_cost>
+  <batch_amount>2</batch_amount>
+  <building_req>Leatherworks</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>11</material_type>
+</row>
+<row>
+  <id>343</id>
+  <item_category>Airship Engine</item_category>
+  <name>Lift Reactor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mechanist</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>40 1</material_amount>
+  <material_type>16; 38</material_type>
+</row>
+<row>
+  <id>344</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Light Mount Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>5</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>345</id>
+  <item_category>Heavy Armor</item_category>
+  <name>Light Plate Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>5</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>346</id>
+  <item_category>Melee Weapon (1H)</item_category>
+  <name>Long Sword</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>54; 51</material_type>
+</row>
+<row>
+  <id>347</id>
+  <item_category>Ranged Weapon (2H)</item_category>
+  <name>Longbow</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bowyer</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>348</id>
+  <item_category>Explosive</item_category>
+  <name>Low-grade Explosive</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>5; 5</material_amount>
+  <material_type>7; 264</material_type>
+</row>
+<row>
+  <id>349</id>
+  <item_category>Poison</item_category>
+  <name>Low-grade Poison</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>5; 5</material_amount>
+  <material_type>17; 264</material_type>
+</row>
+<row>
+  <id>350</id>
+  <item_category>Melee Weapon (1H)</item_category>
+  <name>Mace</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>47; 46</material_type>
+</row>
+<row>
+  <id>351</id>
+  <item_category>Bomb</item_category>
+  <name>Medium Fire Bomb</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1; 20</material_amount>
+  <material_type>56; 41</material_type>
+</row>
+<row>
+  <id>352</id>
+  <item_category>Bomb</item_category>
+  <name>Medium Poison Bomb</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1; 20</material_amount>
+  <material_type>56; 77</material_type>
+</row>
+<row>
+  <id>353</id>
+  <item_category>Medium Bomb Casing</item_category>
+  <name>Medium Bomb Casing</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Foundry</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>8</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>354</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Medium Mount Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>10</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>355</id>
+  <item_category>Explosive</item_category>
+  <name>Medium-grade Explosive</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>10; 10</material_amount>
+  <material_type>7; 444</material_type>
+</row>
+<row>
+  <id>356</id>
+  <item_category>Poison</item_category>
+  <name>Medium-grade Poison</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>10; 10</material_amount>
+  <material_type>17; 444</material_type>
+</row>
+<row>
+  <id>357</id>
+  <item_category>Arrow Head</item_category>
+  <name>Metal Arrow Head</name>
+  <production_cost>10</production_cost>
+  <batch_amount>20</batch_amount>
+  <building_req>Blacksmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>358</id>
+  <item_category>Axe Head</item_category>
+  <name>Metal Axe Head</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Blacksmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>359</id>
+  <item_category>Ballista Bolt Head</item_category>
+  <name>Metal Ballista Head</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Blacksmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>360</id>
+  <item_category>Battle Axe Head</item_category>
+  <name>Metal Battle Axe Head</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Blacksmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>3</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>361</id>
+  <item_category>Bolt Head</item_category>
+  <name>Metal Bolt Head</name>
+  <production_cost>10</production_cost>
+  <batch_amount>20</batch_amount>
+  <building_req>Blacksmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>362</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Metal Boots</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>363</id>
+  <item_category>Off-hand</item_category>
+  <name>Metal Buckler</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>364</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Metal Gloves</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>365</id>
+  <item_category>Great Sword Blade</item_category>
+  <name>Metal Great Sword Blade</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Blacksmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>6</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>366</id>
+  <item_category>Hammer</item_category>
+  <name>Metal Hammer</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Blacksmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>367</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Metal Helm</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>368</id>
+  <item_category>Long Sword Blade</item_category>
+  <name>Metal Long Sword Blade</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Blacksmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>369</id>
+  <item_category>Off-hand</item_category>
+  <name>Metal Shield</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>370</id>
+  <item_category>Short Sword Blade</item_category>
+  <name>Metal Short Sword Blade</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Blacksmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>371</id>
+  <item_category>Spear Head</item_category>
+  <name>Metal Spear Head</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Blacksmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>372</id>
+  <item_category>Off-hand (2H)</item_category>
+  <name>Metal Tower Shield</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>16</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>373</id>
+  <item_category>Ranged Weapon (2H)</item_category>
+  <name>Mortar</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>4</building_level_req>
+  <material_amount>10</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>374</id>
+  <item_category>Ranged Weapon (2H)</item_category>
+  <name>Musket</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>59; 75</material_type>
+</row>
+<row>
+  <id>375</id>
+  <item_category>Musket Barrel</item_category>
+  <name>Musket Barrel</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Foundry</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>376</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Necklace</name>
+  <production_cost>10</production_cost>
+  <batch_amount>4</batch_amount>
+  <building_req>Jeweler</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>377</id>
+  <item_category>Alchemical</item_category>
+  <name>Ore Balm</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>2; 1</material_amount>
+  <material_type>15; 264</material_type>
+</row>
+<row>
+  <id>378</id>
+  <item_category>Alchemical</item_category>
+  <name>Ore Poultice</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>3; 1</material_amount>
+  <material_type>15; 444</material_type>
+</row>
+<row>
+  <id>379</id>
+  <item_category>Alchemical</item_category>
+  <name>Ore Powder</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>15</material_type>
+</row>
+<row>
+  <id>380</id>
+  <item_category>Alchemical</item_category>
+  <name>Ore Salve</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>4</building_level_req>
+  <material_amount>4; 1</material_amount>
+  <material_type>15; 410</material_type>
+</row>
+<row>
+  <id>381</id>
+  <item_category>Melee Weapon (2H)</item_category>
+  <name>Pike</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1; 2</material_amount>
+  <material_type>74; 66</material_type>
+</row>
+<row>
+  <id>382</id>
+  <item_category>Alchemical</item_category>
+  <name>Pipe Crystal</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>7</material_type>
+</row>
+<row>
+  <id>383</id>
+  <item_category>Herbal</item_category>
+  <name>Pipe Leaf</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Herbalist</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>17</material_type>
+</row>
+<row>
+  <id>384</id>
+  <item_category>Piston</item_category>
+  <name>Piston</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mechanist</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>10</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>385</id>
+  <item_category>Ammo</item_category>
+  <name>Poison Bullet</name>
+  <production_cost>10</production_cost>
+  <batch_amount>10</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>16; 77</material_type>
+</row>
+<row>
+  <id>386</id>
+  <item_category>Ranged Weapon (1H)</item_category>
+  <name>Poison Grenado</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 2</material_amount>
+  <material_type>45; 77</material_type>
+</row>
+<row>
+  <id>387</id>
+  <item_category>Food</item_category>
+  <name>Porridge</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Bakery</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>9</material_type>
+</row>
+<row>
+  <id>388</id>
+  <item_category>Light Armor</item_category>
+  <name>Quilted Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>5</material_amount>
+  <material_type>5</material_type>
+</row>
+<row>
+  <id>389</id>
+  <item_category>Medium Armor</item_category>
+  <name>Reinforced Leather Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Leatherworks</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>11</material_type>
+</row>
+<row>
+  <id>390</id>
+  <item_category>Ranged Weapon (2H)</item_category>
+  <name>Rifle</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>65; 75</material_type>
+</row>
+<row>
+  <id>391</id>
+  <item_category>Rifle Barrel</item_category>
+  <name>Rifle Barrel</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Foundry</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>6</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>392</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Ring</name>
+  <production_cost>10</production_cost>
+  <batch_amount>8</batch_amount>
+  <building_req>Jeweler</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>393</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Robe </name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>5</material_type>
+</row>
+<row>
+  <id>394</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Saddle</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Leatherworks</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>11</material_type>
+</row>
+<row>
+  <id>395</id>
+  <item_category>Ship Engine</item_category>
+  <name>Sails</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>30; 10</material_amount>
+  <material_type>5; 76</material_type>
+</row>
+<row>
+  <id>396</id>
+  <item_category>Food</item_category>
+  <name>Sausage</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Butcher</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>13</material_type>
+</row>
+<row>
+  <id>397</id>
+  <item_category>Medium Armor</item_category>
+  <name>Scale Mail Armor </name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>4;1 </material_amount>
+  <material_type>16; 11</material_type>
+</row>
+<row>
+  <id>398</id>
+  <item_category>Food</item_category>
+  <name>Shepherd&apos;s Pie</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Butcher</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>2; 1; 1</material_amount>
+  <material_type>13; 9; 20</material_type>
+</row>
+<row>
+  <id>399</id>
+  <item_category>Ship Gear</item_category>
+  <name>Ship Plating</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Foundry</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>20</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>400</id>
+  <item_category>Ship Engine</item_category>
+  <name>Ship Steam Engine</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mechanist</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1; 1; 1</material_amount>
+  <material_type>43; 33; 62</material_type>
+</row>
+<row>
+  <id>401</id>
+  <item_category>Melee Weapon (1H)</item_category>
+  <name>Short Sword</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>70; 51</material_type>
+</row>
+<row>
+  <id>402</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Siege Tower</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Siege Shop</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>60</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>403</id>
+  <item_category>Airship Engine</item_category>
+  <name>Sky Sails</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>4</building_level_req>
+  <material_amount>30; 15</material_amount>
+  <material_type>37; 76</material_type>
+</row>
+<row>
+  <id>404</id>
+  <item_category>Melee Weapon (2H)</item_category>
+  <name>Sledge</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>2; 1</material_amount>
+  <material_type>47; 46</material_type>
+</row>
+<row>
+  <id>405</id>
+  <item_category>Small Bomb Casing</item_category>
+  <name>Small Bomb Casing</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Foundry</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>406</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Small Cannon</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>20</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>407</id>
+  <item_category>Bomb</item_category>
+  <name>Small Fire Bomb</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1; 10</material_amount>
+  <material_type>73; 41</material_type>
+</row>
+<row>
+  <id>408</id>
+  <item_category>Bomb</item_category>
+  <name>Small Poison Bomb</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Gunsmith</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1; 10</material_amount>
+  <material_type>73; 77</material_type>
+</row>
+<row>
+  <id>409</id>
+  <item_category>Melee Weapon (2H)</item_category>
+  <name>Spear </name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>74; 66</material_type>
+</row>
+<row>
+  <id>410</id>
+  <item_category>Food</item_category>
+  <name>Spirits</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Brewery</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>20</material_type>
+</row>
+<row>
+  <id>411</id>
+  <item_category>Medium Armor</item_category>
+  <name>Splint Mail Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Armorsmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>6; 2</material_amount>
+  <material_type>16; 11</material_type>
+</row>
+<row>
+  <id>412</id>
+  <item_category>Food</item_category>
+  <name>Steak</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Butcher</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>13</material_type>
+</row>
+<row>
+  <id>413</id>
+  <item_category>Food</item_category>
+  <name>Stew</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Butcher</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1; 1</material_amount>
+  <material_type>13; 20</material_type>
+</row>
+<row>
+  <id>414</id>
+  <item_category>Arrow Head</item_category>
+  <name>Stone Arrow Head</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mason</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>415</id>
+  <item_category>Axe Head</item_category>
+  <name>Stone Axe Head</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mason</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>16</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>416</id>
+  <item_category>Alchemical</item_category>
+  <name>Stone Balm</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>2; 1</material_amount>
+  <material_type>19; 264</material_type>
+</row>
+<row>
+  <id>417</id>
+  <item_category>Battle Axe Head</item_category>
+  <name>Stone Battle Axe Head</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mason</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>60</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>418</id>
+  <item_category>Crafts</item_category>
+  <name>Stone Crafts</name>
+  <production_cost>10</production_cost>
+  <batch_amount>4</batch_amount>
+  <building_req>Mason</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>419</id>
+  <item_category>Great Sword Blade</item_category>
+  <name>Stone Great Sword Blade</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mason</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>40</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>420</id>
+  <item_category>Hand Axe Head</item_category>
+  <name>Stone Hand Axe Head</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mason</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>8</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>421</id>
+  <item_category>Hammer</item_category>
+  <name>Stone Hammer</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mason</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>422</id>
+  <item_category>Long Sword Blade</item_category>
+  <name>Stone Long Sword Blade</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mason</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>20</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>423</id>
+  <item_category>Alchemical</item_category>
+  <name>Stone Poultice</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>3; 1</material_amount>
+  <material_type>19; 444</material_type>
+</row>
+<row>
+  <id>424</id>
+  <item_category>Alchemical</item_category>
+  <name>Stone Powder</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>425</id>
+  <item_category>Alchemical</item_category>
+  <name>Stone Salve</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Alchemist</building_req>
+  <building_level_req>4</building_level_req>
+  <material_amount>4; 1</material_amount>
+  <material_type>19; 410</material_type>
+</row>
+<row>
+  <id>426</id>
+  <item_category>Short Sword Blade</item_category>
+  <name>Stone Short Sword Blade</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mason</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>10</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>427</id>
+  <item_category>Spear Head</item_category>
+  <name>Stone Spear Head</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Mason</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>10</material_amount>
+  <material_type>19</material_type>
+</row>
+<row>
+  <id>428</id>
+  <item_category>Medium Armor</item_category>
+  <name>Studded Leather Armor</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Leatherworks</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>2; 4</material_amount>
+  <material_type>16; 11</material_type>
+</row>
+<row>
+  <id>429</id>
+  <item_category>Food</item_category>
+  <name>Stuffed Steak</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Butcher</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>2; 1</material_amount>
+  <material_type>13; 20</material_type>
+</row>
+<row>
+  <id>430</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Torq</name>
+  <production_cost>10</production_cost>
+  <batch_amount>2</batch_amount>
+  <building_req>Jeweler</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>431</id>
+  <item_category>Siege Weapon</item_category>
+  <name>Trebuchet</name>
+  <production_cost>10</production_cost>
+  <batch_amount>3</batch_amount>
+  <building_req>Siege Shop</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>60; 20</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>432</id>
+  <item_category>Airship Hold</item_category>
+  <name>Troop Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Airstrip</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>40; 20</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>433</id>
+  <item_category>Ship Hold</item_category>
+  <name>Troop Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Shipyard</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>20; 10</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>434</id>
+  <item_category>Airship Hold (3H)</item_category>
+  <name>Very Large Bomb Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Airstrip</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>120; 120</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>435</id>
+  <item_category>Airship Hold (3H)</item_category>
+  <name>Very Large Cargo Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Airstrip</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>120</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>436</id>
+  <item_category>Ship Hold (3H)</item_category>
+  <name>Very Large Cargo Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Shipyard</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>60</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>437</id>
+  <item_category>Airship Hold (3H)</item_category>
+  <name>Very Large Gun Deck</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Airstrip</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>120; 120</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>438</id>
+  <item_category>Ship Hold (3H)</item_category>
+  <name>Very Large Gun Deck</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Shipyard</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>60; 60</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+<row>
+  <id>439</id>
+  <item_category>Airship Hold (3H)</item_category>
+  <name>Very Large Troop Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Airstrip</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>120</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>440</id>
+  <item_category>Ship Hold (3H)</item_category>
+  <name>Very Large Troop Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Shipyard</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>60</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>441</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Vestments</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Tailor</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>4</material_amount>
+  <material_type>5</material_type>
+</row>
+<row>
+  <id>442</id>
+  <item_category>Melee Weapon (2H)</item_category>
+  <name>Warhammer</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Weaponsmith</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>4; 1</material_amount>
+  <material_type>47; 46</material_type>
+</row>
+<row>
+  <id>443</id>
+  <item_category>Auxiliary Gear</item_category>
+  <name>Warhorse Raiment</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Leatherworks</building_req>
+  <building_level_req>3</building_level_req>
+  <material_amount>6</material_amount>
+  <material_type>11</material_type>
+</row>
+<row>
+  <id>444</id>
+  <item_category>Food</item_category>
+  <name>Wine</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Brewery</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>3</material_amount>
+  <material_type>78</material_type>
+</row>
+<row>
+  <id>445</id>
+  <item_category>Arrow Shaft</item_category>
+  <name>Wood Arrow Shaft</name>
+  <production_cost>10</production_cost>
+  <batch_amount>80</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>446</id>
+  <item_category>Bolt Shaft</item_category>
+  <name>Wood Bolt Shaft</name>
+  <production_cost>10</production_cost>
+  <batch_amount>80</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>447</id>
+  <item_category>Off-hand</item_category>
+  <name>Wood Buckler</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>448</id>
+  <item_category>Melee Weapon (1H)</item_category>
+  <name>Wood Club</name>
+  <production_cost>10</production_cost>
+  <batch_amount>4</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>449</id>
+  <item_category>Crafts</item_category>
+  <name>Wood Crafts</name>
+  <production_cost>10</production_cost>
+  <batch_amount>4</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>450</id>
+  <item_category>Haft</item_category>
+  <name>Wood Haft</name>
+  <production_cost>10</production_cost>
+  <batch_amount>4</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>451</id>
+  <item_category>Hammer</item_category>
+  <name>Wood Hammer</name>
+  <production_cost>10</production_cost>
+  <batch_amount>2</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>452</id>
+  <item_category>Melee Weapon (2H)</item_category>
+  <name>Wood Heavy Club</name>
+  <production_cost>10</production_cost>
+  <batch_amount>2</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>1 </material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>453</id>
+  <item_category>Hilt</item_category>
+  <name>Wood Hilt</name>
+  <production_cost>10</production_cost>
+  <batch_amount>8</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>454</id>
+  <item_category>Ranged Weapon (1H)</item_category>
+  <name>Wood Javelin</name>
+  <production_cost>10</production_cost>
+  <batch_amount>6</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>455</id>
+  <item_category>Shaft</item_category>
+  <name>Wood Shaft</name>
+  <production_cost>10</production_cost>
+  <batch_amount>2</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>456</id>
+  <item_category>Off-hand</item_category>
+  <name>Wood Shield</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>2</building_level_req>
+  <material_amount>2</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>457</id>
+  <item_category>Stock</item_category>
+  <name>Wood Stock</name>
+  <production_cost>10</production_cost>
+  <batch_amount>4</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>458</id>
+  <item_category>Off-hand (2H)</item_category>
+  <name>Wood Tower Shield </name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Carpenter</building_req>
+  <building_level_req>6</building_level_req>
+  <material_amount>8</material_amount>
+  <material_type>76</material_type>
+</row>
+<row>
+  <id>459</id>
+  <item_category>Shaft</item_category>
+  <name>Metal Shaft</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Blacksmith</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>1</material_amount>
+  <material_type>16</material_type>
+</row>
+<row>
+  <id>460</id>
+  <item_category>Ship Engine</item_category>
+  <name>Rowing Hold</name>
+  <production_cost>10</production_cost>
+  <batch_amount>1</batch_amount>
+  <building_req>Shipyard</building_req>
+  <building_level_req>1</building_level_req>
+  <material_amount>20; 10</material_amount>
+  <material_type>76; 16</material_type>
+</row>
+</item_template>
