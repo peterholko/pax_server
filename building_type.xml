@@ -1,0 +1,4961 @@
+<building_type>
+<row>
+ <id>1</id>
+ <build_group>throne3</build_group>
+ <building_type>Imperial Palace</building_type>
+ <level>1</level>
+ <name>Imperial Palace</name>
+ <hp>25000</hp>
+ <population_cap>8400</population_cap>
+ <production_cost>250000</production_cost>
+ <gold_cost>5000</gold_cost>
+ <lumber_cost>10000</lumber_cost>
+ <stone_cost>10000</stone_cost>
+ <upkeep>50</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions>Empire Max 1.</restrictions>
+ <value>25000</value>
+ <images48>160</images48>
+ </row>
+<row>
+ <id>2</id>
+ <build_group>throne2</build_group>
+ <building_type>Royal Palace </building_type>
+ <level>1</level>
+ <name>Village Elder</name>
+ <hp>750</hp>
+ <population_cap>200</population_cap>
+ <production_cost>0</production_cost>
+ <gold_cost>0</gold_cost>
+ <lumber_cost>0</lumber_cost>
+ <stone_cost>0</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions>Max 1.</restrictions>
+ <value>750</value>
+ <images48>161</images48>
+ </row>
+<row>
+ <id>3</id>
+ <build_group>throne2</build_group>
+ <building_type>Royal Palace </building_type>
+ <level>2</level>
+ <name>Town Hall</name>
+ <hp>1500</hp>
+ <population_cap>400</population_cap>
+ <production_cost>1000</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>250</lumber_cost>
+ <stone_cost>400</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions>Village I. Max 1.</restrictions>
+ <value>1500</value>
+ <images48>162</images48>
+ </row>
+<row>
+ <id>4</id>
+ <build_group>throne2</build_group>
+ <building_type>Royal Palace </building_type>
+ <level>3</level>
+ <name>Royal Keep</name>
+ <hp>3000</hp>
+ <population_cap>800</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>500</lumber_cost>
+ <stone_cost>800</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions>Town I. Max 1.</restrictions>
+ <value>3000</value>
+ <images48>163</images48>
+ </row>
+<row>
+ <id>5</id>
+ <build_group>throne2</build_group>
+ <building_type>Royal Palace </building_type>
+ <level>4</level>
+ <name>Royal Castle</name>
+ <hp>6000</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>750</lumber_cost>
+ <stone_cost>1600</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions>City I. Max 1.</restrictions>
+ <value>6000</value>
+ <images48>164</images48>
+ </row>
+<row>
+ <id>6</id>
+ <build_group>throne2</build_group>
+ <building_type>Royal Palace </building_type>
+ <level>5</level>
+ <name>Royal Palace</name>
+ <hp>12000</hp>
+ <population_cap>3200</population_cap>
+ <production_cost>75000</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3200</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions>Large City I. Max 1.</restrictions>
+ <value>12000</value>
+ <images48>165</images48>
+ </row>
+<row>
+ <id>7</id>
+ <build_group>throne1</build_group>
+ <building_type>Governor's Palace</building_type>
+ <level>1</level>
+ <name>Governor's House</name>
+ <hp>500</hp>
+ <population_cap>100</population_cap>
+ <production_cost>250</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>50</lumber_cost>
+ <stone_cost>50</stone_cost>
+ <upkeep>0</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions>Max 1.</restrictions>
+ <value>500</value>
+ <images48>166</images48>
+ </row>
+<row>
+ <id>8</id>
+ <build_group>throne1</build_group>
+ <building_type>Governor's Palace</building_type>
+ <level>2</level>
+ <name>Governor's Mansion</name>
+ <hp>1000</hp>
+ <population_cap>200</population_cap>
+ <production_cost>500</production_cost>
+ <gold_cost>200</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions>Village I. Max 1.</restrictions>
+ <value>1000</value>
+ <images48>167</images48>
+ </row>
+<row>
+ <id>9</id>
+ <build_group>throne1</build_group>
+ <building_type>Governor's Palace</building_type>
+ <level>3</level>
+ <name>Governor's Villa</name>
+ <hp>1500</hp>
+ <population_cap>400</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>400</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>200</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions>Town I. Max 1.</restrictions>
+ <value>1500</value>
+ <images48>168</images48>
+ </row>
+<row>
+ <id>10</id>
+ <build_group>throne1</build_group>
+ <building_type>Governor's Palace</building_type>
+ <level>4</level>
+ <name>Governor's Estate</name>
+ <hp>3000</hp>
+ <population_cap>800</population_cap>
+ <production_cost>12500</production_cost>
+ <gold_cost>800</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>400</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions>City I. Max 1.</restrictions>
+ <value>3000</value>
+ <images48>169</images48>
+ </row>
+<row>
+ <id>11</id>
+ <build_group>throne1</build_group>
+ <building_type>Governor's Palace</building_type>
+ <level>5</level>
+ <name>Governor's Palace</name>
+ <hp>6000</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25000</production_cost>
+ <gold_cost>1200</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>800</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions>Large City I. Max 1.</restrictions>
+ <value>6000</value>
+ <images48>170</images48>
+ </row>
+<row>
+ <id>12</id>
+ <build_group>arcane1</build_group>
+ <building_type>Divine Temple</building_type>
+ <level>1</level>
+ <name>Altar</name>
+ <hp>500</hp>
+ <population_cap>150</population_cap>
+ <production_cost>1200</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>150</lumber_cost>
+ <stone_cost>200</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>500</value>
+ <images48>171</images48>
+ </row>
+<row>
+ <id>13</id>
+ <build_group>arcane1</build_group>
+ <building_type>Divine Temple</building_type>
+ <level>2</level>
+ <name>Dawnspire Chapel</name>
+ <hp>750</hp>
+ <population_cap>300</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>250</lumber_cost>
+ <stone_cost>400</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>750</value>
+ <images48>172</images48>
+ </row>
+<row>
+ <id>14</id>
+ <build_group>arcane1</build_group>
+ <building_type>Divine Temple</building_type>
+ <level>3</level>
+ <name>Church</name>
+ <hp>2000</hp>
+ <population_cap>600</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>500</lumber_cost>
+ <stone_cost>800</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>2000</value>
+ <images48>173</images48>
+ </row>
+<row>
+ <id>15</id>
+ <build_group>arcane1</build_group>
+ <building_type>Divine Temple</building_type>
+ <level>4</level>
+ <name>Cathedral</name>
+ <hp>4000</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>750</lumber_cost>
+ <stone_cost>1600</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>4000</value>
+ <images48>174</images48>
+ </row>
+<row>
+ <id>16</id>
+ <build_group>arcane1</build_group>
+ <building_type>Divine Temple</building_type>
+ <level>5</level>
+ <name>Radiant Basilica</name>
+ <hp>8000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>60000</production_cost>
+ <gold_cost>1750</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3200</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>8000</value>
+ <images48>175</images48>
+ </row>
+<row>
+ <id>17</id>
+ <build_group>arcane1</build_group>
+ <building_type>Corrupt Temple</building_type>
+ <level>1</level>
+ <name>Bonehenge</name>
+ <hp>500</hp>
+ <population_cap>150</population_cap>
+ <production_cost>1200</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>150</lumber_cost>
+ <stone_cost>200</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>500</value>
+ <images48>176</images48>
+ </row>
+<row>
+ <id>18</id>
+ <build_group>arcane1</build_group>
+ <building_type>Corrupt Temple</building_type>
+ <level>2</level>
+ <name>Chapel</name>
+ <hp>750</hp>
+ <population_cap>300</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>250</lumber_cost>
+ <stone_cost>400</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>750</value>
+ <images48>177</images48>
+ </row>
+<row>
+ <id>19</id>
+ <build_group>arcane1</build_group>
+ <building_type>Corrupt Temple</building_type>
+ <level>3</level>
+ <name>Church</name>
+ <hp>2000</hp>
+ <population_cap>600</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>500</lumber_cost>
+ <stone_cost>800</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>2000</value>
+ <images48>178</images48>
+ </row>
+<row>
+ <id>20</id>
+ <build_group>arcane1</build_group>
+ <building_type>Corrupt Temple</building_type>
+ <level>4</level>
+ <name>Obscene Cathedral</name>
+ <hp>4000</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>750</lumber_cost>
+ <stone_cost>1600</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>4000</value>
+ <images48>179</images48>
+ </row>
+<row>
+ <id>21</id>
+ <build_group>arcane1</build_group>
+ <building_type>Corrupt Temple</building_type>
+ <level>5</level>
+ <name>Basilica</name>
+ <hp>8000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>60000</production_cost>
+ <gold_cost>1750</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3200</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>8000</value>
+ <images48>180</images48>
+ </row>
+<row>
+ <id>22</id>
+ <build_group>arcane1</build_group>
+ <building_type>Water Temple</building_type>
+ <level>1</level>
+ <name>Tidestone Altar</name>
+ <hp>500</hp>
+ <population_cap>150</population_cap>
+ <production_cost>1200</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>150</lumber_cost>
+ <stone_cost>200</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>500</value>
+ <images48>181</images48>
+ </row>
+<row>
+ <id>23</id>
+ <build_group>arcane1</build_group>
+ <building_type>Water Temple</building_type>
+ <level>2</level>
+ <name>Chapel</name>
+ <hp>750</hp>
+ <population_cap>300</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>250</lumber_cost>
+ <stone_cost>400</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>750</value>
+ <images48>182</images48>
+ </row>
+<row>
+ <id>24</id>
+ <build_group>arcane1</build_group>
+ <building_type>Water Temple</building_type>
+ <level>3</level>
+ <name>Church</name>
+ <hp>2000</hp>
+ <population_cap>600</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>500</lumber_cost>
+ <stone_cost>800</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>2000</value>
+ <images48>183</images48>
+ </row>
+<row>
+ <id>25</id>
+ <build_group>arcane1</build_group>
+ <building_type>Water Temple</building_type>
+ <level>4</level>
+ <name>Cathedral</name>
+ <hp>4000</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>750</lumber_cost>
+ <stone_cost>1600</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>4000</value>
+ <images48>184</images48>
+ </row>
+<row>
+ <id>26</id>
+ <build_group>arcane1</build_group>
+ <building_type>Water Temple</building_type>
+ <level>5</level>
+ <name>Basilica</name>
+ <hp>8000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>60000</production_cost>
+ <gold_cost>1750</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3200</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>8000</value>
+ <images48>185</images48>
+ </row>
+<row>
+ <id>27</id>
+ <build_group>arcane1</build_group>
+ <building_type>Nature Temple</building_type>
+ <level>1</level>
+ <name>Altar</name>
+ <hp>500</hp>
+ <population_cap>150</population_cap>
+ <production_cost>1200</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>150</lumber_cost>
+ <stone_cost>200</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>500</value>
+ <images48>186</images48>
+ </row>
+<row>
+ <id>28</id>
+ <build_group>arcane1</build_group>
+ <building_type>Nature Temple</building_type>
+ <level>2</level>
+ <name>Chapel</name>
+ <hp>750</hp>
+ <population_cap>300</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>250</lumber_cost>
+ <stone_cost>400</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>750</value>
+ <images48>187</images48>
+ </row>
+<row>
+ <id>29</id>
+ <build_group>arcane1</build_group>
+ <building_type>Nature Temple</building_type>
+ <level>3</level>
+ <name>Church</name>
+ <hp>2000</hp>
+ <population_cap>600</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>500</lumber_cost>
+ <stone_cost>800</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>2000</value>
+ <images48>188</images48>
+ </row>
+<row>
+ <id>30</id>
+ <build_group>arcane1</build_group>
+ <building_type>Nature Temple</building_type>
+ <level>4</level>
+ <name>Cathedral</name>
+ <hp>4000</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>750</lumber_cost>
+ <stone_cost>1600</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>4000</value>
+ <images48>189</images48>
+ </row>
+<row>
+ <id>31</id>
+ <build_group>arcane1</build_group>
+ <building_type>Nature Temple</building_type>
+ <level>5</level>
+ <name>Basilica</name>
+ <hp>8000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>60000</production_cost>
+ <gold_cost>1750</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3200</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>8000</value>
+ <images48>190</images48>
+ </row>
+<row>
+ <id>32</id>
+ <build_group>arcane1</build_group>
+ <building_type>Fire Temple</building_type>
+ <level>1</level>
+ <name>Altar</name>
+ <hp>500</hp>
+ <population_cap>150</population_cap>
+ <production_cost>1200</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>150</lumber_cost>
+ <stone_cost>200</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>500</value>
+ <images48>191</images48>
+ </row>
+<row>
+ <id>33</id>
+ <build_group>arcane1</build_group>
+ <building_type>Fire Temple</building_type>
+ <level>2</level>
+ <name>Chapel</name>
+ <hp>750</hp>
+ <population_cap>300</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>250</lumber_cost>
+ <stone_cost>400</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>750</value>
+ <images48>192</images48>
+ </row>
+<row>
+ <id>34</id>
+ <build_group>arcane1</build_group>
+ <building_type>Fire Temple</building_type>
+ <level>3</level>
+ <name>Church</name>
+ <hp>2000</hp>
+ <population_cap>600</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>500</lumber_cost>
+ <stone_cost>800</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>2000</value>
+ <images48>193</images48>
+ </row>
+<row>
+ <id>35</id>
+ <build_group>arcane1</build_group>
+ <building_type>Fire Temple</building_type>
+ <level>4</level>
+ <name>Cathedral</name>
+ <hp>4000</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>750</lumber_cost>
+ <stone_cost>1600</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>4000</value>
+ <images48>194</images48>
+ </row>
+<row>
+ <id>36</id>
+ <build_group>arcane1</build_group>
+ <building_type>Fire Temple</building_type>
+ <level>5</level>
+ <name>Basilica</name>
+ <hp>8000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>60000</production_cost>
+ <gold_cost>1750</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3200</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>8000</value>
+ <images48>195</images48>
+ </row>
+<row>
+ <id>37</id>
+ <build_group>arcane1</build_group>
+ <building_type>Earth Temple</building_type>
+ <level>1</level>
+ <name>Altar</name>
+ <hp>500</hp>
+ <population_cap>150</population_cap>
+ <production_cost>1200</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>150</lumber_cost>
+ <stone_cost>200</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>500</value>
+ <images48>196</images48>
+ </row>
+<row>
+ <id>38</id>
+ <build_group>arcane1</build_group>
+ <building_type>Earth Temple</building_type>
+ <level>2</level>
+ <name>Chapel</name>
+ <hp>750</hp>
+ <population_cap>300</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>250</lumber_cost>
+ <stone_cost>400</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>750</value>
+ <images48>197</images48>
+ </row>
+<row>
+ <id>39</id>
+ <build_group>arcane1</build_group>
+ <building_type>Earth Temple</building_type>
+ <level>3</level>
+ <name>Church</name>
+ <hp>2000</hp>
+ <population_cap>600</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>500</lumber_cost>
+ <stone_cost>800</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>2000</value>
+ <images48>198</images48>
+ </row>
+<row>
+ <id>40</id>
+ <build_group>arcane1</build_group>
+ <building_type>Earth Temple</building_type>
+ <level>4</level>
+ <name>Cathedral</name>
+ <hp>4000</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>750</lumber_cost>
+ <stone_cost>1600</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>4000</value>
+ <images48>199</images48>
+ </row>
+<row>
+ <id>41</id>
+ <build_group>arcane1</build_group>
+ <building_type>Earth Temple</building_type>
+ <level>5</level>
+ <name>Basilica</name>
+ <hp>8000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>60000</production_cost>
+ <gold_cost>1750</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3200</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>8000</value>
+ <images48>200</images48>
+ </row>
+<row>
+ <id>42</id>
+ <build_group>arcane2</build_group>
+ <building_type>Monastery</building_type>
+ <level>1</level>
+ <name>Hermitage</name>
+ <hp>500</hp>
+ <population_cap>150</population_cap>
+ <production_cost>1200</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>150</lumber_cost>
+ <stone_cost>200</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>500</value>
+ <images48>201</images48>
+ </row>
+<row>
+ <id>43</id>
+ <build_group>arcane2</build_group>
+ <building_type>Monastery</building_type>
+ <level>2</level>
+ <name>Cloister</name>
+ <hp>750</hp>
+ <population_cap>300</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>250</lumber_cost>
+ <stone_cost>400</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>750</value>
+ <images48>202</images48>
+ </row>
+<row>
+ <id>44</id>
+ <build_group>arcane2</build_group>
+ <building_type>Monastery</building_type>
+ <level>3</level>
+ <name>Priory</name>
+ <hp>1500</hp>
+ <population_cap>600</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>500</lumber_cost>
+ <stone_cost>800</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1500</value>
+ <images48>203</images48>
+ </row>
+<row>
+ <id>45</id>
+ <build_group>arcane2</build_group>
+ <building_type>Monastery</building_type>
+ <level>4</level>
+ <name>Monastery</name>
+ <hp>3000</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>10000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>750</lumber_cost>
+ <stone_cost>1600</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3000</value>
+ <images48>204</images48>
+ </row>
+<row>
+ <id>46</id>
+ <build_group>arcane2</build_group>
+ <building_type>Monastery</building_type>
+ <level>5</level>
+ <name>Great Monastery</name>
+ <hp>5000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3200</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>5000</value>
+ <images48>205</images48>
+ </row>
+<row>
+ <id>47</id>
+ <build_group>arcane2</build_group>
+ <building_type>College</building_type>
+ <level>1</level>
+ <name>Schoolhouse</name>
+ <hp>500</hp>
+ <population_cap>150</population_cap>
+ <production_cost>1200</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>150</lumber_cost>
+ <stone_cost>200</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>500</value>
+ <images48>206</images48>
+ </row>
+<row>
+ <id>48</id>
+ <build_group>arcane2</build_group>
+ <building_type>College</building_type>
+ <level>2</level>
+ <name>School</name>
+ <hp>750</hp>
+ <population_cap>300</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>250</lumber_cost>
+ <stone_cost>400</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>750</value>
+ <images48>207</images48>
+ </row>
+<row>
+ <id>49</id>
+ <build_group>arcane2</build_group>
+ <building_type>College</building_type>
+ <level>3</level>
+ <name>Library</name>
+ <hp>1500</hp>
+ <population_cap>600</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>500</lumber_cost>
+ <stone_cost>800</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1500</value>
+ <images48>208</images48>
+ </row>
+<row>
+ <id>50</id>
+ <build_group>arcane2</build_group>
+ <building_type>College</building_type>
+ <level>4</level>
+ <name>College</name>
+ <hp>3000</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>10000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>750</lumber_cost>
+ <stone_cost>1600</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3000</value>
+ <images48>209</images48>
+ </row>
+<row>
+ <id>51</id>
+ <build_group>arcane2</build_group>
+ <building_type>College</building_type>
+ <level>5</level>
+ <name>Royal College</name>
+ <hp>5000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3200</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>5000</value>
+ <images48>210</images48>
+ </row>
+<row>
+ <id>52</id>
+ <build_group>warfare1</build_group>
+ <building_type>Barracks</building_type>
+ <level>1</level>
+ <name>Training Ground</name>
+ <hp>500</hp>
+ <population_cap>100</population_cap>
+ <production_cost>1200</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>500</value>
+ <images48>211</images48>
+ </row>
+<row>
+ <id>53</id>
+ <build_group>warfare1</build_group>
+ <building_type>Barracks</building_type>
+ <level>2</level>
+ <name>Militia Barracks</name>
+ <hp>750</hp>
+ <population_cap>200</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>750</value>
+ <images48>212</images48>
+ </row>
+<row>
+ <id>54</id>
+ <build_group>warfare1</build_group>
+ <building_type>Barracks</building_type>
+ <level>3</level>
+ <name>City Barracks</name>
+ <hp>1500</hp>
+ <population_cap>400</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1500</value>
+ <images48>213</images48>
+ </row>
+<row>
+ <id>55</id>
+ <build_group>warfare1</build_group>
+ <building_type>Barracks</building_type>
+ <level>4</level>
+ <name>Army Barracks</name>
+ <hp>3000</hp>
+ <population_cap>800</population_cap>
+ <production_cost>10000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3000</value>
+ <images48>214</images48>
+ </row>
+<row>
+ <id>56</id>
+ <build_group>warfare1</build_group>
+ <building_type>Barracks</building_type>
+ <level>5</level>
+ <name>Royal Barracks</name>
+ <hp>5000</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>5000</value>
+ <images48>215</images48>
+ </row>
+<row>
+ <id>57</id>
+ <build_group>warfare2</build_group>
+ <building_type>Shipyard</building_type>
+ <level>1</level>
+ <name>Shipwright's House</name>
+ <hp>750</hp>
+ <population_cap>200</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>750</value>
+ <images48>216</images48>
+ </row>
+<row>
+ <id>58</id>
+ <build_group>warfare2</build_group>
+ <building_type>Shipyard</building_type>
+ <level>2</level>
+ <name>Shipwright's Shop</name>
+ <hp>1500</hp>
+ <population_cap>400</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1500</value>
+ <images48>217</images48>
+ </row>
+<row>
+ <id>59</id>
+ <build_group>warfare2</build_group>
+ <building_type>Shipyard</building_type>
+ <level>3</level>
+ <name>Shipyard</name>
+ <hp>3000</hp>
+ <population_cap>800</population_cap>
+ <production_cost>10000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3000</value>
+ <images48>218</images48>
+ </row>
+<row>
+ <id>60</id>
+ <build_group>warfare2</build_group>
+ <building_type>Shipyard</building_type>
+ <level>4</level>
+ <name>Large Shipyard</name>
+ <hp>5000</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>5000</value>
+ <images48>219</images48>
+ </row>
+<row>
+ <id>61</id>
+ <build_group>warfare2</build_group>
+ <building_type>Shipyard</building_type>
+ <level>5</level>
+ <name>Drydock</name>
+ <hp>8000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>40000</production_cost>
+ <gold_cost>2000</gold_cost>
+ <lumber_cost>1600</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>8000</value>
+ <images48>220</images48>
+ </row>
+<row>
+ <id>62</id>
+ <build_group>warfare2</build_group>
+ <building_type>Academy</building_type>
+ <level>1</level>
+ <name>Drill Yard</name>
+ <hp>750</hp>
+ <population_cap>200</population_cap>
+ <production_cost>2500</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>750</value>
+ <images48>221</images48>
+ </row>
+<row>
+ <id>63</id>
+ <build_group>warfare2</build_group>
+ <building_type>Academy</building_type>
+ <level>2</level>
+ <name>Tactics School</name>
+ <hp>1500</hp>
+ <population_cap>400</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1500</value>
+ <images48>222</images48>
+ </row>
+<row>
+ <id>64</id>
+ <build_group>warfare2</build_group>
+ <building_type>Academy</building_type>
+ <level>3</level>
+ <name>Military College</name>
+ <hp>3000</hp>
+ <population_cap>800</population_cap>
+ <production_cost>10000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3000</value>
+ <images48>223</images48>
+ </row>
+<row>
+ <id>65</id>
+ <build_group>warfare2</build_group>
+ <building_type>Academy</building_type>
+ <level>4</level>
+ <name>War Academy</name>
+ <hp>5000</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>5000</value>
+ <images48>224</images48>
+ </row>
+<row>
+ <id>66</id>
+ <build_group>warfare2</build_group>
+ <building_type>Academy</building_type>
+ <level>5</level>
+ <name>Royal Academy</name>
+ <hp>8000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>40000</production_cost>
+ <gold_cost>2000</gold_cost>
+ <lumber_cost>1600</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>8000</value>
+ <images48>225</images48>
+ </row>
+<row>
+ <id>67</id>
+ <build_group>warfare3</build_group>
+ <building_type>Admiralty</building_type>
+ <level>1</level>
+ <name>Pilot's School</name>
+ <hp>1500</hp>
+ <population_cap>400</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1500</value>
+ <images48>226</images48>
+ </row>
+<row>
+ <id>68</id>
+ <build_group>warfare3</build_group>
+ <building_type>Admiralty</building_type>
+ <level>2</level>
+ <name>Training Center</name>
+ <hp>3000</hp>
+ <population_cap>800</population_cap>
+ <production_cost>10000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3000</value>
+ <images48>227</images48>
+ </row>
+<row>
+ <id>69</id>
+ <build_group>warfare3</build_group>
+ <building_type>Admiralty</building_type>
+ <level>3</level>
+ <name>Naval College</name>
+ <hp>5000</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>5000</value>
+ <images48>228</images48>
+ </row>
+<row>
+ <id>70</id>
+ <build_group>warfare3</build_group>
+ <building_type>Admiralty</building_type>
+ <level>4</level>
+ <name>Admiralty</name>
+ <hp>8000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>40000</production_cost>
+ <gold_cost>2000</gold_cost>
+ <lumber_cost>1600</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>8000</value>
+ <images48>229</images48>
+ </row>
+<row>
+ <id>71</id>
+ <build_group>warfare3</build_group>
+ <building_type>Admiralty</building_type>
+ <level>5</level>
+ <name>Grand Admiralty</name>
+ <hp>10000</hp>
+ <population_cap>3200</population_cap>
+ <production_cost>65000</production_cost>
+ <gold_cost>3000</gold_cost>
+ <lumber_cost>2400</lumber_cost>
+ <stone_cost>6000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>10000</value>
+ <images48>230</images48>
+ </row>
+<row>
+ <id>72</id>
+ <build_group>warfare3</build_group>
+ <building_type>Airstrip</building_type>
+ <level>1</level>
+ <name>Airship Runway</name>
+ <hp>1500</hp>
+ <population_cap>400</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1500</value>
+ <images48>231</images48>
+ </row>
+<row>
+ <id>73</id>
+ <build_group>warfare3</build_group>
+ <building_type>Airstrip</building_type>
+ <level>2</level>
+ <name>Airship Hangar</name>
+ <hp>3000</hp>
+ <population_cap>800</population_cap>
+ <production_cost>10000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3000</value>
+ <images48>232</images48>
+ </row>
+<row>
+ <id>74</id>
+ <build_group>warfare3</build_group>
+ <building_type>Airstrip</building_type>
+ <level>3</level>
+ <name>Airyard</name>
+ <hp>5000</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>5000</value>
+ <images48>233</images48>
+ </row>
+<row>
+ <id>75</id>
+ <build_group>warfare3</build_group>
+ <building_type>Airstrip</building_type>
+ <level>4</level>
+ <name>Large Airyard</name>
+ <hp>8000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>40000</production_cost>
+ <gold_cost>2000</gold_cost>
+ <lumber_cost>1600</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>8000</value>
+ <images48>234</images48>
+ </row>
+<row>
+ <id>76</id>
+ <build_group>warfare3</build_group>
+ <building_type>Airstrip</building_type>
+ <level>5</level>
+ <name>Airship Drydock </name>
+ <hp>10000</hp>
+ <population_cap>3200</population_cap>
+ <production_cost>65000</production_cost>
+ <gold_cost>3000</gold_cost>
+ <lumber_cost>2400</lumber_cost>
+ <stone_cost>6000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>10000</value>
+ <images48>235</images48>
+ </row>
+<row>
+ <id>77</id>
+ <build_group>warfare3</build_group>
+ <building_type>Artificer</building_type>
+ <level>1</level>
+ <name>Artificer's House</name>
+ <hp>1500</hp>
+ <population_cap>400</population_cap>
+ <production_cost>5000</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1500</value>
+ <images48>236</images48>
+ </row>
+<row>
+ <id>78</id>
+ <build_group>warfare3</build_group>
+ <building_type>Artificer</building_type>
+ <level>2</level>
+ <name>Artificer's Shop</name>
+ <hp>3000</hp>
+ <population_cap>800</population_cap>
+ <production_cost>10000</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3000</value>
+ <images48>237</images48>
+ </row>
+<row>
+ <id>79</id>
+ <build_group>warfare3</build_group>
+ <building_type>Artificer</building_type>
+ <level>3</level>
+ <name>Artificer</name>
+ <hp>5000</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>20000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>5000</value>
+ <images48>238</images48>
+ </row>
+<row>
+ <id>80</id>
+ <build_group>warfare3</build_group>
+ <building_type>Artificer</building_type>
+ <level>4</level>
+ <name>Large Artificer</name>
+ <hp>8000</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>40000</production_cost>
+ <gold_cost>2000</gold_cost>
+ <lumber_cost>1600</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>8000</value>
+ <images48>239</images48>
+ </row>
+<row>
+ <id>81</id>
+ <build_group>warfare3</build_group>
+ <building_type>Artificer</building_type>
+ <level>5</level>
+ <name>Artificer Factory</name>
+ <hp>10000</hp>
+ <population_cap>3200</population_cap>
+ <production_cost>65000</production_cost>
+ <gold_cost>3000</gold_cost>
+ <lumber_cost>2400</lumber_cost>
+ <stone_cost>6000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>10000</value>
+ <images48>240</images48>
+ </row>
+<row>
+ <id>82</id>
+ <build_group>craft1</build_group>
+ <building_type>Butcher</building_type>
+ <level>1</level>
+ <name>Butcher's Shop</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>241</images48>
+ </row>
+<row>
+ <id>83</id>
+ <build_group>craft1</build_group>
+ <building_type>Butcher</building_type>
+ <level>2</level>
+ <name>Butcher</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>242</images48>
+ </row>
+<row>
+ <id>84</id>
+ <build_group>craft1</build_group>
+ <building_type>Butcher</building_type>
+ <level>3</level>
+ <name>Slaughterhouse</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>243</images48>
+ </row>
+<row>
+ <id>85</id>
+ <build_group>craft1</build_group>
+ <building_type>Fishery</building_type>
+ <level>1</level>
+ <name>Fisher's Wharf</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>244</images48>
+ </row>
+<row>
+ <id>86</id>
+ <build_group>craft1</build_group>
+ <building_type>Fishery</building_type>
+ <level>2</level>
+ <name>Fishery</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>245</images48>
+ </row>
+<row>
+ <id>87</id>
+ <build_group>craft1</build_group>
+ <building_type>Fishery</building_type>
+ <level>3</level>
+ <name>Cannery</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>246</images48>
+ </row>
+<row>
+ <id>88</id>
+ <build_group>craft1</build_group>
+ <building_type>Foundry</building_type>
+ <level>1</level>
+ <name>Smelter</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>247</images48>
+ </row>
+<row>
+ <id>89</id>
+ <build_group>craft1</build_group>
+ <building_type>Foundry</building_type>
+ <level>2</level>
+ <name>Foundry</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>248</images48>
+ </row>
+<row>
+ <id>90</id>
+ <build_group>craft1</build_group>
+ <building_type>Foundry</building_type>
+ <level>3</level>
+ <name>Large Foundry</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>249</images48>
+ </row>
+<row>
+ <id>91</id>
+ <build_group>craft1</build_group>
+ <building_type>Mill</building_type>
+ <level>1</level>
+ <name>Millstone</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>250</images48>
+ </row>
+<row>
+ <id>92</id>
+ <build_group>craft1</build_group>
+ <building_type>Mill</building_type>
+ <level>2</level>
+ <name>Windmill</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>251</images48>
+ </row>
+<row>
+ <id>93</id>
+ <build_group>craft1</build_group>
+ <building_type>Mill</building_type>
+ <level>3</level>
+ <name>Large Windmill</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>252</images48>
+ </row>
+<row>
+ <id>94</id>
+ <build_group>craft1</build_group>
+ <building_type>Stables</building_type>
+ <level>1</level>
+ <name>Riding Barn</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>253</images48>
+ </row>
+<row>
+ <id>95</id>
+ <build_group>craft1</build_group>
+ <building_type>Stables</building_type>
+ <level>2</level>
+ <name>Stables</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>254</images48>
+ </row>
+<row>
+ <id>96</id>
+ <build_group>craft1</build_group>
+ <building_type>Stables</building_type>
+ <level>3</level>
+ <name>City Stables</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>255</images48>
+ </row>
+<row>
+ <id>97</id>
+ <build_group>craft1</build_group>
+ <building_type>Tanner</building_type>
+ <level>1</level>
+ <name>Tanner's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>256</images48>
+ </row>
+<row>
+ <id>98</id>
+ <build_group>craft1</build_group>
+ <building_type>Tanner</building_type>
+ <level>2</level>
+ <name>Tanner's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>257</images48>
+ </row>
+<row>
+ <id>99</id>
+ <build_group>craft1</build_group>
+ <building_type>Tanner</building_type>
+ <level>3</level>
+ <name>Tanner</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>258</images48>
+ </row>
+<row>
+ <id>100</id>
+ <build_group>craft1</build_group>
+ <building_type>Weaver</building_type>
+ <level>1</level>
+ <name>Weaver's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>259</images48>
+ </row>
+<row>
+ <id>101</id>
+ <build_group>craft1</build_group>
+ <building_type>Weaver</building_type>
+ <level>2</level>
+ <name>Weaver's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>260</images48>
+ </row>
+<row>
+ <id>102</id>
+ <build_group>craft1</build_group>
+ <building_type>Weaver</building_type>
+ <level>3</level>
+ <name>Weaver</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>261</images48>
+ </row>
+<row>
+ <id>103</id>
+ <build_group>craft2</build_group>
+ <building_type>Alchemist</building_type>
+ <level>1</level>
+ <name>Alchemist's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>262</images48>
+ </row>
+<row>
+ <id>104</id>
+ <build_group>craft2</build_group>
+ <building_type>Alchemist</building_type>
+ <level>2</level>
+ <name>Alchemist's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>263</images48>
+ </row>
+<row>
+ <id>105</id>
+ <build_group>craft2</build_group>
+ <building_type>Alchemist</building_type>
+ <level>3</level>
+ <name>Alchemist</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>264</images48>
+ </row>
+<row>
+ <id>106</id>
+ <build_group>craft2</build_group>
+ <building_type>Alchemist</building_type>
+ <level>4</level>
+ <name>Large Alchemist</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>265</images48>
+ </row>
+<row>
+ <id>107</id>
+ <build_group>craft2</build_group>
+ <building_type>Alchemist</building_type>
+ <level>5</level>
+ <name>Alchemical Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>266</images48>
+ </row>
+<row>
+ <id>108</id>
+ <build_group>craft2</build_group>
+ <building_type>Armorsmith</building_type>
+ <level>1</level>
+ <name>Armorsmith's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>267</images48>
+ </row>
+<row>
+ <id>109</id>
+ <build_group>craft2</build_group>
+ <building_type>Armorsmith</building_type>
+ <level>2</level>
+ <name>Armorsmith's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>268</images48>
+ </row>
+<row>
+ <id>110</id>
+ <build_group>craft2</build_group>
+ <building_type>Armorsmith</building_type>
+ <level>3</level>
+ <name>Armorsmith</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>269</images48>
+ </row>
+<row>
+ <id>111</id>
+ <build_group>craft2</build_group>
+ <building_type>Armorsmith</building_type>
+ <level>4</level>
+ <name>Large Armorsmith</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>270</images48>
+ </row>
+<row>
+ <id>112</id>
+ <build_group>craft2</build_group>
+ <building_type>Armorsmith</building_type>
+ <level>5</level>
+ <name>Armor Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>271</images48>
+ </row>
+<row>
+ <id>113</id>
+ <build_group>craft2</build_group>
+ <building_type>Bakery</building_type>
+ <level>1</level>
+ <name>Baker's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>272</images48>
+ </row>
+<row>
+ <id>114</id>
+ <build_group>craft2</build_group>
+ <building_type>Bakery</building_type>
+ <level>2</level>
+ <name>Baker's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>273</images48>
+ </row>
+<row>
+ <id>115</id>
+ <build_group>craft2</build_group>
+ <building_type>Bakery</building_type>
+ <level>3</level>
+ <name>Bakery</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>274</images48>
+ </row>
+<row>
+ <id>116</id>
+ <build_group>craft2</build_group>
+ <building_type>Bakery</building_type>
+ <level>4</level>
+ <name>Large Bakery</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>275</images48>
+ </row>
+<row>
+ <id>117</id>
+ <build_group>craft2</build_group>
+ <building_type>Bakery</building_type>
+ <level>5</level>
+ <name>Huge Bakery</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>276</images48>
+ </row>
+<row>
+ <id>118</id>
+ <build_group>craft2</build_group>
+ <building_type>Blacksmith</building_type>
+ <level>1</level>
+ <name>Blackmith's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>277</images48>
+ </row>
+<row>
+ <id>119</id>
+ <build_group>craft2</build_group>
+ <building_type>Blacksmith</building_type>
+ <level>2</level>
+ <name>Blackmith's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>278</images48>
+ </row>
+<row>
+ <id>120</id>
+ <build_group>craft2</build_group>
+ <building_type>Blacksmith</building_type>
+ <level>3</level>
+ <name>Blackmith</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>279</images48>
+ </row>
+<row>
+ <id>121</id>
+ <build_group>craft2</build_group>
+ <building_type>Blacksmith</building_type>
+ <level>4</level>
+ <name>Large Blacksmith</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>280</images48>
+ </row>
+<row>
+ <id>122</id>
+ <build_group>craft2</build_group>
+ <building_type>Blacksmith</building_type>
+ <level>5</level>
+ <name>Smithing Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>281</images48>
+ </row>
+<row>
+ <id>123</id>
+ <build_group>craft2</build_group>
+ <building_type>Bonecarver</building_type>
+ <level>1</level>
+ <name>Bonecarver's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>282</images48>
+ </row>
+<row>
+ <id>124</id>
+ <build_group>craft2</build_group>
+ <building_type>Bonecarver</building_type>
+ <level>2</level>
+ <name>Bonecarver's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>283</images48>
+ </row>
+<row>
+ <id>125</id>
+ <build_group>craft2</build_group>
+ <building_type>Bonecarver</building_type>
+ <level>3</level>
+ <name>Bonecarver</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>284</images48>
+ </row>
+<row>
+ <id>126</id>
+ <build_group>craft2</build_group>
+ <building_type>Bonecarver</building_type>
+ <level>4</level>
+ <name>Large Bonecarver</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>285</images48>
+ </row>
+<row>
+ <id>127</id>
+ <build_group>craft2</build_group>
+ <building_type>Bonecarver</building_type>
+ <level>5</level>
+ <name>Bonecarving Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>286</images48>
+ </row>
+<row>
+ <id>128</id>
+ <build_group>craft2</build_group>
+ <building_type>Bowyer</building_type>
+ <level>1</level>
+ <name>Bowyer's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>287</images48>
+ </row>
+<row>
+ <id>129</id>
+ <build_group>craft2</build_group>
+ <building_type>Bowyer</building_type>
+ <level>2</level>
+ <name>Bowyer's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>288</images48>
+ </row>
+<row>
+ <id>130</id>
+ <build_group>craft2</build_group>
+ <building_type>Bowyer</building_type>
+ <level>3</level>
+ <name>Bowyer</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>289</images48>
+ </row>
+<row>
+ <id>131</id>
+ <build_group>craft2</build_group>
+ <building_type>Bowyer</building_type>
+ <level>4</level>
+ <name>Large Bowyer</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>290</images48>
+ </row>
+<row>
+ <id>132</id>
+ <build_group>craft2</build_group>
+ <building_type>Bowyer</building_type>
+ <level>5</level>
+ <name>Bowyer Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>291</images48>
+ </row>
+<row>
+ <id>133</id>
+ <build_group>craft2</build_group>
+ <building_type>Brewery</building_type>
+ <level>1</level>
+ <name>Brewer's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>292</images48>
+ </row>
+<row>
+ <id>134</id>
+ <build_group>craft2</build_group>
+ <building_type>Brewery</building_type>
+ <level>2</level>
+ <name>Brewer's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>293</images48>
+ </row>
+<row>
+ <id>135</id>
+ <build_group>craft2</build_group>
+ <building_type>Brewery</building_type>
+ <level>3</level>
+ <name>Brewery</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>294</images48>
+ </row>
+<row>
+ <id>136</id>
+ <build_group>craft2</build_group>
+ <building_type>Brewery</building_type>
+ <level>4</level>
+ <name>Large Brewery</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>295</images48>
+ </row>
+<row>
+ <id>137</id>
+ <build_group>craft2</build_group>
+ <building_type>Brewery</building_type>
+ <level>5</level>
+ <name>Distillery</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>296</images48>
+ </row>
+<row>
+ <id>138</id>
+ <build_group>craft2</build_group>
+ <building_type>Carpenter</building_type>
+ <level>1</level>
+ <name>Carpenter's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>297</images48>
+ </row>
+<row>
+ <id>139</id>
+ <build_group>craft2</build_group>
+ <building_type>Carpenter</building_type>
+ <level>2</level>
+ <name>Carpenter's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>298</images48>
+ </row>
+<row>
+ <id>140</id>
+ <build_group>craft2</build_group>
+ <building_type>Carpenter</building_type>
+ <level>3</level>
+ <name>Carpenter</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>299</images48>
+ </row>
+<row>
+ <id>141</id>
+ <build_group>craft2</build_group>
+ <building_type>Carpenter</building_type>
+ <level>4</level>
+ <name>Large Carpenter</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>300</images48>
+ </row>
+<row>
+ <id>142</id>
+ <build_group>craft2</build_group>
+ <building_type>Carpenter</building_type>
+ <level>5</level>
+ <name>Carpentry Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>301</images48>
+ </row>
+<row>
+ <id>143</id>
+ <build_group>craft2</build_group>
+ <building_type>Herbalist</building_type>
+ <level>1</level>
+ <name>Herbalist's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>302</images48>
+ </row>
+<row>
+ <id>144</id>
+ <build_group>craft2</build_group>
+ <building_type>Herbalist</building_type>
+ <level>2</level>
+ <name>Herbalist's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>303</images48>
+ </row>
+<row>
+ <id>145</id>
+ <build_group>craft2</build_group>
+ <building_type>Herbalist</building_type>
+ <level>3</level>
+ <name>Herbalist</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>304</images48>
+ </row>
+<row>
+ <id>146</id>
+ <build_group>craft2</build_group>
+ <building_type>Herbalist</building_type>
+ <level>4</level>
+ <name>Large Herbalist</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>305</images48>
+ </row>
+<row>
+ <id>147</id>
+ <build_group>craft2</build_group>
+ <building_type>Herbalist</building_type>
+ <level>5</level>
+ <name>Herbal Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>306</images48>
+ </row>
+<row>
+ <id>148</id>
+ <build_group>craft2</build_group>
+ <building_type>Jeweler</building_type>
+ <level>1</level>
+ <name>Jeweler's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>307</images48>
+ </row>
+<row>
+ <id>149</id>
+ <build_group>craft2</build_group>
+ <building_type>Jeweler</building_type>
+ <level>2</level>
+ <name>Jeweler's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>308</images48>
+ </row>
+<row>
+ <id>150</id>
+ <build_group>craft2</build_group>
+ <building_type>Jeweler</building_type>
+ <level>3</level>
+ <name>Jeweler</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>309</images48>
+ </row>
+<row>
+ <id>151</id>
+ <build_group>craft2</build_group>
+ <building_type>Jeweler</building_type>
+ <level>4</level>
+ <name>Large Jeweler</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>310</images48>
+ </row>
+<row>
+ <id>152</id>
+ <build_group>craft2</build_group>
+ <building_type>Jeweler</building_type>
+ <level>5</level>
+ <name>Jewelry Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>311</images48>
+ </row>
+<row>
+ <id>153</id>
+ <build_group>craft2</build_group>
+ <building_type>Leatherworks</building_type>
+ <level>1</level>
+ <name>Leatherworker's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>312</images48>
+ </row>
+<row>
+ <id>154</id>
+ <build_group>craft2</build_group>
+ <building_type>Leatherworks</building_type>
+ <level>2</level>
+ <name>Leatherworker's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>313</images48>
+ </row>
+<row>
+ <id>155</id>
+ <build_group>craft2</build_group>
+ <building_type>Leatherworks</building_type>
+ <level>3</level>
+ <name>Leatherworker</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>314</images48>
+ </row>
+<row>
+ <id>156</id>
+ <build_group>craft2</build_group>
+ <building_type>Leatherworks</building_type>
+ <level>4</level>
+ <name>Large Leatherworker</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>315</images48>
+ </row>
+<row>
+ <id>157</id>
+ <build_group>craft2</build_group>
+ <building_type>Leatherworks</building_type>
+ <level>5</level>
+ <name>Leather Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>316</images48>
+ </row>
+<row>
+ <id>158</id>
+ <build_group>craft2</build_group>
+ <building_type>Mason</building_type>
+ <level>1</level>
+ <name>Mason's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>317</images48>
+ </row>
+<row>
+ <id>159</id>
+ <build_group>craft2</build_group>
+ <building_type>Mason</building_type>
+ <level>2</level>
+ <name>Mason's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>318</images48>
+ </row>
+<row>
+ <id>160</id>
+ <build_group>craft2</build_group>
+ <building_type>Mason</building_type>
+ <level>3</level>
+ <name>Mason</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>319</images48>
+ </row>
+<row>
+ <id>161</id>
+ <build_group>craft2</build_group>
+ <building_type>Mason</building_type>
+ <level>4</level>
+ <name>Large Mason</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>320</images48>
+ </row>
+<row>
+ <id>162</id>
+ <build_group>craft2</build_group>
+ <building_type>Mason</building_type>
+ <level>5</level>
+ <name>Brick Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>321</images48>
+ </row>
+<row>
+ <id>163</id>
+ <build_group>craft2</build_group>
+ <building_type>Siege</building_type>
+ <level>1</level>
+ <name>Siege Yard</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>322</images48>
+ </row>
+<row>
+ <id>164</id>
+ <build_group>craft2</build_group>
+ <building_type>Siege</building_type>
+ <level>2</level>
+ <name>Siege Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>323</images48>
+ </row>
+<row>
+ <id>165</id>
+ <build_group>craft2</build_group>
+ <building_type>Siege</building_type>
+ <level>3</level>
+ <name>Siege Workshop</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>324</images48>
+ </row>
+<row>
+ <id>166</id>
+ <build_group>craft2</build_group>
+ <building_type>Siege</building_type>
+ <level>4</level>
+ <name>Large Siege Workshop</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>325</images48>
+ </row>
+<row>
+ <id>167</id>
+ <build_group>craft2</build_group>
+ <building_type>Siege</building_type>
+ <level>5</level>
+ <name>Siege Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>326</images48>
+ </row>
+<row>
+ <id>168</id>
+ <build_group>craft2</build_group>
+ <building_type>Tailor</building_type>
+ <level>1</level>
+ <name>Tailor's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>327</images48>
+ </row>
+<row>
+ <id>169</id>
+ <build_group>craft2</build_group>
+ <building_type>Tailor</building_type>
+ <level>2</level>
+ <name>Tailor's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>328</images48>
+ </row>
+<row>
+ <id>170</id>
+ <build_group>craft2</build_group>
+ <building_type>Tailor</building_type>
+ <level>3</level>
+ <name>Tailor</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>329</images48>
+ </row>
+<row>
+ <id>171</id>
+ <build_group>craft2</build_group>
+ <building_type>Tailor</building_type>
+ <level>4</level>
+ <name>Large Tailor</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>330</images48>
+ </row>
+<row>
+ <id>172</id>
+ <build_group>craft2</build_group>
+ <building_type>Tailor</building_type>
+ <level>5</level>
+ <name>Clothing Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>331</images48>
+ </row>
+<row>
+ <id>173</id>
+ <build_group>craft2</build_group>
+ <building_type>Weaponsmith</building_type>
+ <level>1</level>
+ <name>Weaponsmith's House</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>332</images48>
+ </row>
+<row>
+ <id>174</id>
+ <build_group>craft2</build_group>
+ <building_type>Weaponsmith</building_type>
+ <level>2</level>
+ <name>Weaponsmith's Shop</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>333</images48>
+ </row>
+<row>
+ <id>175</id>
+ <build_group>craft2</build_group>
+ <building_type>Weaponsmith</building_type>
+ <level>3</level>
+ <name>Weaponsmith</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>334</images48>
+ </row>
+<row>
+ <id>176</id>
+ <build_group>craft2</build_group>
+ <building_type>Weaponsmith</building_type>
+ <level>4</level>
+ <name>Large Weaponsmith</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>335</images48>
+ </row>
+<row>
+ <id>177</id>
+ <build_group>craft2</build_group>
+ <building_type>Weaponsmith</building_type>
+ <level>5</level>
+ <name>Weapon Factory</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>336</images48>
+ </row>
+<row>
+ <id>178</id>
+ <build_group>craft3</build_group>
+ <building_type>Gunsmith</building_type>
+ <level>1</level>
+ <name>Gunsmith's House</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>337</images48>
+ </row>
+<row>
+ <id>179</id>
+ <build_group>craft3</build_group>
+ <building_type>Gunsmith</building_type>
+ <level>2</level>
+ <name>Gunsmith's Shop</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>338</images48>
+ </row>
+<row>
+ <id>180</id>
+ <build_group>craft3</build_group>
+ <building_type>Gunsmith</building_type>
+ <level>3</level>
+ <name>Gunsmith</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>339</images48>
+ </row>
+<row>
+ <id>181</id>
+ <build_group>craft3</build_group>
+ <building_type>Gunsmith</building_type>
+ <level>4</level>
+ <name>Large Gunsmith</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>340</images48>
+ </row>
+<row>
+ <id>182</id>
+ <build_group>craft3</build_group>
+ <building_type>Gunsmith</building_type>
+ <level>5</level>
+ <name>Rifle Factory</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>341</images48>
+ </row>
+<row>
+ <id>183</id>
+ <build_group>craft3</build_group>
+ <building_type>Mechanist</building_type>
+ <level>1</level>
+ <name>Mechanist's House</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>342</images48>
+ </row>
+<row>
+ <id>184</id>
+ <build_group>craft3</build_group>
+ <building_type>Mechanist</building_type>
+ <level>2</level>
+ <name>Mechanist's Shop</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>343</images48>
+ </row>
+<row>
+ <id>185</id>
+ <build_group>craft3</build_group>
+ <building_type>Mechanist</building_type>
+ <level>3</level>
+ <name>Mechanist</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>344</images48>
+ </row>
+<row>
+ <id>186</id>
+ <build_group>craft3</build_group>
+ <building_type>Mechanist</building_type>
+ <level>4</level>
+ <name>Large Mechanist</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>345</images48>
+ </row>
+<row>
+ <id>187</id>
+ <build_group>craft3</build_group>
+ <building_type>Mechanist</building_type>
+ <level>5</level>
+ <name>Construct Factory</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>346</images48>
+ </row>
+<row>
+ <id>188</id>
+ <build_group>civics1</build_group>
+ <building_type>Market</building_type>
+ <level>1</level>
+ <name>Trading Post</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>347</images48>
+ </row>
+<row>
+ <id>189</id>
+ <build_group>civics1</build_group>
+ <building_type>Market</building_type>
+ <level>2</level>
+ <name>Market</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>348</images48>
+ </row>
+<row>
+ <id>190</id>
+ <build_group>civics1</build_group>
+ <building_type>Market</building_type>
+ <level>3</level>
+ <name>Marketplace</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>349</images48>
+ </row>
+<row>
+ <id>191</id>
+ <build_group>civics1</build_group>
+ <building_type>Market</building_type>
+ <level>4</level>
+ <name>Bazaar</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>350</images48>
+ </row>
+<row>
+ <id>192</id>
+ <build_group>civics1</build_group>
+ <building_type>Market</building_type>
+ <level>5</level>
+ <name>Royal Bazaar</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>351</images48>
+ </row>
+<row>
+ <id>193</id>
+ <build_group>civics1</build_group>
+ <building_type>Court</building_type>
+ <level>1</level>
+ <name>Courthouse</name>
+ <hp>100</hp>
+ <population_cap>50</population_cap>
+ <production_cost>400</production_cost>
+ <gold_cost>100</gold_cost>
+ <lumber_cost>100</lumber_cost>
+ <stone_cost>100</stone_cost>
+ <upkeep>2</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>100</value>
+ <images48>352</images48>
+ </row>
+<row>
+ <id>194</id>
+ <build_group>civics1</build_group>
+ <building_type>Court</building_type>
+ <level>2</level>
+ <name>Court</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>353</images48>
+ </row>
+<row>
+ <id>195</id>
+ <build_group>civics1</build_group>
+ <building_type>Court</building_type>
+ <level>3</level>
+ <name>Tribunal</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>354</images48>
+ </row>
+<row>
+ <id>196</id>
+ <build_group>civics1</build_group>
+ <building_type>Court</building_type>
+ <level>4</level>
+ <name>Forum</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>355</images48>
+ </row>
+<row>
+ <id>197</id>
+ <build_group>civics1</build_group>
+ <building_type>Court</building_type>
+ <level>5</level>
+ <name>Royal Forum</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>356</images48>
+ </row>
+<row>
+ <id>198</id>
+ <build_group>civics2</build_group>
+ <building_type>Port </building_type>
+ <level>1</level>
+ <name>Dock</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>357</images48>
+ </row>
+<row>
+ <id>199</id>
+ <build_group>civics2</build_group>
+ <building_type>Port </building_type>
+ <level>2</level>
+ <name>Port</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>358</images48>
+ </row>
+<row>
+ <id>200</id>
+ <build_group>civics2</build_group>
+ <building_type>Port </building_type>
+ <level>3</level>
+ <name>Wharf</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>359</images48>
+ </row>
+<row>
+ <id>201</id>
+ <build_group>civics2</build_group>
+ <building_type>Port </building_type>
+ <level>4</level>
+ <name>Large Wharf</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>360</images48>
+ </row>
+<row>
+ <id>202</id>
+ <build_group>civics2</build_group>
+ <building_type>Port </building_type>
+ <level>5</level>
+ <name>Harbor</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>361</images48>
+ </row>
+<row>
+ <id>203</id>
+ <build_group>civics2</build_group>
+ <building_type>Dungeon</building_type>
+ <level>1</level>
+ <name>Torture Pit</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>362</images48>
+ </row>
+<row>
+ <id>204</id>
+ <build_group>civics2</build_group>
+ <building_type>Dungeon</building_type>
+ <level>2</level>
+ <name>Stockade</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>363</images48>
+ </row>
+<row>
+ <id>205</id>
+ <build_group>civics2</build_group>
+ <building_type>Dungeon</building_type>
+ <level>3</level>
+ <name>Dungeon</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>364</images48>
+ </row>
+<row>
+ <id>206</id>
+ <build_group>civics2</build_group>
+ <building_type>Dungeon</building_type>
+ <level>4</level>
+ <name>Royal Dungeon</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>365</images48>
+ </row>
+<row>
+ <id>207</id>
+ <build_group>civics2</build_group>
+ <building_type>Dungeon</building_type>
+ <level>5</level>
+ <name>Prison Fortress</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>366</images48>
+ </row>
+<row>
+ <id>208</id>
+ <build_group>civics2</build_group>
+ <building_type>Theatre</building_type>
+ <level>1</level>
+ <name>Ampitheatre</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>367</images48>
+ </row>
+<row>
+ <id>209</id>
+ <build_group>civics2</build_group>
+ <building_type>Theatre</building_type>
+ <level>2</level>
+ <name>Assembly Hall</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>368</images48>
+ </row>
+<row>
+ <id>210</id>
+ <build_group>civics2</build_group>
+ <building_type>Theatre</building_type>
+ <level>3</level>
+ <name>Theatre</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>369</images48>
+ </row>
+<row>
+ <id>211</id>
+ <build_group>civics2</build_group>
+ <building_type>Theatre</building_type>
+ <level>4</level>
+ <name>Opera</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>370</images48>
+ </row>
+<row>
+ <id>212</id>
+ <build_group>civics2</build_group>
+ <building_type>Theatre</building_type>
+ <level>5</level>
+ <name>Odeum</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>371</images48>
+ </row>
+<row>
+ <id>213</id>
+ <build_group>civics2</build_group>
+ <building_type>Brothel</building_type>
+ <level>1</level>
+ <name>Spice Den</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>372</images48>
+ </row>
+<row>
+ <id>214</id>
+ <build_group>civics2</build_group>
+ <building_type>Brothel</building_type>
+ <level>2</level>
+ <name>Whorehouse</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>373</images48>
+ </row>
+<row>
+ <id>215</id>
+ <build_group>civics2</build_group>
+ <building_type>Brothel</building_type>
+ <level>3</level>
+ <name>Brothel</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>374</images48>
+ </row>
+<row>
+ <id>216</id>
+ <build_group>civics2</build_group>
+ <building_type>Brothel</building_type>
+ <level>4</level>
+ <name>Large Brothel</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>375</images48>
+ </row>
+<row>
+ <id>217</id>
+ <build_group>civics2</build_group>
+ <building_type>Brothel</building_type>
+ <level>5</level>
+ <name>Bordello</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>376</images48>
+ </row>
+<row>
+ <id>218</id>
+ <build_group>civics2</build_group>
+ <building_type>Tavern </building_type>
+ <level>1</level>
+ <name>Alehouse</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>377</images48>
+ </row>
+<row>
+ <id>219</id>
+ <build_group>civics2</build_group>
+ <building_type>Tavern </building_type>
+ <level>2</level>
+ <name>Bar</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>378</images48>
+ </row>
+<row>
+ <id>220</id>
+ <build_group>civics2</build_group>
+ <building_type>Tavern </building_type>
+ <level>3</level>
+ <name>Tavern</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>379</images48>
+ </row>
+<row>
+ <id>221</id>
+ <build_group>civics2</build_group>
+ <building_type>Tavern </building_type>
+ <level>4</level>
+ <name>Lodge</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>380</images48>
+ </row>
+<row>
+ <id>222</id>
+ <build_group>civics2</build_group>
+ <building_type>Tavern </building_type>
+ <level>5</level>
+ <name>Inn</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>381</images48>
+ </row>
+<row>
+ <id>223</id>
+ <build_group>civics2</build_group>
+ <building_type>Explorer's Guild </building_type>
+ <level>1</level>
+ <name>Explorer's Hall</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>382</images48>
+ </row>
+<row>
+ <id>224</id>
+ <build_group>civics2</build_group>
+ <building_type>Explorer's Guild </building_type>
+ <level>2</level>
+ <name>Explorer's Lodge</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>383</images48>
+ </row>
+<row>
+ <id>225</id>
+ <build_group>civics2</build_group>
+ <building_type>Explorer's Guild </building_type>
+ <level>3</level>
+ <name>Explorer's Guild</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>384</images48>
+ </row>
+<row>
+ <id>226</id>
+ <build_group>civics2</build_group>
+ <building_type>Explorer's Guild </building_type>
+ <level>4</level>
+ <name>Large Explorer's Guild</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>385</images48>
+ </row>
+<row>
+ <id>227</id>
+ <build_group>civics2</build_group>
+ <building_type>Explorer's Guild </building_type>
+ <level>5</level>
+ <name>Royal Explorer's Guild</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>386</images48>
+ </row>
+<row>
+ <id>228</id>
+ <build_group>civics2</build_group>
+ <building_type>Merchant's Guild</building_type>
+ <level>1</level>
+ <name>Merchant's Hall</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>387</images48>
+ </row>
+<row>
+ <id>229</id>
+ <build_group>civics2</build_group>
+ <building_type>Merchant's Guild</building_type>
+ <level>2</level>
+ <name>Merchant's Lodge</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>388</images48>
+ </row>
+<row>
+ <id>230</id>
+ <build_group>civics2</build_group>
+ <building_type>Merchant's Guild</building_type>
+ <level>3</level>
+ <name>Merchant's Guild</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>389</images48>
+ </row>
+<row>
+ <id>231</id>
+ <build_group>civics2</build_group>
+ <building_type>Merchant's Guild</building_type>
+ <level>4</level>
+ <name>Large Merchant's Guild</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>390</images48>
+ </row>
+<row>
+ <id>232</id>
+ <build_group>civics2</build_group>
+ <building_type>Merchant's Guild</building_type>
+ <level>5</level>
+ <name>Royal Merchant's Guild</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>391</images48>
+ </row>
+<row>
+ <id>233</id>
+ <build_group>civics2</build_group>
+ <building_type>Thieves Guild</building_type>
+ <level>1</level>
+ <name>Thieves Hall</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>392</images48>
+ </row>
+<row>
+ <id>234</id>
+ <build_group>civics2</build_group>
+ <building_type>Thieves Guild</building_type>
+ <level>2</level>
+ <name>Thieves Lodge</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>393</images48>
+ </row>
+<row>
+ <id>235</id>
+ <build_group>civics2</build_group>
+ <building_type>Thieves Guild</building_type>
+ <level>3</level>
+ <name>Thieves Guild</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>394</images48>
+ </row>
+<row>
+ <id>236</id>
+ <build_group>civics2</build_group>
+ <building_type>Thieves Guild</building_type>
+ <level>4</level>
+ <name>Large Thieves Guild</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>395</images48>
+ </row>
+<row>
+ <id>237</id>
+ <build_group>civics2</build_group>
+ <building_type>Thieves Guild</building_type>
+ <level>5</level>
+ <name>Royal Thieves Guild</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>396</images48>
+ </row>
+<row>
+ <id>238</id>
+ <build_group>civics3</build_group>
+ <building_type>Aerodrome </building_type>
+ <level>1</level>
+ <name>Skydock</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>397</images48>
+ </row>
+<row>
+ <id>239</id>
+ <build_group>civics3</build_group>
+ <building_type>Aerodrome </building_type>
+ <level>2</level>
+ <name>Skyport</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>398</images48>
+ </row>
+<row>
+ <id>240</id>
+ <build_group>civics3</build_group>
+ <building_type>Aerodrome </building_type>
+ <level>3</level>
+ <name>Aerodrome</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>399</images48>
+ </row>
+<row>
+ <id>241</id>
+ <build_group>civics3</build_group>
+ <building_type>Aerodrome </building_type>
+ <level>4</level>
+ <name>Large Aerodrome</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>400</images48>
+ </row>
+<row>
+ <id>242</id>
+ <build_group>civics3</build_group>
+ <building_type>Aerodrome </building_type>
+ <level>5</level>
+ <name>Major Aerodrome</name>
+ <hp>12800</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>48000</production_cost>
+ <gold_cost>2500</gold_cost>
+ <lumber_cost>1400</lumber_cost>
+ <stone_cost>5000</stone_cost>
+ <upkeep>16</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>12800</value>
+ <images48>401</images48>
+ </row>
+<row>
+ <id>243</id>
+ <build_group>civics3</build_group>
+ <building_type>Arena</building_type>
+ <level>1</level>
+ <name>Proving Ground</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>402</images48>
+ </row>
+<row>
+ <id>244</id>
+ <build_group>civics3</build_group>
+ <building_type>Arena</building_type>
+ <level>2</level>
+ <name>Small Arena</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>403</images48>
+ </row>
+<row>
+ <id>245</id>
+ <build_group>civics3</build_group>
+ <building_type>Arena</building_type>
+ <level>3</level>
+ <name>Arena</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>404</images48>
+ </row>
+<row>
+ <id>246</id>
+ <build_group>civics3</build_group>
+ <building_type>Arena</building_type>
+ <level>4</level>
+ <name>Colliseum</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>405</images48>
+ </row>
+<row>
+ <id>247</id>
+ <build_group>civics3</build_group>
+ <building_type>Arena</building_type>
+ <level>5</level>
+ <name>Hippodrome</name>
+ <hp>12800</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>48000</production_cost>
+ <gold_cost>2500</gold_cost>
+ <lumber_cost>1400</lumber_cost>
+ <stone_cost>5000</stone_cost>
+ <upkeep>16</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>12800</value>
+ <images48>406</images48>
+ </row>
+<row>
+ <id>248</id>
+ <build_group>civics3</build_group>
+ <building_type>Bank </building_type>
+ <level>1</level>
+ <name>Countinghouse</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>407</images48>
+ </row>
+<row>
+ <id>249</id>
+ <build_group>civics3</build_group>
+ <building_type>Bank </building_type>
+ <level>2</level>
+ <name>Credit Union</name>
+ <hp>1600</hp>
+ <population_cap>800</population_cap>
+ <production_cost>6400</production_cost>
+ <gold_cost>1000</gold_cost>
+ <lumber_cost>800</lumber_cost>
+ <stone_cost>2000</stone_cost>
+ <upkeep>10</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>1600</value>
+ <images48>408</images48>
+ </row>
+<row>
+ <id>250</id>
+ <build_group>civics3</build_group>
+ <building_type>Bank </building_type>
+ <level>3</level>
+ <name>Bank</name>
+ <hp>3200</hp>
+ <population_cap>1200</population_cap>
+ <production_cost>12800</production_cost>
+ <gold_cost>1250</gold_cost>
+ <lumber_cost>1000</lumber_cost>
+ <stone_cost>3000</stone_cost>
+ <upkeep>12</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>3200</value>
+ <images48>409</images48>
+ </row>
+<row>
+ <id>251</id>
+ <build_group>civics3</build_group>
+ <building_type>Bank </building_type>
+ <level>4</level>
+ <name>Large Bank</name>
+ <hp>6400</hp>
+ <population_cap>1600</population_cap>
+ <production_cost>25600</production_cost>
+ <gold_cost>1500</gold_cost>
+ <lumber_cost>1200</lumber_cost>
+ <stone_cost>4000</stone_cost>
+ <upkeep>14</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>6400</value>
+ <images48>410</images48>
+ </row>
+<row>
+ <id>252</id>
+ <build_group>civics3</build_group>
+ <building_type>Bank </building_type>
+ <level>5</level>
+ <name>Royal Bank</name>
+ <hp>12800</hp>
+ <population_cap>2400</population_cap>
+ <production_cost>48000</production_cost>
+ <gold_cost>2500</gold_cost>
+ <lumber_cost>1400</lumber_cost>
+ <stone_cost>5000</stone_cost>
+ <upkeep>16</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>12800</value>
+ <images48>411</images48>
+ </row>
+<row>
+ <id>253</id>
+ <build_group>storage1</build_group>
+ <building_type>Armory</building_type>
+ <level>1</level>
+ <name>Small Armory</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>412</images48>
+ </row>
+<row>
+ <id>254</id>
+ <build_group>storage1</build_group>
+ <building_type>Armory</building_type>
+ <level>2</level>
+ <name>Armory</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>413</images48>
+ </row>
+<row>
+ <id>255</id>
+ <build_group>storage1</build_group>
+ <building_type>Armory</building_type>
+ <level>3</level>
+ <name>Royal Armory</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>414</images48>
+ </row>
+<row>
+ <id>256</id>
+ <build_group>storage1</build_group>
+ <building_type>Silo</building_type>
+ <level>1</level>
+ <name>Small Silo</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>415</images48>
+ </row>
+<row>
+ <id>257</id>
+ <build_group>storage1</build_group>
+ <building_type>Silo</building_type>
+ <level>2</level>
+ <name>Silo</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>416</images48>
+ </row>
+<row>
+ <id>258</id>
+ <build_group>storage1</build_group>
+ <building_type>Silo</building_type>
+ <level>3</level>
+ <name>Large Silo</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>417</images48>
+ </row>
+<row>
+ <id>259</id>
+ <build_group>storage1</build_group>
+ <building_type>Warehouse</building_type>
+ <level>1</level>
+ <name>Small Warehouse</name>
+ <hp>200</hp>
+ <population_cap>100</population_cap>
+ <production_cost>800</production_cost>
+ <gold_cost>250</gold_cost>
+ <lumber_cost>200</lumber_cost>
+ <stone_cost>250</stone_cost>
+ <upkeep>4</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>200</value>
+ <images48>418</images48>
+ </row>
+<row>
+ <id>260</id>
+ <build_group>storage1</build_group>
+ <building_type>Warehouse</building_type>
+ <level>2</level>
+ <name>Warehouse</name>
+ <hp>400</hp>
+ <population_cap>200</population_cap>
+ <production_cost>1600</production_cost>
+ <gold_cost>500</gold_cost>
+ <lumber_cost>400</lumber_cost>
+ <stone_cost>500</stone_cost>
+ <upkeep>6</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>400</value>
+ <images48>419</images48>
+ </row>
+<row>
+ <id>261</id>
+ <build_group>storage1</build_group>
+ <building_type>Warehouse</building_type>
+ <level>3</level>
+ <name>Large Warehouse</name>
+ <hp>800</hp>
+ <population_cap>400</population_cap>
+ <production_cost>3200</production_cost>
+ <gold_cost>750</gold_cost>
+ <lumber_cost>600</lumber_cost>
+ <stone_cost>1000</stone_cost>
+ <upkeep>8</upkeep>
+ <effect_amount></effect_amount>
+ <effect_type></effect_type>
+ <restrictions></restrictions>
+ <value>800</value>
+ <images48>420</images48>
+ </row>
+</building_type>

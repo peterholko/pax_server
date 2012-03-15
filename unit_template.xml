@@ -1,0 +1,2438 @@
+<unit_template>
+<row>
+ <id>11</id>
+ <name>Human Skirmisher</name>
+ <level>1</level>
+ <type>Melee</type>
+ <building_req>barracks 1</building_req>
+ <hp>1</hp>
+ <atk>5</atk>
+ <def>6</def>
+ <range>1</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>100</production_cost>
+ <gold_cost>5</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>5</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>12</id>
+ <name>Human Infantry</name>
+ <level>2</level>
+ <type>Melee</type>
+ <building_req>barracks 2</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>7</def>
+ <range>1</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>150</production_cost>
+ <gold_cost>15</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>8</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>13</id>
+ <name>Human Heavy Infantry</name>
+ <level>3</level>
+ <type>Melee</type>
+ <building_req>barracks 3</building_req>
+ <hp>2</hp>
+ <atk>7</atk>
+ <def>8</def>
+ <range>1</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>200</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>14</id>
+ <name>Human Knight</name>
+ <level>4</level>
+ <type>Melee</type>
+ <building_req>barracks 4</building_req>
+ <hp>2</hp>
+ <atk>8</atk>
+ <def>9</def>
+ <range>1</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>12</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>15</id>
+ <name>Human Champion</name>
+ <level>5</level>
+ <type>Melee</type>
+ <building_req>barracks 5</building_req>
+ <hp>3</hp>
+ <atk>10</atk>
+ <def>10</def>
+ <range>1</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>300</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>16</id>
+ <name>Human Bowman</name>
+ <level>1</level>
+ <type>Ranged</type>
+ <building_req>barracks 1</building_req>
+ <hp>1</hp>
+ <atk>5</atk>
+ <def>6</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>100</production_cost>
+ <gold_cost>5</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>5</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>17</id>
+ <name>Human Archer</name>
+ <level>2</level>
+ <type>Ranged</type>
+ <building_req>barracks 2</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>7</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>150</production_cost>
+ <gold_cost>15</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>8</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>18</id>
+ <name>Human Ranger</name>
+ <level>3</level>
+ <type>Ranged</type>
+ <building_req>barracks 3</building_req>
+ <hp>1</hp>
+ <atk>7</atk>
+ <def>8</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>200</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>19</id>
+ <name>Human Marksman</name>
+ <level>4</level>
+ <type>Ranged</type>
+ <building_req>barracks 4</building_req>
+ <hp>2</hp>
+ <atk>8</atk>
+ <def>9</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>12</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>20</id>
+ <name>Human Sniper</name>
+ <level>5</level>
+ <type>Ranged</type>
+ <building_req>barracks 5</building_req>
+ <hp>2</hp>
+ <atk>10</atk>
+ <def>10</def>
+ <range>4</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>300</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>21</id>
+ <name>Human Acolyte</name>
+ <level>1</level>
+ <type>Magic</type>
+ <building_req>temple 1</building_req>
+ <hp>1</hp>
+ <atk>2</atk>
+ <def>4</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>22</id>
+ <name>Human Adept</name>
+ <level>2</level>
+ <type>Magic</type>
+ <building_req>temple 2</building_req>
+ <hp>1</hp>
+ <atk>4</atk>
+ <def>6</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>500</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>23</id>
+ <name>Human Mage</name>
+ <level>3</level>
+ <type>Magic</type>
+ <building_req>temple 3</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>8</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>750</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>20</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>24</id>
+ <name>Human Archmage</name>
+ <level>4</level>
+ <type>Magic</type>
+ <building_req>temple 4</building_req>
+ <hp>1</hp>
+ <atk>8</atk>
+ <def>10</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>1000</production_cost>
+ <gold_cost>90</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>25</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>25</id>
+ <name>Human Wizard</name>
+ <level>5</level>
+ <type>Magic</type>
+ <building_req>temple 5</building_req>
+ <hp>2</hp>
+ <atk>10</atk>
+ <def>12</def>
+ <range>4</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>1250</production_cost>
+ <gold_cost>110</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>human_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>30</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>26</id>
+ <name>Elven Skirmisher</name>
+ <level>1</level>
+ <type>Melee</type>
+ <building_req>barracks 1</building_req>
+ <hp>1</hp>
+ <atk>5</atk>
+ <def>6</def>
+ <range>1</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>100</production_cost>
+ <gold_cost>5</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>5</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>27</id>
+ <name>Elven Infantry</name>
+ <level>2</level>
+ <type>Melee</type>
+ <building_req>barracks 2</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>7</def>
+ <range>1</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>150</production_cost>
+ <gold_cost>15</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>8</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>28</id>
+ <name>Elven Heavy Infantry</name>
+ <level>3</level>
+ <type>Melee</type>
+ <building_req>barracks 3</building_req>
+ <hp>2</hp>
+ <atk>7</atk>
+ <def>8</def>
+ <range>1</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>200</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>29</id>
+ <name>Elven Knight</name>
+ <level>4</level>
+ <type>Melee</type>
+ <building_req>barracks 4</building_req>
+ <hp>2</hp>
+ <atk>8</atk>
+ <def>9</def>
+ <range>1</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>12</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>30</id>
+ <name>Elven Champion</name>
+ <level>5</level>
+ <type>Melee</type>
+ <building_req>barracks 5</building_req>
+ <hp>3</hp>
+ <atk>10</atk>
+ <def>10</def>
+ <range>1</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>300</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>31</id>
+ <name>Elven Bowman</name>
+ <level>1</level>
+ <type>Ranged</type>
+ <building_req>barracks 1</building_req>
+ <hp>1</hp>
+ <atk>5</atk>
+ <def>6</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>100</production_cost>
+ <gold_cost>5</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>5</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>32</id>
+ <name>Elven Archer</name>
+ <level>2</level>
+ <type>Ranged</type>
+ <building_req>barracks 2</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>7</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>150</production_cost>
+ <gold_cost>15</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>8</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>33</id>
+ <name>Elven Ranger</name>
+ <level>3</level>
+ <type>Ranged</type>
+ <building_req>barracks 3</building_req>
+ <hp>1</hp>
+ <atk>7</atk>
+ <def>8</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>200</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>34</id>
+ <name>Elven Marksman</name>
+ <level>4</level>
+ <type>Ranged</type>
+ <building_req>barracks 4</building_req>
+ <hp>2</hp>
+ <atk>8</atk>
+ <def>9</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>12</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>35</id>
+ <name>Elven Sniper</name>
+ <level>5</level>
+ <type>Ranged</type>
+ <building_req>barracks 5</building_req>
+ <hp>2</hp>
+ <atk>10</atk>
+ <def>10</def>
+ <range>4</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>300</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>36</id>
+ <name>Elven Acolyte</name>
+ <level>1</level>
+ <type>Magic</type>
+ <building_req>temple 1</building_req>
+ <hp>1</hp>
+ <atk>2</atk>
+ <def>4</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>37</id>
+ <name>Elven Adept</name>
+ <level>2</level>
+ <type>Magic</type>
+ <building_req>temple 2</building_req>
+ <hp>1</hp>
+ <atk>4</atk>
+ <def>6</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>500</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>38</id>
+ <name>Elven Mage</name>
+ <level>3</level>
+ <type>Magic</type>
+ <building_req>temple 3</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>8</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>750</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>20</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>39</id>
+ <name>Elven Archmage</name>
+ <level>4</level>
+ <type>Magic</type>
+ <building_req>temple 4</building_req>
+ <hp>1</hp>
+ <atk>8</atk>
+ <def>10</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>1000</production_cost>
+ <gold_cost>90</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>25</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>40</id>
+ <name>Elven Wizard</name>
+ <level>5</level>
+ <type>Magic</type>
+ <building_req>temple 5</building_req>
+ <hp>2</hp>
+ <atk>10</atk>
+ <def>12</def>
+ <range>4</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>1250</production_cost>
+ <gold_cost>110</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>elf_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>30</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>41</id>
+ <name>Goblin Skirmisher</name>
+ <level>1</level>
+ <type>Melee</type>
+ <building_req>barracks 1</building_req>
+ <hp>1</hp>
+ <atk>5</atk>
+ <def>6</def>
+ <range>1</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>100</production_cost>
+ <gold_cost>5</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>5</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>42</id>
+ <name>Goblin Infantry</name>
+ <level>2</level>
+ <type>Melee</type>
+ <building_req>barracks 2</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>7</def>
+ <range>1</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>150</production_cost>
+ <gold_cost>15</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>8</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>43</id>
+ <name>Goblin Heavy Infantry</name>
+ <level>3</level>
+ <type>Melee</type>
+ <building_req>barracks 3</building_req>
+ <hp>2</hp>
+ <atk>7</atk>
+ <def>8</def>
+ <range>1</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>200</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>44</id>
+ <name>Goblin Knight</name>
+ <level>4</level>
+ <type>Melee</type>
+ <building_req>barracks 4</building_req>
+ <hp>2</hp>
+ <atk>8</atk>
+ <def>9</def>
+ <range>1</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>12</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>45</id>
+ <name>Goblin Champion</name>
+ <level>5</level>
+ <type>Melee</type>
+ <building_req>barracks 5</building_req>
+ <hp>3</hp>
+ <atk>10</atk>
+ <def>10</def>
+ <range>1</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>300</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>46</id>
+ <name>Goblin Bowman</name>
+ <level>1</level>
+ <type>Ranged</type>
+ <building_req>barracks 1</building_req>
+ <hp>1</hp>
+ <atk>5</atk>
+ <def>6</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>100</production_cost>
+ <gold_cost>5</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>5</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>47</id>
+ <name>Goblin Archer</name>
+ <level>2</level>
+ <type>Ranged</type>
+ <building_req>barracks 2</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>7</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>150</production_cost>
+ <gold_cost>15</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>8</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>48</id>
+ <name>Goblin Ranger</name>
+ <level>3</level>
+ <type>Ranged</type>
+ <building_req>barracks 3</building_req>
+ <hp>1</hp>
+ <atk>7</atk>
+ <def>8</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>200</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>49</id>
+ <name>Goblin Marksman</name>
+ <level>4</level>
+ <type>Ranged</type>
+ <building_req>barracks 4</building_req>
+ <hp>2</hp>
+ <atk>8</atk>
+ <def>9</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>12</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>50</id>
+ <name>Goblin Sniper</name>
+ <level>5</level>
+ <type>Ranged</type>
+ <building_req>barracks 5</building_req>
+ <hp>2</hp>
+ <atk>10</atk>
+ <def>10</def>
+ <range>4</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>300</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>51</id>
+ <name>Goblin Acolyte</name>
+ <level>1</level>
+ <type>Magic</type>
+ <building_req>temple 1</building_req>
+ <hp>1</hp>
+ <atk>2</atk>
+ <def>4</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>52</id>
+ <name>Goblin Adept</name>
+ <level>2</level>
+ <type>Magic</type>
+ <building_req>temple 2</building_req>
+ <hp>1</hp>
+ <atk>4</atk>
+ <def>6</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>500</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>53</id>
+ <name>Goblin Mage</name>
+ <level>3</level>
+ <type>Magic</type>
+ <building_req>temple 3</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>8</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>750</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>20</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>54</id>
+ <name>Goblin Archmage</name>
+ <level>4</level>
+ <type>Magic</type>
+ <building_req>temple 4</building_req>
+ <hp>1</hp>
+ <atk>8</atk>
+ <def>10</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>1000</production_cost>
+ <gold_cost>90</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>25</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>55</id>
+ <name>Goblin Wizard</name>
+ <level>5</level>
+ <type>Magic</type>
+ <building_req>temple 5</building_req>
+ <hp>2</hp>
+ <atk>10</atk>
+ <def>12</def>
+ <range>4</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>1250</production_cost>
+ <gold_cost>110</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>goblin_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>30</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>56</id>
+ <name>Dwarven Skirmisher</name>
+ <level>1</level>
+ <type>Melee</type>
+ <building_req>barracks 1</building_req>
+ <hp>1</hp>
+ <atk>5</atk>
+ <def>6</def>
+ <range>1</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>100</production_cost>
+ <gold_cost>5</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>5</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>57</id>
+ <name>Dwarven Infantry</name>
+ <level>2</level>
+ <type>Melee</type>
+ <building_req>barracks 2</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>7</def>
+ <range>1</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>150</production_cost>
+ <gold_cost>15</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>8</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>58</id>
+ <name>Dwarven Heavy Infantry</name>
+ <level>3</level>
+ <type>Melee</type>
+ <building_req>barracks 3</building_req>
+ <hp>2</hp>
+ <atk>7</atk>
+ <def>8</def>
+ <range>1</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>200</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>59</id>
+ <name>Dwarven Knight</name>
+ <level>4</level>
+ <type>Melee</type>
+ <building_req>barracks 4</building_req>
+ <hp>2</hp>
+ <atk>8</atk>
+ <def>9</def>
+ <range>1</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>12</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>60</id>
+ <name>Dwarven Champion</name>
+ <level>5</level>
+ <type>Melee</type>
+ <building_req>barracks 5</building_req>
+ <hp>3</hp>
+ <atk>10</atk>
+ <def>10</def>
+ <range>1</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>300</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>61</id>
+ <name>Dwarven Bowman</name>
+ <level>1</level>
+ <type>Ranged</type>
+ <building_req>barracks 1</building_req>
+ <hp>1</hp>
+ <atk>5</atk>
+ <def>6</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>100</production_cost>
+ <gold_cost>5</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>5</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>62</id>
+ <name>Dwarven Archer</name>
+ <level>2</level>
+ <type>Ranged</type>
+ <building_req>barracks 2</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>7</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>150</production_cost>
+ <gold_cost>15</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>8</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>63</id>
+ <name>Dwarven Ranger</name>
+ <level>3</level>
+ <type>Ranged</type>
+ <building_req>barracks 3</building_req>
+ <hp>1</hp>
+ <atk>7</atk>
+ <def>8</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>200</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>64</id>
+ <name>Dwarven Marksman</name>
+ <level>4</level>
+ <type>Ranged</type>
+ <building_req>barracks 4</building_req>
+ <hp>2</hp>
+ <atk>8</atk>
+ <def>9</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>12</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>65</id>
+ <name>Dwarven Sniper</name>
+ <level>5</level>
+ <type>Ranged</type>
+ <building_req>barracks 5</building_req>
+ <hp>2</hp>
+ <atk>10</atk>
+ <def>10</def>
+ <range>4</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>300</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>66</id>
+ <name>Dwarven Acolyte</name>
+ <level>1</level>
+ <type>Magic</type>
+ <building_req>temple 1</building_req>
+ <hp>1</hp>
+ <atk>2</atk>
+ <def>4</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>250</production_cost>
+ <gold_cost>45</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>5</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>10</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>67</id>
+ <name>Dwarven Adept</name>
+ <level>2</level>
+ <type>Magic</type>
+ <building_req>temple 2</building_req>
+ <hp>1</hp>
+ <atk>4</atk>
+ <def>6</def>
+ <range>2</range>
+ <speed>6</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>500</production_cost>
+ <gold_cost>60</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>1</upkeep>
+ <food>2</food>
+ <capacity>6</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>10</movement>
+ <value>15</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>68</id>
+ <name>Dwarven Mage</name>
+ <level>3</level>
+ <type>Magic</type>
+ <building_req>temple 3</building_req>
+ <hp>1</hp>
+ <atk>6</atk>
+ <def>8</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>750</production_cost>
+ <gold_cost>75</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>2</food>
+ <capacity>7</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>20</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>69</id>
+ <name>Dwarven Archmage</name>
+ <level>4</level>
+ <type>Magic</type>
+ <building_req>temple 4</building_req>
+ <hp>1</hp>
+ <atk>8</atk>
+ <def>10</def>
+ <range>3</range>
+ <speed>5</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>1000</production_cost>
+ <gold_cost>90</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>2</upkeep>
+ <food>3</food>
+ <capacity>8</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>9</movement>
+ <value>25</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>70</id>
+ <name>Dwarven Wizard</name>
+ <level>5</level>
+ <type>Magic</type>
+ <building_req>temple 5</building_req>
+ <hp>2</hp>
+ <atk>10</atk>
+ <def>12</def>
+ <range>4</range>
+ <speed>4</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>1250</production_cost>
+ <gold_cost>110</gold_cost>
+ <material_amount>1</material_amount>
+ <material_category>dwarf_citizen</material_category>
+ <upkeep>3</upkeep>
+ <food>3</food>
+ <capacity>9</capacity>
+ <def_size>0</def_size>
+ <min_size>0</min_size>
+ <max_size>0</max_size>
+ <movement>8</movement>
+ <value>30</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>71</id>
+ <name>Siege Wagon</name>
+ <level>1</level>
+ <type>Wagon</type>
+ <building_req>siege 1</building_req>
+ <hp>100</hp>
+ <atk>2</atk>
+ <def>40</def>
+ <range>1</range>
+ <speed>18</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>500</effect_amount>
+ <effect_type>siegespace</effect_type>
+ <production_cost>500</production_cost>
+ <gold_cost>100</gold_cost>
+ <material_amount>25</material_amount>
+ <material_category>lumber</material_category>
+ <upkeep>2</upkeep>
+ <food>0</food>
+ <capacity>50</capacity>
+ <def_size>20</def_size>
+ <min_size>15</min_size>
+ <max_size>30</max_size>
+ <movement>10</movement>
+ <value>20</value>
+ <notes>Able to transport siege weapons, ammo, and bombs.</notes>
+ </row>
+<row>
+ <id>72</id>
+ <name>Supply Wagon</name>
+ <level>1</level>
+ <type>Wagon</type>
+ <building_req>market 1</building_req>
+ <hp>100</hp>
+ <atk>2</atk>
+ <def>40</def>
+ <range>1</range>
+ <speed>18</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>500</effect_amount>
+ <effect_type>cargospace</effect_type>
+ <production_cost>500</production_cost>
+ <gold_cost>100</gold_cost>
+ <material_amount>25</material_amount>
+ <material_category>lumber</material_category>
+ <upkeep>2</upkeep>
+ <food>0</food>
+ <capacity>50</capacity>
+ <def_size>20</def_size>
+ <min_size>15</min_size>
+ <max_size>30</max_size>
+ <movement>10</movement>
+ <value>20</value>
+ <notes>Able to transport all other goods and items.</notes>
+ </row>
+<row>
+ <id>73</id>
+ <name>Slave Wagon</name>
+ <level>1</level>
+ <type>Wagon</type>
+ <building_req>market 1</building_req>
+ <hp>100</hp>
+ <atk>2</atk>
+ <def>40</def>
+ <range>1</range>
+ <speed>18</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>500</effect_amount>
+ <effect_type>slavespace</effect_type>
+ <production_cost>500</production_cost>
+ <gold_cost>100</gold_cost>
+ <material_amount>25, 10</material_amount>
+ <material_category>lumber, ore</material_category>
+ <upkeep>2</upkeep>
+ <food>0</food>
+ <capacity>50</capacity>
+ <def_size>20</def_size>
+ <min_size>15</min_size>
+ <max_size>30</max_size>
+ <movement>10</movement>
+ <value>20</value>
+ <notes>Able to transport citizens. Makes citizen slave caste.</notes>
+ </row>
+<row>
+ <id>74</id>
+ <name>Galley</name>
+ <level>1</level>
+ <type>Rowing Ship</type>
+ <building_req>shipyard 1</building_req>
+ <hp>250</hp>
+ <atk>50</atk>
+ <def>50</def>
+ <range>1</range>
+ <speed>14</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>1000</production_cost>
+ <gold_cost>250</gold_cost>
+ <material_amount>250</material_amount>
+ <material_category>lumber</material_category>
+ <upkeep>5</upkeep>
+ <food>0</food>
+ <capacity>50</capacity>
+ <def_size>25</def_size>
+ <min_size>25</min_size>
+ <max_size>50</max_size>
+ <movement>3</movement>
+ <value>250</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>75</id>
+ <name>Bireme</name>
+ <level>2</level>
+ <type>Rowing Ship</type>
+ <building_req>shipyard 2</building_req>
+ <hp>500</hp>
+ <atk>80</atk>
+ <def>80</def>
+ <range>1</range>
+ <speed>14</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>2000</production_cost>
+ <gold_cost>500</gold_cost>
+ <material_amount>500</material_amount>
+ <material_category>lumber</material_category>
+ <upkeep>10</upkeep>
+ <food>0</food>
+ <capacity>100</capacity>
+ <def_size>50</def_size>
+ <min_size>50</min_size>
+ <max_size>100</max_size>
+ <movement>3</movement>
+ <value>500</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>76</id>
+ <name>Trireme</name>
+ <level>3</level>
+ <type>Rowing Ship</type>
+ <building_req>shipyard 3</building_req>
+ <hp>1000</hp>
+ <atk>100</atk>
+ <def>100</def>
+ <range>1</range>
+ <speed>12</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>4000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <material_amount>1000. 50</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>15</upkeep>
+ <food>0</food>
+ <capacity>250</capacity>
+ <def_size>100</def_size>
+ <min_size>100</min_size>
+ <max_size>200</max_size>
+ <movement>4</movement>
+ <value>1000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>77</id>
+ <name>Sloop</name>
+ <level>1</level>
+ <type>Sailing Ship</type>
+ <building_req>shipyard 1</building_req>
+ <hp>250</hp>
+ <atk>50</atk>
+ <def>50</def>
+ <range>1</range>
+ <speed>14</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>1000</production_cost>
+ <gold_cost>250</gold_cost>
+ <material_amount>250</material_amount>
+ <material_category>lumber</material_category>
+ <upkeep>5</upkeep>
+ <food>0</food>
+ <capacity>50</capacity>
+ <def_size>25</def_size>
+ <min_size>25</min_size>
+ <max_size>50</max_size>
+ <movement>3</movement>
+ <value>250</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>78</id>
+ <name>Brig</name>
+ <level>2</level>
+ <type>Sailing Ship</type>
+ <building_req>shipyard 2</building_req>
+ <hp>500</hp>
+ <atk>80</atk>
+ <def>80</def>
+ <range>1</range>
+ <speed>14</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>2000</production_cost>
+ <gold_cost>500</gold_cost>
+ <material_amount>500</material_amount>
+ <material_category>lumber</material_category>
+ <upkeep>10</upkeep>
+ <food>0</food>
+ <capacity>100</capacity>
+ <def_size>50</def_size>
+ <min_size>50</min_size>
+ <max_size>100</max_size>
+ <movement>3</movement>
+ <value>500</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>79</id>
+ <name>Corvette</name>
+ <level>3</level>
+ <type>Sailing Ship</type>
+ <building_req>shipyard 3</building_req>
+ <hp>1000</hp>
+ <atk>100</atk>
+ <def>100</def>
+ <range>1</range>
+ <speed>12</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>4000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <material_amount>1000. 50</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>15</upkeep>
+ <food>0</food>
+ <capacity>250</capacity>
+ <def_size>100</def_size>
+ <min_size>100</min_size>
+ <max_size>200</max_size>
+ <movement>4</movement>
+ <value>1000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>80</id>
+ <name>Frigate</name>
+ <level>4</level>
+ <type>Sailing Ship</type>
+ <building_req>shipyard 4</building_req>
+ <hp>2000</hp>
+ <atk>150</atk>
+ <def>150</def>
+ <range>1</range>
+ <speed>12</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>8000</production_cost>
+ <gold_cost>2000</gold_cost>
+ <material_amount>2000, 100</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>20</upkeep>
+ <food>0</food>
+ <capacity>500</capacity>
+ <def_size>200</def_size>
+ <min_size>150</min_size>
+ <max_size>300</max_size>
+ <movement>4</movement>
+ <value>2000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>81</id>
+ <name>Ship of the Line</name>
+ <level>5</level>
+ <type>Sailing Ship</type>
+ <building_req>shipyard 5</building_req>
+ <hp>4000</hp>
+ <atk>200</atk>
+ <def>200</def>
+ <range>1</range>
+ <speed>10</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>16000</production_cost>
+ <gold_cost>4000</gold_cost>
+ <material_amount>4000, 200</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>25</upkeep>
+ <food>0</food>
+ <capacity>1000</capacity>
+ <def_size>300</def_size>
+ <min_size>200</min_size>
+ <max_size>400</max_size>
+ <movement>5</movement>
+ <value>4000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>82</id>
+ <name>Steamboat</name>
+ <level>1</level>
+ <type>Steam Ship</type>
+ <building_req>shipyard 3</building_req>
+ <hp>2000</hp>
+ <atk>200</atk>
+ <def>200</def>
+ <range>1</range>
+ <speed>18</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>8000</production_cost>
+ <gold_cost>2000</gold_cost>
+ <material_amount>1000;1000</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>20</upkeep>
+ <food>0</food>
+ <capacity>500</capacity>
+ <def_size>200</def_size>
+ <min_size>150</min_size>
+ <max_size>300</max_size>
+ <movement>3</movement>
+ <value>2000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>83</id>
+ <name>Ironclad</name>
+ <level>2</level>
+ <type>Steam Ship</type>
+ <building_req>shipyard 4</building_req>
+ <hp>4000</hp>
+ <atk>250</atk>
+ <def>250</def>
+ <range>1</range>
+ <speed>18</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>16000</production_cost>
+ <gold_cost>4000</gold_cost>
+ <material_amount>2000;2000</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>25</upkeep>
+ <food>0</food>
+ <capacity>1000</capacity>
+ <def_size>300</def_size>
+ <min_size>200</min_size>
+ <max_size>400</max_size>
+ <movement>3</movement>
+ <value>4000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>84</id>
+ <name>Heavy Ironclad</name>
+ <level>3</level>
+ <type>Steam Ship</type>
+ <building_req>shipyard 5</building_req>
+ <hp>8000</hp>
+ <atk>300</atk>
+ <def>300</def>
+ <range>1</range>
+ <speed>16</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>32000</production_cost>
+ <gold_cost>8000</gold_cost>
+ <material_amount>4000;4000</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>30</upkeep>
+ <food>0</food>
+ <capacity>2000</capacity>
+ <def_size>400</def_size>
+ <min_size>300</min_size>
+ <max_size>600</max_size>
+ <movement>4</movement>
+ <value>8000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>85</id>
+ <name>Cloud Skiff</name>
+ <level>1</level>
+ <type>Skysail Airship</type>
+ <building_req>airstrip 1</building_req>
+ <hp>500</hp>
+ <atk>100</atk>
+ <def>100</def>
+ <range>1</range>
+ <speed>20</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>2000</production_cost>
+ <gold_cost>500</gold_cost>
+ <material_amount>250;250</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>10</upkeep>
+ <food>0</food>
+ <capacity>100</capacity>
+ <def_size>50</def_size>
+ <min_size>50</min_size>
+ <max_size>100</max_size>
+ <movement>2</movement>
+ <value>500</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>86</id>
+ <name>Zeppelin</name>
+ <level>2</level>
+ <type>Skysail Airship</type>
+ <building_req>airstrip 2</building_req>
+ <hp>1000</hp>
+ <atk>150</atk>
+ <def>150</def>
+ <range>1</range>
+ <speed>20</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>4000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <material_amount>500;500</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>15</upkeep>
+ <food>0</food>
+ <capacity>250</capacity>
+ <def_size>100</def_size>
+ <min_size>100</min_size>
+ <max_size>200</max_size>
+ <movement>2</movement>
+ <value>1000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>87</id>
+ <name>Hulk</name>
+ <level>3</level>
+ <type>Skysail Airship</type>
+ <building_req>airstrip 3</building_req>
+ <hp>2000</hp>
+ <atk>200</atk>
+ <def>200</def>
+ <range>1</range>
+ <speed>18</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>8000</production_cost>
+ <gold_cost>2000</gold_cost>
+ <material_amount>1000;1000</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>20</upkeep>
+ <food>0</food>
+ <capacity>500</capacity>
+ <def_size>200</def_size>
+ <min_size>150</min_size>
+ <max_size>300</max_size>
+ <movement>3</movement>
+ <value>2000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>88</id>
+ <name>Cloud Corvette</name>
+ <level>4</level>
+ <type>Skysail Airship</type>
+ <building_req>airstrip 4</building_req>
+ <hp>4000</hp>
+ <atk>250</atk>
+ <def>250</def>
+ <range>1</range>
+ <speed>18</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>16000</production_cost>
+ <gold_cost>4000</gold_cost>
+ <material_amount>2000;2000</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>25</upkeep>
+ <food>0</food>
+ <capacity>1000</capacity>
+ <def_size>300</def_size>
+ <min_size>200</min_size>
+ <max_size>400</max_size>
+ <movement>3</movement>
+ <value>4000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>89</id>
+ <name>Sky Frigate</name>
+ <level>5</level>
+ <type>Skysail Airship</type>
+ <building_req>airstrip 5</building_req>
+ <hp>8000</hp>
+ <atk>300</atk>
+ <def>300</def>
+ <range>1</range>
+ <speed>16</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>32000</production_cost>
+ <gold_cost>8000</gold_cost>
+ <material_amount>4000;4000</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>30</upkeep>
+ <food>0</food>
+ <capacity>2000</capacity>
+ <def_size>400</def_size>
+ <min_size>300</min_size>
+ <max_size>600</max_size>
+ <movement>4</movement>
+ <value>8000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>90</id>
+ <name>Cruiser</name>
+ <level>1</level>
+ <type>Lifter Airship</type>
+ <building_req>airstrip 1</building_req>
+ <hp>500</hp>
+ <atk>100</atk>
+ <def>100</def>
+ <range>1</range>
+ <speed>20</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>2000</production_cost>
+ <gold_cost>500</gold_cost>
+ <material_amount>250;250</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>10</upkeep>
+ <food>0</food>
+ <capacity>100</capacity>
+ <def_size>50</def_size>
+ <min_size>50</min_size>
+ <max_size>100</max_size>
+ <movement>2</movement>
+ <value>500</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>91</id>
+ <name>Battlecruiser</name>
+ <level>2</level>
+ <type>Lifter Airship</type>
+ <building_req>airstrip 2</building_req>
+ <hp>1000</hp>
+ <atk>150</atk>
+ <def>150</def>
+ <range>1</range>
+ <speed>20</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>4000</production_cost>
+ <gold_cost>1000</gold_cost>
+ <material_amount>500;500</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>15</upkeep>
+ <food>0</food>
+ <capacity>250</capacity>
+ <def_size>100</def_size>
+ <min_size>100</min_size>
+ <max_size>200</max_size>
+ <movement>2</movement>
+ <value>1000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>92</id>
+ <name>Destroyer</name>
+ <level>3</level>
+ <type>Lifter Airship</type>
+ <building_req>airstrip 3</building_req>
+ <hp>2000</hp>
+ <atk>200</atk>
+ <def>200</def>
+ <range>1</range>
+ <speed>18</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>8000</production_cost>
+ <gold_cost>2000</gold_cost>
+ <material_amount>1000;1000</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>20</upkeep>
+ <food>0</food>
+ <capacity>500</capacity>
+ <def_size>200</def_size>
+ <min_size>150</min_size>
+ <max_size>300</max_size>
+ <movement>3</movement>
+ <value>2000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>92</id>
+ <name>Battleship</name>
+ <level>4</level>
+ <type>Lifter Airship</type>
+ <building_req>airstrip 4</building_req>
+ <hp>4000</hp>
+ <atk>250</atk>
+ <def>250</def>
+ <range>1</range>
+ <speed>18</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>16000</production_cost>
+ <gold_cost>4000</gold_cost>
+ <material_amount>2000;2000</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>25</upkeep>
+ <food>0</food>
+ <capacity>1000</capacity>
+ <def_size>300</def_size>
+ <min_size>200</min_size>
+ <max_size>400</max_size>
+ <movement>3</movement>
+ <value>4000</value>
+ <notes></notes>
+ </row>
+<row>
+ <id>94</id>
+ <name>Dreadnaught</name>
+ <level>5</level>
+ <type>Lifter Airship</type>
+ <building_req>airstrip 5</building_req>
+ <hp>8000</hp>
+ <atk>300</atk>
+ <def>300</def>
+ <range>1</range>
+ <speed>16</speed>
+ <acc>0</acc>
+ <eva>0</eva>
+ <effect_amount>0</effect_amount>
+ <effect_type>none</effect_type>
+ <production_cost>32000</production_cost>
+ <gold_cost>8000</gold_cost>
+ <material_amount>4000;4000</material_amount>
+ <material_category> lumber, ore</material_category>
+ <upkeep>30</upkeep>
+ <food>0</food>
+ <capacity>2000</capacity>
+ <def_size>400</def_size>
+ <min_size>300</min_size>
+ <max_size>600</max_size>
+ <movement>4</movement>
+ <value>8000</value>
+ <notes></notes>
+ </row>
+</unit_template>
