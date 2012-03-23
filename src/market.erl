@@ -235,7 +235,7 @@ process_buy_order(MarketOrder, SellerId, SelectedVolume) ->
     case item:get_by_type(MarketOrder#market_order.city_id,
                           SellerId,
                           MarketOrder#market_order.item_type) of
-        {found, Item} ->
+        {true, Item} ->
             ItemVolume = select_volume(SelectedVolume, Item#item.volume),
             log4erl:info("~w - ItemVolume: ~w", [?MODULE, ItemVolume]),
             case compare_volume(ItemVolume, MarketOrder#market_order.item_volume) of
@@ -295,7 +295,7 @@ process_buy_order(MarketOrder, SellerId, SelectedVolume) ->
                     update_order(NewMarketOrder),
                     Return = {success, order_filled}                    
             end;
-        {not_found} ->
+        {false} ->
             log4erl:error("Insufficient item of type: ~w", [MarketOrder#market_order.item_type]),
             Return = {failure, insufficient_item}
     end,

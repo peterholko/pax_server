@@ -7,15 +7,22 @@
 %% Include files
 %%
 
+-include("schema.hrl").
+
 %%
 %% Exported Functions
 %%
+-export([player_id/1]).
 -export([entity_list/1, add_entities/2]).
 -export([get_player_id/1, on_same_tile/3]).
 -export([get_type/1]).
 %%
 %% API Functions
 %%
+
+player_id(EntityId) ->
+    [Entity] = db:read(entity, EntityId),
+    Entity#entity.player_id.
 
 get_type(TargetPid) ->
     gen_server:call(TargetPid, {'GET_TYPE'}).

@@ -14,7 +14,7 @@ is_population(CategoryId) ->
     case ItemCategory#item_category.name of
         human_citizen -> Return = {true, ?RACE_HUMAN};
         elf_citizen -> Return = {true, ?RACE_ELF};
-        goblin_citizen -> Return = {true, ?RACE_GOLBIN};
+        goblin_citizen -> Return = {true, ?RACE_GOBLIN};
         dwarf_citizen -> Return = {true, ?RACE_DWARF};
         _ -> Return = false
     end,
@@ -24,16 +24,16 @@ find_available_item(CityId, CategoryId, TotalAmount) ->
     [ItemCategory] = db:dirty_read(item_category, CategoryId),
     match_item_contains(false, CityId, TotalAmount, ItemCategory#item_category.contains).
 
-match_item_contains(Result, _CityId, _TotalAmount, _Contains) ->
-    Result;
+match_item_contains({true, ItemId}, _CityId, _TotalAmount, _Contains) ->
+    {true, ItemId};
 
 match_item_contains(false, CityId, TotalAmount, [ItemId | Rest]) ->
     ItemVolume = item:get_volume(ItemId),
 
     case ItemVolume >= TotalAmount of
         true -> Result = {true, ItemId};
-        false = Result = false
+        false -> Result = false
     end,
 
-    find_contains(Result, CityId, TotalAmount, Rest).
+    match_item_contains(Result, CityId, TotalAmount, Rest).
 

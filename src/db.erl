@@ -11,7 +11,7 @@
 -include("common.hrl").
 -include("game.hrl").
 -include("schema.hrl").
-
+-include_lib("stdlib/include/ms_transform.hrl").
 -include_lib("stdlib/include/qlc.hrl").
 
 %%
@@ -38,9 +38,12 @@ create_schema() ->
     mnesia:create_schema([node()]),
     mnesia:start(),
 
+    ok = application:set_env( mnesia, dump_log_write_threshold, 10000 ), 
+
     {atomic, ok} = mnesia:create_table(player, [{disc_copies, [node()]}, {attributes, record_info(fields, player)}]),
     {atomic, ok} = mnesia:create_table(connection, [{disc_copies, [node()]}, {attributes, record_info(fields, connection)}]),
     {atomic, ok} = mnesia:create_table(kingdom, [{disc_copies, [node()]}, {attributes, record_info(fields, kingdom)}]),
+    {atomic, ok} = mnesia:create_table(entity, [{disc_copies, [node()]}, {attributes, record_info(fields, entity)}]),
     {atomic, ok} = mnesia:create_table(army, [{disc_copies, [node()]}, {attributes, record_info(fields, army)}]),
     {atomic, ok} = mnesia:create_table(unit, [{disc_copies, [node()]}, {attributes, record_info(fields, unit)}]),    
     {atomic, ok} = mnesia:create_table(hero, [{disc_copies, [node()]}, {attributes, record_info(fields, hero)}]),
@@ -65,13 +68,16 @@ create_schema() ->
 
     {atomic, ok} = mnesia:create_table(map_object, [{ram_copies, [node()]}, {attributes, record_info(fields, map_object)}]),   
 
-    {atomic, ok} = mnesia:create_table(unit_type, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_type)}]),
     {atomic, ok} = mnesia:create_table(building_type, [{disc_copies, [node()]}, {attributes, record_info(fields, building_type)}]),
     {atomic, ok} = mnesia:create_table(resource_type, [{disc_copies, [node()]}, {attributes, record_info(fields, resource_type)}]),
     {atomic, ok} = mnesia:create_table(population_type, [{disc_copies, [node()]}, {attributes, record_info(fields, population_type)}]),
     {atomic, ok} = mnesia:create_table(improvement_type, [{disc_copies, [node()]}, {attributes, record_info(fields, improvement_type)}]), 
-    {atomic, ok} = mnesia:create_table(item_type, [{disc_copies, [node()]}, {attributes, record_info(fields, item_type)}]),
+    {atomic, ok} = mnesia:create_table(item_base, [{disc_copies, [node()]}, {attributes, record_info(fields, item_base)}]),
     {atomic, ok} = mnesia:create_table(item_category, [{disc_copies, [node()]}, {attributes, record_info(fields, item_category)}]),
+    {atomic, ok} = mnesia:create_table(item_template, [{disc_copies, [node()]}, {attributes, record_info(fields, item_template)}]),
+    {atomic, ok} = mnesia:create_table(item_recipe, [{disc_copies, [node()]}, {attributes, record_info(fields, item_recipe)}]),
+    {atomic, ok} = mnesia:create_table(unit_template, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_template)}]),
+    {atomic, ok} = mnesia:create_table(unit_recipe, [{disc_copies, [node()]}, {attributes, record_info(fields, unit_recipe)}]),
 
     {atomic, ok} = mnesia:create_table(item_type_ref, [{disc_copies,  [node()]}, {type, bag}, {attributes, record_info(fields, item_type_ref)}]),    
     {atomic, ok} = mnesia:create_table(player_type, [{disc_copies, [node()]}, {attributes, record_info(fields, player_type)}]),    
@@ -86,15 +92,22 @@ create_schema() ->
     mnesia:add_table_index(player, name),
     mnesia:add_table_index(kingdom, player_id),
     mnesia:add_table_index(unit, entity_id),
-    mnesia:add_table_index(building, city_id),
     mnesia:add_table_index(claim, tile_index),
     mnesia:add_table_index(claim, city_id),
     mnesia:add_table_index(claim, army_id),
     mnesia:add_table_index(improvement, tile_index),
     mnesia:add_table_index(improvement, city_id),
     mnesia:add_table_index(population, city_id),   
+
     mnesia:add_table_index(item, ref),
     mnesia:add_table_index(item_type_ref, item_id),
+    mnesia:add_table_index(item_recipe, player_id),
+    mnesia:add_table_index(item_category, display_name),
+
+    mnesia:add_table_index(unit_recipe, player_id),
+
+    mnesia:add_table_index(building, city_id),
+    mnesia:add_table_index(building_type, name),
 
     mnesia:add_table_index(market_order, city_id),
     mnesia:add_table_index(market_order, player_id),
@@ -109,7 +122,7 @@ create_schema() ->
 
 start() ->
     mnesia:start(),
-    mnesia:wait_for_tables([connection, army, unit, unit_type, hero, city, battle, building_type, unit_queue, counter, player, claim], 5000).
+    mnesia:wait_for_tables([connection, army, unit,  hero, city, battle, building_type, unit_queue, counter, player, claim], 5000).
 
 write(R) ->
     F = fun() -> mnesia:write(R) end,
@@ -182,10 +195,10 @@ do(Q) ->
 %% Table Data
 game_tables() ->
     [{unit_type, 1, "Footsolider", 	1, 4, 2, 5, 1, 5, 10, 10},
-     {unit_type, 2, "Archer", 		2, 5, 1, 10, 2, 5, 10, 10},
-     {building_type, 42, "Barracks", 100, 100, 1},
-     {building_type, 267, "Market", 100, 200, 1},
-     {building_type, 3, "Temple", 100, 150, 1}].
+     {unit_type, 2, "Archer", 		2, 5, 1, 10, 2, 5, 10, 10}].
+    % {building_type, 42, "Barracks", 100, 100, 1},
+    % {building_type, 267, "Market", 100, 200, 1},
+    % {building_type, 3, "Temple", 100, 150, 1}].
      %{improvement_type, 1, "Farm", 500, 100},
      %{improvement_type, 6, "Trapper", 100, 100},
      %{improvement_type, 3, "Lumbermill", 100, 100},
@@ -219,6 +232,13 @@ test_tables() ->
      {player_type, 3, 0},
      {player_type, 4, 0},
      {player_type, -1, 1},
+     {entity, 11, 1, ?OBJECT_CITY},
+     {entity, 1, 1, ?OBJECT_ARMY},
+     {entity, 2, 1, ?OBJECT_ARMY},
+     {entity, 3, 2, ?OBJECT_ARMY},
+     {entity, 4, 3, ?OBJECT_ARMY},
+     {entity, 5, 4, ?OBJECT_ARMY},
+     {entity, 6, -1, ?OBJECT_ARMY},
      {city, 11, 1,<<"Calgary">>, 3, 4, 0, {0, nil}, {2,{5,nil,{6,nil,nil}}}, [], 0},
      {army, 1, 1, <<"Army One">>, 2,  2, [], none, none, 0, 1, {2,{1,nil,{2,nil,nil}}}, none},
      {army, 2, 1, <<"Army Two">>, 5,  5, [], none, none, 0, 0, {2,{7,nil,{8,nil,nil}}}, none},
@@ -243,7 +263,14 @@ test_tables() ->
      {population, {11, 3, 3}, 11, 3, 3, 3000},
      {population, {11, 0, 1}, 11, 0, 1, 100},
      {population, {11, 0, 2}, 11, 0, 2, 200},
-     {transport, 1, 1, gb_sets:new()}
+     {claim, 1, 255, 11, 1, 6, 0},
+     {item, 9999, {{?OBJECT_CITY, 11}, 1}, 1034, -1, 1000},
+     {item, 9998, {{?OBJECT_CITY, 11}, 1}, 1041, -1, 1000},
+     {item, 6666, {{?OBJECT_UNIT, 1}, 1}, 1034, -1, 1000},
+     {item_type_ref, {{?OBJECT_CITY, 11}, 1, 1034}, 9999},
+     {item_type_ref, {{?OBJECT_CITY, 11}, 1, 1041}, 9998},
+     {item_type_ref, {{?OBJECT_UNIT, 1}, 1, 1034}, 6666}
+     %{improvement, 1, 255, 1, 11, 1, 6, 100, []},
     ].
 
 reset_tables() ->

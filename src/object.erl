@@ -20,12 +20,10 @@
 
 get_atom(?OBJECT_ARMY) -> army;
 get_atom(?OBJECT_CITY) -> city;
-get_atom(?OBJECT_TRANSPORT) -> transport;
 get_atom(_) -> none.
 
 get_pid(army, ArmyId) -> global:whereis_name({army, ArmyId});
-get_pid(city, CityId) -> global:whereis_name({city, CityId});
-get_pid(transport, _TransportId) -> global:whereis_name(transport_pid). 
+get_pid(city, CityId) -> global:whereis_name({city, CityId}).
 
 %%
 %% Local Functions

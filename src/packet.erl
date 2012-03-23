@@ -90,17 +90,10 @@ unit_size() ->
     int().
 
 unit_type() ->
-    short().
+    int().
 
 race() ->
     byte().
-
-
-unit() ->
-    tuple({unit_id(), unit_type(), unit_size()}).
-
-units() ->
-    list(short(), unit()).
 
 %building_id, hp, building_type
 building() ->
@@ -124,9 +117,6 @@ target_type() ->
 battle_id() ->
     id().
 
-transport_id() ->
-    id().
-
 source_army_id() ->
     id().
 
@@ -138,12 +128,6 @@ target_army_id() ->
 
 target_unit_id() ->
     id().
-
-armies() ->
-    list(short(), army()).
-
-army() ->
-    tuple({id(), player(), name(), name(), units()}).
 
 damage() ->
     int().
@@ -167,11 +151,33 @@ assignment() ->
 assignments() ->
     list(short(), assignment()).
 
+%item id, owner_type, owner_id, player_id, item_type, item_template, item_volume
 item() ->
-    tuple({id(), id(), id(), type(), int()}).
+    tuple({id(), byte(), id(), id(), type(), id(), int()}).
 
 items() ->
     list(short(), item()).
+
+%unit_id, recipe_id, unit_size, items
+unit_items() ->
+    tuple({unit_id(), id(), unit_size(), items()}).
+
+units() ->
+    list(short(), unit_items()).
+
+%unit_id, unit_name, template_id, unit_size
+battle_unit() ->
+    tuple({unit_id(), string(), id(), unit_size()}).
+
+battle_units() ->
+    list(short(), battle_unit()).
+
+%army_id, player_id, army_name, kingdom_name, battle_units
+army() ->
+    tuple({id(), player(), name(), name(), battle_units()}).
+
+armies() ->
+    list(short(), army()).
 
 %city_id, caste, race, value
 population() ->
@@ -187,7 +193,32 @@ contract() ->
 contracts() ->
     list(short(), contract()).
 
+material() ->
+    int().
+
+materials() ->
+    list(short(), material()).	
+
+gear() ->
+    list(short(), id()).
+
+%type_id, template_id, player_id, item_name, flavour_text, material_maount, material_type
+item_recipe() ->
+    tuple({id(), id(), id(), string(), string(), materials(), materials()}).
+
+item_recipes() ->
+    list(short(), item_recipe()).
+
+%type_id, template_id, player_id, unit_name, default_size, gear
+unit_recipe() ->
+    tuple({id(), id(), id(), string(), int(), gear()}).
+
+unit_recipes() ->
+    list(short(), unit_recipe()).
+
+%
 % packet records
+%
 
 tt() ->
     record(tt, {test()}).
@@ -204,6 +235,10 @@ success() ->
     record(success, {type(),
                      id()}).
 
+chat_message() ->
+    record(chat_message, {id(),
+                          name(),
+                          string()}).
 player_id() ->
     record(player_id, {player()}).
 
@@ -237,15 +272,15 @@ info() ->
     record(info, {info_list()}).
 
 info_kingdom() ->
-    record(info_kingdom, {id(),
-                          name(),
-                          int()}).
+    record(info_kingdom, {id(), %kingdom_id 
+                          name(), %name
+                          int(), %gold
+                          item_recipes(), %item_recipes
+                          unit_recipes()}). %unit_recipes
 info_army() ->
     record(info_army, {id(),
-                       name(), 
-                       name(), %kingdom name                      
-                       units(),
-                       items()}).
+                       name(), %army_name
+                       units()}). %units
 
 info_city() ->
     record(info_city, {id(),
@@ -276,6 +311,15 @@ info_generic_city() ->
                                name(), %city name
                                name()}). %kingdom name
 
+info_item_recipe() ->
+    record(info_item_recipe, {id(), %type_id
+                              id(), %template_id
+                              id(), %player_id
+                              name(), %item_name
+                              name(), %flavour_text
+                              materials(), %material_amount
+                              materials()}). %material_type
+
 city_queue_unit() ->
     record(city_queue_unit, {id(), %city_id
                              id(), %building_id
@@ -288,18 +332,33 @@ city_queue_building() ->
     record(city_queue_building, {id(), %city_id
                                  type()}). %building_type
 
-city_queue_item() ->
-    record(city_queue_item, {id(), %city_id
-                             id(), %source_id
-                             type(), %source_type
-                             type(), %item_type
-                             int()}). %item_size
+city_craft_item() ->
+    record(city_craft_item, {id(), %city_id
+                              id(), %source_id
+                              type(), %source_type
+                              type(), %item_type
+                              int()}). %amount
+                             
 city_queue_improvement() ->
     record(city_queue_improvement, {id(), %city_id
                                     x(), 
                                     y(), 
                                     type()}). %improvement_type
 
+add_item_recipe() ->
+    record(add_item_recipe, {id(), %template_id
+                             id(), %player_id,
+                             string(), %item_name
+                             string(), %flavour_text
+                             materials()}). %material_type
+
+add_unit_recipe() ->
+    record(add_unit_recipe, {id(), %template_id,
+                             id(), %player_id,
+                             string(), %unit_name,
+                             int(), %default_size,
+                             gear()}). %gear
+                                                
 transfer_item() ->
     record(transfer_item, {id(),
                            source_id(),
@@ -341,7 +400,6 @@ battle_retreat() ->
 battle_leave() ->
     record(battle_leave, {battle_id(),
                           source_id()}).
-
 add_claim() ->
     record(add_claim, {id(),  %city_id
                        id(),  %army_id 
@@ -367,10 +425,6 @@ remove_task() ->
 
 delete_item() ->
     record(delete_item, {id()}).
-
-transport_info() ->
-    record(transport_info, {transport_id(),
-                            units()}).
 
 create_sell_order() ->
     record(create_sell_order, {id(),
@@ -410,6 +464,9 @@ read(<<?CMD_CLIENTREADY>>) ->
     io:fwrite("packet: read() - clientready~n"),
     clientready;
 
+read(<<?CMD_CHAT_MESSAGE, Bin/binary>>) ->
+    unpickle(chat_message(), Bin);
+
 read(<<?CMD_MOVE, Bin/binary>>) ->
     unpickle(move(), Bin);
 
@@ -431,8 +488,14 @@ read(<<?CMD_CITY_QUEUE_BUILDING, Bin/binary>>) ->
 read(<<?CMD_CITY_QUEUE_IMPROVEMENT, Bin/binary>>) ->
     unpickle(city_queue_improvement(), Bin);
 
-read(<<?CMD_CITY_QUEUE_ITEM, Bin/binary>>) ->
-    unpickle(city_queue_item(), Bin);
+read(<<?CMD_CITY_CRAFT_ITEM, Bin/binary>>) ->
+    unpickle(city_craft_item(), Bin);
+
+read(<<?CMD_ADD_ITEM_RECIPE, Bin/binary>>) ->
+    unpickle(add_item_recipe(), Bin);
+
+read(<<?CMD_ADD_UNIT_RECIPE, Bin/binary>>) ->
+    unpickle(add_unit_recipe(), Bin);
 
 read(<<?CMD_TRANSFER_UNIT, Bin/binary>>) ->
     unpickle(transfer_unit(), Bin);
@@ -499,9 +562,6 @@ read(<<?CMD_INFO_KINGDOM, Bin/binary>>) ->
 read(<<?CMD_BATTLE_INFO, Bin/binary>>) ->
     unpickle(battle_info(), Bin);
 
-read(<<?CMD_TRANSPORT_INFO, Bin/binary>>) ->
-    unpickle(transport_info(), Bin);
-
 read(<<?CMD_BATTLE_EVENT, Bin/binary>>) ->
     unpickle(battle_event(), Bin);
 
@@ -516,6 +576,9 @@ write(R) when is_record(R, bad) ->
 
 write(R) when is_record(R, success) ->
     [?CMD_SUCCESS|pickle(success(), R)];
+
+write(R) when is_record(R, chat_message) ->
+    [?CMD_CHAT_MESSAGE|pickle(chat_message(), R)];
 
 write(R) when is_record(R, player_id) ->
     [?CMD_PLAYER_ID|pickle(player_id(), R)];
@@ -547,11 +610,11 @@ write(R) when is_record(R, info_generic_army) ->
 write(R) when is_record(R, info_generic_city) ->
     [?CMD_INFO_GENERIC_CITY|pickle(info_generic_city(), R)];
 
+write(R) when is_record(R, info_item_recipe) ->
+    [?CMD_INFO_ITEM_RECIPE|pickle(info_item_recipe(), R)];
+
 write(R) when is_record(R, battle_info) ->
     [?CMD_BATTLE_INFO|pickle(battle_info(), R)];
-
-write(R) when is_record(R, transport_info) ->
-    [?CMD_TRANSPORT_INFO|pickle(transport_info(), R)];
 
 write(R) when is_record(R, battle_event) ->
     [?CMD_BATTLE_EVENT|pickle(battle_event(), R)];
@@ -670,11 +733,12 @@ send_policy(Socket) ->
 
 send_clocksync(Socket) ->
     {MegaSec, Sec, MicroSec} = erlang:now(),
+    io:fwrite("Mega: ~w Sec: ~w Micro: ~w", [MegaSec, Sec, MicroSec]),
     CurrentMS = (MegaSec * 1000000000) + (Sec * 1000) + (MicroSec div 1000), 
+    io:fwrite("CurrentMS: ~w", [CurrentMS]),
     io:format("packet: send_clocksync() -  ~p~n", [<<?CMD_CLOCKSYNC, CurrentMS:64>>]),
     case catch gen_tcp:send(Socket, <<?CMD_CLOCKSYNC, CurrentMS:64>>) of
         ok ->
-
             ok;
         {error, closed} ->
             ok;

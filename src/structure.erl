@@ -46,8 +46,8 @@ remove_cost(improvement, EntityId, PlayerId, ImprovementTypeId) ->
     remove_generic_cost(EntityId, PlayerId, GoldCost, StoneCost, LumberCost).
 
 remove_generic_cost(EntityId, PlayerId, GoldCost, StoneCost, LumberCost) ->
-    StoneList = item:get_stone(EntityId, PlayerId),
-    LumberList = item:get_lumber(EntityId, PlayerId),
+    StoneList = item:get_stone({?OBJECT_CITY, EntityId}, PlayerId),
+    LumberList = item:get_lumber({?OBJECT_CITY, EntityId}, PlayerId),
 
     case check_cost(PlayerId, StoneList, LumberList, GoldCost, StoneCost, LumberCost) of
         true ->

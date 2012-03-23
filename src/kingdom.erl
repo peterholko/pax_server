@@ -15,7 +15,10 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--export([get_gold/1, add_gold/2, remove_gold/2]).
+-export([get_gold/1, 
+         add_gold/2, 
+         remove_gold/2,
+         is_player_city/2]).
 -export([get_name/1, get_info_kingdom/1]).
 -export([get_cities/1, get_cities_id_pid/1]).
 
@@ -41,6 +44,9 @@ update_gold(PlayerId, Amount) ->
 
 get_cities_id_pid(PlayerId) ->
     gen_server:call({global, kingdom_pid}, {'GET_CITIES_ID_PID', PlayerId}).
+
+is_player_city(PlayerId, CityId) ->
+    gen_server:call({global, kingdom_pid}, {'IS_PLAYER_CITY', PlayerId, CityId}).
 
 get_name(PlayerId) ->
     [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id),
@@ -97,6 +103,11 @@ handle_call({'GET_CITIES_ID_PID', PlayerId}, _From, Data) ->
 handle_call({'GET_GOLD', PlayerId}, _From, Data) ->
     [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
     {reply, Kingdom#kingdom.gold, Data};
+
+handle_call({'IS_PLAYER_CITY', PlayerId, CityId}, _From, Data) ->
+    [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
+    Result = lists:member(CityId, Kingdom#kingdom.cities),
+    {reply, Result, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 

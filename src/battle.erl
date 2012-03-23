@@ -61,7 +61,7 @@ retreat(BattleId, ArmyId) ->
 init([BattleId, X, Y])
   when is_integer(BattleId) ->
     process_flag(trap_exit, true),
-    log4erl:info("~w: initializing battle.", [?MODULE]),
+    ?INFO("Initializing new battle"),
     Players = sets:new(),
     LastEvents = sets:new(),
     BattlePid = self(),
@@ -86,7 +86,7 @@ init([BattleId, X, Y])
 init([BattleId]) 
   when is_integer(BattleId) ->
     process_flag(trap_exit, true),
-    io:fwrite("battle - battle_id: ~w~n", [BattleId]),
+    ?INFO("Initializing existing battle"),
     
     Battle = db:read(battle, BattleId),
     Players = sets:new(),
@@ -116,7 +116,7 @@ handle_cast({'SETUP', AttackerId, DefenderId}, Data) ->
     AttackerPlayerId = gen_server:call(global:whereis_name({army, AttackerId}), {'GET_PLAYER_ID'}),
     DefenderPlayerId = gen_server:call(global:whereis_name({army, DefenderId}), {'GET_PLAYER_ID'}),	
     
-    NewData = add_army(AttackerPlayerId, AttackerId, add_army(DefenderPlayerId, DefenderId, Data)),
+    NewData = new_army(AttackerPlayerId, AttackerId, new_army(DefenderPlayerId, DefenderId, Data)),
     
     send_info(NewData#module_data.battle_id, AttackerPlayerId, NewData#module_data.armies),
     send_info(NewData#module_data.battle_id, DefenderPlayerId, NewData#module_data.armies),
@@ -125,9 +125,11 @@ handle_cast({'SETUP', AttackerId, DefenderId}, Data) ->
 
 handle_cast({'ADD_ARMY', ArmyId}, Data) ->
     io:fwrite("Battle ~w - Adding Army~n", [Data#module_data.battle_id]),
-    PlayerId = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_PLAYER_ID'}),
+    ?INFO("BattleId: ", Data#module_data.battle_id, "Adding army: ", ArmyId),
+
+    PlayerId = entity:player_id(ArmyId),
     BattleId = Data#module_data.battle_id,
-    NewData = add_army(PlayerId, ArmyId, Data),
+    NewData = new_army(PlayerId, ArmyId, Data),
    
     broadcast_army_event(BattleId, NewData#module_data.players, ArmyId, ?BATTLE_ADD_ARMY),
 
@@ -208,9 +210,9 @@ handle_call({'ADD_TARGET', SourceArmyId, SourceUnitId, TargetArmyId, TargetUnitI
     
     if
         GuardArmy ->
-            SourceUnit = gen_server:call(global:whereis_name({army, SourceArmyId}), {'GET_UNIT', SourceUnitId}),
-            TargetUnit = gen_server:call(global:whereis_name({army, TargetArmyId}), {'GET_UNIT', TargetUnitId}),
-            io:fwrite("SourceUnit: ~w TargetUnit: ~w~n", [SourceUnit, TargetUnit]),
+            SourceUnit = unit:get_unit(SourceUnitId),
+            TargetUnit = unit:get_unit(TargetUnitId),
+            ?INFO("SourceUnit: ", SourceUnit, "TargetUnit: ", TargetUnit),
             GuardUnit = (SourceUnit =/= false) and (TargetUnit =/= false),
             
             if
@@ -333,8 +335,10 @@ handle_info(Info, Data) ->
 code_change(_OldVsn, Data, _Extra) ->
     {ok, Data}.
 
-add_army(PlayerId, ArmyId, Data) ->	
-    io:fwrite("Battle - add_army~n"),
+new_army(PlayerId, ArmyId, Data) ->	
+    ?INFO("new_army: ", {PlayerId, ArmyId}),
+    
+    %TODO use unit module
     ArmyUnits = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_UNITS'}),
     
     NewEvents = add_events(ArmyUnits, ArmyId, Data#module_data.self, Data#module_data.events),
@@ -345,16 +349,15 @@ add_army(PlayerId, ArmyId, Data) ->
     Data#module_data {armies = NewArmies, players = NewPlayers, events = NewEvents}.
 
 add_events([], _, _, Events) ->
-    io:fwrite("Battle - Finished Adding Events~n"),
+    ?INFO("add_events finished"),
     Events;
 
-add_events(Units, ArmyId, BattlePid, Events) ->    
-    io:fwrite("Battle - add_events - Units: ~w~n", [Units]),    
-    [Unit | Rest] = Units,   
-    [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
-    UnitSpeed = UnitType#unit_type.speed,
+add_events([Unit | Rest], ArmyId, BattlePid, Events) ->   
+    ?INFO("add_events unit: ", Unit), 
+    Template = unit:get_template(Unit),
+    UnitSpeed = unit:get_speed(Template),
     EventTime = UnitSpeed * trunc(1000 / ?GAME_LOOP_TICK),
-    
+
     EventId = game:add_event_get_id(BattlePid, ?EVENT_UNIT_ATTACK, {ArmyId, Unit#unit.id, UnitSpeed}, EventTime),
     NewEvents = [{ArmyId, EventId, ?EVENT_UNIT_ATTACK} | Events],
     
@@ -367,11 +370,10 @@ remove_army(PlayerId, ArmyId, Data) ->
     Data#module_data {armies = NewArmies, players = NewPlayers}.
 
 unit_attack(EventTick, EventData, Data) ->
-    
     {ArmyId, UnitId, UnitSpeed} = EventData,
     
     ArmyResult = lists:member(ArmyId, Data#module_data.armies),
-    Unit = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_UNIT', UnitId}),
+    Unit = unit:get_unit(UnitId),
     
     if
         ArmyResult ->
@@ -404,8 +406,8 @@ unit_target(ArmyId, Unit, Data) ->
     TargetArmies = lists:delete(ArmyId, Data#module_data.armies),
     if
         length(TargetArmies) > 0 ->
-            {TargetUnitId, TargetArmyId} = best_target(TargetArmies),             
-            TargetUnit = gen_server:call(global:whereis_name({army, TargetArmyId}), {'GET_UNIT', TargetUnitId}),
+            {TargetUnitId, TargetArmyId} = best_target(TargetArmies),                         
+            TargetUnit = unit:get_unit(TargetUnitId),
             
             NewData = unit_damage(ArmyId, Unit, TargetArmyId, TargetUnit, Data);                       
         true ->
@@ -416,7 +418,6 @@ unit_target(ArmyId, Unit, Data) ->
 
 best_target(TargetArmies) ->
     UnitDPSList = unit_dps_list(TargetArmies, []),
-    io:fwrite("UnitDPSList: ~w~n",[UnitDPSList]),
     {_MaxDPS, UnitId, NewArmyId} = lists:max(UnitDPSList),
     {UnitId, NewArmyId}.
 
@@ -424,49 +425,42 @@ unit_dps_list([], UnitList) ->
     UnitList;
         
 unit_dps_list([ArmyId | Rest], UnitList) ->
-    ArmyUnits = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_UNITS'}),
+    Units = unit:get_units(ArmyId),
     
     F = fun(Unit, UnitDPSList) ->            
-            [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
-            UnitSpeed = UnitType#unit_type.speed,
-            UnitDamage = UnitType#unit_type.attack,
-            UnitSize = Unit#unit.size,
-            DPS = UnitDamage * UnitSize / UnitSpeed,
+            Template = unit:get_template(Unit),
+            Speed = unit:get_speed(Template),
+            Damage = unit:get_attack(Template),
+            Size = Unit#unit.size,
+            DPS = Damage * Size / Speed,
             [{DPS, Unit#unit.id, ArmyId} | UnitDPSList]
         end,
 
-    NewUnitList = lists:foldl(F, [], ArmyUnits) ++ UnitList,
+    NewUnitList = lists:foldl(F, [], Units) ++ UnitList,
     unit_dps_list(Rest, NewUnitList).
 
 unit_damage(_ArmyId, Unit, TargetArmyId, TargetUnit, Data) ->
-    
-    Guard = (Unit =/= false) and (TargetUnit =/= false),
-    
-    if
-        Guard ->
-            
-            io:fwrite("Battle - Apply Unit Damage.~n"),
-            
-            [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
-            [_TargetUnitType] = db:dirty_read(unit_type, TargetUnit#unit.type),
-            Damage = UnitType#unit_type.attack,
-            
-            ArmyState = gen_server:call(global:whereis_name({army, TargetArmyId}), {'DAMAGE_UNIT', TargetUnit#unit.id, Damage}),
-            
-            broadcast_damage(Data#module_data.battle_id, Data#module_data.players, Unit#unit.id, TargetUnit#unit.id, Damage),
-            
-            if
-                ArmyState =:= ?STATE_DEAD ->                    
-                    io:fwrite("Battle - Army ~w destroyed.~n", [TargetArmyId]),
-                    Armies = Data#module_data.armies,
-                    NewArmies = lists:delete(TargetArmyId, Armies),
-                    NewData = Data#module_data {armies = NewArmies};
-                true ->
-                    NewData = Data
-            end;        	
-        true ->
+    ?INFO("Applying damage to unit: ", TargetUnit#unit.id), 
+
+    case unit:damage(Unit, TargetUnit) of
+        {army_destroyed, Damage} ->
+            ?INFO("Army destroyed: ", TargetArmyId),
+            army:destroyed(TargetArmyId),
+            NewArmies = lists:delete(TargetArmyId, Data#module_data.armies),
+            NewData = Data#module_data {armies = NewArmies};
+        {unit_destroyed, Damage} ->
+            ?INFO("Unit destroyed"),
+            NewData = Data;
+        {unit_damaged, Damage} ->
+            ?INFO("Unit damaged"),
             NewData = Data
     end,
+
+    broadcast_damage(Data#module_data.battle_id, 
+                     Data#module_data.players, 
+                     Unit#unit.id, 
+                     TargetUnit#unit.id, 
+                     Damage),
     NewData.
 
 send_info(BattleId, PlayerId, Armies) ->
@@ -500,7 +494,7 @@ broadcast_army_event(BattleId, Players, ArmyId, BattleEvent) ->
     F = fun(PlayerId) ->
         case gen_server:call(global:whereis_name(game_pid), {'IS_PLAYER_ONLINE', PlayerId}) of
             true ->
-                ArmyInfo = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_INFO'}),
+                ArmyInfo = army:battle_get_info(ArmyId),
                 player:send_battle_event(PlayerId, BattleEvent, BattleId, ArmyInfo);
             false ->
                 ok
@@ -515,7 +509,7 @@ armies_tuple([], ArmiesInfoTuple) ->
 
 armies_tuple(Armies, ArmiesInfoTuple) ->
     [ArmyId | Rest] = Armies,
-    ArmyInfo = gen_server:call(global:whereis_name({army, ArmyId}), {'GET_INFO'}),
+    ArmyInfo = army:battle_get_info(ArmyId),
     NewArmiesInfoTuple = [ArmyInfo | ArmiesInfoTuple],
     armies_tuple(Rest, NewArmiesInfoTuple).
 

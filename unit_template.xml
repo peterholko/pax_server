@@ -4,7 +4,7 @@
  <name>Human Skirmisher</name>
  <level>1</level>
  <type>Melee</type>
- <building_req>barracks 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>5</atk>
  <def>6</def>
@@ -17,7 +17,7 @@
  <production_cost>100</production_cost>
  <gold_cost>5</gold_cost>
  <material_amount>1</material_amount>
- <material_category>human_citizen</material_category>
+ <material_category>10</material_category>
  <upkeep>1</upkeep>
  <food>2</food>
  <capacity>5</capacity>
@@ -33,7 +33,7 @@
  <name>Human Infantry</name>
  <level>2</level>
  <type>Melee</type>
- <building_req>barracks 2</building_req>
+ <building_req>53</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>7</def>
@@ -62,7 +62,7 @@
  <name>Human Heavy Infantry</name>
  <level>3</level>
  <type>Melee</type>
- <building_req>barracks 3</building_req>
+ <building_req>54</building_req>
  <hp>2</hp>
  <atk>7</atk>
  <def>8</def>
@@ -91,7 +91,7 @@
  <name>Human Knight</name>
  <level>4</level>
  <type>Melee</type>
- <building_req>barracks 4</building_req>
+ <building_req>55</building_req>
  <hp>2</hp>
  <atk>8</atk>
  <def>9</def>
@@ -120,7 +120,7 @@
  <name>Human Champion</name>
  <level>5</level>
  <type>Melee</type>
- <building_req>barracks 5</building_req>
+ <building_req>56</building_req>
  <hp>3</hp>
  <atk>10</atk>
  <def>10</def>
@@ -149,7 +149,7 @@
  <name>Human Bowman</name>
  <level>1</level>
  <type>Ranged</type>
- <building_req>barracks 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>5</atk>
  <def>6</def>
@@ -178,7 +178,7 @@
  <name>Human Archer</name>
  <level>2</level>
  <type>Ranged</type>
- <building_req>barracks 2</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>7</def>
@@ -207,7 +207,7 @@
  <name>Human Ranger</name>
  <level>3</level>
  <type>Ranged</type>
- <building_req>barracks 3</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>7</atk>
  <def>8</def>
@@ -236,7 +236,7 @@
  <name>Human Marksman</name>
  <level>4</level>
  <type>Ranged</type>
- <building_req>barracks 4</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>8</atk>
  <def>9</def>
@@ -265,7 +265,7 @@
  <name>Human Sniper</name>
  <level>5</level>
  <type>Ranged</type>
- <building_req>barracks 5</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>10</atk>
  <def>10</def>
@@ -294,7 +294,7 @@
  <name>Human Acolyte</name>
  <level>1</level>
  <type>Magic</type>
- <building_req>temple 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>2</atk>
  <def>4</def>
@@ -323,7 +323,7 @@
  <name>Human Adept</name>
  <level>2</level>
  <type>Magic</type>
- <building_req>temple 2</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>4</atk>
  <def>6</def>
@@ -352,7 +352,7 @@
  <name>Human Mage</name>
  <level>3</level>
  <type>Magic</type>
- <building_req>temple 3</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>8</def>
@@ -381,7 +381,7 @@
  <name>Human Archmage</name>
  <level>4</level>
  <type>Magic</type>
- <building_req>temple 4</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>8</atk>
  <def>10</def>
@@ -410,7 +410,7 @@
  <name>Human Wizard</name>
  <level>5</level>
  <type>Magic</type>
- <building_req>temple 5</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>10</atk>
  <def>12</def>
@@ -439,7 +439,7 @@
  <name>Elven Skirmisher</name>
  <level>1</level>
  <type>Melee</type>
- <building_req>barracks 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>5</atk>
  <def>6</def>
@@ -468,7 +468,7 @@
  <name>Elven Infantry</name>
  <level>2</level>
  <type>Melee</type>
- <building_req>barracks 2</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>7</def>
@@ -497,7 +497,7 @@
  <name>Elven Heavy Infantry</name>
  <level>3</level>
  <type>Melee</type>
- <building_req>barracks 3</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>7</atk>
  <def>8</def>
@@ -526,7 +526,7 @@
  <name>Elven Knight</name>
  <level>4</level>
  <type>Melee</type>
- <building_req>barracks 4</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>8</atk>
  <def>9</def>
@@ -555,7 +555,7 @@
  <name>Elven Champion</name>
  <level>5</level>
  <type>Melee</type>
- <building_req>barracks 5</building_req>
+ <building_req>52</building_req>
  <hp>3</hp>
  <atk>10</atk>
  <def>10</def>
@@ -584,7 +584,7 @@
  <name>Elven Bowman</name>
  <level>1</level>
  <type>Ranged</type>
- <building_req>barracks 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>5</atk>
  <def>6</def>
@@ -613,7 +613,7 @@
  <name>Elven Archer</name>
  <level>2</level>
  <type>Ranged</type>
- <building_req>barracks 2</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>7</def>
@@ -642,7 +642,7 @@
  <name>Elven Ranger</name>
  <level>3</level>
  <type>Ranged</type>
- <building_req>barracks 3</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>7</atk>
  <def>8</def>
@@ -671,7 +671,7 @@
  <name>Elven Marksman</name>
  <level>4</level>
  <type>Ranged</type>
- <building_req>barracks 4</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>8</atk>
  <def>9</def>
@@ -700,7 +700,7 @@
  <name>Elven Sniper</name>
  <level>5</level>
  <type>Ranged</type>
- <building_req>barracks 5</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>10</atk>
  <def>10</def>
@@ -729,7 +729,7 @@
  <name>Elven Acolyte</name>
  <level>1</level>
  <type>Magic</type>
- <building_req>temple 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>2</atk>
  <def>4</def>
@@ -758,7 +758,7 @@
  <name>Elven Adept</name>
  <level>2</level>
  <type>Magic</type>
- <building_req>temple 2</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>4</atk>
  <def>6</def>
@@ -787,7 +787,7 @@
  <name>Elven Mage</name>
  <level>3</level>
  <type>Magic</type>
- <building_req>temple 3</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>8</def>
@@ -816,7 +816,7 @@
  <name>Elven Archmage</name>
  <level>4</level>
  <type>Magic</type>
- <building_req>temple 4</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>8</atk>
  <def>10</def>
@@ -845,7 +845,7 @@
  <name>Elven Wizard</name>
  <level>5</level>
  <type>Magic</type>
- <building_req>temple 5</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>10</atk>
  <def>12</def>
@@ -874,7 +874,7 @@
  <name>Goblin Skirmisher</name>
  <level>1</level>
  <type>Melee</type>
- <building_req>barracks 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>5</atk>
  <def>6</def>
@@ -903,7 +903,7 @@
  <name>Goblin Infantry</name>
  <level>2</level>
  <type>Melee</type>
- <building_req>barracks 2</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>7</def>
@@ -932,7 +932,7 @@
  <name>Goblin Heavy Infantry</name>
  <level>3</level>
  <type>Melee</type>
- <building_req>barracks 3</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>7</atk>
  <def>8</def>
@@ -961,7 +961,7 @@
  <name>Goblin Knight</name>
  <level>4</level>
  <type>Melee</type>
- <building_req>barracks 4</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>8</atk>
  <def>9</def>
@@ -990,7 +990,7 @@
  <name>Goblin Champion</name>
  <level>5</level>
  <type>Melee</type>
- <building_req>barracks 5</building_req>
+ <building_req>52</building_req>
  <hp>3</hp>
  <atk>10</atk>
  <def>10</def>
@@ -1019,7 +1019,7 @@
  <name>Goblin Bowman</name>
  <level>1</level>
  <type>Ranged</type>
- <building_req>barracks 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>5</atk>
  <def>6</def>
@@ -1048,7 +1048,7 @@
  <name>Goblin Archer</name>
  <level>2</level>
  <type>Ranged</type>
- <building_req>barracks 2</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>7</def>
@@ -1077,7 +1077,7 @@
  <name>Goblin Ranger</name>
  <level>3</level>
  <type>Ranged</type>
- <building_req>barracks 3</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>7</atk>
  <def>8</def>
@@ -1106,7 +1106,7 @@
  <name>Goblin Marksman</name>
  <level>4</level>
  <type>Ranged</type>
- <building_req>barracks 4</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>8</atk>
  <def>9</def>
@@ -1135,7 +1135,7 @@
  <name>Goblin Sniper</name>
  <level>5</level>
  <type>Ranged</type>
- <building_req>barracks 5</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>10</atk>
  <def>10</def>
@@ -1164,7 +1164,7 @@
  <name>Goblin Acolyte</name>
  <level>1</level>
  <type>Magic</type>
- <building_req>temple 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>2</atk>
  <def>4</def>
@@ -1193,7 +1193,7 @@
  <name>Goblin Adept</name>
  <level>2</level>
  <type>Magic</type>
- <building_req>temple 2</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>4</atk>
  <def>6</def>
@@ -1222,7 +1222,7 @@
  <name>Goblin Mage</name>
  <level>3</level>
  <type>Magic</type>
- <building_req>temple 3</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>8</def>
@@ -1251,7 +1251,7 @@
  <name>Goblin Archmage</name>
  <level>4</level>
  <type>Magic</type>
- <building_req>temple 4</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>8</atk>
  <def>10</def>
@@ -1280,7 +1280,7 @@
  <name>Goblin Wizard</name>
  <level>5</level>
  <type>Magic</type>
- <building_req>temple 5</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>10</atk>
  <def>12</def>
@@ -1309,7 +1309,7 @@
  <name>Dwarven Skirmisher</name>
  <level>1</level>
  <type>Melee</type>
- <building_req>barracks 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>5</atk>
  <def>6</def>
@@ -1338,7 +1338,7 @@
  <name>Dwarven Infantry</name>
  <level>2</level>
  <type>Melee</type>
- <building_req>barracks 2</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>7</def>
@@ -1367,7 +1367,7 @@
  <name>Dwarven Heavy Infantry</name>
  <level>3</level>
  <type>Melee</type>
- <building_req>barracks 3</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>7</atk>
  <def>8</def>
@@ -1396,7 +1396,7 @@
  <name>Dwarven Knight</name>
  <level>4</level>
  <type>Melee</type>
- <building_req>barracks 4</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>8</atk>
  <def>9</def>
@@ -1425,7 +1425,7 @@
  <name>Dwarven Champion</name>
  <level>5</level>
  <type>Melee</type>
- <building_req>barracks 5</building_req>
+ <building_req>52</building_req>
  <hp>3</hp>
  <atk>10</atk>
  <def>10</def>
@@ -1454,7 +1454,7 @@
  <name>Dwarven Bowman</name>
  <level>1</level>
  <type>Ranged</type>
- <building_req>barracks 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>5</atk>
  <def>6</def>
@@ -1483,7 +1483,7 @@
  <name>Dwarven Archer</name>
  <level>2</level>
  <type>Ranged</type>
- <building_req>barracks 2</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>7</def>
@@ -1512,7 +1512,7 @@
  <name>Dwarven Ranger</name>
  <level>3</level>
  <type>Ranged</type>
- <building_req>barracks 3</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>7</atk>
  <def>8</def>
@@ -1541,7 +1541,7 @@
  <name>Dwarven Marksman</name>
  <level>4</level>
  <type>Ranged</type>
- <building_req>barracks 4</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>8</atk>
  <def>9</def>
@@ -1570,7 +1570,7 @@
  <name>Dwarven Sniper</name>
  <level>5</level>
  <type>Ranged</type>
- <building_req>barracks 5</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>10</atk>
  <def>10</def>
@@ -1599,7 +1599,7 @@
  <name>Dwarven Acolyte</name>
  <level>1</level>
  <type>Magic</type>
- <building_req>temple 1</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>2</atk>
  <def>4</def>
@@ -1628,7 +1628,7 @@
  <name>Dwarven Adept</name>
  <level>2</level>
  <type>Magic</type>
- <building_req>temple 2</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>4</atk>
  <def>6</def>
@@ -1657,7 +1657,7 @@
  <name>Dwarven Mage</name>
  <level>3</level>
  <type>Magic</type>
- <building_req>temple 3</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>6</atk>
  <def>8</def>
@@ -1686,7 +1686,7 @@
  <name>Dwarven Archmage</name>
  <level>4</level>
  <type>Magic</type>
- <building_req>temple 4</building_req>
+ <building_req>52</building_req>
  <hp>1</hp>
  <atk>8</atk>
  <def>10</def>
@@ -1715,7 +1715,7 @@
  <name>Dwarven Wizard</name>
  <level>5</level>
  <type>Magic</type>
- <building_req>temple 5</building_req>
+ <building_req>52</building_req>
  <hp>2</hp>
  <atk>10</atk>
  <def>12</def>
@@ -1744,7 +1744,7 @@
  <name>Siege Wagon</name>
  <level>1</level>
  <type>Wagon</type>
- <building_req>siege 1</building_req>
+ <building_req>52</building_req>
  <hp>100</hp>
  <atk>2</atk>
  <def>40</def>
@@ -1773,7 +1773,7 @@
  <name>Supply Wagon</name>
  <level>1</level>
  <type>Wagon</type>
- <building_req>market 1</building_req>
+ <building_req>52</building_req>
  <hp>100</hp>
  <atk>2</atk>
  <def>40</def>
@@ -1802,7 +1802,7 @@
  <name>Slave Wagon</name>
  <level>1</level>
  <type>Wagon</type>
- <building_req>market 1</building_req>
+ <building_req>52</building_req>
  <hp>100</hp>
  <atk>2</atk>
  <def>40</def>
@@ -1831,7 +1831,7 @@
  <name>Galley</name>
  <level>1</level>
  <type>Rowing Ship</type>
- <building_req>shipyard 1</building_req>
+ <building_req>52</building_req>
  <hp>250</hp>
  <atk>50</atk>
  <def>50</def>
@@ -1860,7 +1860,7 @@
  <name>Bireme</name>
  <level>2</level>
  <type>Rowing Ship</type>
- <building_req>shipyard 2</building_req>
+ <building_req>52</building_req>
  <hp>500</hp>
  <atk>80</atk>
  <def>80</def>
@@ -1889,7 +1889,7 @@
  <name>Trireme</name>
  <level>3</level>
  <type>Rowing Ship</type>
- <building_req>shipyard 3</building_req>
+ <building_req>52</building_req>
  <hp>1000</hp>
  <atk>100</atk>
  <def>100</def>
@@ -1918,7 +1918,7 @@
  <name>Sloop</name>
  <level>1</level>
  <type>Sailing Ship</type>
- <building_req>shipyard 1</building_req>
+ <building_req>52</building_req>
  <hp>250</hp>
  <atk>50</atk>
  <def>50</def>
@@ -1947,7 +1947,7 @@
  <name>Brig</name>
  <level>2</level>
  <type>Sailing Ship</type>
- <building_req>shipyard 2</building_req>
+ <building_req>52</building_req>
  <hp>500</hp>
  <atk>80</atk>
  <def>80</def>
@@ -1976,7 +1976,7 @@
  <name>Corvette</name>
  <level>3</level>
  <type>Sailing Ship</type>
- <building_req>shipyard 3</building_req>
+ <building_req>52</building_req>
  <hp>1000</hp>
  <atk>100</atk>
  <def>100</def>
@@ -2005,7 +2005,7 @@
  <name>Frigate</name>
  <level>4</level>
  <type>Sailing Ship</type>
- <building_req>shipyard 4</building_req>
+ <building_req>52</building_req>
  <hp>2000</hp>
  <atk>150</atk>
  <def>150</def>
@@ -2034,7 +2034,7 @@
  <name>Ship of the Line</name>
  <level>5</level>
  <type>Sailing Ship</type>
- <building_req>shipyard 5</building_req>
+ <building_req>52</building_req>
  <hp>4000</hp>
  <atk>200</atk>
  <def>200</def>
@@ -2063,7 +2063,7 @@
  <name>Steamboat</name>
  <level>1</level>
  <type>Steam Ship</type>
- <building_req>shipyard 3</building_req>
+ <building_req>52</building_req>
  <hp>2000</hp>
  <atk>200</atk>
  <def>200</def>
@@ -2092,7 +2092,7 @@
  <name>Ironclad</name>
  <level>2</level>
  <type>Steam Ship</type>
- <building_req>shipyard 4</building_req>
+ <building_req>52</building_req>
  <hp>4000</hp>
  <atk>250</atk>
  <def>250</def>
@@ -2121,7 +2121,7 @@
  <name>Heavy Ironclad</name>
  <level>3</level>
  <type>Steam Ship</type>
- <building_req>shipyard 5</building_req>
+ <building_req>52</building_req>
  <hp>8000</hp>
  <atk>300</atk>
  <def>300</def>
@@ -2150,7 +2150,7 @@
  <name>Cloud Skiff</name>
  <level>1</level>
  <type>Skysail Airship</type>
- <building_req>airstrip 1</building_req>
+ <building_req>52</building_req>
  <hp>500</hp>
  <atk>100</atk>
  <def>100</def>
@@ -2179,7 +2179,7 @@
  <name>Zeppelin</name>
  <level>2</level>
  <type>Skysail Airship</type>
- <building_req>airstrip 2</building_req>
+ <building_req>52</building_req>
  <hp>1000</hp>
  <atk>150</atk>
  <def>150</def>
@@ -2208,7 +2208,7 @@
  <name>Hulk</name>
  <level>3</level>
  <type>Skysail Airship</type>
- <building_req>airstrip 3</building_req>
+ <building_req>52</building_req>
  <hp>2000</hp>
  <atk>200</atk>
  <def>200</def>
@@ -2237,7 +2237,7 @@
  <name>Cloud Corvette</name>
  <level>4</level>
  <type>Skysail Airship</type>
- <building_req>airstrip 4</building_req>
+ <building_req>52</building_req>
  <hp>4000</hp>
  <atk>250</atk>
  <def>250</def>
@@ -2266,7 +2266,7 @@
  <name>Sky Frigate</name>
  <level>5</level>
  <type>Skysail Airship</type>
- <building_req>airstrip 5</building_req>
+ <building_req>52</building_req>
  <hp>8000</hp>
  <atk>300</atk>
  <def>300</def>
@@ -2295,7 +2295,7 @@
  <name>Cruiser</name>
  <level>1</level>
  <type>Lifter Airship</type>
- <building_req>airstrip 1</building_req>
+ <building_req>52</building_req>
  <hp>500</hp>
  <atk>100</atk>
  <def>100</def>
@@ -2324,7 +2324,7 @@
  <name>Battlecruiser</name>
  <level>2</level>
  <type>Lifter Airship</type>
- <building_req>airstrip 2</building_req>
+ <building_req>52</building_req>
  <hp>1000</hp>
  <atk>150</atk>
  <def>150</def>
@@ -2353,7 +2353,7 @@
  <name>Destroyer</name>
  <level>3</level>
  <type>Lifter Airship</type>
- <building_req>airstrip 3</building_req>
+ <building_req>52</building_req>
  <hp>2000</hp>
  <atk>200</atk>
  <def>200</def>
@@ -2378,11 +2378,11 @@
  <notes></notes>
  </row>
 <row>
- <id>92</id>
+ <id>93</id>
  <name>Battleship</name>
  <level>4</level>
  <type>Lifter Airship</type>
- <building_req>airstrip 4</building_req>
+ <building_req>52</building_req>
  <hp>4000</hp>
  <atk>250</atk>
  <def>250</def>
@@ -2411,7 +2411,7 @@
  <name>Dreadnaught</name>
  <level>5</level>
  <type>Lifter Airship</type>
- <building_req>airstrip 5</building_req>
+ <building_req>52</building_req>
  <hp>8000</hp>
  <atk>300</atk>
  <def>300</def>

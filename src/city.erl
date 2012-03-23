@@ -20,10 +20,10 @@
          handle_info/2, terminate/2, code_change/3]).
 
 -export([start/2, stop/1]).
--export([queue_unit/6, 
-         queue_building/3, 
+-export([queue_unit/6,
+         queue_building/2, 
          queue_improvement/4,
-         queue_item/5, 
+         craft_item/5,
          add_claim/4, 
          remove_claim/2, 
          assign_task/6,
@@ -68,17 +68,17 @@ stop(ProcessId)
   when is_pid(ProcessId) ->
     gen_server:cast(ProcessId, stop).
 
-queue_unit(CityId, PlayerId, UnitType, UnitSize, Caste, Race) ->
-    gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_UNIT', PlayerId, UnitType, UnitSize, Caste, Race}).
+queue_unit(CityId, BuildingId, UnitType, UnitSize, Caste, Race) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_UNIT', BuildingId, UnitType, UnitSize, Caste, Race}).
 
-queue_building(CityId, PlayerId, BuildingType) ->
-    gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_BUILDING', PlayerId, BuildingType}).
+queue_building(CityId, BuildingType) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_BUILDING', BuildingType}).
 
 queue_improvement(CityId, X, Y, ImprovementType) ->
     gen_server:call(global:whereis_name({city,CityId}), {'QUEUE_IMPROVEMENT', X, Y, ImprovementType}).
 
-queue_item(CityId, SourceId, SourceType, ItemType, ItemSize) ->
-    gen_server:call(global:whereis_name({city,CityId}), {'QUEUE_ITEM', SourceId, SourceType, ItemType, ItemSize}).
+craft_item(CityId, SourceId, SourceType, ItemType, Amount) ->
+    gen_server:call(global:whereis_name({city,CityId}), {'CRAFT_ITEM', SourceId, SourceType, ItemType, Amount}).
 
 add_claim(CityId, ArmyId, X, Y) ->
     gen_server:call(global:whereis_name({city, CityId}), {'ADD_CLAIM', ArmyId, X, Y}).
@@ -185,49 +185,51 @@ handle_call({'REMOVE_CLAIM', ClaimId}, _From, Data) ->
 
     {reply, Result, Data};
 
-handle_call({'QUEUE_UNIT', PlayerId, BuildingId, UnitType, UnitSize, Caste, Race}, _From, Data) ->   
+handle_call({'QUEUE_UNIT', BuildingId, UnitTypeId, UnitSize, Caste, _Race}, _From, Data) ->   
     City = Data#module_data.city,
+    CityId = City#city.id,
+    PlayerId = City#city.player_id,
 
-    UnitCost = unit:calc_unit_cost(UnitType, UnitSize), 
-    CasesUnitQueue = cases_unit_queue(PlayerId =:= City#city.player_id, 
-                                      unit:is_valid_unit_type(UnitType),                             
-                                      kingdom:get_gold(PlayerId) >= UnitCost,
-                                      get_available_pop(City#city.id, Caste, Race) >= UnitSize),
-      
-    case CasesUnitQueue of
-        true ->                        
-            case building:is_available(BuildingId) of
-               {true, Building} ->
-                    kingdom:remove_gold(PlayerId, UnitCost),
-                    remove_population(City#city.id, Caste, Race, UnitSize),                        
-
-                    unit:add_to_queue(City#city.id, BuildingId, UnitType, UnitSize),
-                    Result = {city, queued_unit};
-               false ->                    
-                    ?INFO("Building not found"),
-                    Result = {city, "Building not found"}
+    case structure:is_available(BuildingId, ?OBJECT_BUILDING) of
+        {true, Structure} ->
+            case unit:get_unit_type(UnitTypeId) of
+                {true, UnitType} ->
+                    case unit:check_structure_req(Structure, UnitType) of
+                        true ->
+                            case unit:remove_cost(PlayerId, CityId, UnitType, UnitSize, Caste) of
+                                true ->
+                                    unit:add_to_queue(CityId, BuildingId, UnitType, UnitSize),
+                                    Result = {city, queued_unit};
+                                false ->
+                                    Result = {city, insufficient_materials}
+                            end;
+                        false ->
+                            Result = {city, invalid_structure_req}
+                    end;
+                false ->
+                    Result = {city, invalid_type}
             end;
-        {false, ErrorMsg} ->
-            ?ERROR("QueueUnit Error", ErrorMsg),
-            Result = {city, ErrorMsg}
-    end,
-    
+        false ->
+            Result = {city, no_structure}
+    end, 
     {reply, Result, Data};
 
-handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
+handle_call({'QUEUE_BUILDING', BuildingType}, _From, Data) ->
     ?INFO("Queue Building Type", BuildingType),
-    City = Data#module_data.city,        
+    City = Data#module_data.city,      
+    PlayerId = City#city.player_id,
+  
     IsValid = building:is_valid(PlayerId =:= City#city.player_id,
-                               building:check_type(BuildingType)),
-
+                                building:check_type(BuildingType)),
     case IsValid of
         true ->                        
-            building:add_to_queue(City#city.id, BuildingType),
-            
-            BuildingCost = building:calc_gold_cost(BuildingType),
-            kingdom:remove_gold(PlayerId, BuildingCost),
-
-            Result = {city, queued_building};
+            case structure:remove_cost(building, City#city.id, PlayerId, BuildingType) of
+                true ->
+                    building:add_to_queue(City#city.id, BuildingType),
+                    Result = {city, queued_building};
+                false ->
+                    Result = {city, insuffucient_materials}
+            end;
         {false, ErrorType} ->
             Result = {city, ErrorType}
     end,
@@ -236,6 +238,8 @@ handle_call({'QUEUE_BUILDING', PlayerId, BuildingType}, _From, Data) ->
 
 handle_call({'QUEUE_IMPROVEMENT', X, Y, ImprovementType}, _From, Data) ->
     City = Data#module_data.city,
+    PlayerId = Data#module_data.player_id,
+
     TileIndex = map:convert_coords(X,Y),
 
     CheckClaimStatus = claim:check_status(TileIndex), 
@@ -248,18 +252,13 @@ handle_call({'QUEUE_IMPROVEMENT', X, Y, ImprovementType}, _From, Data) ->
 
     case IsValid of
         true ->
-            ImprovementPid = global:whereis_name(improve_pid),
-            ImprovementId = counter:increment(entity),
-            improvement:queue(ImprovementId, X, Y, Data#module_data.player_id, City#city.id, ImprovementType),
-            
-            %Subscription update
-            {ok, SubPid} = subscription:start(ImprovementId),
-            subscription:update_perception(SubPid, ImprovementId, ImprovementPid, X, Y, [], []),
-
-            %Toggle player's perception has been updated.
-            game:update_perception(Data#module_data.player_id),
-
-            Result = {city, queued_improvement};
+            case structure:remove_cost(improvement, City#city.id, PlayerId, ImprovementType) of
+                true ->
+                    improvement:queue(X, Y, PlayerId, City#city.id, ImprovementType),
+                    Result = {city, queued_improvement};
+                false ->
+                    Result = {city, insufficient_materials}
+            end;
         {false, ErrorType} ->
             log4erl:info("{~w} Queue Improvement failed: ~w", [?MODULE, ErrorType]),
             Result = {city, ErrorType}
@@ -268,48 +267,48 @@ handle_call({'QUEUE_IMPROVEMENT', X, Y, ImprovementType}, _From, Data) ->
 
     {reply, Result, Data};
 
-handle_call({'QUEUE_ITEM', SourceId, SourceType, ItemType, ItemSize}, _From, Data) ->
+handle_call({'CRAFT_ITEM', SourceId, SourceType, ItemTypeId, ItemAmount}, _From, Data) ->
     City = Data#module_data.city,
+    PlayerId = City#city.player_id,
+    CityId = City#city.id,
 
-    case SourceType of 
-        ?OBJECT_IMPROVEMENT ->
-            case improvement:is_available(SourceId) of
-                {true, Improvement} ->
-                    case item:check_req(Improvement#improvement.type, ?OBJECT_IMPROVEMENT, ItemType) of
+    case structure:is_available(SourceId, SourceType) of
+        {true, Structure} ->
+            case item:get_item_type(ItemTypeId) of
+                {true, ItemType} ->
+                    case item:check_req(Structure, ItemType) of
                         true -> 
-                            item:add_to_queue(City#city.player_id,
-                                              City#city.id,
-                                              ?CONTRACT_HARVEST,
-                                              {SourceId, ?OBJECT_IMPROVEMENT},
-                                              ItemType,
-                                              ItemSize),
-                            Result = {city, queued_harvest};
+                            case item:is_resource(ItemType) of
+                                true ->
+                                    item:add_to_queue(PlayerId,
+                                                      CityId,
+                                                      ?CONTRACT_HARVEST,
+                                                      {SourceId, ?OBJECT_IMPROVEMENT},
+                                                      ItemTypeId,
+                                                      ItemAmount),
+                                    Result = {city, queued_crafted};
+                                false ->
+                                    case item:remove_cost({?OBJECT_CITY, CityId}, PlayerId, ItemType, ItemAmount) of
+                                        true ->
+                                            item:add_to_queue(PlayerId,
+                                                              CityId,
+                                                              ?CONTRACT_ITEM,
+                                                              {SourceId, ?OBJECT_BUILDING},
+                                                              ItemTypeId,
+                                                              ItemAmount),
+                                            Result = {city, queued_crafted};
+                                        false ->
+                                            Result = {city, insufficient_materials}
+                                    end
+                            end;
                         false ->
-                            Result = {city, invalid_item_type}
+                            Result = {city, invalid_structure_req}
                     end;
                 false ->
-                    Result = {city, invalid_improvement}
+                    Result = {city, invalid_item_type}
             end;
-        ?OBJECT_BUILDING ->
-            case building:is_available(SourceId) of
-                {true, Building} ->
-                    case item:check_req(Building#building.type, ?OBJECT_BUILDING, ItemType) of
-                        true ->
-                            item:add_to_queue(City#city.player_id,
-                                              City#city.id,
-                                              ?CONTRACT_ITEM,
-                                              {SourceId, ?OBJECT_BUILDING},
-                                              ItemType,
-                                              ItemSize),
-                            Result = {city, queued_item};
-                        false ->
-                            Result = {city, invalid_item_type}
-                    end;
-                false ->
-                    Result = {city, invalid_building}
-            end;
-        _ ->
-            Result = {city, invalid_source_type}
+        false ->
+            Result = {city, no_structure}
     end,
 
     {reply, Result, Data};
@@ -368,9 +367,11 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             %Convert contracts record to tuple packet form 
             Contracts = db:dirty_index_read(contract, City#city.id, #contract.city_id),
             
+            ?INFO("Processing contracts"),
             %Process contract production 
             contract:process_contracts(Contracts),           
  
+            ?INFO("Contract tuple form"),
             %Convert contracts record to tuple packet form 
             NewContracts = db:dirty_index_read(contract, City#city.id, #contract.city_id),
             ContractsTuple = contract:tuple_form(NewContracts),
@@ -380,13 +381,13 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             AssignmentsTuple = assignment:tuple_form(Assignments),
 
             %Convert units record to tuple packet form
-            Units = db:dirty_index_read(unit, City#city.id, #unit.entity_id),
-            UnitsTuple = unit:tuple_form(Units),
+            UnitsTuple = unit:tuple_form_items(PlayerId, City#city.id),
 
             %Convert buildings record to tuple packet form
             Buildings = db:dirty_index_read(building, City#city.id, #building.city_id),  
             BuildingsTuple = building:tuple_form(Buildings),
 
+            ?INFO("Claims tuple form"),
             %Convert claims record to tuple packet form
             Claims = db:dirty_index_read(claim, City#city.id, #claim.city_id),
             ClaimsTuple = claim:tuple_form(Claims), 
@@ -395,14 +396,15 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             NewImprovements = db:dirty_index_read(improvement, City#city.id, #improvement.city_id),
             ImprovementsTuple = improvements_tuple(NewImprovements),
 
+            ?INFO("Items tuple form"),
             %Convert items record to tuple packet form
-            Items = db:dirty_index_read(item, {City#city.id, PlayerId}, #item.ref),
+            Items = item:get_by_entity({?OBJECT_CITY, City#city.id}, PlayerId),
             ItemsTuple = item:tuple_form(Items),
 
-            %Convert population record to tuple packet form
-            NewPopulations = db:dirty_index_read(population, City#city.id, #population.city_id),
-            PopulationsTuple = populations_tuple(NewPopulations), 
+            %Retrieve & convert population record to tuple packet form
+            PopulationsTuple = population:tuple_form(City#city.id), 
 
+            ?INFO("CityInfo tuple form"),
             CityInfo = {detailed, 
                         City#city.name,
                         BuildingsTuple, 
@@ -454,7 +456,7 @@ handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, D
                 true ->
                     case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
                         {receive_unit, success} ->
-                            db:dirty_delete(Unit),
+                            db:dirty_delete(unit, Unit),
                             NewUnits = gb_sets:delete(UnitId, Units),
                             NewCity = City#city {units = NewUnits},
                             NewData = Data#module_data {city = NewCity},
@@ -569,7 +571,6 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 %% Local Functions
 %%
-
 growth(CityId, PlayerId) ->
     Population = db:dirty_index_read(population, CityId, #population.city_id),    
     log4erl:debug("{~w} Growth Current Population: ~w", [?MODULE, Population]),
@@ -609,8 +610,8 @@ total_food_required([Caste | Rest], FoodRequired) ->
     total_food_required(Rest, TotalFoodRequired).
 
 food_upkeep(CityId, PlayerId, Population, TotalFoodRequired) ->
-    case item:get_by_type(CityId, PlayerId, ?ITEM_FOOD) of
-        {found, FoodList} ->
+    case item:get_by_type({?OBJECT_CITY, CityId}, PlayerId, ?ITEM_FOOD) of
+        {true, FoodList} ->
             log4erl:info("Food upkeep: ~w",[FoodList]),
             TotalFood = total_food(FoodList, 0),
             if
@@ -622,7 +623,7 @@ food_upkeep(CityId, PlayerId, Population, TotalFoodRequired) ->
             end,
             log4erl:info("FoodList: ~w TotalFoodRequired: ~w", [FoodList, TotalFoodRequired]),            
             remove_food(FoodList, TotalFoodRequired);
-        {not_found} ->
+        false ->
             starve_population(Population, TotalFoodRequired)
     end.         
 
@@ -661,12 +662,6 @@ grow_population([Caste | Rest]) ->
     db:write(NewCaste),
 
     grow_population(Rest).
-
-remove_population(CityId, Caste, Race, Value) ->
-    [Population] = db:dirty_read(population, {CityId, Caste, Race}),
-    NewValue = Population#population.value - Value, 
-    NewPopulation = Population#population { value = NewValue},
-    db:dirty_write(NewPopulation).
 
 starve_population(Population, InsufficientFood) ->   
     SortedPopulation = lists:keysort(#population.caste, Population),
@@ -712,18 +707,6 @@ total_assignment([Assignment | Rest], TotalAssignment) ->
     NewTotalAssignment = Assignment#assignment.amount + TotalAssignment,
     total_assignment(Rest, NewTotalAssignment).
 
-          
-cases_unit_queue(_IsPlayer = true, _IsValidUnitType = true, _CanAfford = true, _PopAvailable = true) ->
-    true;
-cases_unit_queue(_IsPlayer = false, _IsValidUnitType, _CanAfford, _PopAvailable) ->
-    {false, not_player};
-cases_unit_queue(_IsPlayer, _IsValidUnitType = true, _CanAfford, _PopAvailable) ->
-    {false, invalid_unit_type};
-cases_unit_queue(_IsPlayer, _IsValidUnitType, _CanAfford = true, _PopAvailable) ->
-    {false, insufficient_gold};
-cases_unit_queue(_IsPlayer, _IsValidUnitType, _CanAfford, _PopAvailable = true) ->
-    {false, insufficient_pop}.
-
 improvements_tuple(Improvements) ->
     F = fun(Improvement, ImprovementList) ->
             ImprovementTuple = {Improvement#improvement.id, 
@@ -731,16 +714,6 @@ improvements_tuple(Improvements) ->
             [ImprovementTuple | ImprovementList]
         end,
     lists:foldl(F, [], Improvements).
-
-populations_tuple(Populations) ->
-    F = fun(Population, PopulationList) ->
-        PopulationTuple = {Population#population.city_id,
-                           Population#population.caste,
-                           Population#population.race,
-                           erlang:trunc(Population#population.value)},
-        [PopulationTuple | PopulationList]
-    end,
-    lists:foldl(F, [], Populations).
 
 save_city(City) ->
 	

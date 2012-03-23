@@ -102,11 +102,13 @@ login(PlayerInfo, PlayerConn, bad_password, _) ->
 login(PlayerInfo, PlayerConn, player_offline, [Name, _, Socket]) ->
     %% start player process
     {ok, Pid} = player:start(Name),
-    ID = gen_server:call(Pid, 'ID'),
-    gen_server:cast(Pid, {'SOCKET', Socket}),
+
+    player:set_socket(Pid, Socket),
+    chat:add(PlayerInfo#player.id, Name, Socket),
+
     %% update player connection
     PlayerConn1 = PlayerConn#connection {
-                                         player_id = ID,
+                                         player_id = PlayerInfo#player.id,
                                          process = Pid,
                                          socket = Socket
                                         },

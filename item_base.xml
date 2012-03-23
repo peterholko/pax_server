@@ -254,7 +254,7 @@
 <row>
   <type_id>1019</type_id>
   <name>Bristlespine Pig Resource</name>
-  <category>Animal</category>
+  <category>animal</category>
   <production_cost>0</production_cost>
   <batch_amount>0</batch_amount>
   <building_req>None</building_req>
@@ -366,7 +366,7 @@
 <row>
   <type_id>1027</type_id>
   <name>Wirecoat Goat Resource</name>
-  <category>Animal</category>
+  <category>animal</category>
   <production_cost>0</production_cost>
   <batch_amount>0</batch_amount>
   <building_req>None</building_req>
@@ -394,7 +394,7 @@
 <row>
   <type_id>1029</type_id>
   <name>Bristlespine Pig</name>
-  <category>Animal</category>
+  <category>animal</category>
   <production_cost>100</production_cost>
   <batch_amount>1</batch_amount>
   <building_req>None</building_req>
@@ -590,7 +590,7 @@
 <row>
   <type_id>1043</type_id>
   <name>Wirecoat Goat</name>
-  <category>Animal</category>
+  <category>animal</category>
   <production_cost>100</production_cost>
   <batch_amount>1</batch_amount>
   <building_req>None</building_req>
@@ -617,7 +617,7 @@
 </row>
 <row>
   <type_id>1045</type_id>
-  <name>Bristlespine Blood/Bone/Hide/Pork</name>
+  <name>Bristlespine Blood/bone/Hide/Pork</name>
   <category>Animal</category>
   <production_cost>100</production_cost>
   <batch_amount>1</batch_amount>
@@ -645,7 +645,7 @@
 </row>
 <row>
   <type_id>1047</type_id>
-  <name>Bristlespine Bone</name>
+  <name>Bristlespine bone</name>
   <category>Bone</category>
   <production_cost>0</production_cost>
   <batch_amount>1</batch_amount>
@@ -687,7 +687,7 @@
 </row>
 <row>
   <type_id>1050</type_id>
-  <name>Wirecoat Blood/Bone/Mutton/Wool</name>
+  <name>Wirecoat Blood/bone/Mutton/Wool</name>
   <category>Animal</category>
   <production_cost>100</production_cost>
   <batch_amount>1</batch_amount>
@@ -715,8 +715,8 @@
 </row>
 <row>
   <type_id>1052</type_id>
-  <name>Wirecoat Bone</name>
-  <category>Bone</category>
+  <name>Wirecoat bone</name>
+  <category>bone</category>
   <production_cost>0</production_cost>
   <batch_amount>1</batch_amount>
   <building_req>None</building_req>
@@ -883,7 +883,7 @@
 </row>
 <row>
   <type_id>1064</type_id>
-  <name>Human Blood/Bone</name>
+  <name>Human Blood/bone</name>
   <category>Citizen</category>
   <production_cost>100</production_cost>
   <batch_amount>1</batch_amount>
@@ -911,8 +911,8 @@
 </row>
 <row>
   <type_id>1066</type_id>
-  <name>Human Bone</name>
-  <category>Bone</category>
+  <name>Human bone</name>
+  <category>bone</category>
   <production_cost>0</production_cost>
   <batch_amount>1</batch_amount>
   <building_req>None</building_req>
@@ -939,7 +939,7 @@
 </row>
 <row>
   <type_id>1068</type_id>
-  <name>Elf Blood/Bone</name>
+  <name>Elf Blood/bone</name>
   <category>Citizen</category>
   <production_cost>100</production_cost>
   <batch_amount>1</batch_amount>
@@ -967,8 +967,8 @@
 </row>
 <row>
   <type_id>1070</type_id>
-  <name>Elf Bone</name>
-  <category>Bone</category>
+  <name>Elf bone</name>
+  <category>bone</category>
   <production_cost>0</production_cost>
   <batch_amount>1</batch_amount>
   <building_req>None</building_req>
@@ -995,7 +995,7 @@
 </row>
 <row>
   <type_id>1072</type_id>
-  <name>Goblin Blood/Bone</name>
+  <name>Goblin Blood/bone</name>
   <category>Citizen</category>
   <production_cost>100</production_cost>
   <batch_amount>1</batch_amount>
@@ -1023,8 +1023,8 @@
 </row>
 <row>
   <type_id>1074</type_id>
-  <name>Goblin Bone</name>
-  <category>Bone</category>
+  <name>Goblin bone</name>
+  <category>bone</category>
   <production_cost>0</production_cost>
   <batch_amount>1</batch_amount>
   <building_req>None</building_req>
@@ -1051,7 +1051,7 @@
 </row>
 <row>
   <type_id>1076</type_id>
-  <name> Dwarf Blood/Bone</name>
+  <name> Dwarf Blood/bone</name>
   <category>Citizen</category>
   <production_cost>100</production_cost>
   <batch_amount>1</batch_amount>
@@ -1079,8 +1079,8 @@
 </row>
 <row>
   <type_id>1078</type_id>
-  <name>Dwarf Bone</name>
-  <category>Bone</category>
+  <name>Dwarf bone</name>
+  <category>bone</category>
   <production_cost>0</production_cost>
   <batch_amount>1</batch_amount>
   <building_req>None</building_req>
@@ -1107,8 +1107,8 @@
 </row>
 <row>
   <type_id>1080</type_id>
-  <name>Bone of Heroes</name>
-  <category>Bone</category>
+  <name>bone of Heroes</name>
+  <category>bone</category>
   <production_cost>0</production_cost>
   <batch_amount>1</batch_amount>
   <building_req>None</building_req>

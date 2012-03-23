@@ -26,7 +26,14 @@
 -define(CMD_INFO_KINGDOM, 6).
 -record(info_kingdom, {id,
                        name,
-                       gold}).
+                       gold,
+                       item_recipes,
+                       unit_recipes}).
+
+-define(CMD_CHAT_MESSAGE, 7).
+-record(chat_message, {player_id,
+                       player_name,
+                       message}).
 
 -define(CMD_SUCCESS, 20).
 -record(success, {type,
@@ -69,9 +76,7 @@
 -define (CMD_INFO_ARMY, 53).
 -record(info_army, {id,
                     name,
-                    kingdom_name,                   
-                    units,
-                    items}).
+                    units}).
 
 -define (CMD_INFO_CITY, 54).
 -record(info_city, {id,
@@ -100,6 +105,15 @@
                             player_id,
                             name,
                             kingdom_name}).
+
+-define (CMD_INFO_ITEM_RECIPE, 58).
+-record(info_item_recipe, {type_id,
+                           template_id,
+                           player_id,
+                           item_name,
+                           flavour_text,
+                           material_amount,
+                           material_type}).
 
 -define (CMD_BATTLE_INFO, 70).
 -record(battle_info, {battle_id,
@@ -153,13 +167,27 @@
                                  y,
                                  improvement_type}).
 
--define(CMD_CITY_QUEUE_ITEM, 103).
--record(city_queue_item, {city_id,
-                          source_id,
-                          source_type,
-                          item_type,
-                          item_size}).
+-define(CMD_CITY_CRAFT_ITEM, 103).
+-record(city_craft_item, {city_id,
+                           source_id,
+                           source_type,
+                           item_type,
+                           amount}).
 
+-define(CMD_ADD_ITEM_RECIPE, 120).
+-record(add_item_recipe, {template_id,
+                          player_id,
+                          item_name,
+                          flavour_text,
+                          material_type}).
+
+-define(CMD_ADD_UNIT_RECIPE, 121).
+-record(add_unit_recipe, {template_id,
+                          player_id,
+                          unit_name,
+                          default_size,
+                          gear}).
+                     
 -define(CMD_ADD_CLAIM, 125).
 -record(add_claim, {city_id,
                     army_id,

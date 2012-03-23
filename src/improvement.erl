@@ -17,8 +17,9 @@
 
 %% --------------------------------------------------------------------
 %% External exports
--export([start/0, queue/6, complete/1, info/2, empty/2, update_hp/3]).
--export([is_valid/3, check_type/1, is_available/1]).
+-export([start/0, queue/5, complete/1, info/2, empty/2, update_hp/3]).
+-export([is_valid/3, check_type/1, is_available/1, match_req/2]).
+-export([get_improvement_type/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -32,8 +33,8 @@
 start() ->
     gen_server:start({global, improve_pid}, improvement, [], []).
 
-queue(ImprovementId, X, Y, PlayerId, CityId, Type) ->
-    gen_server:cast(global:whereis_name(improve_pid), {'QUEUE', ImprovementId, X, Y, PlayerId, CityId, Type}).
+queue(X, Y, PlayerId, CityId, Type) ->
+    gen_server:cast(global:whereis_name(improve_pid), {'QUEUE', X, Y, PlayerId, CityId, Type}).
 
 complete(ImprovementId) ->
     gen_server:cast(global:whereis_name(improve_pid), {'COMPLETE', ImprovementId}).
@@ -56,6 +57,24 @@ is_valid(_CheckClaim, _CheckEmpty = false, _CheckType) ->
 is_valid(_CheckClaim, _CheckEmpty, _CheckType = false) ->
     {false, invalid_type}.
 
+match_req(ReqName, ReqLevel) ->
+    case db:dirty_match_object({improvement_type,'_',ReqName,ReqLevel,'_','_','_','_','_','_','_','_'}) of
+        [ImprovementType] ->
+            Result = {true, ImprovementType};
+        _ ->
+            Result = false
+    end,
+    Result.
+
+get_improvement_type(TypeId) ->
+    case db:dirty_read(improvement_type, TypeId) of
+        [ImprovementType] ->
+            Result = {true, ImprovementType};
+        _ ->
+            Result = false
+    end,
+    Result.
+
 check_type(TypeId) ->
     case db:dirty_read(improvement_type, TypeId) of
         [_ImprovementType] ->
@@ -75,7 +94,10 @@ is_available(ImprovementId) ->
                 true ->
                     IsAvailable = false;
                 false ->
-                    IsAvailable = {true, Improvement}
+                    case Improvement#improvement.state == ?STATE_COMPLETED of
+                        true -> IsAvailable = {true, Improvement};
+                        false -> IsAvailable = false
+                    end
             end;
         _ ->
             IsAvailable = false
@@ -90,8 +112,11 @@ init([]) ->
     Data = #module_data {},
     {ok, Data}.
 
-handle_cast({'QUEUE', ImprovementId, X, Y, PlayerId, CityId, Type}, Data) ->
+handle_cast({'QUEUE', X, Y, PlayerId, CityId, Type}, Data) ->
     TileIndex = map:convert_coords(X, Y),
+
+    ImprovementPid = self(),
+    ImprovementId = counter:increment(entity),
     Improvement = #improvement{id = ImprovementId,
                                tile_index = TileIndex,
                                player_id = PlayerId, 
@@ -118,7 +143,16 @@ handle_cast({'QUEUE', ImprovementId, X, Y, PlayerId, CityId, Type}, Data) ->
                                            improvement_id = ImprovementId,
                                            improvement_type = Type},
     
-    io:fwrite("Improvement: ~w~n", [Improvement]), 
+    ?INFO("Starting subscription module"),
+    %Subscription update
+    {ok, SubPid} = subscription:start(ImprovementId),
+
+    ?INFO("Updating subscription perception"),
+    subscription:update_perception(SubPid, ImprovementId, ImprovementPid, X, Y, [], []),
+
+    %Toggle player's perception has been updated.
+    ?INFO("Updating game perception"),
+    game:update_perception(PlayerId),
 
     db:dirty_write(Contract),
     db:dirty_write(ImprovementQueue),
@@ -158,20 +192,11 @@ handle_cast({'REMOVE_VISIBLE', _ImprovementId, _EntityId, _EntityPid}, Data) ->
     {noreply, Data};
 
 handle_cast({'ADD_OBSERVED_BY', ImprovementId, EntityId, EntityPid}, Data) ->    
-    
-    EntityType = gen_server:call(EntityPid, {'GET_TYPE'}),
-        
-    case EntityType of
-        ?OBJECT_ARMY ->
-            add_observed_by(ImprovementId, EntityId, EntityPid);
-        ?OBJECT_CITY ->
-            add_observed_by(ImprovementId, EntityId, EntityPid)
-    end, 
+    add_observed_by(ImprovementId, EntityId, EntityPid),
 
     {noreply, Data};
 
 handle_cast({'REMOVE_OBSERVED_BY', ImprovementId, EntityId, EntityPid}, Data) ->    
-    
     remove_observed_by(ImprovementId, EntityId, EntityPid),
     
     {noreply, Data};
@@ -198,18 +223,6 @@ handle_call({'CHECK_EMPTY', X, Y}, _From, Data) ->
     end,    
 
     {reply, Empty, Data};
-
-handle_call('GET_IMPROVEMENTS', _From, Data) ->
-    
-    [Improvements] = db:dirty_read(improvement),
-    
-    F = fun(Improvement, Rest) ->
-                [{Improvement#improvement.id, self()} | Rest]
-        end,
-    
-    ImprovementsIdPid = lists:foldr(F, [], Improvements),
-    
-    {reply, ImprovementsIdPid, Data};
 
 handle_call({'GET_STATE', ImprovementId}, _From, Data) ->
     case db:dirty_read(improvement, ImprovementId) of
@@ -273,13 +286,23 @@ terminate(_Reason, _) ->
 
 update_observers(Improvement) ->
     ObservedByList = Improvement#improvement.observed_by, 
-    
-    F = fun({_EntityId, EntityPid}) ->                
-                PlayerId = gen_server:call(EntityPid, {'GET_PLAYER_ID'}),                
-                game:update_perception(PlayerId)
+    Self = self(),    
+
+    F = fun({EntityId, EntityPid}) ->  
+            if 
+                EntityPid =:= Self ->
+                    PlayerId = get_player_id(EntityId);
+                true ->
+                    PlayerId = gen_server:call(EntityPid, {'GET_PLAYER_ID'})
+            end,
+            game:update_perception(PlayerId)
         end,  
     
     lists:foreach(F, ObservedByList).
+
+get_player_id(Id) ->
+    [Improvement] = db:dirty_read(improvement, Id),
+    Improvement#improvement.player_id.
 
 add_observed_by(ImprovementId, EntityId, EntityPid) ->
     [Improvement] = db:dirty_read(improvement, ImprovementId),

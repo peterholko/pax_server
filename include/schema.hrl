@@ -33,6 +33,10 @@
                      target_player_id,
                      value}).
 
+-record(entity, {id, 
+                 player_id,
+                 type}).
+
 -record(army, {	id,
                 player_id,
                 name,
@@ -52,10 +56,10 @@
 
 -record(unit, {id,
                entity_id,
-               entity_type,
-               type,
+               recipe_id,
+               template_id,
                size,
-               hp}).
+               current_hp}).
 
 -record(city, { id,
                 player_id,
@@ -113,12 +117,13 @@
                     units}).
 
 -record(item, {id, 
-               ref, %% ref = {EntityId, PlayerId}
+               ref, %% ref = {OwnerRef, PlayerId}
                type,
+               template_id,
                volume}).                   
 
 -record(market_item, {id,
-                      ref, %% ref = {EntityId, PlayerId}
+                      ref, %% ref = {OwnerRef, PlayerId}
                       type,
                       volume}). 
 
@@ -145,7 +150,7 @@
                        duration}).
 
 %%% Reference tables %%%
--record(item_type_ref, {entity_type_ref,  %% ref = {EntityId, PlayerId, Type} %%
+-record(item_type_ref, {owner_type_ref,  %% ref = {EntityId, PlayerId, Type} %%
                        item_id}).
 
 -record(player_type, {player_id,
@@ -168,7 +173,8 @@
 
 -record(unit_queue, {contract_id,                     
                      unit_type,
-                     unit_size}).
+                     unit_size,
+                     gear}).
 
 -record(building_queue, {contract_id,
                          building_id,
@@ -185,51 +191,111 @@
                      item_size}).
 
 %%% Type tables %%%
--record(unit_type, {id,
-                    name,
-                    level,
-                    attack,
-                    defense,
-                    speed,
-                    total_hp,
-                    movement,
-                    production_cost,
-                    gold_cost
-                    }).
+%-record(unit_type, {id,
+%                    name,
+%                    level,
+%                    attack,
+%                    defense,
+%                    speed,
+%                    total_hp,
+%                    movement,
+%                    production_cost,
+%                    gold_cost
+%                    }).
 
 -record(population_type, {id,
                           name}).
 
 -record(improvement_type, {id,
+                           category,
+                           level,
                            name,
                            total_hp,
+                           population_cap,
                            production_cost,
-			   gold_cost,
-			   lumber_cost,
-			   stone_cost}).
+			               gold_cost,
+			               lumber_cost,
+			               stone_cost,
+                           upkeep}).
 
 -record(resource_type, {id, 
                         name}).
 
 -record(building_type, {id,
+                        building_type,
+                        level,
                         name,
-                        total_hp,
+                        hp,
+                        population_cap,
                         production_cost,
-                        gold_cost}).
+                        gold_cost,
+                        lumber_cost,
+                        stone_cost,
+                        upkeep}).
 
--record(item_type, {id,
-                    type,
+-record(item_base, {type_id,
                     name,
+                    category,
                     production_cost,
                     batch_amount,
                     building_req,
                     improvement_req,
                     produces = [],
-                    material_amount = [],
-                    material_type = []}).
+                    material_amount,
+                    material_type}).
+
+-record(item_recipe, {type_id,
+                      template_id,
+                      player_id,
+                      item_name,
+                      flavour_text,
+                      material_amount = [],
+                      material_type = []}).
 
 -record(item_category, {id, 
                         name,
+                        display_name,
                         contains}).
 
+-record(item_template, {template_id,
+                        category,
+                        name,
+                        production_cost,
+                        batch_amount,
+                        building_req,
+                        material_amount = [],
+                        material_category = []}).
 
+-record(unit_recipe, {id,
+                      template_id,
+                      player_id,
+                      unit_name,
+                      default_size,
+                      gear = []}).
+
+-record(unit_template, {id,
+                    name,
+                    level,
+                    type,
+                    building_req,
+                    hp,
+                    atk,
+                    def,
+                    range,
+                    speed,
+                    acc,
+                    eva,
+                    effect_amount,
+                    effact_type,
+                    production_cost,
+                    gold_cost,
+                    material_amount,
+                    material_type,
+                    upkeep,
+                    food,
+                    capacity,
+                    def_size,
+                    min_size,
+                    max_size,
+                    movement,
+                    value}).

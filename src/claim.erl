@@ -55,7 +55,7 @@ complete(ClaimId) ->
 cancel(ArmyId) ->
     case db:dirty_index_read(claim, ArmyId, #claim.army_id) of
         [Claim] ->
-            db:dirty_delete(Claim);
+            db:dirty_delete(claim, Claim);
         _ ->
             ?INFO("Claim not found for army id: ", ArmyId)
     end.

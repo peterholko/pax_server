@@ -60,6 +60,9 @@ init() ->
     % Load game data
     data:load(),
     
+    % Load start chat
+    chat:start(),
+
     % Load map data
     log4erl:info("Loading map data..."), 
     map:start(),
@@ -69,7 +72,8 @@ init() ->
     kingdom:start(),
     improvement:start(),    
     map_object:start(),
-    transport:start(),   
+    population:start(),
+    unit:start(),   
     item:start(),
     market:start(),    
     
@@ -127,12 +131,15 @@ handle_client(Socket, Client) ->
                                 process_login(Client, Socket, Name, Pass);   
                             #logout{} ->
                                 process_logout(Client, Socket);                        
+                            #chat_message{player_id = PlayerId, player_name = PlayerName, message = Message} ->
+                                process_chat(Client, PlayerId, PlayerName, Message);
                             policy_request ->
                                 process_policy_request(Client, Socket);
                             clocksync ->
                                 process_clocksync(Client, Socket);    
                             clientready ->
                                 process_clientready(Client, Socket);
+                            
                             Event ->
                                 process_event(Client, Socket, Event)                            
                         end,
@@ -178,6 +185,11 @@ process_logout(Client, _Socket) ->
     io:fwrite("server : process_logout~n"),
     ok = gen_server:call(Client#client.player_pid, 'LOGOUT'),
     Client.
+
+process_chat(Client, PlayerId, PlayerName, Message) ->
+    ?INFO("Process chat"),
+    chat:broadcast(PlayerId, PlayerName, Message),
+    Client. 
 
 process_policy_request(Client, Socket) ->
     ok = packet:send_policy(Socket),

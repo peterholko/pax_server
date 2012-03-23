@@ -41,9 +41,8 @@ handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
 handle_call({'UPDATE_PERCEPTION', EntityId, EntityPid, EntityX, EntityY, VisibleList, ObservedByList}, _From, Data) ->
-    
     subscription(EntityId, EntityPid, EntityX, EntityY, VisibleList, ObservedByList),
-    
+
     {reply, ok, Data};
 
 handle_call(Event, From, Data) ->

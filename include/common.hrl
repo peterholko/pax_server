@@ -49,8 +49,9 @@
 -define(OBJECT_BUILDING, 3).
 -define(OBJECT_BATTLE, 4).
 -define(OBJECT_IMPROVEMENT, 5).
--define(OBJECT_TRANSPORT, 6).
--define(OBJECT_BASIC, 0).
+-define(OBJECT_UNIT, 6).
+-define(OBJECT_ITEM_RECIPE, 7).
+-define(OBJECT_BASIC, 255).
 
 -define(BUILDING_UNIT_LAND, 1).
 -define(BUILDING_UNIT_SEA, 2).
@@ -118,7 +119,14 @@
 -define(BATTLE_RETREAT, 2).
 -define(BATTLE_MOVE, 3).
 
+-define(ITEM_REQ_NONE, -1).
+-define(ITEM_RECIPE_ID_OFFSET, 10000).
+-define(ITEM_STONE1, 1041).
+-define(ITEM_STONE2, 1042).
+-define(ITEM_LUMBER1, 1034).
+
 -define(INFO(MSG), log4erl:info("{~w} ~s", [?MODULE, MSG])).
--define(INFO(MSG, DATA), log4erl:info("{~w} ~s: ~w", [?MODULE, MSG, DATA])).
+-define(INFO(MSG, DATA), log4erl:info("{~w} ~s ~w", [?MODULE, MSG, DATA])).
+-define(INFO(MSG1, DATA1, MSG2, DATA2), log4erl:info("{~w} ~s ~w ~s ~w", [?MODULE, MSG1, DATA1, MSG2, DATA2])).
 -define(ERROR(MSG), log4erl:error("{~w:~w} ~s", [?MODULE, ?LINE, MSG])).
 -define(ERROR(MSG, DATA), log4erl:error("{~w:~w} ~s: ~w", [?MODULE, ?LINE, MSG, DATA])).

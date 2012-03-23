@@ -12,3 +12,4 @@ clean:
 	rm -f src/*~
 	rm -f ebin/*~
 	rm -f include/*~
+	rm -f src/*.beam

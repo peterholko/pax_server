@@ -19,6 +19,7 @@
          handle_info/2, terminate/2, code_change/3]).
 
 -export([start/1, stop/1, stop/2, get_explored_map/1, get_type/1]).
+-export([set_socket/2]).
 -export([send_battle_event/4]).
 -export([get_info_kingdom/1]).
 %%
@@ -45,6 +46,9 @@ get_type(PlayerId) ->
 send_battle_event(PlayerId, BattleEvent, BattleId, ArmyInfo) ->
     gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_BATTLE_EVENT', BattleEvent, BattleId, ArmyInfo}).
 
+set_socket(Pid, Socket) ->
+    gen_server:cast(Pid, {'SOCKET', Socket}).
+
 start(Name) 
   when is_binary(Name) ->
     
@@ -52,6 +56,7 @@ start(Name)
     case db:index_read(player, Name, #player.name) of
         [PlayerInfo] ->
             PlayerId = PlayerInfo#player.id,
+            
             gen_server:start({global, {player, PlayerId}}, player, [PlayerId], []);
         Any ->
             {error, Any}
@@ -214,12 +219,10 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
             end; 
         ?OBJECT_ARMY ->
             case gen_server:call(global:whereis_name({army, Id}), {'GET_INFO', Data#module_data.player_id}) of
-                {detailed, ArmyId, _ArmyPlayerId, ArmyName, KingdomName, UnitsInfo, ItemsInfo} ->            
+                {detailed, ArmyId, ArmyName, UnitsInfo} ->            
                     R = #info_army { id = ArmyId,
                                      name = ArmyName,
-                                     kingdom_name = KingdomName,
-                                     units = UnitsInfo,
-                                     items = ItemsInfo},
+                                     units = UnitsInfo},
                     forward_to_client(R, Data);
                 {generic, ArmyId, ArmyPlayerId, ArmyName, KingdomName} ->
                     R = #info_generic_army { id = ArmyId,
@@ -244,14 +247,19 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
             end;
         ?OBJECT_IMPROVEMENT ->
             get_info_improvement(Id, Data);
-        ?OBJECT_TRANSPORT ->
-            case gen_server:call(global:whereis_name(transport_pid), {'GET_INFO', Id}) of
-                {detailed, TransportId, UnitsInfo} ->
-                    R = #transport_info { transport_id = TransportId,
-                                          units = UnitsInfo},
+        ?OBJECT_ITEM_RECIPE ->
+            case item:get_recipe(Id, Data#module_data.player_id) of
+                {true, ItemRecipe} ->
+                    R = #info_item_recipe {type_id = ItemRecipe#item_recipe.type_id,
+                                           template_id = ItemRecipe#item_recipe.template_id,
+                                           player_id = ItemRecipe#item_recipe.player_id,
+                                           item_name = ItemRecipe#item_recipe.item_name,
+                                           flavour_text = ItemRecipe#item_recipe.flavour_text,
+                                           material_amount = ItemRecipe#item_recipe.material_amount,
+                                           material_type = ItemRecipe#item_recipe.material_type},
                     forward_to_client(R, Data);
-                {generic, TransportId} ->
-                    TransportId
+                false ->
+                    ok
             end;
         _ -> 
             log4erl:error("Invalid object type")
@@ -262,25 +270,37 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
 handle_cast(_ = #city_queue_unit{city_id = CityId, 
                                  building_id = BuildingId,
                                  unit_type = UnitType, 
-                                 unit_size = UnitSize, 
-                                 caste = Caste, 
+                                 unit_size = UnitSize,
+                                 caste = Caste,
                                  race = Race}, Data) ->
-    case city:queue_unit(CityId, Data#module_data.player_id, BuildingId, UnitType, UnitSize, Caste, Race) of
-        {city, queued_unit} ->
-            RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
-            gen_server:cast(self(), RequestInfo);
-        {city, Error} ->            
-            log4erl:error("Queue Unit - Error: ~w", [Error])        
+
+    case kingdom:is_player_city(Data#module_data.player_id, CityId) of
+        true ->
+            case city:queue_unit(CityId, BuildingId, UnitType, UnitSize, Caste, Race) of
+                {city, queued_unit} ->
+                    RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
+                    gen_server:cast(self(), RequestInfo);
+                {city, Error} ->            
+                    ?INFO("Queue Unit - Error: ",Error)
+            end;
+        false ->
+            ?INFO("CityId is not member of Kingdom")
     end,                        
     {noreply, Data};
 
 handle_cast(_ = #city_queue_building{city_id = CityId, building_type = BuildingType}, Data) ->
-    case city:queue_building(CityId, Data#module_data.player_id, BuildingType) of
-        {city, queued_building} ->
-            RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
-            gen_server:cast(self(), RequestInfo);
-        {city, Error} ->
-            log4erl:error("Queue Building - Error: ~w", [Error])
+    
+    case kingdom:is_player_city(Data#module_data.player_id, CityId) of
+        true ->
+            case city:queue_building(CityId, BuildingType) of
+                {city, queued_building} ->
+                    RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
+                    gen_server:cast(self(), RequestInfo);
+                {city, Error} ->
+                    ?INFO("Queue Building - Error: ", Error)
+            end;
+        false ->
+            ?INFO("CityId is not member of Kingdom")
     end,
     {noreply, Data};
 
@@ -307,14 +327,14 @@ handle_cast(_ = #city_queue_improvement{city_id = CityId,
     
     {noreply, Data};
 
-handle_cast(_ = #city_queue_item{city_id = CityId, 
+handle_cast(_ = #city_craft_item{city_id = CityId, 
                                  source_id = SourceId,
                                  source_type = SourceType,
                                  item_type = ItemType, 
-                                 item_size = ItemSize}, Data) ->
+                                 amount = Amount}, Data) ->
 
-    case city:queue_item(CityId, SourceId, SourceType, ItemType, ItemSize) of
-        {city, queued_harvest} ->
+    case city:craft_item(CityId, SourceId, SourceType, ItemType, Amount) of
+        {city, queued_crafted} ->
             RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
             gen_server:cast(self(), RequestInfo);
         {city, queued_item} ->
@@ -322,6 +342,48 @@ handle_cast(_ = #city_queue_item{city_id = CityId,
             gen_server:cast(self(), RequestInfo);
         {city, Error} ->            
             log4erl:error("Queue Item - Error: ~w", [Error])
+    end,
+    {noreply, Data};
+
+handle_cast(_ = #add_item_recipe{template_id = TemplateId,
+                                 player_id = PlayerId,
+                                 item_name = ItemName,
+                                 flavour_text = FlavourText,
+                                 material_type = MaterialType}, Data) ->
+
+    case Data#module_data.player_id =:= PlayerId of
+        true ->
+            case item:add_recipe(TemplateId, PlayerId, ItemName, FlavourText, MaterialType) of
+                {success, RecipeId} ->
+                    R = #success { type = ?CMD_ADD_ITEM_RECIPE,
+                                   id = RecipeId},
+                    forward_to_client(R, Data);
+                {error, ErrorMsg} ->
+                    ?ERROR(ErrorMsg)
+            end;
+        false ->
+            ?ERROR("Invalid player_id: ", PlayerId)
+    end,
+    {noreply, Data};
+
+handle_cast(_ = #add_unit_recipe{template_id = TemplateId,
+                                 player_id = PlayerId,
+                                 unit_name = UnitName,
+                                 default_size = DefaultSize,
+                                 gear = Gear}, Data) ->
+
+    case Data#module_data.player_id =:= PlayerId of
+        true ->
+            case unit:add_recipe(TemplateId, PlayerId, UnitName, DefaultSize, Gear) of
+                {success, RecipeId} ->
+                    R = #success { type = ?CMD_ADD_UNIT_RECIPE,
+                                   id = RecipeId},
+                    forward_to_client(R, Data);
+                {error, ErrorMsg} ->
+                    ?ERROR(ErrorMsg)
+            end;
+        false ->
+            ?ERROR("Invalid player_id: ", PlayerId)
     end,
     {noreply, Data};
 
@@ -591,9 +653,6 @@ handle_call('LOGOUT', _From, Data) ->
 handle_call('ID', _From, Data) ->
     {reply, Data#module_data.player_id, Data};
 
-handle_call('SOCKET', _From, Data) ->
-    {reply, Data#module_data.socket, Data};
-
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
                               {line, ?LINE},
@@ -717,8 +776,17 @@ save_explored_map(PlayerId, ExploredMap) ->
 
 get_info_kingdom(Data) ->
     {Id, Name, Gold} = kingdom:get_info_kingdom(Data#module_data.player_id),
-    InfoKingdom = #info_kingdom { id = Id, name = Name, gold = Gold},
-    io:fwrite("InfoKingdom: ~w~n", [InfoKingdom]),
+    ItemRecipes = item:get_recipes(Data#module_data.player_id),
+    ?INFO("ItemRecipes: ", ItemRecipes),
+    UnitRecipes = unit:get_recipes(Data#module_data.player_id),
+    ?INFO("UnitRecipes: ", UnitRecipes),
+
+    InfoKingdom = #info_kingdom {id = Id, 
+                                 name = Name, 
+                                 gold = Gold,
+                                 item_recipes = ItemRecipes,
+                                 unit_recipes = UnitRecipes},
+
     forward_to_client(InfoKingdom, Data).    
 
 get_info_all_cities(Data) ->

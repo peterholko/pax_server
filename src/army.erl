@@ -16,7 +16,7 @@
 %%
 %% Exported Functions
 %%
--export([move/3, attack/2, claim/2]).
+-export([move/3, attack/2, claim/2, battle_get_info/1, destroyed/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([start/2, stop/1]).
 
@@ -38,6 +38,12 @@ attack(ArmyId, TargetId) ->
 
 claim(ArmyId, ClaimId) ->
     gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_CLAIM', ClaimId}).
+
+battle_get_info(ArmyId) ->
+    gen_server:cast(global:whereis_name({army, ArmyId}), {'BATTLE_GET_INFO'}).
+
+destroyed(ArmyId) ->
+    gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_DEAD'}).
 
 start(ArmyId, PlayerId) ->
     case db:read(army, ArmyId) of
@@ -208,6 +214,16 @@ handle_cast({'SET_STATE_CLAIM', ClaimId}, Data) ->
 
     {noreply, NewData};
 
+handle_cast({'SET_STATE_DEAD'}, Data) ->
+    Army = Data#module_data.army,
+
+    gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
+    NewArmy = state_dead(Army),
+    NewData = Data#module_data {army = NewArmy},
+    save_army(NewArmy),
+
+    {noreply, NewData};
+
 handle_cast({'SET_STATE_NONE'}, Data) ->
     NewArmy = state_none(Data#module_data.army),
     NewData = Data#module_data {army = NewArmy},    
@@ -286,150 +302,82 @@ handle_cast({'REMOVE_OBSERVED_BY', _ArmyId, EntityId, EntityPid}, Data) ->
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
-handle_call({'DAMAGE_UNIT', UnitId, Damage}, _From, Data) ->
-    
-    Army = Data#module_data.army,
-    Units = Army#army.units,
-   
-    case gb_sets:is_member(UnitId, Units) of
-        true ->
-            [Unit] = db:dirty_read(unit, UnitId),            
-            [UnitType] = db:dirty_read(unit_type, Unit#unit.type),
-            TotalHp = Unit#unit.size * UnitType#unit_type.total_hp,            
-            io:fwrite("Army ~w - Damage: ~w~n", [Army#army.id, Damage]),
-            
-            if
-                Damage >= TotalHp ->
-                    io:fwrite("Army ~w - Unit Destroyed.~n", [Army#army.id]),
-                    db:dirty_delete(unit, UnitId),
-                    NewUnits = gb_sets:delete(UnitId, Units);
-                true ->
-                    Killed = Damage div UnitType#unit_type.total_hp,
-                    io:fwrite("Army ~w - Units killed: ~w~n", [Army#army.id, Killed]),
-                    
-                    NewSize = Unit#unit.size - Killed,
-                    NewUnit = Unit#unit {size = NewSize},
-                    db:dirty_write(NewUnit),                    
-                    io:fwrite("Army ~w - Units size: ~w~n", [Army#army.id, NewSize]),
-                    
-                    NewUnits = gb_sets:add(UnitId, Units)
-            end,
-            
-            NewArmy = Army#army { units = NewUnits },                    
-            NewData = Data#module_data {army = NewArmy};
-        false ->
-            NewData = Data
-    end,   
-    
-    NewerData = get_army_status(NewData),
-    NewerArmy = NewerData#module_data.army,
-    save_army(NewerArmy),
-    
-    {reply, NewerArmy#army.state, NewerData};
-
-handle_call({'TRANSFER_UNIT', _SourceId, UnitId, TargetId, TargetAtom}, _From, Data) ->
+handle_call({'TRANSFER_UNIT', _SourceId, _UnitId, _TargetId, _TargetAtom}, _From, Data) ->
     io:fwrite("army - transfer unit.~n"),
-    Army = Data#module_data.army,    
-    Units = Army#army.units,
 
-    case gb_sets:is_member(UnitId, Units) of
-        true ->
-            [Unit] = db:dirty_read(unit, UnitId),                      
-            TargetPid = object:get_pid(TargetAtom, TargetId),
-
-            case gen_server:call(TargetPid, {'ON_SAME_TILE', Army#army.x, Army#army.y}) of
-                true ->
-                    case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
-                        {receive_unit, success} ->
-                            db:dirty_delete(unit, Unit),
-                            NewUnits = gb_sets:delete(UnitId, Units),
-                            NewArmy = Army#army {units = NewUnits},
-                            NewData = Data#module_data{army = NewArmy},
-                            TransferUnitInfo = {transfer_unit, success};
-                        Error ->
-                            TransferUnitInfo = Error,
-                            NewData = Data
-                    end;
-                false ->
-                    TransferUnitInfo = {transfer_unit, not_same_tile},
-                    NewData = Data
-            end;
-        false ->
-            TransferUnitInfo = {transfer_unit, unit_is_not_member},
-            NewData = Data
-    end,
-
-    save_army(NewData#module_data.army),
+%    case gb_sets:is_member(UnitId, Units) of
+%        true ->
+%            [Unit] = db:dirty_read(unit, UnitId),                      
+%            TargetPid = object:get_pid(TargetAtom, TargetId),
+%
+%            case gen_server:call(TargetPid, {'ON_SAME_TILE', Army#army.x, Army#army.y}) of
+%                true ->
+%                    case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
+%                        {receive_unit, success} ->
+%                            db:dirty_delete(unit, Unit),
+%                            NewUnits = gb_sets:delete(UnitId, Units),
+%                            NewArmy = Army#army {units = NewUnits},
+%                            NewData = Data#module_data{army = NewArmy},
+%                            TransferUnitInfo = {transfer_unit, success};
+%                        Error ->
+%                            TransferUnitInfo = Error,
+%                            NewData = Data
+%                    end;
+%                false ->
+%                    TransferUnitInfo = {transfer_unit, not_same_tile},
+%                    NewData = Data
+%            end;
+%        false ->
+%            TransferUnitInfo = {transfer_unit, unit_is_not_member},
+%            NewData = Data
+%    end,
+%
+%    save_army(NewData#module_data.army),
     
-    {reply, TransferUnitInfo , NewData};
+    {reply, none, Data};
 
-handle_call({'RECEIVE_UNIT', _TargetId, Unit, PlayerId}, _From, Data) ->
+handle_call({'RECEIVE_UNIT', _TargetId, _Unit, _PlayerId}, _From, Data) ->
     io:fwrite("army - receive unit.~n"),
-    Army = Data#module_data.army,
-    Units = Army#army.units,
+%    Units = Army#army.units,
+%    
+%    if
+%        PlayerId =:= Data#module_data.player_id ->
+%            %Check to see if unit already exists
+%            UnitResult = gb_sets:is_member(Unit#unit.id, Units),            
+%            
+%            if
+%                UnitResult =:= false ->                    
+%                    NewUnit = Unit#unit {entity_id = Army#army.id},
+%                    db:dirty_write(NewUnit),       
+%
+%                    NewUnits = gb_sets:add(Unit#unit.id, Units),
+%                    NewArmy = Army#army {units = NewUnits},
+%                    NewData = Data#module_data {army = NewArmy},
+%                    ReceiveUnitInfo = {receive_unit, success};                
+%                true ->
+%                    NewData = Data,
+%                    ReceiveUnitInfo = {receive_unit, error}
+%            end;               
+%        true ->
+%            NewData = Data,
+%            ReceiveUnitInfo = {receive_unit, error}
+%    end,
+%
+%    save_army(NewData#module_data.army),
     
-    if
-        PlayerId =:= Data#module_data.player_id ->
-            %Check to see if unit already exists
-            UnitResult = gb_sets:is_member(Unit#unit.id, Units),            
-            
-            if
-                UnitResult =:= false ->                    
-                    NewUnit = Unit#unit {entity_id = Army#army.id},
-                    db:dirty_write(NewUnit),       
-
-                    NewUnits = gb_sets:add(Unit#unit.id, Units),
-                    NewArmy = Army#army {units = NewUnits},
-                    NewData = Data#module_data {army = NewArmy},
-                    ReceiveUnitInfo = {receive_unit, success};                
-                true ->
-                    NewData = Data,
-                    ReceiveUnitInfo = {receive_unit, error}
-            end;               
-        true ->
-            NewData = Data,
-            ReceiveUnitInfo = {receive_unit, error}
-    end,
-
-    save_army(NewData#module_data.army),
-    
-    {reply, ReceiveUnitInfo, NewData};    
-
-handle_call({'TRANSFER_ITEM', ItemId, TargetId, TargetAtom}, _From, Data) ->
-    log4erl:info("Army - TRANSFER_ITEM"),
-    Army = Data#module_data.army,
-
-    TargetPid = object:get_pid(TargetAtom, TargetId),
-    case entity:on_same_tile(TargetPid, Army#army.x, Army#army.y) of
-        true ->
-            TargetPlayerId = entity:get_player_id(TargetPid), 
-            item:transfer(ItemId, TargetId, TargetPlayerId),
-            TransferItemInfo = {transfer_item, success};
-        false ->
-            TransferItemInfo = {transfer_item, not_same_tile}
-    end,
-
-    {reply, TransferItemInfo, Data};
+    {reply, none, Data};    
 
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->    
     Army = Data#module_data.army,   
 
     case Army#army.player_id =:= PlayerId of
         true ->
-            Units = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
-            UnitsInfoTuple = unit:tuple_form(Units),
-
-            %Convert items record to tuple packet form
-            NewItems = db:dirty_index_read(item, {Army#army.id, PlayerId}, #item.ref),
-            ItemsTuple = item:tuple_form(NewItems),
+            UnitsInfoTuple = unit:tuple_form_items(Army#army.id, PlayerId),
 
             ArmyInfo = {detailed, 
                         Army#army.id, 
-                        Army#army.player_id, 
                         Army#army.name,
-                        kingdom:get_name(Army#army.player_id),
-                        UnitsInfoTuple,
-                        ItemsTuple};
+                        UnitsInfoTuple};
         false ->
             ArmyInfo = {generic, 
                         Army#army.id,
@@ -441,12 +389,10 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
     io:fwrite("army - ArmyInfo: ~w~n", [ArmyInfo]),
     {reply, ArmyInfo , Data};
 
-%Used by battle module for detailed army information
-handle_call({'GET_INFO'}, _From, Data) ->
+handle_call({'BATTLE_GET_INFO'}, _From, Data) ->
     Army = Data#module_data.army,
+    UnitsInfoTuple = unit:tuple_form(Army#army.id),
 
-    Units = db:dirty_index_read(unit, Army#army.id, #unit.entity_id),
-    UnitsInfoTuple = unit:tuple_form(Units),
     ArmyInfo = {Army#army.id, 
                 Army#army.player_id, 
                 Army#army.name,
@@ -692,19 +638,6 @@ state_none(Army, X, Y) ->
 
 state_none(Army) ->
     Army#army{state = ?STATE_NONE}. 
-
-get_army_status(Data) ->   
-    Army = Data#module_data.army,
-    NumUnits = gb_sets:size(Army#army.units),
-    
-    if
-        NumUnits =:= 0 ->
-            NewArmy = state_dead(Army);
-        true ->
-            NewArmy = Army
-    end,
-
-    Data#module_data {army = NewArmy}.
 
 get_army_speed(ArmyId, X, Y) ->
     ArmySpeed = unit:highest_unit_movement(ArmyId),

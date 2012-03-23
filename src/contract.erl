@@ -95,7 +95,7 @@ process_type(?CONTRACT_BUILDING, Contract, Assignment, NumGameDays) ->
     [BuildingType] = db:dirty_read(building_type, Building#building.type),
 
     ProductionCost = BuildingType#building_type.production_cost,
-    TotalHp = BuildingType#building_type.total_hp,
+    TotalHp = BuildingType#building_type.hp,
 
     Result = process_production(Contract, Assignment, NumGameDays, ProductionCost),
 
@@ -117,22 +117,19 @@ process_type(?CONTRACT_UNIT, Contract, Assignment, NumGameDays) ->
     log4erl:info("{~w} - Process CONTRACT_UNIT type",[?MODULE]),
     
     [UnitQueue] = db:dirty_read(unit_queue, Contract#contract.id),
-    [UnitType] = db:dirty_read(unit_type, UnitQueue#unit_queue.unit_type),
-
-    ProductionCost = UnitType#unit_type.production_cost,
+    
+    {true, UnitType} = unit:get_unit_type(UnitQueue#unit_queue.unit_type),
+    ProductionCost = unit:production_cost(UnitType),
 
     Result = process_production(Contract, Assignment, ProductionCost, NumGameDays),
     case Result of
         {NewContract, complete} ->
 
-            Unit = #unit {id = counter:increment(unit),
-                          entity_id = NewContract#contract.city_id,
-                          entity_type = ?OBJECT_CITY,
-                          type = UnitQueue#unit_queue.unit_type,
-                          size = UnitQueue#unit_queue.unit_size,
-                          hp = UnitType#unit_type.total_hp},
+            unit:create(NewContract#contract.city_id, 
+                        UnitQueue#unit_queue.unit_type,
+                        UnitQueue#unit_queue.unit_size,
+                        UnitQueue#unit_queue.gear),
 
-            db:dirty_write(Unit),
             db:dirty_delete(unit_queue, NewContract#contract.id);
         {_NewContract, incomplete} ->
             ok
@@ -163,9 +160,10 @@ process_type(?CONTRACT_IMPROVEMENT, Contract, Assignment, NumGameDays) ->
 process_type(?CONTRACT_HARVEST, Contract, Assignment, NumGameDays) ->
     log4erl:info("{~w} - Process CONTRACT_HARVEST",[?MODULE]),
     [ItemQueue] = db:dirty_read(item_queue, Contract#contract.id),
-    [ItemType] = db:dirty_read(item_type, ItemQueue#item_queue.item_type),
 
-    ProductionCost = ItemType#item_type.production_cost,
+    {true, ItemType} = item:get_item_type(ItemQueue#item_queue.item_type), 
+    ProductionCost = item:production_cost(ItemType),
+
     {TargetId, _TargetType} = Assignment#assignment.target_ref,
 
     Result = process_production(Contract, Assignment, ProductionCost, NumGameDays),
@@ -175,18 +173,16 @@ process_type(?CONTRACT_HARVEST, Contract, Assignment, NumGameDays) ->
             ImprovementId = TargetId,
             [Improvement] = db:dirty_read(improvement, ImprovementId),            
 
+            ResourceType = ItemType#item_base.material_type,
+
             ResourceGained = map:harvest_resource(Improvement#improvement.tile_index,
-                                                  ItemType#item_type.id,
+                                                  ResourceType,
                                                   ItemQueue#item_queue.item_size),
 
-            F = fun(ItemTypeId) ->
-                    item:create(NewContract#contract.city_id,
-                                ItemQueue#item_queue.player_id,
-                                ItemTypeId,
-                                ResourceGained)
-                end,
-
-            lists:foreach(F, ItemType#item_type.produces),
+            item:complete(NewContract#contract.city_id,
+                          ItemQueue#item_queue.player_id,
+                          ItemType,
+                          ResourceGained),
 
             db:dirty_delete(item_queue, NewContract#contract.id);
         {_NewContract, incomplete} ->
@@ -198,18 +194,17 @@ process_type(?CONTRACT_ITEM, Contract, Assignment, NumGameDays) ->
     log4erl:info("{~w} - Process CONTRACT_ITEM type", [?MODULE]),
     
     [ItemQueue] = db:dirty_read(item_queue, Contract#contract.id),
-    [ItemType] = db:dirty_read(item_type, ItemQueue#item_queue.item_type),
-    
-    ProductionCost = ItemType#item_type.production_cost,
+
+    {true, ItemType} = item:get_item_type(ItemQueue#item_queue.item_type), 
+    ProductionCost = item:production_cost(ItemType),
 
     Result = process_production(Contract, Assignment, ProductionCost, NumGameDays),
     case Result of
         {NewContract, complete} ->
-
-            item:create(NewContract#contract.city_id,
-                        ItemQueue#item_queue.player_id,
-                        ItemQueue#item_queue.item_type,
-                        ItemQueue#item_queue.item_size),
+            item:complete(NewContract#contract.city_id,
+                         ItemQueue#item_queue.player_id,
+                         ItemType,
+                         ItemQueue#item_queue.item_size),
 
             db:dirty_delete(item_queue, NewContract#contract.id);
         {_NewContract, incomplete} ->

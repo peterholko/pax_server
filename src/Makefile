@@ -18,8 +18,9 @@ BEAMS=$(ERLS:.erl=.beam)
 MODS = army battle building city counter db entity event\
        game_loop game improvement login kingdom map object \
        packet pickle player server subscription\
-       transport unit util map_test item market reputation \
-	   caste assignment contract claim map_object data
+       unit util map_test item market reputation \
+	   caste assignment contract claim map_object data \
+	   structure chat city_manager population item_category
 #BEAMS = $(ERLS:.erl=.beam)
 #MODS = $(BEAMS:.beam=)
 

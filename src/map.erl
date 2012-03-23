@@ -86,8 +86,10 @@ handle_call(load, _From, Data) ->
                 Any ->
                     io:fwrite("Failed to open resourceList.txt - ~w", [Any])
             end;
-        Any ->
-            io:fwrite("Failed to open tiles.bin - ~w", [Any])
+        {error, Reason} ->
+            io:fwrite("Failed to open tiles.bin - ~w", [Reason]);
+        _ ->
+            ?ERROR("System limit reache")
     end,   
 
     {reply, ok, Data};
@@ -120,7 +122,8 @@ handle_call({'GET_TILE_TYPE', TileIndex}, _From, Data) ->
 handle_call({'HARVEST_RESOURCE', TileIndex, ResourceType, Amount}, _From, Data) ->
     [Tile] = db:dirty_read(tile, TileIndex), 
     ?INFO("Resources: ", Tile#tile.resources),
-    case lists:keyfind(ResourceType, #tile.resources, Tile#tile.resources) of
+    % Resource list is contains the resource tuple, {ResourceId, ResourceType}
+    case lists:keyfind(ResourceType, 2, Tile#tile.resources) of
         false ->
             HarvestAmount = 0,
             log4erl:error("{~w}: Could not find resource type ~w", [?MODULE, ResourceType]),
@@ -159,7 +162,7 @@ load_tiles(_FileRef, true, _TileIndex) ->
     ?INFO("loading tiles done"),
     done;
 
-load_tiles(FileRef, _, TileIndex) ->
+load_tiles(FileRef, false, TileIndex) ->
     case file:read(FileRef, 1) of
         {ok, Data} ->
             [TileType] = Data,
@@ -249,18 +252,22 @@ update_resource(Resource, Amount) ->
     Total = Resource#resource.total,
     ResourceGrowth = erlang:round(DiffTime / 10) * Resource#resource.regen_rate,
 
+    ?INFO("ResourceGrowth: ", ResourceGrowth),
+    ?INFO("Total: ", Total),
+    ?INFO("Amount: ", Amount),
     case (Total + ResourceGrowth - Amount) < 0 of
         true ->
-            HarvestAmount = Amount - (Total + ResourceGrowth),
+            HarvestAmount = (Total + ResourceGrowth),
             NewTotal = 0;
         false ->
             HarvestAmount = Amount,
             NewTotal = Total + ResourceGrowth - Amount
     end,
         
+    ?INFO("HarvestAmount: ", HarvestAmount),
     NewResource = Resource#resource {total = NewTotal,
                                      last_update = CurrentTime},
-
+    ?INFO("NewResource: ", NewResource),
     db:dirty_write(NewResource),
     %Return harvested amount
     HarvestAmount.

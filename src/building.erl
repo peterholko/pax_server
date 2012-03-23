@@ -15,10 +15,11 @@
 %% Exported Functions
 %%
 -export([add_to_queue/2,
-         calc_gold_cost/1,
          tuple_form/1,
          is_valid/2,
          check_type/1,
+         match_req/2,
+         get_building_type/1,
          get_building/2,
          is_available/1]).
 
@@ -35,10 +36,6 @@ tuple_form(Buildings) ->
         end,
 
     lists:foldl(F, [], Buildings).
-
-calc_gold_cost(Type) ->
-    [BuildingType] = db:dirty_read(building_type, Type),
-    BuildingType#building_type.gold_cost.
 
 add_to_queue(CityId, BuildingType) ->
     CurrentTime = util:get_time_seconds(),   
@@ -84,13 +81,33 @@ check_type(TypeId) ->
     end,
     Result.
 
+match_req(BuildingReqName, BuildingReqLevel) ->
+    case db:dirty_match_object({building_type,'_',BuildingReqName,BuildingReqLevel,'_','_','_','_','_','_','_','_'}) of
+        [BuildingType] ->
+            Result = {true, BuildingType};
+        _ ->
+            Result = false
+    end,
+    Result.
+
+get_building_type(Building) when is_record(Building, building) ->
+    case db:dirty_read(building_type, Building#building.type) of
+        [BuildingType] ->
+            Result = {true, BuildingType};
+        _ ->
+            Result = false
+    end,
+    Result;
+
+get_building_type(_) ->
+    false.
+
 get_building(CityId, BuildingType) ->
     Buildings = db:dirty_index_read(building, CityId, #building.city_id),
 
     lists:keyfind(BuildingType, #building.type, Buildings).
 
 is_available(BuildingId) ->
-    TargetRef = {BuildingId, ?OBJECT_BUILDING},
     case db:dirty_read(building, BuildingId) of
         [Building] ->
             ContractExists = contract:exists(Building#building.city_id,
@@ -108,8 +125,6 @@ is_available(BuildingId) ->
     IsAvailable.
 
 %find_available(CityId, ItemTypeId) ->
-%    ItemType = db:dirty_read(item_type, ItemTypeId),
-%    {BuildingTypeId, _ObjectType}  = ItemType#item_type.structure_req,
 %    Buildings = db:dirty_index_read(building, CityId, #building.city_id),
 %
 %    check_available(Buildings, BuildingTypeId, none).
