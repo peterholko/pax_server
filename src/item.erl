@@ -15,7 +15,7 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--export([create/4, delete/1, set/2, transfer/3, get_by_type/3, get_by_entity/2]).
+-export([create/4, create_get_id/4, delete/1, set/2, transfer/3, get_by_type/3, get_by_entity/2]).
 -export([get_lumber/2, get_stone/2]).
 -export([check_amount/4]).
 -export([add/2, remove/2, get_volume/1]).
@@ -33,6 +33,9 @@ start() ->
 
 create({OwnerType, OwnerId}, PlayerId, Type, Volume) ->
     gen_server:cast({global, item_pid}, {'CREATE_ITEM', {OwnerType, OwnerId}, PlayerId, Type, Volume}).
+
+create_get_id({OwnerType, OwnerId}, PlayerId, Type, Volume) ->
+    gen_server:call({global, item_pid}, {'CREATE_ITEM_GET_ID', {OwnerType, OwnerId}, PlayerId, Type, Volume}).
 
 delete(ItemId) ->
     gen_server:cast({global, item_pid}, {'DELETE_ITEM', ItemId}).
@@ -348,7 +351,7 @@ init([]) ->
     {ok, Data}.
 
 handle_cast({'CREATE_ITEM', OwnerRef, PlayerId, Type, Volume},Data) ->  
-    log4erl:info("{~w} Create Item", [?MODULE]),  
+    log4erl:info("{~w} CREATE_ITEM", [?MODULE]),  
     create_item(OwnerRef, PlayerId, Type, Volume),
     {noreply, Data};
 
@@ -370,6 +373,11 @@ handle_cast({'TRANSFER_ITEM', ItemId, OwnerRef, PlayerId}, Data) ->
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
+
+handle_call({'CREATE_ITEM_GET_ID', OwnerRef, PlayerId, Type, Volume}, _From, Data) ->
+    log4erl:info("{~w} CREATE_ITEM_GET_ID", [?MODULE]),
+    ItemId = create_item(OwnerRef, PlayerId, Type, Volume),
+    {reply, ItemId, Data};
 
 handle_call({'GET_VOLUME', ItemId}, _From, Data) ->
     Item = get_item(ItemId),
@@ -419,11 +427,14 @@ terminate(_Reason, _) ->
 create_item(OwnerRef, PlayerId, Type, Volume) ->
     case db:dirty_read(item_type_ref, {OwnerRef, PlayerId, Type}) of
         [] ->
-            new_item(OwnerRef, PlayerId, Type, Volume);
+            ItemId = new_item(OwnerRef, PlayerId, Type, Volume);
         [ItemTypeRef | _Rest] ->
-            log4erl:info("ItemTypeRef: ~w", [ItemTypeRef]),
-            update_item(ItemTypeRef#item_type_ref.item_id, Volume)
-    end.
+            ItemId = ItemTypeRef#item_type_ref.item_id,
+            update_item(ItemId, Volume)
+    end,
+    
+    %Return ItemId
+    ItemId.
 
 delete_item(ItemId) ->
     [_Item] = db:dirty_read(item, ItemId),
@@ -440,6 +451,7 @@ update_item(ItemId, Volume) ->
     db:dirty_write(NewItem).
 
 transfer_item(ItemId, TargetOwnerRef, TargetPlayerId) ->
+    ?INFO("transfer_item"),
     [Item] = db:dirty_read(item, ItemId),
     {OwnerRef, PlayerId} = Item#item.ref,
     db:dirty_delete(item_type_ref, {OwnerRef, PlayerId, Item#item.type}),
@@ -449,7 +461,6 @@ transfer_item(ItemId, TargetOwnerRef, TargetPlayerId) ->
 
     ItemTypeRef = #item_type_ref {owner_type_ref = {TargetOwnerRef, TargetPlayerId, Item#item.type},                                
                                   item_id = ItemId},
-
     db:dirty_write(NewItem),
     db:dirty_write(ItemTypeRef).
 
@@ -470,7 +481,10 @@ new_item(OwnerRef, PlayerId, Type, Volume) ->
                                   item_id = ItemId},
 
     db:dirty_write(Item),
-    db:dirty_write(ItemTypeRef).
+    db:dirty_write(ItemTypeRef),
+
+    %Return Item ID
+    ItemId.
 
 get_item(ItemId) ->
     db:dirty_read(item, ItemId).

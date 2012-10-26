@@ -90,6 +90,16 @@ handle_call({'GET_STATE', MapObjectId}, _From, Data) ->
     end,
 
     {reply, State, Data};
+
+handle_call({'GET_TYPE', MapObjectId}, _From, Data) ->
+    case db:dirty_read(map_object, MapObjectId) of
+        [MapObject] ->
+            Type = MapObject#map_object.type;
+        _ ->
+            Type = ?OBJECT_NONE
+    end,
+    {reply, Type, Data};
+
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
                               {line, ?LINE},

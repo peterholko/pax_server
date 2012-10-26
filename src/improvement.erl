@@ -246,7 +246,7 @@ handle_call({'GET_STATE', ImprovementId}, _From, Data) ->
     
     {reply, State, Data};
 
-handle_call({'GET_TYPE'}, _From, Data) ->
+handle_call({'GET_TYPE', _ImprovementId}, _From, Data) ->
     {reply, ?OBJECT_IMPROVEMENT, Data};
 
 handle_call({'GET_INFO', ImprovementId, _PlayerId}, _From, Data) ->   

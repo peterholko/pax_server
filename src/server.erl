@@ -76,6 +76,8 @@ init() ->
     unit:start(),   
     item:start(),
     market:start(),    
+    city_manager:start(),
+    army_manager:start(),
     
     % Create game loop
     log4erl:info("Starting game process...") ,
@@ -115,7 +117,7 @@ handle_client(Socket, Client) ->
     receive
         {tcp, Socket, Bin} ->
             
-            log4erl:debug("Status: Data accepted: ~w", [Bin]),
+            log4erl:info("Status: Data accepted: ~w", [Bin]),
             NewClient = case catch packet:read(Bin) of
                             {'EXIT', Error} ->
                                 log4erl:error("Could not parse packet"),
@@ -147,7 +149,7 @@ handle_client(Socket, Client) ->
             handle_client(Socket, NewClient);
         
         {tcp_closed, Socket} ->
-            log4erl:debug("Socket disconnected"),
+            log4erl:info("Socket disconnected"),
             log4erl:debug("Handle_client - self() -> ~w", [self()]),
             log4erl:debug("Handle_client - Client#client.player_pid -> ~w", [Client#client.player_pid]),
             io:fwrite("server - tcp_closed~n"),

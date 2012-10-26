@@ -222,7 +222,7 @@ extract_unit_template(R, List) when is_record(R, xmlElement) ->
 extract_unit_template(#xmlText{parents=[{id,_}, {row, _}, _], value=V}, L) ->
     [ convert_to_int(V) | L];
 extract_unit_template(#xmlText{parents=[{name,_}, {row, _}, _], value=V}, L) ->
-    [ V | L];
+    [  list_to_binary(V) | L];
 extract_unit_template(#xmlText{parents=[{level,_}, {row, _}, _], value=V}, L) ->
     [ convert_to_int(V) | L];
 extract_unit_template(#xmlText{parents=[{type,_}, {row, _}, _], value=V}, L) ->

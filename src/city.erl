@@ -27,7 +27,9 @@
          add_claim/4, 
          remove_claim/2, 
          assign_task/6,
-         remove_task/2]).
+         remove_task/2,
+         get_coords/1,
+         form_army/2]).
 
 -record(module_data, {city,                       
                       units_queue,
@@ -91,6 +93,12 @@ assign_task(CityId, Caste, Race, Amount, TaskId, TaskType) ->
 
 remove_task(CityId, AssignmentId) ->
     gen_server:call(global:whereis_name({city, CityId}), {'REMOVE_TASK', AssignmentId}).
+
+get_coords(CityId) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'GET_COORDS'}).
+
+form_army(CityId, ArmyName) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'FORM_ARMY', ArmyName}).
 
 %%
 %% OTP handlers
@@ -182,6 +190,14 @@ handle_call({'REMOVE_CLAIM', ClaimId}, _From, Data) ->
         _ ->
             Result = {failure, "Claim does not exist"}
     end,
+
+    {reply, Result, Data};
+
+handle_call({'FORM_ARMY', ArmyName}, _From, Data) ->
+    City = Data#module_data.city,
+
+    army_manager:create(City#city.player_id, City#city.id, ArmyName),
+    Result = {city, formed_army},
 
     {reply, Result, Data};
 
@@ -523,6 +539,10 @@ handle_call({'GET_STATE', _CityId}, _From, Data) ->
     
     {reply, State, Data};
 
+handle_call({'GET_COORDS'}, _From, Data) ->
+    City = Data#module_data.city,
+    {reply, {City#city.x, City#city.y}, Data};
+
 handle_call({'GET_ID'}, _From, Data) ->
     City = Data#module_data.city,
     {reply, City#city.id, Data};
@@ -530,7 +550,7 @@ handle_call({'GET_ID'}, _From, Data) ->
 handle_call({'GET_PLAYER_ID'}, _From, Data) ->
     {reply, Data#module_data.player_id, Data};
 
-handle_call({'GET_TYPE'}, _From, Data) ->
+handle_call({'GET_TYPE', _CityId}, _From, Data) ->
     {reply, ?OBJECT_CITY, Data};
 
 handle_call('GET_INVENTORY', _From, Data) ->

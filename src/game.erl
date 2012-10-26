@@ -16,6 +16,7 @@
 -export([start/0, load_entities/0, setup_perception/0, setup_events/0, add_event/4, update_perception/1]).
 -export([get_cities/0, add_event_get_id/4, delete_event/1, clear_events/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+-export([add_army/2, delete_army/2]).
 -export([add_improvement/2, delete_improvement/2, add_map_object/2, delete_map_object/2]).
 
 %%
@@ -51,6 +52,12 @@ update_perception(PlayerId) ->
 
 get_cities() ->
     gen_server:call({global, game_pid}, 'GET_CITIES').
+
+add_army(ArmyId, ArmyPid) ->
+    gen_server:cast({global, game_pid}, {'ADD_ARMY', ArmyId, ArmyPid}).
+
+delete_army(ArmyId, ArmyPid) ->
+    gen_server:cast({global, game_pid}, {'DELETE_ARMY', ArmyId, ArmyPid}).
 
 add_improvement(ImprovementId, ImprovementPid) ->
     gen_server:cast({global, game_pid}, {'ADD_IMPROVEMENT', ImprovementId, ImprovementPid}).
@@ -95,6 +102,7 @@ handle_cast({'ADD_EVENT', Pid, Type, EventData, EventTick}, Data) ->
 
 handle_cast({'DELETE_EVENT', EventId}, Data) ->
     EventList = Data#game_info.events,
+    ?INFO("EventList: ", EventList),
     NewEventList = lists:keydelete(EventId, 1, EventList),
     NewData = Data#game_info {events = NewEventList},
     {noreply, NewData};
@@ -117,6 +125,20 @@ handle_cast({'DELETE_MAP_OBJECT', MapObjectId, MapObjectPid}, Data) ->
     NewMapObjectList = lists:delete({MapObjectId, MapObjectPid}, MapObjectList),
     NewData = Data#game_info { map_objects = NewMapObjectList},
     {noreply, NewData};
+
+handle_cast({'ADD_ARMY', ArmyId, ArmyPid}, Data) ->
+    ?INFO("Add Army"),
+    ArmyList = Data#game_info.armies,
+    NewArmyList = [{ArmyId, ArmyPid} | ArmyList],
+    NewData = Data#game_info  { armies = NewArmyList },
+    {noreply, NewData};
+
+handle_cast({'DELETE_ARMY', ArmyId, ArmyPid}, Data) ->
+    ?INFO("Delete army"),
+    ArmyList = Data#game_info.armies,
+    NewArmyList = lists:delete({ArmyId, ArmyPid}, ArmyList),
+    NewData = Data#game_info { armies = NewArmyList },
+    {noreply, NewData};    
 
 handle_cast({'ADD_IMPROVEMENT', ImprovementId, ImprovementPid}, Data) ->
     ?INFO("Add Improvement"),

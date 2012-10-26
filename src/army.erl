@@ -40,7 +40,7 @@ claim(ArmyId, ClaimId) ->
     gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_CLAIM', ClaimId}).
 
 battle_get_info(ArmyId) ->
-    gen_server:cast(global:whereis_name({army, ArmyId}), {'BATTLE_GET_INFO'}).
+    gen_server:call(global:whereis_name({army, ArmyId}), {'BATTLE_GET_INFO'}).
 
 destroyed(ArmyId) ->
     gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_DEAD'}).
@@ -76,20 +76,21 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
     ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
     
     case Army#army.state of
-        ?STATE_NONE ->
-            add_event_move(Data#module_data.self, ArmySpeed);
-        ?STATE_ATTACK ->
-            add_event_move(Data#module_data.self, ArmySpeed);
-        ?STATE_MOVE ->
-            add_event_move(Data#module_data.self, ArmySpeed);
+        S when S =:= ?STATE_NONE;
+               S =:= ?STATE_ATTACK; 
+               S =:= ?STATE_MOVE ->
+            
+            add_event_move(Data#module_data.self, ArmySpeed),
+            NewArmy = state_move(Army, DestX, DestY);
         ?STATE_CLAIM ->
             claim:cancel(Army#army.id),        
-            add_event_move(Data#module_data.self, ArmySpeed);
+            add_event_move(Data#module_data.self, ArmySpeed),
+            NewArmy = state_move(Army, DestX, DestY);
         _ ->
-            add_event_move(Data#module_data.self, ArmySpeed)
+            %Do nothing
+            NewArmy = Army
     end,         
     
-    NewArmy = state_move(Army, DestX, DestY),  
     NewData = Data#module_data {army = NewArmy},
     save_army(NewArmy),
     
@@ -117,8 +118,9 @@ handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     {noreply, NewData};
 
 handle_cast({'SET_STATE_RETREAT_MOVE'}, Data) ->
-    log4erl:info("{~w} SET_STATE_RETREAT_MOVE", [?MODULE]),
+    ?INFO("SET_STATE_RETREAT_MOVE"),
     Army = Data#module_data.army,
+    ?INFO("LastPos: ", Army#army.last_pos),
     {LastX, LastY} = Army#army.last_pos,
     
     ArmySpeed = get_army_speed(Army#army.id, LastX, LastY),
@@ -261,6 +263,7 @@ handle_cast({'PROCESS_EVENT', _EventTick, EventData, EventType}, Data) ->
             NewArmy = Army
     end,     
  
+    ?INFO("Army: ", NewArmy),
     NewData = Data#module_data {army = NewArmy},
 
     save_army(NewData#module_data.army),
@@ -372,7 +375,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
 
     case Army#army.player_id =:= PlayerId of
         true ->
-            UnitsInfoTuple = unit:tuple_form_items(Army#army.id, PlayerId),
+            UnitsInfoTuple = unit:tuple_form_items(PlayerId, Army#army.id),
 
             ArmyInfo = {detailed, 
                         Army#army.id, 
@@ -407,6 +410,7 @@ handle_call({'GET_UNITS'}, _From, Data) ->
     {reply, Units, Data};
 
 handle_call({'GET_UNIT', UnitId}, _From, Data) ->
+    ?INFO("Get Unit"),
     Unit = unit:get_unit(UnitId),
     {reply, Unit, Data};
 
@@ -430,7 +434,7 @@ handle_call({'GET_ID'}, _From, Data) ->
 handle_call({'GET_PLAYER_ID'}, _From, Data) ->
     {reply, Data#module_data.player_id, Data};
 
-handle_call({'GET_TYPE'}, _From, Data) ->
+handle_call({'GET_TYPE', _ArmyId}, _From, Data) ->
     {reply, ?OBJECT_ARMY, Data};
 
 handle_call('GET_VISIBLE', _From, Data) ->
@@ -507,9 +511,8 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
             game:add_event(ArmyPid, ?EVENT_MOVE, none, speed_to_ticks(ArmySpeed)),   
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
-    
-    %Update the last position
-    update_last_pos(NewArmy).
+
+    NewArmy.
 
 do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->    
     TargetState = gen_server:call(global:whereis_name({army, Army#army.target}), {'GET_STATE', Army#army.id}),
@@ -523,7 +526,7 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
             battle:setup(BattleId, Army#army.id, Army#army.target),
             gen_server:cast(global:whereis_name({army, Army#army.target}), {'SET_STATE_COMBAT', BattleId}),
             
-            NewArmy = state_combat(Army, BattleId, NewArmyX, NewArmyY);
+            NewArmy = state_combat_move(Army, BattleId, NewArmyX, NewArmyY);
         true ->
             {NextX, NextY} = next_pos(NewArmyX, NewArmyY, TargetState#state.x, TargetState#state.y),
             ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
@@ -544,7 +547,7 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
     %Toggle observedByList perception has been updated due to army move.
     entity_update_perception(ObservedByList),    
 	
-    update_last_pos(NewArmy).
+    NewArmy.
 
 next_pos(ArmyX, ArmyY, DestX, DestY) ->
     DiffX = DestX - ArmyX,
@@ -571,17 +574,18 @@ next_pos(ArmyX, ArmyY, DestX, DestY) ->
     {NewArmyX, NewArmyY}.
 
 event_move(Army, NewX, NewY) ->
-    Army#army{x = NewX,
-              y = NewY}.  
-
-event_move_next_dest(Army, NewX, NewY, NextDest) ->
+    LastPos = {Army#army.x, Army#army.y},
+    ?INFO("LastPos: ", LastPos),
     Army#army{x = NewX,
               y = NewY,
-              dest = NextDest}.
+              last_pos = LastPos}.  
 
-update_last_pos(Army) ->
+event_move_next_dest(Army, NewX, NewY, NextDest) ->
     LastPos = {Army#army.x, Army#army.y},
-    Army#army { last_pos = LastPos}.
+    Army#army{x = NewX,
+              y = NewY,
+              last_pos = LastPos,
+              dest = NextDest}.
 
 add_event_move(Pid, ArmySpeed) ->
     game:clear_events(Pid),
@@ -619,11 +623,13 @@ state_combat(Army, BattleId) ->
     Army#army{state = ?STATE_COMBAT,
               battle = BattleId}.
 
-state_combat(Army, BattleId, X, Y) ->
+state_combat_move(Army, BattleId, X, Y) ->
+    LastPos = {Army#army.x, Army#army.y},
     Army#army{state = ?STATE_COMBAT,
               battle = BattleId,
               x = X,
-              y = Y}.
+              y = Y,
+              last_pos = LastPos}.
 
 state_dead(Army) ->
     Army#army{state = ?STATE_DEAD}.
@@ -661,8 +667,8 @@ tile_modifier(_) ->
     1.    
 
 entity_update_perception(EntityList) ->
-    F = fun({_EntityId, EntityPid}) ->
-            case gen_server:call(EntityPid, {'GET_TYPE'}) of
+    F = fun({EntityId, EntityPid}) ->
+            case gen_server:call(EntityPid, {'GET_TYPE', EntityId}) of
                 ?OBJECT_ARMY ->                                      
                     check_player_online(EntityPid);
                 ?OBJECT_CITY ->

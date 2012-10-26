@@ -15,7 +15,7 @@
 -export([player_id/1]).
 -export([entity_list/1, add_entities/2]).
 -export([get_player_id/1, on_same_tile/3]).
--export([get_type/1]).
+-export([get_type/2]).
 %%
 %% API Functions
 %%
@@ -24,8 +24,8 @@ player_id(EntityId) ->
     [Entity] = db:read(entity, EntityId),
     Entity#entity.player_id.
 
-get_type(TargetPid) ->
-    gen_server:call(TargetPid, {'GET_TYPE'}).
+get_type(TargetPid, TargetId) ->
+    gen_server:call(TargetPid, {'GET_TYPE', TargetId}).
 
 get_player_id(TargetPid) ->
     gen_server:call(TargetPid, {'GET_PLAYER_ID'}).

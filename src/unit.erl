@@ -18,7 +18,8 @@
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([create/4,
          delete/1,
-         damage/2,
+         damage/3,
+         transfer/2,
          add_to_queue/4,
          add_recipe/5,
          get_recipes/1,
@@ -31,6 +32,7 @@
          calc_leave_time/1,
          get_unit_ids/2,
          get_unit/1,
+         get_units/1,
          highest_unit_movement/1,
          units_id/1, 
          tuple_form_items/2,
@@ -52,11 +54,17 @@ create(EntityId, Type, Size, Gear) ->
 delete(UnitId) ->
     gen_server:cast({global, unit_pid}, {'DELETE', UnitId}).
 
-damage(Attacker, Defender) ->
-    gen_server:call({global, unit_pid}, {'DAMAGE', Attacker, Defender}).
+transfer(UnitId, EntityId) ->
+    gen_server:cast({global, unit_pid}, {'TRANSFER', UnitId, EntityId}).
+
+damage(BattleId, Attacker, Defender) ->
+    gen_server:call({global, unit_pid}, {'DAMAGE', BattleId, Attacker, Defender}).
 
 get_unit(UnitId) ->
     gen_server:call({global, unit_pid}, {'GET_UNIT', UnitId}).
+
+get_units(ArmyId) ->
+    db:dirty_index_read(unit, ArmyId, #unit.entity_id).
 
 add_to_queue(CityId, BuildingId, UnitType, UnitSize) when is_record(UnitType, unit_recipe) ->
     CurrentTime = util:get_time_seconds(),
@@ -280,6 +288,8 @@ tuple_form_items(PlayerId, EntityId) ->
             UnitTuple = {Unit#unit.id, 
                          Unit#unit.recipe_id, 
                          Unit#unit.size,
+                         Unit#unit.name,
+                         Unit#unit.gear,
                          ItemsTuple},
             [UnitTuple | UnitList]
         end,
@@ -298,7 +308,7 @@ tuple_form(EntityId) ->
             [UnitTuple | UnitList]
     end,
     
-    lists:fold(F, [], Units).
+    lists:foldl(F, [], Units).
 
 get_name(Unit) when is_record(Unit, unit) ->
     case db:dirty_read(unit_recipe, Unit#unit.recipe_id) of
@@ -311,7 +321,8 @@ get_name(Unit) when is_record(Unit, unit) ->
     Name.
 
 get_template(Unit) when is_record(Unit, unit) ->
-    db:dirty_read(unit_template, Unit#unit.template_id).
+    [UnitTemplate] = db:dirty_read(unit_template, Unit#unit.template_id),
+    UnitTemplate.
 
 get_speed(Template) when is_record(Template, unit_template) ->
     Template#unit_template.speed.
@@ -330,20 +341,28 @@ handle_cast({'CREATE', EntityId, Type, Size, Gear}, Data) ->
     create_unit(EntityId, Type, Size, Gear),
     {noreply, Data};
 
-handle_cast({'DELETE', UnitId}, Data) ->
-    delete_unit(UnitId),
+handle_cast({'DELETE', _UnitId}, Data) ->
+    {noreply, Data};
+
+handle_cast({'TRANSFER', UnitId, EntityId}, Data) ->
+    transfer_unit(UnitId, EntityId),
     {noreply, Data};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
-handle_call({'DAMAGE', Attacker, Defender}, _From, Data) ->
-    Result = process_damage(Attacker, Defender),
+handle_call({'DAMAGE', BattleId, Attacker, Defender}, _From, Data) ->
+    Result = process_damage(BattleId, Attacker, Defender),
     {reply, Result, Data};
 
 handle_call({'GET_UNIT', UnitId}, _From, Data) ->
-    [Unit] = db:dirty_read(unit, UnitId),
-    {reply, Unit, Data};
+    case db:dirty_read(unit, UnitId) of
+        [Unit] ->
+            Result = Unit;
+        _ ->
+            Result = false
+    end,
+    {reply, Result, Data};
 
 handle_call({'GET_UNITS', EntityId}, _From, Data) ->
     Units = db:dirty_index_read(unit, EntityId, #unit.entity_id),
@@ -377,7 +396,27 @@ terminate(_Reason, _) ->
 create_unit(EntityId, Type, Size, Gear) ->
     new_unit(EntityId, Type, Size, Gear).
 
-delete_unit(UnitId) ->
+transfer_unit(UnitId, EntityId) ->
+    [Unit] = db:dirty_read(unit, UnitId),
+    NewUnit = Unit#unit{entity_id = EntityId},
+    db:dirty_write(NewUnit).
+    
+destroy_unit(BattleId, EntityId, UnitId) ->
+    PlayerId = entity:player_id(EntityId),
+    Items = item:get_by_entity({?OBJECT_UNIT, UnitId}, PlayerId),
+
+
+    F = fun(Item) ->
+            % Remove 75% of the item volume
+            NewVolume = util:ceiling(Item#item.volume * 0.25),
+            item:set(Item#item.id, NewVolume),
+            
+            % No player id
+            item:transfer(Item#item.id, {?OBJECT_BATTLE, BattleId}, -1)
+        end,
+
+    lists:foreach(F, Items),
+
     db:dirty_delete(unit, UnitId).
 
 new_unit(EntityId, RecipeId, Size, Gear) ->
@@ -388,25 +427,29 @@ new_unit(EntityId, RecipeId, Size, Gear) ->
     [Template] = db:dirty_read(unit_template, Recipe#unit_recipe.template_id),
 
     %create the unit's gear
-    create_gear(UnitId, PlayerId, Size, Gear),
+    ItemIdList = create_gear(UnitId, PlayerId, Size, Gear),
 
     Unit = #unit {id = UnitId,
                   entity_id = EntityId,
                   recipe_id = RecipeId,
                   template_id = Template#unit_template.id,
                   size = Size,
-                  current_hp = Template#unit_template.hp},
+                  current_hp = Template#unit_template.hp,
+                  name = Recipe#unit_recipe.unit_name,
+                  gear = ItemIdList},
 
     db:dirty_write(Unit). 
 
 create_gear(UnitId, PlayerId, Amount, GearList) ->
-    F = fun(ItemTypeId) ->
-            item:create({?OBJECT_UNIT, UnitId}, PlayerId, ItemTypeId, Amount)
+    
+    F = fun(ItemTypeId, ItemIdList) ->
+            ItemId = item:create_get_id({?OBJECT_UNIT, UnitId}, PlayerId, ItemTypeId, Amount),
+            [ItemId | ItemIdList]
         end,
 
-    lists:foreach(F, GearList).
+    lists:foldl(F, [], GearList).
 
-process_damage(Attacker, Defender) ->
+process_damage(BattleId, Attacker, Defender) ->
     AtkTemplate = unit:get_template(Attacker),
     DefTemplate = unit:get_template(Defender),
 
@@ -434,7 +477,7 @@ process_damage(Attacker, Defender) ->
     case TotalDamage >= DefTotalHp of
         true ->
             ?INFO("Unit destroyed: ", Defender#unit.id),
-            delete_unit(Defender#unit.id),
+            destroy_unit(BattleId, Defender#unit.entity_id, Defender#unit.id),
 
             case get_num_units(Defender#unit.entity_id) > 0 of
                 true ->

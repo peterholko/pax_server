@@ -42,13 +42,13 @@
                 name,
                 x,
                 y,  
-                dest,
-                target,
-                last_pos,
+                dest = [],
+                target = none,
+                last_pos = none,
                 state = 0,			
                 hero = 0,
                 units = gb_sets:new(),
-                battle}).
+                battle = none}).
 
 -record(hero, {id,
                army_id,
@@ -59,7 +59,9 @@
                recipe_id,
                template_id,
                size,
-               current_hp}).
+               current_hp,
+               name,
+               gear = []}).
 
 -record(city, { id,
                 player_id,
@@ -118,7 +120,7 @@
 
 -record(item, {id, 
                ref, %% ref = {OwnerRef, PlayerId}
-               type,
+               type, %% item_base
                template_id,
                volume}).                   
 

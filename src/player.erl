@@ -21,12 +21,13 @@
 -export([start/1, stop/1, stop/2, get_explored_map/1, get_type/1]).
 -export([set_socket/2]).
 -export([send_battle_event/4]).
+-export([send_battle_info/4]).
 -export([get_info_kingdom/1]).
 %%
 %% Records
 %%
 
--record(module_data, {
+-record(data, {
                       player_id,
                       socket = none,  		            
                       explored_map = [], 
@@ -45,6 +46,9 @@ get_type(PlayerId) ->
 
 send_battle_event(PlayerId, BattleEvent, BattleId, ArmyInfo) ->
     gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_BATTLE_EVENT', BattleEvent, BattleId, ArmyInfo}).
+
+send_battle_info(PlayerId, BattleId, Armies, Items) ->
+    gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_BATTLE_INFO', BattleId, Armies, Items}).
 
 set_socket(Pid, Socket) ->
     gen_server:cast(Pid, {'SOCKET', Socket}).
@@ -67,7 +71,7 @@ init([Id])
     process_flag(trap_exit, true),
     ok = create_runtime(Id, self()),
     
-    {ok, #module_data{ player_id = Id, 
+    {ok, #data{ player_id = Id, 
                        explored_map = [],
                        discovered_tiles = [], 						   				  
                        self = self() }}.
@@ -82,21 +86,21 @@ stop(ProcessId, Reason)
     gen_server:cast(ProcessId, {stop, Reason}).
 
 terminate(_Reason, Data) ->
-    ok = db:delete(connection, Data#module_data.player_id).
+    ok = db:delete(connection, Data#data.player_id).
 
 handle_cast('DISCONNECT', Data) ->
     {noreply, Data};
 
 handle_cast({'SOCKET', Socket}, Data) ->
-    Data1 = Data#module_data{ socket = Socket },
+    Data1 = Data#data{ socket = Socket },
     {noreply, Data1};
 
 %handle_cast('UPDATE_PERCEPTION', Data) ->		
     %log4erl:debug("Player update perception"),
-%    {noreply, Data#module_data { update_perception = true} };
+%    {noreply, Data#data { update_perception = true} };
 
 handle_cast({'SEND_SETUP_INFO'}, Data) ->    
-    ExploredMap = get_explored_map(Data#module_data.player_id),    
+    ExploredMap = get_explored_map(Data#data.player_id),    
     Map = #map {tiles = ExploredMap},
     forward_to_client(Map, Data),        
 
@@ -105,7 +109,7 @@ handle_cast({'SEND_SETUP_INFO'}, Data) ->
     get_info_kingdom(Data),
     get_info_all_cities(Data),
 
-    NewData = Data#module_data {explored_map = ExploredMap},
+    NewData = Data#data {explored_map = ExploredMap},
 
     {noreply, NewData};
 
@@ -113,9 +117,10 @@ handle_cast({'SEND_PERCEPTION'}, Data) ->
     send_perception(Data),    
     {noreply, Data}; 
 
-handle_cast({'SEND_BATTLE_INFO', BattleId, Armies}, Data) ->	
+handle_cast({'SEND_BATTLE_INFO', BattleId, Armies, Items}, Data) ->	
     R = #battle_info {battle_id = BattleId,
-                      armies = Armies},
+                      armies = Armies,
+                      items = Items},
     
     forward_to_client(R, Data),
     {noreply, Data}; 
@@ -141,16 +146,16 @@ handle_cast({'SET_DISCOVERED_TILES', _, EntityX, EntityY}, Data) ->
     io:fwrite("Data: ~w~n", [Data]),
     TileIndexList = map:get_surrounding_tiles(EntityX, EntityY),
     TileList = map:get_explored_map(TileIndexList),
-    ExploredMap = Data#module_data.explored_map,
+    ExploredMap = Data#data.explored_map,
     NewExploredMap = ExploredMap ++ TileList,
     
-    NewData = Data#module_data { explored_map = NewExploredMap, 
+    NewData = Data#data { explored_map = NewExploredMap, 
                                  discovered_tiles = TileList},
     
     {noreply, NewData};
 
 handle_cast(_ = #move{ id = ArmyId, x = X, y = Y}, Data) ->
-    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id), 
+    [Kingdom] = db:index_read(kingdom, Data#data.player_id, #kingdom.player_id), 
     
     case lists:member(ArmyId, Kingdom#kingdom.armies) of
         true ->
@@ -163,22 +168,22 @@ handle_cast(_ = #move{ id = ArmyId, x = X, y = Y}, Data) ->
 
 handle_cast(_ = #attack{ id = ArmyId, target_id = TargetId}, Data) ->
     log4erl:debug("player - attack~n"),
-    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id), 
+    [Kingdom] = db:index_read(kingdom, Data#data.player_id, #kingdom.player_id), 
     
     case db:read(army, TargetId) of
         [TargetArmy] ->    
             log4erl:debug("player - attack read army~n"),
             Guard = (lists:member(ArmyId, Kingdom#kingdom.armies)) and
-                    (Data#module_data.player_id =/= TargetArmy#army.player_id),
+                    (Data#data.player_id =/= TargetArmy#army.player_id),
             if
                 Guard ->		
                     army:attack(ArmyId, TargetId);
                 true ->
                     log4erl:error("Army ~w is not owned by Player ~w and
                                    Target ~w is the same as Player ~w", [ArmyId, 
-                                                                         Data#module_data.player_id,
+                                                                         Data#data.player_id,
                                                                          TargetArmy#army.player_id,
-                                                                         Data#module_data.player_id])                                                                         
+                                                                         Data#data.player_id])                                                                         
             end;
         _ ->
             log4erl:error("Target ~w does not exist", [TargetId])
@@ -187,7 +192,7 @@ handle_cast(_ = #attack{ id = ArmyId, target_id = TargetId}, Data) ->
     {noreply, Data};
 
 handle_cast(_ = #add_waypoint{id = ArmyId, x = X, y = Y}, Data) ->
-    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id), 
+    [Kingdom] = db:index_read(kingdom, Data#data.player_id, #kingdom.player_id), 
     
     case lists:member(ArmyId, Kingdom#kingdom.armies) of
         true -> 
@@ -198,12 +203,13 @@ handle_cast(_ = #add_waypoint{id = ArmyId, x = X, y = Y}, Data) ->
 
     {noreply, Data};
 
-handle_cast(_ = #request_info{ type = Type, id = Id}, Data) -> 
+handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
+    %TODO VALIDATION
     case Type of
         ?OBJECT_TILE ->
             log4erl:debug("tile request info~n"),
             TileIndex = Id,
-            case map:is_tile_explored(TileIndex, Data#module_data.explored_map) of
+            case map:is_tile_explored(TileIndex, Data#data.explored_map) of
                 true ->
                     log4erl:debug("tile is explored~n"),
                     {TileType, Resources} = map:get_tile_info(TileIndex),
@@ -218,29 +224,34 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
                     ok
             end; 
         ?OBJECT_ARMY ->
-            case gen_server:call(global:whereis_name({army, Id}), {'GET_INFO', Data#module_data.player_id}) of
-                {detailed, ArmyId, ArmyName, UnitsInfo} ->            
-                    R = #info_army { id = ArmyId,
-                                     name = ArmyName,
-                                     units = UnitsInfo},
-                    forward_to_client(R, Data);
-                {generic, ArmyId, ArmyPlayerId, ArmyName, KingdomName} ->
-                    R = #info_generic_army { id = ArmyId,
-                                             player_id = ArmyPlayerId,
+            case global:whereis_name({army, Id}) of
+                undefined -> ?ERROR("ArmyPid does not exist for Army Id: ");
+                ArmyPid ->
+                    case gen_server:call(ArmyPid, {'GET_INFO', Data#data.player_id}) of
+                        {detailed, ArmyId, ArmyName, UnitsInfo} ->            
+                            R = #info_army { id = ArmyId,
                                              name = ArmyName,
-                                             kingdom_name = KingdomName},
-                    forward_to_client(R, Data);
-                _ ->
-                    log4erl:debug("Unmatched message from Army GET_INFO"),
-                    ok
+                                             units = UnitsInfo},
+                            forward_to_client(R, Data);
+                        {generic, ArmyId, ArmyPlayerId, ArmyName, KingdomName} ->
+                            R = #info_generic_army { id = ArmyId,
+                                                     player_id = ArmyPlayerId,
+                                                     name = ArmyName,
+                                                     kingdom_name = KingdomName},
+                            forward_to_client(R, Data);
+                        _ ->
+                            log4erl:debug("Unmatched message from Army GET_INFO"),
+                            ok
+                    end
             end;
        ?OBJECT_CITY ->
             get_info_city(Id, Data);
        ?OBJECT_BATTLE ->
-            case gen_server:call(global:whereis_name({battle, Id}), {'GET_INFO', Data#module_data.player_id}) of
-                {detailed, BattleId, Armies} ->
+            case gen_server:call(global:whereis_name({battle, Id}), {'GET_INFO', Data#data.player_id}) of
+                {detailed, BattleId, Armies, Items} ->
                     R = #battle_info { battle_id = BattleId,
-                                       armies = Armies},
+                                       armies = Armies,
+                                       items = Items},
                     forward_to_client(R, Data);
                 {generic, BattleId} ->
                     BattleId
@@ -248,7 +259,7 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
         ?OBJECT_IMPROVEMENT ->
             get_info_improvement(Id, Data);
         ?OBJECT_ITEM_RECIPE ->
-            case item:get_recipe(Id, Data#module_data.player_id) of
+            case item:get_recipe(Id, Data#data.player_id) of
                 {true, ItemRecipe} ->
                     R = #info_item_recipe {type_id = ItemRecipe#item_recipe.type_id,
                                            template_id = ItemRecipe#item_recipe.template_id,
@@ -267,6 +278,22 @@ handle_cast(_ = #request_info{ type = Type, id = Id}, Data) ->
     
     {noreply, Data};
 
+handle_cast(_ = #city_form_army{city_id = CityId,
+                                army_name = ArmyName}, Data) ->
+    case kingdom:is_player_city(Data#data.player_id, CityId) of
+        true ->
+            case city:form_army(CityId, ArmyName) of
+                {city, formed_army} ->
+                    ?INFO("Form Army - Success"),
+                    game:update_perception(Data#data.player_id);
+                {city, Error} ->
+                    ?INFO("Form Army - Error: ", Error)
+            end;
+        false ->
+            ?INFO("CityId is not member of Kingdom")
+    end,                        
+    {noreply, Data};
+
 handle_cast(_ = #city_queue_unit{city_id = CityId, 
                                  building_id = BuildingId,
                                  unit_type = UnitType, 
@@ -274,7 +301,7 @@ handle_cast(_ = #city_queue_unit{city_id = CityId,
                                  caste = Caste,
                                  race = Race}, Data) ->
 
-    case kingdom:is_player_city(Data#module_data.player_id, CityId) of
+    case kingdom:is_player_city(Data#data.player_id, CityId) of
         true ->
             case city:queue_unit(CityId, BuildingId, UnitType, UnitSize, Caste, Race) of
                 {city, queued_unit} ->
@@ -290,7 +317,7 @@ handle_cast(_ = #city_queue_unit{city_id = CityId,
 
 handle_cast(_ = #city_queue_building{city_id = CityId, building_type = BuildingType}, Data) ->
     
-    case kingdom:is_player_city(Data#module_data.player_id, CityId) of
+    case kingdom:is_player_city(Data#data.player_id, CityId) of
         true ->
             case city:queue_building(CityId, BuildingType) of
                 {city, queued_building} ->
@@ -309,7 +336,7 @@ handle_cast(_ = #city_queue_improvement{city_id = CityId,
                                         y = Y,
                                         improvement_type = ImprovementType }, Data) ->
     
-    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
+    [Kingdom] = db:index_read(kingdom, Data#data.player_id, #kingdom.player_id),
 
     case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
@@ -351,7 +378,7 @@ handle_cast(_ = #add_item_recipe{template_id = TemplateId,
                                  flavour_text = FlavourText,
                                  material_type = MaterialType}, Data) ->
 
-    case Data#module_data.player_id =:= PlayerId of
+    case Data#data.player_id =:= PlayerId of
         true ->
             case item:add_recipe(TemplateId, PlayerId, ItemName, FlavourText, MaterialType) of
                 {success, RecipeId} ->
@@ -372,7 +399,7 @@ handle_cast(_ = #add_unit_recipe{template_id = TemplateId,
                                  default_size = DefaultSize,
                                  gear = Gear}, Data) ->
 
-    case Data#module_data.player_id =:= PlayerId of
+    case Data#data.player_id =:= PlayerId of
         true ->
             case unit:add_recipe(TemplateId, PlayerId, UnitName, DefaultSize, Gear) of
                 {success, RecipeId} ->
@@ -388,47 +415,27 @@ handle_cast(_ = #add_unit_recipe{template_id = TemplateId,
     {noreply, Data};
 
 handle_cast(_ = #transfer_item{item_id = ItemId, source_id = SourceId, source_type= SourceType, target_id = TargetId, target_type = TargetType}, Data) ->
-    SourceAtom = object:get_atom(SourceType),
-    TargetAtom = object:get_atom(TargetType),
-    SourcePid = object:get_pid(SourceAtom, SourceId),
-    
     log4erl:info("Transfer Item - ItemId: ~w SourceId: ~w SourceType: ~w TargetId: ~w TargetType: ~w", [ItemId,
                                                                                                         SourceId,
                                                                                                         SourceType,
                                                                                                         TargetId,
                                                                                                         TargetType]),
-    case gen_server:call(SourcePid, {'TRANSFER_ITEM', ItemId, TargetId, TargetAtom}) of
-        {transfer_item, success} ->
-            log4erl:info("Transfer Item success"),            
-            RequestSourceInfo = #request_info{ type = SourceType, id = SourceId},
-            gen_server:cast(self(), RequestSourceInfo),            
-            
-            RequestTargetInfo = #request_info{ type = TargetType, id = TargetId},
-            gen_server:cast(self(), RequestTargetInfo);         
-        {transfer_item, Error} ->
-            log4erl:error("Transfer Item Error - ~w", [Error])
-    end, 
-
+    %TODO Add validation 
+    item:transfer(ItemId, {TargetType, TargetId}, Data#data.player_id),
+    R = #success { type = ?CMD_TRANSFER_ITEM,
+                   id = -1},
+    forward_to_client(R, Data),    
+ 
     {noreply, Data};
 
 handle_cast(_ = #transfer_unit{unit_id = UnitId, source_id = SourceId, source_type = SourceType, target_id = TargetId, target_type = TargetType}, Data) ->   
-    SourceAtom = object:get_atom(SourceType),
-    TargetAtom = object:get_atom(TargetType),
-    SourcePid = object:get_pid(SourceAtom, SourceId),
-    
-    case gen_server:call(SourcePid, {'TRANSFER_UNIT', SourceId, UnitId, TargetId, TargetAtom}) of
-        {transfer_unit, success} ->
-            RequestSourceInfo = #request_info{ type = SourceType, id = SourceId},
-            gen_server:cast(self(), RequestSourceInfo),            
-            
-            RequestTargetInfo = #request_info{ type = TargetType, id = TargetId},
-            gen_server:cast(self(), RequestTargetInfo);           
-        {transfer_unit, TError} ->
-            log4erl:error("Transfer Unit Error - ~w", [TError]);
-        {receive_unit, RError} ->
-            log4erl:error("Receive Unit Error - ~w", [RError])
-    end,   
-    
+    %TODO ADD validation
+    ?INFO("Transfer Unit Id: ", UnitId, " EntityId: ", TargetId),
+    unit:transfer(UnitId, TargetId),
+    R = #success { type = ?CMD_TRANSFER_UNIT,
+                   id = -1},
+    forward_to_client(R, Data),
+
     {noreply, Data};
 
 handle_cast(_ = #battle_target{battle_id = BattleId, 
@@ -487,7 +494,7 @@ handle_cast(_ = #add_claim{ city_id = CityId,
                             x = X,
                             y = Y}, Data) ->
 
-    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
+    [Kingdom] = db:index_read(kingdom, Data#data.player_id, #kingdom.player_id),
    
     IsValid = (lists:member(CityId, Kingdom#kingdom.cities) and
                lists:member(ArmyId, Kingdom#kingdom.armies)),
@@ -515,7 +522,7 @@ handle_cast(_ = #add_claim{ city_id = CityId,
     {noreply, Data};
 
 handle_cast(_ = #remove_claim{ city_id = CityId, claim_id = ClaimId}, Data) ->
-    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
+    [Kingdom] = db:index_read(kingdom, Data#data.player_id, #kingdom.player_id),
     
     case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
@@ -540,7 +547,7 @@ handle_cast(_ = #assign_task{ city_id = CityId,
                               target_id = TaskId,
                               target_type = TaskType}, Data) ->
 
-    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
+    [Kingdom] = db:index_read(kingdom, Data#data.player_id, #kingdom.player_id),
    
     case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
@@ -560,7 +567,7 @@ handle_cast(_ = #assign_task{ city_id = CityId,
 
 handle_cast(_ = #remove_task{ city_id = CityId,
                               assignment_id = AssignmentId}, Data) ->
-    [Kingdom] = db:index_read(kingdom, Data#module_data.player_id, #kingdom.player_id),
+    [Kingdom] = db:index_read(kingdom, Data#data.player_id, #kingdom.player_id),
    
     case lists:member(CityId, Kingdom#kingdom.cities) of
         true ->
@@ -584,7 +591,7 @@ handle_cast(_ = #create_sell_order{ item_id = ItemId,
     case db:dirty_read(item, ItemId) of
         [Item] ->
             {_EntityId, PlayerId} = Item#item.ref,
-            case Data#module_data.player_id =:= PlayerId of
+            case Data#data.player_id =:= PlayerId of
                 true ->
                     market:create_sell_order(ItemId, Price);
                 false ->
@@ -603,7 +610,7 @@ handle_cast(_ = #create_buy_order{  city_id = CityId,
     case db:dirty_read(item_type, ItemTypeId) of
         [_ItemType] ->
             market:create_buy_order(CityId, 
-                                    Data#module_data.player_id, 
+                                    Data#data.player_id, 
                                     ItemTypeId, 
                                     Volume,
                                     Price);
@@ -616,14 +623,14 @@ handle_cast(_ = #create_buy_order{  city_id = CityId,
 handle_cast(_ = #fill_sell_order{order_id = OrderId,
                                  volume = Volume}, Data) ->
     log4erl:info("Fill sell order id ~w volume ~w", [OrderId, Volume]),
-    market:fill_sell_order(Data#module_data.player_id, OrderId, Volume),
+    market:fill_sell_order(Data#data.player_id, OrderId, Volume),
     
     {noreply, Data};
 
 handle_cast(_ = #fill_buy_order{order_id = OrderId,
                                 volume = Volume}, Data) ->
     log4erl:info("Fill buy order id ~w volume ~w", [OrderId, Volume]),
-    market:fill_buy_order(Data#module_data.player_id, OrderId, Volume),
+    market:fill_buy_order(Data#data.player_id, OrderId, Volume),
 
     {noreply, Data};
 
@@ -638,12 +645,12 @@ handle_call('LOGOUT', _From, Data) ->
     io:fwrite("player - logout.~n"),
     
     %Save explored map to disk
-    save_explored_map(Data#module_data.player_id, Data#module_data.explored_map),
+    save_explored_map(Data#data.player_id, Data#data.explored_map),
     
     %Delete from game
     GamePID = global:whereis_name(game_pid),
     io:fwrite("player - LOGOUT  GamePID: ~w~n", [GamePID]),
-    gen_server:cast(GamePID, {'DELETE_PLAYER', Data#module_data.player_id, Data#module_data.self}),
+    gen_server:cast(GamePID, {'DELETE_PLAYER', Data#data.player_id, Data#data.self}),
     
     %Stop character and player servers
     spawn(fun() -> timer:sleep(100), io:fwrite("spawn - stop player process: ~w~n", [Self]), player:stop(Self) end),   
@@ -651,7 +658,7 @@ handle_call('LOGOUT', _From, Data) ->
     {reply, ok, Data};
 
 handle_call('ID', _From, Data) ->
-    {reply, Data#module_data.player_id, Data};
+    {reply, Data#data.player_id, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
@@ -691,16 +698,16 @@ create_runtime(ID, ProcessId)
 
 forward_to_client(Event, Data) ->    
     if 
-        Data#module_data.socket /= none ->
-            Data#module_data.socket ! {packet, Event};
+        Data#data.socket /= none ->
+            Data#data.socket ! {packet, Event};
         true ->
             ok
     end.
 
 send_perception(Data) ->
-    ObjectPerception = build_perception(Data#module_data.player_id),			            
+    ObjectPerception = build_perception(Data#data.player_id),			            
     R = #perception {entities = ObjectPerception,
-                     tiles = Data#module_data.discovered_tiles},
+                     tiles = Data#data.discovered_tiles},
     % Reset update perception state
     forward_to_client(R, Data),            
     log4erl:debug("Perception Modified.~n").
@@ -775,10 +782,10 @@ save_explored_map(PlayerId, ExploredMap) ->
     dets:close(FileName).
 
 get_info_kingdom(Data) ->
-    {Id, Name, Gold} = kingdom:get_info_kingdom(Data#module_data.player_id),
-    ItemRecipes = item:get_recipes(Data#module_data.player_id),
+    {Id, Name, Gold} = kingdom:get_info_kingdom(Data#data.player_id),
+    ItemRecipes = item:get_recipes(Data#data.player_id),
     ?INFO("ItemRecipes: ", ItemRecipes),
-    UnitRecipes = unit:get_recipes(Data#module_data.player_id),
+    UnitRecipes = unit:get_recipes(Data#data.player_id),
     ?INFO("UnitRecipes: ", UnitRecipes),
 
     InfoKingdom = #info_kingdom {id = Id, 
@@ -790,7 +797,7 @@ get_info_kingdom(Data) ->
     forward_to_client(InfoKingdom, Data).    
 
 get_info_all_cities(Data) ->
-    Cities = kingdom:get_cities(Data#module_data.player_id),
+    Cities = kingdom:get_cities(Data#data.player_id),
     
     F = fun(CityId) ->
             get_info_city(CityId, Data)
@@ -798,7 +805,7 @@ get_info_all_cities(Data) ->
     lists:foreach(F, Cities).
     
 get_info_city(Id, Data) ->
-    case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#module_data.player_id}) of
+    case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#data.player_id}) of
         {detailed, 
         CityName, 
         BuildingInfo, 
@@ -831,7 +838,7 @@ get_info_city(Id, Data) ->
     end.
 
 get_info_improvement(Id, Data) ->
-    case improvement:info(Id, Data#module_data.player_id) of
+    case improvement:info(Id, Data#data.player_id) of
         {detailed, _Type} ->
             ok;
         _ ->    

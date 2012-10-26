@@ -76,10 +76,6 @@ handle_cast({'BROADCAST', PlayerId, PlayerName, Message}, Data) ->
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
 
-handle_call({'GET_ARMIES', PlayerId}, _From, Data) ->
-    [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
-    {reply, Kingdom#kingdom.armies, Data};
-
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
                               {line, ?LINE},

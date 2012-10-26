@@ -14,7 +14,7 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--export([add/3]).
+-export([create/3]).
 
 %% ====================================================================
 %% External functions
@@ -23,8 +23,8 @@
 start() ->
     gen_server:start({global, army_manager_pid}, army_manager, [], []).
 
-add(PlayerId, PlayerName, Socket) ->
-    gen_server:cast({global, army_manager_pid}, {'ADD', PlayerId, PlayerName, Socket}).
+create(PlayerId, CityId, ArmyName) ->
+    gen_server:cast({global, army_manager_pid}, {'CREATE', PlayerId, CityId, ArmyName}).
 
 %% ====================================================================
 %% Server functions
@@ -33,22 +33,35 @@ add(PlayerId, PlayerName, Socket) ->
 init([]) ->
     {ok, []}.
 
-handle_cast('TEST', Data) ->   
+handle_cast({'CREATE', PlayerId, CityId, ArmyName}, Data) ->  
+    ArmyId = counter:increment(entity) + 5000,
+    {CityX, CityY} = city:get_coords(CityId),
+
+    Army = #army {id = ArmyId,
+                  player_id = PlayerId,
+                  name = ArmyName,
+                  x = CityX,
+                  y = CityY},
+
+    db:dirty_write(Army),
+
+    %Start army process
+    {ok, ArmyPid} = army:start(ArmyId, PlayerId),
+
+    ?INFO("ArmyId: ", ArmyId),
+    ?INFO("ArmyPid: ", ArmyPid),
+
+    ?INFO("Starting subscription module"),
+    %Subscription update
+    {ok, SubPid} = subscription:start(ArmyId),
+
+    ?INFO("Updating subscription perception"),
+    subscription:update_perception(SubPid, ArmyId, ArmyPid, CityX, CityY, [], []),
+
+    %Add to game
+    game:add_army(ArmyId, ArmyPid),
+
     {noreply, Data};
-
-handle_cast({'ADD', PlayerId, PlayerName, Socket}, Data) ->
-    Member = #member {player_id = PlayerId,
-                      player_name = PlayerName,
-                      socket = Socket},
-
-    NewMembers = [Member | Data#data.members],
-    NewData = Data#data {members = NewMembers},
-
-    {noreply, NewData};
-
-handle_cast({'REMOVE', PlayerId}, Data) ->
-    NewData = lists:keydelete(PlayerId, 1, Data#data.members), 
-    {noreply, NewData};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.

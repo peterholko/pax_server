@@ -143,7 +143,9 @@ handle_cast({'QUEUE_BUILDING', CityId, BuildingType}, Data) ->
 
 handle_cast({'LOGIN', Account}, Data) ->
     AccountBin = list_to_binary(Account),
-    gen_tcp:send(Data#data.socket, <<?CMD_LOGIN, 5:16, AccountBin/binary, 6:16, "123123">>),
+    CmdData = <<?CMD_LOGIN, 5:16, AccountBin/binary, 6:16, "123123">>,
+    io:fwrite("CmdData: ~w", [CmdData]),
+    gen_tcp:send(Data#data.socket, CmdData),
     {noreply, Data};
 
 handle_cast({'TRANSFER_UNIT', UnitId, SourceId, SourceType, TargetId, TargetType}, Data) ->

@@ -158,9 +158,13 @@ item() ->
 items() ->
     list(short(), item()).
 
+
+gear() ->
+    list(short(), id()).
+
 %unit_id, recipe_id, unit_size, items
 unit_items() ->
-    tuple({unit_id(), id(), unit_size(), items()}).
+    tuple({unit_id(), id(), unit_size(), name(), gear(), items()}).
 
 units() ->
     list(short(), unit_items()).
@@ -198,9 +202,6 @@ material() ->
 
 materials() ->
     list(short(), material()).	
-
-gear() ->
-    list(short(), id()).
 
 %type_id, template_id, player_id, item_name, flavour_text, material_maount, material_type
 item_recipe() ->
@@ -320,6 +321,10 @@ info_item_recipe() ->
                               materials(), %material_amount
                               materials()}). %material_type
 
+city_form_army() ->
+    record(city_form_army, {id(), %city_id,
+                            string()}). %army_name
+
 city_queue_unit() ->
     record(city_queue_unit, {id(), %city_id
                              id(), %building_id
@@ -375,7 +380,8 @@ transfer_unit() ->
 
 battle_info() ->
     record(battle_info, {battle_id(),
-                         armies()}).
+                         armies(),
+                         items()}).
 
 battle_event() ->
     record(battle_event, {type(), %battle_event_type
@@ -478,6 +484,9 @@ read(<<?CMD_ADD_WAYPOINT, Bin/binary>>) ->
 
 read(<<?CMD_REQUEST_INFO, Bin/binary>>) ->
     unpickle(request_info(), Bin);
+
+read(<<?CMD_CITY_FORM_ARMY, Bin/binary>>) ->
+    unpickle(city_form_army(), Bin);
 
 read(<<?CMD_CITY_QUEUE_UNIT, Bin/binary>>) ->
     unpickle(city_queue_unit(), Bin);

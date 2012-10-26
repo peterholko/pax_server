@@ -76,9 +76,6 @@ loop(Socket) ->
                 #battle_info{battle_id = BattleId, armies = Armies} ->
                     io:fwrite("Battle Info: ~w ~w~n", [BattleId, Armies]),
                     loop(Socket);
-                #battle_add_army{battle_id = BattleId, army = Army} ->
-                    io:fwrite("Battle Add Army: ~w ~w~n", [BattleId, Army]),
-                    loop(Socket);
                 #battle_damage{battle_id = BattleId, source_id = SourceId, target_id = TargetId, damage = Damage} ->
                     io:fwrite("Battle Damage: ~w ~w ~w ~w~n", [BattleId, SourceId, TargetId, Damage]),
                     loop(Socket);                

@@ -14,6 +14,8 @@
 %% Exported Functions
 %%
 -export([round3/1,
+         ceiling/1,
+         floor/1,
          diff_game_days/2,
          get_time/0,
          get_time_seconds/0,
@@ -29,6 +31,22 @@
 round3(Num) ->
     RoundedNum = round(Num * 1000),
     RoundedNum / 1000.    
+
+ceiling(X) ->
+    T = erlang:trunc(X),
+    case (X - T) of
+        Neg when Neg < 0 -> T;
+        Pos when Pos > 0 -> T + 1;
+        _ -> T
+    end.
+
+floor(X) ->
+    T = erlang:trunc(X),
+    case (X - T) of
+        Neg when Neg < 0 -> T - 1;
+        Pos when Pos > 0 -> T;
+        _ -> T
+    end.
 
 unique_list(L) ->
     T = ets:new(temp,[set]),

@@ -43,6 +43,7 @@
 -define(GAME_VISION_RANGE, 50).
 -define(GAME_NUM_HOURS_PER_DAY, 6).
 
+-define(OBJECT_NONE, -1).
 -define(OBJECT_TILE, 0).
 -define(OBJECT_ARMY, 1).
 -define(OBJECT_CITY, 2).

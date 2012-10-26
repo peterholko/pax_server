@@ -117,7 +117,8 @@
 
 -define (CMD_BATTLE_INFO, 70).
 -record(battle_info, {battle_id,
-                      armies}).
+                      armies,
+                      items}).
 
 -define (CMD_BATTLE_EVENT, 71).
 -record(battle_event, {battle_event,
@@ -148,6 +149,10 @@
 -define(CMD_BATTLE_LEAVE, 77).
 -record(battle_leave, {battle_id,
                        source_army_id}).
+
+-define(CMD_CITY_FORM_ARMY, 99).
+-record(city_form_army, {city_id,
+                         army_name}).
 
 -define (CMD_CITY_QUEUE_UNIT, 100).
 -record(city_queue_unit, {city_id,
