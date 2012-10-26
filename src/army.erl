@@ -102,16 +102,23 @@ handle_cast({'SET_STATE_ATTACK', TargetId}, Data) ->
     TargetState = gen_server:call(global:whereis_name({army, TargetId}), {'GET_STATE', Army#army.id}),
     {NextX, NextY} = next_pos(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
     ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
-    
-    if
-        (Army#army.state =/= ?STATE_ATTACK) and (Army#army.state =/= ?STATE_COMBAT)->
-            gen_server:cast(global:whereis_name(game_pid), {'CLEAR_EVENTS', Data#module_data.self}),
-            gen_server:cast(global:whereis_name(game_pid), {'ADD_EVENT', Data#module_data.self, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)});
-        true ->
-            ok
+   
+    case Army#army.state of
+        S when S =:= ?STATE_NONE;
+               S =:= ?STATE_ATTACK;
+               S =:= ?STATE_MOVE ->
+            
+            add_event_attack(Data#module_data.self, ArmySpeed),
+            NewArmy = state_attack(Army, TargetId);
+        ?STATE_CLAIM ->
+            claim:cancel(Army#army.id),
+            add_event_attack(Data#module_data.self, ArmySpeed),
+            NewArmy = state_attack(Army, TargetId);
+        _ ->
+            %Do nothing
+            NewArmy = Army
     end,         
     
-    NewArmy = state_attack(Data#module_data.army, TargetId),
     NewData = Data#module_data {army = NewArmy},
     save_army(NewArmy),
     
@@ -308,65 +315,10 @@ handle_cast(stop, Data) ->
 handle_call({'TRANSFER_UNIT', _SourceId, _UnitId, _TargetId, _TargetAtom}, _From, Data) ->
     io:fwrite("army - transfer unit.~n"),
 
-%    case gb_sets:is_member(UnitId, Units) of
-%        true ->
-%            [Unit] = db:dirty_read(unit, UnitId),                      
-%            TargetPid = object:get_pid(TargetAtom, TargetId),
-%
-%            case gen_server:call(TargetPid, {'ON_SAME_TILE', Army#army.x, Army#army.y}) of
-%                true ->
-%                    case gen_server:call(TargetPid, {'RECEIVE_UNIT', TargetId, Unit, Data#module_data.player_id}) of
-%                        {receive_unit, success} ->
-%                            db:dirty_delete(unit, Unit),
-%                            NewUnits = gb_sets:delete(UnitId, Units),
-%                            NewArmy = Army#army {units = NewUnits},
-%                            NewData = Data#module_data{army = NewArmy},
-%                            TransferUnitInfo = {transfer_unit, success};
-%                        Error ->
-%                            TransferUnitInfo = Error,
-%                            NewData = Data
-%                    end;
-%                false ->
-%                    TransferUnitInfo = {transfer_unit, not_same_tile},
-%                    NewData = Data
-%            end;
-%        false ->
-%            TransferUnitInfo = {transfer_unit, unit_is_not_member},
-%            NewData = Data
-%    end,
-%
-%    save_army(NewData#module_data.army),
-    
     {reply, none, Data};
 
 handle_call({'RECEIVE_UNIT', _TargetId, _Unit, _PlayerId}, _From, Data) ->
     io:fwrite("army - receive unit.~n"),
-%    Units = Army#army.units,
-%    
-%    if
-%        PlayerId =:= Data#module_data.player_id ->
-%            %Check to see if unit already exists
-%            UnitResult = gb_sets:is_member(Unit#unit.id, Units),            
-%            
-%            if
-%                UnitResult =:= false ->                    
-%                    NewUnit = Unit#unit {entity_id = Army#army.id},
-%                    db:dirty_write(NewUnit),       
-%
-%                    NewUnits = gb_sets:add(Unit#unit.id, Units),
-%                    NewArmy = Army#army {units = NewUnits},
-%                    NewData = Data#module_data {army = NewArmy},
-%                    ReceiveUnitInfo = {receive_unit, success};                
-%                true ->
-%                    NewData = Data,
-%                    ReceiveUnitInfo = {receive_unit, error}
-%            end;               
-%        true ->
-%            NewData = Data,
-%            ReceiveUnitInfo = {receive_unit, error}
-%    end,
-%
-%    save_army(NewData#module_data.army),
     
     {reply, none, Data};    
 
@@ -594,6 +546,10 @@ add_event_move(Pid, ArmySpeed) ->
 add_event_claim(Pid, ClaimId) ->
     game:clear_events(Pid),
     game:add_event(Pid, ?EVENT_CLAIM, ClaimId, ?CLAIM_TICK).
+
+add_event_attack(Pid, ArmySpeed) ->
+    game:clear_events(Pid),
+    game:add_event(Pid, ?EVENT_ATTACK, non, speed_to_ticks(ArmySpeed)).
  
 state_move(Army, DestX, DestY) ->
     Army#army{dest = [{DestX, DestY}],

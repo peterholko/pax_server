@@ -39,7 +39,9 @@ add(CityId, Caste, Race, Amount, TaskId, TaskType) ->
             NewAmount = Assignment#assignment.amount + Amount,
             NewAssignment = Assignment#assignment { amount = NewAmount},
             AssignmentId = NewAssignment#assignment.id;
-        _ ->    
+        _ ->
+            update_contract({TaskId, TaskType}),	
+    
             AssignmentId = counter:increment(assignment),
             NewAssignment = #assignment {  id = AssignmentId,
                                            city_id = CityId,
@@ -88,3 +90,12 @@ remove_all(TargetRef) ->
         end,
 
     lists:foreach(F, Assignments).
+
+update_contract(TargetRef) ->
+    case db:dirty_index_read(assignment, TargetRef, #assignment.target_ref) of
+        [] ->
+            contract:update_last_time(TargetRef);
+        _ ->
+            %Do nothing
+            none
+    end.

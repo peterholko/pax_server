@@ -14,6 +14,7 @@
 %%
 -export([exists/3,
          tuple_form/1,
+         update_last_time/1,
          process_contracts/1]).
 %%
 %% API Functions
@@ -48,6 +49,15 @@ tuple_form(Contracts) ->
             [ContractTuple | ContractList]
         end,
     lists:foldl(F, [], Contracts).
+
+update_last_time(TargetRef) ->
+    [Contract] = db:dirty_index_read(contract, TargetRef, #contract.target_ref),
+    
+    CurrentTime = util:get_time_seconds(),
+    NewContract = Contract#contract {last_update = CurrentTime},
+
+    db:dirty_write(NewContract).
+
 %%
 %% Local Functions
 %%
