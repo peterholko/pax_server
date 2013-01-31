@@ -64,7 +64,7 @@ get_unit(UnitId) ->
     gen_server:call({global, unit_pid}, {'GET_UNIT', UnitId}).
 
 get_units(ArmyId) ->
-    db:dirty_index_read(unit, ArmyId, #unit.entity_id).
+    gen_server:call({global, unit_pid}, {'GET_UNITS', ArmyId}).
 
 add_to_queue(CityId, BuildingId, UnitType, UnitSize) when is_record(UnitType, unit_recipe) ->
     CurrentTime = util:get_time_seconds(),

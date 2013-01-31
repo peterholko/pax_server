@@ -318,13 +318,12 @@ handle_cast({'UNIT_TRANSFERED'}, Data) ->
     Army = Data#module_data.army,
     Units = unit:get_units(Army#army.id),
     NumUnits = length(Units),
-
+   
     case NumUnits > 0 of
         true -> State = ?STATE_NONE;
         false -> State = ?STATE_EMPTY
     end,
 
-    io:fwrite("State: ~w~n", [State]),
     NewArmy = Army#army { state = State},
     NewData = Data#module_data {army = NewArmy},
     {noreply, NewData};
