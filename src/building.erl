@@ -82,7 +82,7 @@ check_type(TypeId) ->
     Result.
 
 match_req(BuildingReqName, BuildingReqLevel) ->
-    case db:dirty_match_object({building_type,'_',BuildingReqName,BuildingReqLevel,'_','_','_','_','_','_','_','_'}) of
+    case db:dirty_match_object(#building_type {building_type = BuildingReqName, level = BuildingReqLevel, _ = '_'}) of
         [BuildingType] ->
             Result = {true, BuildingType};
         _ ->

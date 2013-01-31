@@ -109,12 +109,16 @@ handle_cast({'ADD_VISIBLE', _CityId, EntityId, EntityPid}, Data) ->
     NewVisibleList = [{EntityId, EntityPid} | VisibleList],
     NewData = Data#module_data { visible = NewVisibleList },
     
+    update_perception(Data#module_data.player_id),
+
     {noreply, NewData};
 
 handle_cast({'REMOVE_VISIBLE', _CityId, EntityId, EntityPid}, Data) ->
     VisibleList = Data#module_data.visible,
     NewVisibleList = lists:delete({EntityId, EntityPid}, VisibleList),
     NewData = Data#module_data { visible = NewVisibleList },
+
+    update_perception(Data#module_data.player_id),
     
     {noreply, NewData};
 
@@ -196,7 +200,7 @@ handle_call({'REMOVE_CLAIM', ClaimId}, _From, Data) ->
 handle_call({'FORM_ARMY', ArmyName}, _From, Data) ->
     City = Data#module_data.city,
 
-    army_manager:create(City#city.player_id, City#city.id, ArmyName),
+    army_manager:create(City#city.player_id, City#city.x, City#city.y, ArmyName),
     Result = {city, formed_army},
 
     {reply, Result, Data};
@@ -739,3 +743,13 @@ save_city(City) ->
 	
     db:dirty_write(City).
 
+update_perception(PlayerId) ->
+    case player:get_type(PlayerId) of
+        ?PLAYER_HUMAN ->
+            %Toggle within game state that player's perception has been updated.
+            gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', PlayerId});
+        ?PLAYER_COMPUTER ->
+            no_update;
+        _PlayerType ->
+            no_update
+    end.

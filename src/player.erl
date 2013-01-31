@@ -102,8 +102,7 @@ handle_cast({'SOCKET', Socket}, Data) ->
 handle_cast({'SEND_SETUP_INFO'}, Data) ->    
     ExploredMap = get_explored_map(Data#data.player_id),    
     Map = #map {tiles = ExploredMap},
-    forward_to_client(Map, Data),        
-
+    forward_to_client(Map, Data),
     send_perception(Data),
 
     get_info_kingdom(Data),
@@ -431,7 +430,22 @@ handle_cast(_ = #transfer_item{item_id = ItemId, source_id = SourceId, source_ty
 handle_cast(_ = #transfer_unit{unit_id = UnitId, source_id = SourceId, source_type = SourceType, target_id = TargetId, target_type = TargetType}, Data) ->   
     %TODO ADD validation
     ?INFO("Transfer Unit Id: ", UnitId, " EntityId: ", TargetId),
+    
     unit:transfer(UnitId, TargetId),
+    case SourceType of
+        ?OBJECT_ARMY ->
+            army:unit_transfered(SourceId);
+        _ ->
+            none
+    end,
+
+    case TargetType of
+        ?OBJECT_ARMY ->
+            army:unit_transfered(TargetId);
+        _ ->
+            none
+    end,
+
     R = #success { type = ?CMD_TRANSFER_UNIT,
                    id = -1},
     forward_to_client(R, Data),

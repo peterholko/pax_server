@@ -175,8 +175,10 @@ extract_improvement_type(_XMLTEXT, L) ->
 extract_building_type(R, List) when is_record(R, xmlElement) ->
     case R#xmlElement.name of
         row ->
-            DataList = lists:reverse(lists:foldl(fun extract_building_type/2, [], R#xmlElement.content)),
-            RecordDataList = [ building_type | DataList], 
+            RecordFieldList = record_info(fields, building_type),
+            DataList = lists:foldl(fun extract_building_type/2, [], R#xmlElement.content),
+            OrderedList = order_tagged_list(RecordFieldList, DataList),
+            RecordDataList = [ building_type | OrderedList], 
             RecordData = list_to_tuple(RecordDataList),
             db:write(RecordData);
         _ ->
@@ -184,29 +186,36 @@ extract_building_type(R, List) when is_record(R, xmlElement) ->
     end;
 
 extract_building_type(#xmlText{parents=[{id,_}, {row, _}, _], value=V}, L) ->
-    [ convert_to_int(V) | L];
+    [ {id, convert_to_int(V)} | L];
 extract_building_type(#xmlText{parents=[{building_type, _}, {row, _}, _], value=V}, L) ->
-    [ V | L];
+    [ {building_type, V} | L];
 extract_building_type(#xmlText{parents=[{level, _}, {row, _}, _], value=V}, L) ->
-    [ convert_to_int(V) | L];
+    [ {level, convert_to_int(V)} | L];
 extract_building_type(#xmlText{parents=[{name, _}, {row, _}, _], value=V}, L) ->
-    [ V | L];
+    [ {name, V} | L];
 extract_building_type(#xmlText{parents=[{hp, _}, {row, _}, _], value=V}, L) ->
-    [ convert_to_int(V) | L];
+    [ {hp, convert_to_int(V)} | L];
 extract_building_type(#xmlText{parents=[{population_cap, _}, {row, _}, _], value=V}, L) ->
-    [ convert_to_int(V) | L];
+    [ {population_cap, convert_to_int(V)} | L];
 extract_building_type(#xmlText{parents=[{production_cost, _}, {row, _}, _], value=V}, L) ->
-    [ convert_to_int(V) | L];
+    [ {production_cost, convert_to_int(V)} | L];
 extract_building_type(#xmlText{parents=[{gold_cost, _}, {row, _}, _], value=V}, L) ->
-    [ convert_to_int(V) | L];
+    [ {gold_cost, convert_to_int(V)} | L];
 extract_building_type(#xmlText{parents=[{lumber_cost, _}, {row, _}, _], value=V}, L) ->
-    [ convert_to_int(V) | L];
+    [ {lumber_cost, convert_to_int(V)} | L];
 extract_building_type(#xmlText{parents=[{stone_cost, _}, {row, _}, _], value=V}, L) ->
-    [ convert_to_int(V) | L];
+    [ {stone_cost, convert_to_int(V)} | L];
 extract_building_type(#xmlText{parents=[{upkeep, _}, {row, _}, _], value=V}, L) ->
-    [ convert_to_int(V) | L];
+    [ {upkeep, convert_to_int(V)} | L];
 extract_building_type(_XMLTEXT, L) ->
     L.
+
+order_tagged_list(RecordFieldList, TaggedList) ->
+    F = fun(E) ->
+            {_Name, V} = lists:keyfind(E, 1, TaggedList),
+            V
+       end,
+    lists:map(F, RecordFieldList).
 
 extract_unit_template(R, List) when is_record(R, xmlElement) ->
     case R#xmlElement.name of

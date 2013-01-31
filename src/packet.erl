@@ -18,7 +18,7 @@
 %%
 %% Exported Functions
 %%
--export([read/1, send/2, send_policy/1, send_clocksync/1, battle_joined_test/0, army_info_test/0, tt_test/0]).
+-export([read/1, write/1, send/2, send_policy/1, send_clocksync/1, battle_joined_test/0, army_info_test/0, tt_test/0]).
 
 %%
 %% Local Functions

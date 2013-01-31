@@ -12,7 +12,7 @@
 %%
 %% Exported Functions
 %%
--export([player_id/1]).
+-export([player_id/1, type/1, add_entity/3]).
 -export([entity_list/1, add_entities/2]).
 -export([get_player_id/1, on_same_tile/3]).
 -export([get_type/2]).
@@ -23,6 +23,16 @@
 player_id(EntityId) ->
     [Entity] = db:read(entity, EntityId),
     Entity#entity.player_id.
+
+type(EntityId) ->
+    [Entity] = db:read(entity, EntityId),
+    Entity#entity.type.
+
+add_entity(EntityId, PlayerId, Type) ->
+    Entity = #entity {id = EntityId,
+                      player_id = PlayerId,
+                      type = Type},
+    db:write(Entity).
 
 get_type(TargetPid, TargetId) ->
     gen_server:call(TargetPid, {'GET_TYPE', TargetId}).

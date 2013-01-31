@@ -16,7 +16,7 @@
 %%
 %% Exported Functions
 %%
--export([move/3, attack/2, claim/2, battle_get_info/1, destroyed/1]).
+-export([move/3, attack/2, claim/2, battle_get_info/1, destroyed/1, unit_transfered/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([start/2, stop/1]).
 
@@ -44,6 +44,9 @@ battle_get_info(ArmyId) ->
 
 destroyed(ArmyId) ->
     gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_DEAD'}).
+
+unit_transfered(ArmyId) ->
+    gen_server:cast(global:whereis_name({army, ArmyId}), {'UNIT_TRANSFERED'}).
 
 start(ArmyId, PlayerId) ->
     case db:read(army, ArmyId) of
@@ -73,17 +76,19 @@ handle_cast({'SET_STATE_MOVE', DestX, DestY}, Data) ->
     log4erl:info("{~w} SET_STATE_MOVE", [?MODULE]),
     Army = Data#module_data.army,
     {NextX, NextY} = next_pos(Army#army.x, Army#army.y, DestX, DestY),
-    ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
     
     case Army#army.state of
         S when S =:= ?STATE_NONE;
                S =:= ?STATE_ATTACK; 
                S =:= ?STATE_MOVE ->
             
+            ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
             add_event_move(Data#module_data.self, ArmySpeed),
             NewArmy = state_move(Army, DestX, DestY);
         ?STATE_CLAIM ->
             claim:cancel(Army#army.id),        
+            
+            ArmySpeed = get_army_speed(Army#army.id, NextX, NextY),
             add_event_move(Data#module_data.self, ArmySpeed),
             NewArmy = state_move(Army, DestX, DestY);
         _ ->
@@ -309,18 +314,23 @@ handle_cast({'REMOVE_OBSERVED_BY', _ArmyId, EntityId, EntityPid}, Data) ->
     
     {noreply, NewData};
 
+handle_cast({'UNIT_TRANSFERED'}, Data) ->
+    Army = Data#module_data.army,
+    Units = unit:get_units(Army#army.id),
+    NumUnits = length(Units),
+
+    case NumUnits > 0 of
+        true -> State = ?STATE_NONE;
+        false -> State = ?STATE_EMPTY
+    end,
+
+    io:fwrite("State: ~w~n", [State]),
+    NewArmy = Army#army { state = State},
+    NewData = Data#module_data {army = NewArmy},
+    {noreply, NewData};
+        
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
-
-handle_call({'TRANSFER_UNIT', _SourceId, _UnitId, _TargetId, _TargetAtom}, _From, Data) ->
-    io:fwrite("army - transfer unit.~n"),
-
-    {reply, none, Data};
-
-handle_call({'RECEIVE_UNIT', _TargetId, _Unit, _PlayerId}, _From, Data) ->
-    io:fwrite("army - receive unit.~n"),
-    
-    {reply, none, Data};    
 
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->    
     Army = Data#module_data.army,   

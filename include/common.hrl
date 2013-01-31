@@ -26,6 +26,7 @@
 -define(STATE_LEAVE_MOVE, 10).
 -define(STATE_IN_PROGRESS, 11).
 -define(STATE_CLAIM, 12).
+-define(STATE_EMPTY, 13).
 
 -define(EVENT_NONE, 0).
 -define(EVENT_MOVE, 1).
@@ -128,6 +129,7 @@
 
 -define(INFO(MSG), log4erl:info("{~w} ~s", [?MODULE, MSG])).
 -define(INFO(MSG, DATA), log4erl:info("{~w} ~s ~w", [?MODULE, MSG, DATA])).
+-define(INFO2(MSG, DATA), io:fwrite("~s ~s~n", [MSG, DATA])).
 -define(INFO(MSG1, DATA1, MSG2, DATA2), log4erl:info("{~w} ~s ~w ~s ~w", [?MODULE, MSG1, DATA1, MSG2, DATA2])).
 -define(ERROR(MSG), log4erl:error("{~w:~w} ~s", [?MODULE, ?LINE, MSG])).
 -define(ERROR(MSG, DATA), log4erl:error("{~w:~w} ~s: ~w", [?MODULE, ?LINE, MSG, DATA])).

@@ -20,6 +20,7 @@
          get_time/0,
          get_time_seconds/0,
          unique_list/1,
+         replace/3,
          is_process_alive/1, 
          reset_explored_map/0
         ]).
@@ -53,6 +54,9 @@ unique_list(L) ->
     L1 = lists:filter(fun(X) -> ets:insert_new(T, {X,1}) end, L),
     ets:delete(T),
     L1.
+
+replace(1, [_|Rest], New) -> [New|Rest];
+replace(I, [E|Rest], New) -> [E|replace(I-1, Rest, New)].
 
 is_process_alive(Pid) 
   when is_pid(Pid) ->

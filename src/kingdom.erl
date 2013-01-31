@@ -18,6 +18,7 @@
 -export([get_gold/1, 
          add_gold/2, 
          remove_gold/2,
+         add_army/2,
          is_player_city/2]).
 -export([get_name/1, get_info_kingdom/1]).
 -export([get_cities/1, get_cities_id_pid/1]).
@@ -41,6 +42,9 @@ remove_gold(PlayerId, Amount) ->
 
 update_gold(PlayerId, Amount) ->
     gen_server:cast({global, kingdom_pid}, {'UPDATE_GOLD', PlayerId, Amount}).
+
+add_army(PlayerId, ArmyId) ->
+    gen_server:cast({global, kingdom_pid}, {'ADD_ARMY', PlayerId, ArmyId}).
 
 get_cities_id_pid(PlayerId) ->
     gen_server:call({global, kingdom_pid}, {'GET_CITIES_ID_PID', PlayerId}).
@@ -74,6 +78,12 @@ handle_cast('TEST', Data) ->
 handle_cast({'UPDATE_GOLD', PlayerId, Amount}, Data) ->
     [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
     NewKingdom = Kingdom#kingdom { gold = Kingdom#kingdom.gold + Amount},
+    db:dirty_write(NewKingdom),
+    {noreply, Data};
+
+handle_cast({'ADD_ARMY', PlayerId, ArmyId}, Data) ->
+    [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id),
+    NewKingdom = Kingdom#kingdom { armies = [ArmyId | Kingdom#kingdom.armies]},
     db:dirty_write(NewKingdom),
     {noreply, Data};
 

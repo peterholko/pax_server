@@ -88,6 +88,9 @@ add_to_queue(CityId, BuildingId, UnitType, UnitSize) when is_record(UnitType, un
     db:dirty_write(Contract),
     db:dirty_write(UnitQueue).    
 
+add_recipe(TemplateId, PlayerId, UnitName, DefaultSize, [0]) ->
+    add_recipe(TemplateId, PlayerId, UnitName, DefaultSize, []);
+
 add_recipe(TemplateId, PlayerId, UnitName, DefaultSize, GearList) ->
     case db:dirty_read(unit_template, TemplateId) of
         [_Template] ->
