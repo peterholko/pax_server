@@ -61,7 +61,7 @@
 
 -define(IMPROVEMENT_FARM, 0).
 
--define(ITEM_FOOD, 0).
+-define(ITEM_FOOD, 1036).
 
 -define(ARMY_DEAD, 0).
 -define(ARMY_ALIVE, 1).
@@ -72,7 +72,7 @@
 -define(PLAYER_GM, 2).
 
 -define(CLAIM_TICK, 300).
--define(GROWTH_TICK, 500000).
+-define(GROWTH_TICK, 300).
 
 -define(CASTE_SLAVE, 0).
 -define(CASTE_SOLDIER, 1).

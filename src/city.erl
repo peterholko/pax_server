@@ -141,6 +141,8 @@ handle_cast({'PROCESS_EVENT',_EventTick, _EventData, EventType}, Data) ->
 
     case EventType of
         ?EVENT_GROWTH ->
+            ?INFO("Processing growth event"),
+            income(City),
             growth(City#city.id, City#city.player_id) 
     end,      
     
@@ -595,6 +597,30 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 %% Local Functions
 %%
+income(City) ->
+    Population = db:dirty_index_read(population, City#city.id, #population.city_id),    
+     
+    Tax = population_tax(Population, City, 0),
+
+    kingdom:update_gold(City#city.player_id, Tax).
+
+population_tax([], _City, Tax) ->
+    Tax;
+
+population_tax([Caste | Rest], City, Tax) ->
+    CasteTax = caste_tax(Caste#population.caste, City),
+    NewTax = Tax + (Caste#population.value * CasteTax / 100),
+    population_tax(Rest, City, NewTax). 
+
+caste_tax(?CASTE_SLAVE, _City) ->
+    0;
+caste_tax(?CASTE_SOLDIER, _City) ->
+    0;
+caste_tax(?CASTE_COMMONER, City) ->
+    City#city.commoner_tax;
+caste_tax(?CASTE_NOBLE, City) ->
+    City#city.noble_tax.
+
 growth(CityId, PlayerId) ->
     Population = db:dirty_index_read(population, CityId, #population.city_id),    
     log4erl:debug("{~w} Growth Current Population: ~w", [?MODULE, Population]),
@@ -634,8 +660,10 @@ total_food_required([Caste | Rest], FoodRequired) ->
     total_food_required(Rest, TotalFoodRequired).
 
 food_upkeep(CityId, PlayerId, Population, TotalFoodRequired) ->
-    case item:get_by_type({?OBJECT_CITY, CityId}, PlayerId, ?ITEM_FOOD) of
-        {true, FoodList} ->
+    case get_food_items(CityId, PlayerId) of
+        [] ->
+            starve_population(Population, TotalFoodRequired);
+        FoodList ->
             log4erl:info("Food upkeep: ~w",[FoodList]),
             TotalFood = total_food(FoodList, 0),
             if
@@ -646,10 +674,19 @@ food_upkeep(CityId, PlayerId, Population, TotalFoodRequired) ->
                     starve_population(Population, TotalFoodRequired - TotalFood)
             end,
             log4erl:info("FoodList: ~w TotalFoodRequired: ~w", [FoodList, TotalFoodRequired]),            
-            remove_food(FoodList, TotalFoodRequired);
-        false ->
-            starve_population(Population, TotalFoodRequired)
+            remove_food(FoodList, TotalFoodRequired)
     end.         
+
+get_food_items(CityId, PlayerId) ->
+    FoodCategoryList = [?ITEM_FOOD],
+
+    F = fun(FoodCategory, FoodItemList) ->
+            ?INFO("Food Category: ", FoodCategory),
+            {true, FoodItem} = item:get_by_type({?OBJECT_CITY, CityId}, PlayerId, FoodCategory),
+            [FoodItem | FoodItemList]
+        end,
+
+    lists:foldl(F, [], FoodCategoryList).
 
 total_food([], TotalFood) ->
     TotalFood;

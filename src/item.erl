@@ -116,8 +116,11 @@ check_amount({OwnerType, OwnerId}, PlayerId, Type, Amount) ->
 add_recipe(TemplateId, PlayerId, ItemName, FlavourText, RecipeTypeList) ->
     case db:dirty_read(item_template, TemplateId) of
         [Template] ->
+            ?INFO("RecipeTypeList: ", RecipeTypeList),
             RecipeCategoryList = type_to_category(RecipeTypeList),
             TemplateCategoryList = Template#item_template.material_category,
+            ?INFO("RecipeCategoryList: ", RecipeCategoryList),
+            ?INFO("TemplateCategoryList: ", TemplateCategoryList),
             if 
                 RecipeCategoryList =:= TemplateCategoryList ->
                     Recipe = #item_recipe { type_id = counter:increment(item_recipe) + ?ITEM_RECIPE_ID_OFFSET,
@@ -153,6 +156,7 @@ get_recipe(TypeId, PlayerId) ->
 
 type_to_category(TypeList) ->
     F = fun(TypeId, CategoryList) ->
+            ?INFO("TypeId: ", TypeId),
             [ItemBase] = db:dirty_read(item_base, TypeId),
             [ItemCategory] = db:dirty_index_read(item_category, ItemBase#item_base.category, #item_category.display_name),
             [ItemCategory#item_category.id | CategoryList]
@@ -490,6 +494,9 @@ get_item(ItemId) ->
     db:dirty_read(item, ItemId).
 
 get_item_by_type(OwnerRef, PlayerId, Type) ->
+    ?INFO("OwnerRef: ", OwnerRef),
+    ?INFO("PlayerID: ", PlayerId),
+    ?INFO("Type: ", Type),
     case db:dirty_read(item_type_ref, {OwnerRef, PlayerId, Type}) of
         [ItemTypeRef] ->
             [Item] = db:dirty_read(item, ItemTypeRef#item_type_ref.item_id),

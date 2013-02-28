@@ -72,6 +72,8 @@
                 buildings = [],
                 units = [],
                 claims = [],
+                commoner_tax,
+                noble_tax,
                 last_update_time}).
 
 -record(battle, {id,

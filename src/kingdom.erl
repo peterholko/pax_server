@@ -18,6 +18,7 @@
 -export([get_gold/1, 
          add_gold/2, 
          remove_gold/2,
+         update_gold/2,
          add_army/2,
          is_player_city/2]).
 -export([get_name/1, get_info_kingdom/1]).
@@ -76,8 +77,9 @@ handle_cast('TEST', Data) ->
     {noreply, Data};
 
 handle_cast({'UPDATE_GOLD', PlayerId, Amount}, Data) ->
+    AmountRounded = round(Amount),
     [Kingdom] = db:dirty_index_read(kingdom, PlayerId, #kingdom.player_id), 
-    NewKingdom = Kingdom#kingdom { gold = Kingdom#kingdom.gold + Amount},
+    NewKingdom = Kingdom#kingdom { gold = Kingdom#kingdom.gold + AmountRounded},
     db:dirty_write(NewKingdom),
     {noreply, Data};
 
