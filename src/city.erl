@@ -24,6 +24,7 @@
          queue_building/2, 
          queue_improvement/4,
          craft_item/5,
+         update_tax/2,
          add_claim/4, 
          remove_claim/2, 
          assign_task/6,
@@ -77,10 +78,13 @@ queue_building(CityId, BuildingType) ->
     gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_BUILDING', BuildingType}).
 
 queue_improvement(CityId, X, Y, ImprovementType) ->
-    gen_server:call(global:whereis_name({city,CityId}), {'QUEUE_IMPROVEMENT', X, Y, ImprovementType}).
+    gen_server:call(global:whereis_name({city, CityId}), {'QUEUE_IMPROVEMENT', X, Y, ImprovementType}).
 
 craft_item(CityId, SourceId, SourceType, ItemType, Amount) ->
-    gen_server:call(global:whereis_name({city,CityId}), {'CRAFT_ITEM', SourceId, SourceType, ItemType, Amount}).
+    gen_server:call(global:whereis_name({city, CityId}), {'CRAFT_ITEM', SourceId, SourceType, ItemType, Amount}).
+
+update_tax(CityId, Taxes) ->
+    gen_server:call(global:whereis_name({city, CityId}), {'UPDATE_TAX', Taxes}).
 
 add_claim(CityId, ArmyId, X, Y) ->
     gen_server:call(global:whereis_name({city, CityId}), {'ADD_CLAIM', ArmyId, X, Y}).
@@ -335,6 +339,16 @@ handle_call({'CRAFT_ITEM', SourceId, SourceType, ItemTypeId, ItemAmount}, _From,
 
     {reply, Result, Data};
 
+handle_call({'UPDATE_TAX', Taxes}, _From, Data) ->
+    City = Data#module_data.city,
+
+    NewCity = process_update_tax(City, Taxes),
+
+    save_city(NewCity),
+    Result = {success},
+
+    {reply, Result, Data};
+
 handle_call({'ASSIGN_TASK', Caste, Race, Amount, TaskId, TaskType}, _From, Data) ->
     City = Data#module_data.city,
     log4erl:info("Assign task - Caste ~w Amount ~w Race ~w TaskId ~w TaskType ~w", [Caste, Amount, Race, TaskId, TaskType]), 
@@ -429,6 +443,9 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             ?INFO("CityInfo tuple form"),
             CityInfo = {detailed, 
                         City#city.name,
+                        City#city.tax_commoner,
+                        City#city.tax_noble,
+                        City#city.tax_tariff,
                         BuildingsTuple, 
                         UnitsTuple, 
                         ClaimsTuple,
@@ -597,6 +614,32 @@ code_change(_OldVsn, Data, _Extra) ->
 %%
 %% Local Functions
 %%
+process_update_tax(City, []) ->
+    City;
+
+process_update_tax(City, [Tax | Rest]) ->
+    {Type, InputRate} = Tax,
+    
+    case InputRate of 
+        R when R > 100 -> NewRate = 100;
+        R when R < 0 -> NewRate = 0;
+        _ -> NewRate = InputRate
+    end,
+
+    case Type of
+        ?TAX_COMMONER ->
+            NewCity = City#city {tax_commoner = NewRate};
+        ?TAX_NOBLE ->
+            NewCity = City#city {tax_noble = NewRate};
+        ?TAX_TARIFF ->
+            NewCity = City#city {tax_noble = NewRate};
+        _ ->
+            ?INFO("Invalid tax type: ", Type),
+            NewCity = City
+    end,
+
+    process_update_tax(NewCity, Rest).
+
 income(City) ->
     Population = db:dirty_index_read(population, City#city.id, #population.city_id),    
      
@@ -617,9 +660,9 @@ caste_tax(?CASTE_SLAVE, _City) ->
 caste_tax(?CASTE_SOLDIER, _City) ->
     0;
 caste_tax(?CASTE_COMMONER, City) ->
-    City#city.commoner_tax;
+    City#city.tax_commoner;
 caste_tax(?CASTE_NOBLE, City) ->
-    City#city.noble_tax.
+    City#city.tax_noble.
 
 growth(CityId, PlayerId) ->
     Population = db:dirty_index_read(population, CityId, #population.city_id),    

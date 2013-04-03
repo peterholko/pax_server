@@ -72,8 +72,9 @@
                 buildings = [],
                 units = [],
                 claims = [],
-                commoner_tax,
-                noble_tax,
+                tax_commoner,
+                tax_noble,
+                tax_tariff,
                 last_update_time}).
 
 -record(battle, {id,
@@ -217,9 +218,9 @@
                            total_hp,
                            population_cap,
                            production_cost,
-			               gold_cost,
-			               lumber_cost,
-			               stone_cost,
+                           gold_cost,
+                           lumber_cost,
+                           stone_cost,
                            upkeep}).
 
 -record(resource_type, {id, 

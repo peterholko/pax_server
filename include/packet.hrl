@@ -81,6 +81,9 @@
 -define (CMD_INFO_CITY, 54).
 -record(info_city, {id,
                     name,
+                    tax_commoner,
+                    tax_noble,
+                    tax_tariff,
                     buildings,
                     units,
                     claims,
@@ -178,6 +181,10 @@
                            source_type,
                            item_type,
                            amount}).
+
+-define(CMD_CITY_UPDATE_TAX, 104).
+-record(city_update_tax, {city_id,
+                          taxes}).
 
 -define(CMD_ADD_ITEM_RECIPE, 120).
 -record(add_item_recipe, {template_id,

@@ -371,6 +371,16 @@ handle_cast(_ = #city_craft_item{city_id = CityId,
     end,
     {noreply, Data};
 
+handle_cast(_ = #city_update_tax{city_id = CityId, 
+                                 taxes = Taxes}, Data) ->
+    case city:update_tax(CityId, Taxes) of
+        {success} ->
+            RequestInfo = #request_info{ type = ?OBJECT_CITY, id = CityId},
+            gen_server:cast(self(), RequestInfo)
+    end,            
+
+    {noreply, Data};
+
 handle_cast(_ = #add_item_recipe{template_id = TemplateId,
                                  player_id = PlayerId,
                                  item_name = ItemName,
@@ -391,6 +401,8 @@ handle_cast(_ = #add_item_recipe{template_id = TemplateId,
             ?ERROR("Invalid player_id: ", PlayerId)
     end,
     {noreply, Data};
+
+
 
 handle_cast(_ = #add_unit_recipe{template_id = TemplateId,
                                  player_id = PlayerId,
@@ -822,6 +834,9 @@ get_info_city(Id, Data) ->
     case gen_server:call(global:whereis_name({city, Id}), {'GET_INFO', Data#data.player_id}) of
         {detailed, 
         CityName, 
+        TaxCommoner,
+        TaxNoble,
+        TaxTariff,
         BuildingInfo, 
         UnitsInfo, 
         Claims,
@@ -832,6 +847,9 @@ get_info_city(Id, Data) ->
         Contracts} ->
             R = #info_city { id = Id,
                              name = CityName, 
+                             tax_commoner = TaxCommoner,
+                             tax_noble = TaxNoble,
+                             tax_tariff = TaxTariff,
                              buildings = BuildingInfo,
                              units = UnitsInfo,
                              claims = Claims,

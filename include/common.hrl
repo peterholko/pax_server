@@ -127,6 +127,10 @@
 -define(ITEM_STONE2, 1042).
 -define(ITEM_LUMBER1, 1034).
 
+-define(TAX_COMMONER, 1).
+-define(TAX_NOBLE, 2).
+-define(TAX_TARIFF, 3).
+
 -define(INFO(MSG), log4erl:info("{~w} ~s", [?MODULE, MSG])).
 -define(INFO(MSG, DATA), log4erl:info("{~w} ~s ~w", [?MODULE, MSG, DATA])).
 -define(INFO2(MSG, DATA), io:fwrite("~s ~s~n", [MSG, DATA])).

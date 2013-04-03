@@ -216,6 +216,12 @@ unit_recipe() ->
 
 unit_recipes() ->
     list(short(), unit_recipe()).
+%tax_type, input_rate
+tax() ->
+    tuple({short(), short()}).
+
+taxes() ->
+    list(short(), tax()).
 
 %
 % packet records
@@ -286,6 +292,9 @@ info_army() ->
 info_city() ->
     record(info_city, {id(),
                        name(),
+                       int(), %tax_commoner
+                       int(), %tax_noble
+                       int(), %tax_tariff
                        buildings(),
                        units(),
                        claims(),
@@ -349,6 +358,10 @@ city_queue_improvement() ->
                                     x(), 
                                     y(), 
                                     type()}). %improvement_type
+
+city_update_tax() ->
+    record(city_update_tax, {id(), %city_id,
+                             taxes()}). %taxes
 
 add_item_recipe() ->
     record(add_item_recipe, {id(), %template_id
@@ -450,6 +463,8 @@ fill_buy_order() ->
     record(fill_buy_order, {id(),
                             int()}).                                        
 
+
+
 %%
 %% API Functions
 %%
@@ -499,6 +514,9 @@ read(<<?CMD_CITY_QUEUE_IMPROVEMENT, Bin/binary>>) ->
 
 read(<<?CMD_CITY_CRAFT_ITEM, Bin/binary>>) ->
     unpickle(city_craft_item(), Bin);
+
+read(<<?CMD_CITY_UPDATE_TAX, Bin/binary>>) ->
+    unpickle(city_update_tax(), Bin);
 
 read(<<?CMD_ADD_ITEM_RECIPE, Bin/binary>>) ->
     unpickle(add_item_recipe(), Bin);

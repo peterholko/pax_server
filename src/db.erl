@@ -239,7 +239,7 @@ test_tables() ->
      %{entity, 4, 3, ?OBJECT_ARMY},
      %{entity, 5, 4, ?OBJECT_ARMY},
      %{entity, 6, -1, ?OBJECT_ARMY},
-     {city, 11, 1,<<"Calgary">>, 3, 4, 0, {0, nil}, {0, nil}, [], 50, 50, 0},
+     {city, 11, 1,<<"Calgary">>, 3, 4, 0, {0, nil}, {0, nil}, [], 50, 50, 0, 0},
      %{army, 1, 1, <<"Army One">>, 3,  7, [], none, none, 0, 1, {2,{1,nil,{2,nil,nil}}}, none},
      %{army, 2, 1, <<"Army Two">>, 3,  4, [], none, none, 0, 0, {2,{7,nil,{8,nil,nil}}}, none},
      %{army, 3, 2, <<"Army Three">>,  4,  7, [], none, none, 0, 0, {1,{9,nil,nil}}, none},
