@@ -206,7 +206,7 @@ handle_call({'REMOVE_CLAIM', ClaimId}, _From, Data) ->
 handle_call({'FORM_ARMY', ArmyName}, _From, Data) ->
     City = Data#module_data.city,
 
-    army_manager:create(City#city.player_id, City#city.x, City#city.y, ArmyName),
+    _ArmyId = army_manager:create(City#city.player_id, City#city.x, City#city.y, ArmyName),
     Result = {city, formed_army},
 
     {reply, Result, Data};
@@ -347,7 +347,9 @@ handle_call({'UPDATE_TAX', Taxes}, _From, Data) ->
     save_city(NewCity),
     Result = {success},
 
-    {reply, Result, Data};
+    NewData = Data#module_data {city = NewCity},
+
+    {reply, Result, NewData};
 
 handle_call({'ASSIGN_TASK', Caste, Race, Amount, TaskId, TaskType}, _From, Data) ->
     City = Data#module_data.city,
@@ -618,7 +620,7 @@ process_update_tax(City, []) ->
     City;
 
 process_update_tax(City, [Tax | Rest]) ->
-    {Type, InputRate} = Tax,
+    {InputRate, Type} = Tax,
     
     case InputRate of 
         R when R > 100 -> NewRate = 100;
@@ -632,7 +634,7 @@ process_update_tax(City, [Tax | Rest]) ->
         ?TAX_NOBLE ->
             NewCity = City#city {tax_noble = NewRate};
         ?TAX_TARIFF ->
-            NewCity = City#city {tax_noble = NewRate};
+            NewCity = City#city {tax_tariff = NewRate};
         _ ->
             ?INFO("Invalid tax type: ", Type),
             NewCity = City
@@ -660,9 +662,9 @@ caste_tax(?CASTE_SLAVE, _City) ->
 caste_tax(?CASTE_SOLDIER, _City) ->
     0;
 caste_tax(?CASTE_COMMONER, City) ->
-    City#city.tax_commoner;
+    City#city.tax_commoner * ?CASTE_COMMONER_REVENUE;
 caste_tax(?CASTE_NOBLE, City) ->
-    City#city.tax_noble.
+    City#city.tax_noble * ?CASTE_NOBLE_REVENUE.
 
 growth(CityId, PlayerId) ->
     Population = db:dirty_index_read(population, CityId, #population.city_id),    
@@ -820,7 +822,7 @@ improvements_tuple(Improvements) ->
     lists:foldl(F, [], Improvements).
 
 save_city(City) ->
-	
+    io:fwrite("~w ~n",[City]),	
     db:dirty_write(City).
 
 update_perception(PlayerId) ->

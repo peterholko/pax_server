@@ -16,7 +16,8 @@
 %%
 %% Exported Functions
 %%
--export([move/3, attack/2, claim/2, battle_get_info/1, destroyed/1, unit_transfered/1]).
+-export([move/3, attack/2, claim/2, battle_get_info/1, destroyed/1, 
+         unit_transfered/1, combat/2]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([start/2, stop/1]).
 
@@ -47,6 +48,9 @@ destroyed(ArmyId) ->
 
 unit_transfered(ArmyId) ->
     gen_server:cast(global:whereis_name({army, ArmyId}), {'UNIT_TRANSFERED'}).
+
+combat(ArmyId, BattleId) ->   
+    gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_COMBAT', BattleId}).
 
 start(ArmyId, PlayerId) ->
     case db:read(army, ArmyId) of
@@ -440,7 +444,10 @@ do_move(Army, ArmyPid, VisibleList, ObservedByList) ->
     io:fwrite("Army#army.dest: ~w~n", [Army#army.dest]),
     [{DestX, DestY} | DestRest] = Army#army.dest, 
     {NewArmyX, NewArmyY} = next_pos(Army#army.x, Army#army.y, DestX, DestY),
-    
+
+    %Add a trigger due to move
+    add_move_trigger(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
+
     %% Set any newly discovered tiles
     set_discovered_tiles(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
  
@@ -480,12 +487,13 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
     {NewArmyX, NewArmyY} = next_pos(Army#army.x, Army#army.y, TargetState#state.x, TargetState#state.y),
     
     if	
-        (NewArmyX =:= TargetState#state.x) and (NewArmyY =:= TargetState#state.y) -> 
-            io:fwrite("Army - create battle~n"),            
+        (NewArmyX =:= TargetState#state.x) and (NewArmyY =:= TargetState#state.y) ->             
+            ?INFO("Creating battle"),
+            %FIXME Move counter into battle process
             BattleId = counter:increment(battle) + 1000000,
             battle:create(BattleId, TargetState#state.x, TargetState#state.y),
             battle:setup(BattleId, Army#army.id, Army#army.target),
-            gen_server:cast(global:whereis_name({army, Army#army.target}), {'SET_STATE_COMBAT', BattleId}),
+            army:combat(Army#army.target, BattleId),
             
             NewArmy = state_combat_move(Army, BattleId, NewArmyX, NewArmyY);
         true ->
@@ -494,6 +502,9 @@ do_attack(Army, ArmyPid, VisibleList, ObservedByList) ->
             game:add_event(ArmyPid, ?EVENT_ATTACK, none, speed_to_ticks(ArmySpeed)),            
             NewArmy = event_move(Army, NewArmyX, NewArmyY)
     end,
+
+    %Add a trigger due to move
+    add_move_trigger(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
 
     %% Set any newly discovered tiles
     set_discovered_tiles(Army#army.player_id, Army#army.id, NewArmyX, NewArmyY),
@@ -536,7 +547,6 @@ next_pos(ArmyX, ArmyY, DestX, DestY) ->
 
 event_move(Army, NewX, NewY) ->
     LastPos = {Army#army.x, Army#army.y},
-    ?INFO("LastPos: ", LastPos),
     Army#army{x = NewX,
               y = NewY,
               last_pos = LastPos}.  
@@ -618,7 +628,7 @@ get_army_speed(ArmyId, X, Y) ->
     Speed.
 
 speed_to_ticks(Speed) ->
-    (1000 div ?GAME_LOOP_TICK) * Speed.
+    (1000 div ?GAME_LOOP_TICK) * 1.
 
 tile_modifier(?TILE_MOUNTAIN) ->
     ?TILE_MOUNTAIN_SPEED;
@@ -660,9 +670,7 @@ update_perception(PlayerId) ->
             %Toggle within game state that player's perception has been updated.
             gen_server:cast(global:whereis_name(game_pid),{'UPDATE_PERCEPTION', PlayerId});
         ?PLAYER_COMPUTER ->
-            no_update;
-        _PlayerType ->
-            no_update      
+            no_update
     end.
 
 set_discovered_tiles(PlayerId, ArmyId, X, Y) ->
@@ -670,9 +678,17 @@ set_discovered_tiles(PlayerId, ArmyId, X, Y) ->
         ?PLAYER_HUMAN ->
             gen_server:cast(global:whereis_name({player, PlayerId}), {'SET_DISCOVERED_TILES', ArmyId, X, Y});
         ?PLAYER_COMPUTER ->
-            ok;
-        _ ->
             ok
+    end.
+
+add_move_trigger(PlayerId, ArmyId, X, Y) ->
+    %Only add trigger for human players
+    case player:get_type(PlayerId) of
+        ?PLAYER_HUMAN ->
+            TriggerData = {ArmyId, X, Y},
+            trigger:add(?TRIGGER_MOVE, TriggerData);
+        ?PLAYER_COMPUTER ->
+            no_trigger
     end.
 
 check_destination(_X = true, _Y = true, _DestList = 0) ->

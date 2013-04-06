@@ -75,6 +75,9 @@
                 tax_commoner,
                 tax_noble,
                 tax_tariff,
+                loyalty,
+                health, 
+                law, 
                 last_update_time}).
 
 -record(battle, {id,

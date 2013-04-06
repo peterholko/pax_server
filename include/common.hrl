@@ -40,6 +40,8 @@
 -define(EVENT_CLAIM, 21).
 -define(EVENT_IMPROVEMENT_COMPLETED, 30).
 
+-define(TRIGGER_MOVE, 1).
+
 -define(GAME_LOOP_TICK, 200).
 -define(GAME_VISION_RANGE, 50).
 -define(GAME_NUM_HOURS_PER_DAY, 6).
@@ -95,10 +97,15 @@
 -define(TILE_PLAINS, 2).
 -define(TILE_SWAMP, 3).
 
--define(TILE_MOUNTAIN_SPEED, 10).
--define(TILE_FOREST_SPEED, 4).
--define(TILE_PLAINS_SPEED, 1).
--define(TILE_SWAMP_SPEED, 8).
+-define(TILE_MOUNTAIN_SPEED, 10 / 25).
+-define(TILE_FOREST_SPEED, 4 / 25).
+-define(TILE_PLAINS_SPEED, 1 / 25).
+-define(TILE_SWAMP_SPEED, 8 / 25).
+
+-define(TILE_MOUNTAIN_AMBUSH, 0.50).
+-define(TILE_FOREST_AMBUSH, 0.25).
+-define(TILE_PLAINS_AMBUSH, 0.10).
+-define(TILE_SWAMP_AMBUSH, 0.33).
 
 -define(BASE_SPEED, 25).
 
@@ -109,6 +116,9 @@
 -define(CASTE_SOLDIER_RATE, 150).
 -define(CASTE_COMMONER_RATE, 200).
 -define(CASTE_NOBLE_RATE, 100).
+
+-define(CASTE_COMMONER_REVENUE, 1).
+-define(CASTE_NOBLE_REVENUE, 10).
 
 -define(CONTRACT_BUILDING, 0).
 -define(CONTRACT_UNIT, 1).

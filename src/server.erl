@@ -78,7 +78,8 @@ init() ->
     market:start(),    
     city_manager:start(),
     army_manager:start(),
-    
+    trigger:start(),   
+ 
     % Create game loop
     log4erl:info("Starting game process...") ,
     {ok, _GamePid} = game:start(),

@@ -2,9 +2,10 @@
 %% Author  : Peter
 %%% Description :
 %%%
-%%% Created : Feb, 2012
+%%% Created : April, 2013
 %%% -------------------------------------------------------------------
--module(army_manager).
+-module(trigger).
+
 -behaviour(gen_server).
 %% --------------------------------------------------------------------
 %% Include files
@@ -14,61 +15,38 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--export([create/4]).
-
+-export([add/2]).
 %% ====================================================================
 %% External functions
 %% ====================================================================
 
 start() ->
-    gen_server:start({global, army_manager_pid}, army_manager, [], []).
+    gen_server:start({global, trigger_pid}, trigger, [], []).
 
-create(PlayerId, X, Y, ArmyName) ->
-    gen_server:call({global, army_manager_pid}, {'CREATE', PlayerId, X, Y, ArmyName}).
+add(TriggerType, TriggerData) ->
+    gen_server:cast({global, trigger_pid}, {'ADD', TriggerType, TriggerData}).
+
 %% ====================================================================
 %% Server functions
 %% ====================================================================
 
 init([]) ->
-    {ok, []}.
+    Data = [],
+    {ok, Data}.
+
+handle_cast({'ADD', TriggerType, TriggerData}, Data) ->
+    ?INFO("Added trigger type: ", TriggerType),
+    case TriggerType of
+        ?TRIGGER_MOVE ->
+            move(TriggerData);
+        _ ->
+            ?INFO("Invalid trigger type: ", TriggerType)
+    end,
+
+    {noreply, Data};
 
 handle_cast(stop, Data) ->
     {stop, normal, Data}.
-
-handle_call({'CREATE', PlayerId, X, Y, ArmyName}, _From, Data) ->  
-    ArmyId = counter:increment(entity) + 5000,
-    Army = #army {id = ArmyId,
-                  player_id = PlayerId,
-                  name = ArmyName,
-                  x = X,
-                  y = Y,
-                  state = ?STATE_EMPTY},
-
-    db:dirty_write(Army),
-
-    %Add army to kingdom
-    kingdom:add_army(PlayerId, ArmyId),
-
-    %Add entity
-    entity:add_entity(ArmyId, PlayerId, ?OBJECT_ARMY),
-
-    %Start army process
-    {ok, ArmyPid} = army:start(ArmyId, PlayerId),
-
-    ?INFO("Starting subscription module"),
-    %Subscription update
-    {ok, SubPid} = subscription:start(ArmyId),
-
-    ?INFO("Updating subscription perception"),
-    subscription:update_perception(SubPid, ArmyId, ArmyPid, X, Y, [], []),
-
-    %Add to game
-    game:add_army(ArmyId, ArmyPid),
-
-    %Return army id
-    Result = ArmyId,
-
-    {reply, Result, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
@@ -95,3 +73,44 @@ terminate(_Reason, _) ->
 %% --------------------------------------------------------------------
 %%% Internal functions
 %% --------------------------------------------------------------------
+
+move(TriggerData) ->
+    {ArmyId, X, Y} = TriggerData,
+
+    TileType = map:get_tile_type(X, Y),
+    AmbushRate = ambush_rate(TileType),
+    Random = random:uniform(),
+
+    ?INFO("AmbushRate: ", AmbushRate),
+    ?INFO("Random: ", Random),
+
+    case AmbushRate =< Random of
+        true -> spawn_ambush(ArmyId, X, Y);
+        false -> do_nothing
+    end.
+
+ambush_rate(TileType) ->
+    case TileType of
+        ?TILE_MOUNTAIN -> ?TILE_MOUNTAIN_AMBUSH;
+        ?TILE_FOREST -> ?TILE_FOREST_AMBUSH;
+        ?TILE_PLAINS -> ?TILE_PLAINS_AMBUSH;
+        ?TILE_SWAMP -> ?TILE_SWAMP_AMBUSH
+    end.
+
+spawn_ambush(ArmyId, X, Y) ->
+    %Spawn NPC army
+    NPCId = -1,
+    NPCArmyId = army_manager:create(NPCId, X, Y, <<"Ambushers">>),
+    unit:create(NPCArmyId, 1, 100, []), 
+
+    %FIXME Remove sleep
+    timer:sleep(1000),
+
+    %Create battle
+    BattleId = counter:increment(battle) + 1000000,
+    battle:create(BattleId, X, Y),
+    battle:setup(BattleId, NPCArmyId, ArmyId),
+    
+    %Set army states combat
+    army:combat(NPCArmyId, BattleId),
+    army:combat(ArmyId, BattleId).
