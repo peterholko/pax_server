@@ -46,6 +46,13 @@ handle_cast({'CREATE', ObjectId, ObjectType, X, Y}, Data) ->
                              observed_by = []},
 
     db:dirty_write(MapObject),
+
+    ?INFO("Starting subscription module"),
+    %Subscription update
+    {ok, SubPid} = subscription:start(ObjectId),
+    
+    ?INFO("Updating subscription perception"),
+    subscription:update_perception(SubPid, ObjectId, self(), X, Y, [], []),
     
     game:add_map_object(ObjectId, self()),
     {noreply, Data};

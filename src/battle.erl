@@ -276,8 +276,9 @@ handle_call({'GET_STATE', _BattleId}, _From, Data) ->
     {reply, State, Data};
 
 handle_call({'GET_INFO', PlayerId}, _From, Data) ->
-    ?INFO("GET_INFO: ", PlayerId),
     Result = sets:is_element(PlayerId, Data#data.players),
+    ?INFO("GET_INFO: ", PlayerId, " ", Result),
+    ?INFO("Players: ", Data#data.players),
     
     if
         Result ->
@@ -291,7 +292,7 @@ handle_call({'GET_INFO', PlayerId}, _From, Data) ->
             
             BattleInfo = {detailed, Data#data.battle_id, ArmiesInfoTuple, ItemsTuple};
         true ->
-            BattleInfo = {generic, Data#data.battle_id, []}
+            BattleInfo = {generic, Data#data.battle_id}
     end,
     
     {reply, BattleInfo, Data};
@@ -432,14 +433,15 @@ unit_damage(_ArmyId, Unit, TargetArmyId, TargetUnit, Data) ->
             unit_destroyed(Unit#unit.id),
             army:destroyed(TargetArmyId),
 
-            TargetPlayerId = entity:player_id(TargetArmyId),
+            %TargetPlayerId = entity:player_id(TargetArmyId),
 
             NewArmies = lists:delete(TargetArmyId, Data#data.armies),
-            NewPlayers = sets:del_element(TargetPlayerId, Data#data.players),
+            %Do not remove player as they will not be able to open the battle 
+            %NewPlayers = sets:del_element(TargetPlayerId, Data#data.players),
             
-            broadcast_info(Data#data.battle_id, NewPlayers, NewArmies),
+            broadcast_info(Data#data.battle_id, Data#data.players, NewArmies),
 
-            NewData = Data#data {players = NewPlayers,
+            NewData = Data#data {players = Data#data.players,
                                  armies = NewArmies};
         {unit_destroyed, Damage} ->
             ?INFO("Unit destroyed"),
