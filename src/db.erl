@@ -276,6 +276,7 @@ test_tables() ->
      {item_type_ref, {{?OBJECT_CITY, 11}, 1, 1035}, 9996},
      {item_type_ref, {{?OBJECT_UNIT, 1}, 1, 1034}, 6666},
      {unit_recipe,1,11,1,<<"Chasmplate Defender">>,100,[]},
+     {unit_recipe,2,98,-1,<<"Zombies">>,20,[]},
      {unit,21001,11,1,11,100,1,<<"Chasmplate Defender">>,[]},
      {building,1,11,52,500,5}
      %{improvement, 1, 255, 1, 11, 1, 6, 100, []},

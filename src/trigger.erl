@@ -101,7 +101,10 @@ spawn_ambush(ArmyId, X, Y) ->
     %Spawn NPC army
     NPCId = -1,
     NPCArmyId = army_manager:create(NPCId, X, Y, <<"Ambushers">>),
-    unit:create(NPCArmyId, 1, 100, []), 
+    unit:create(NPCArmyId, 2, 1, []), 
+    [Unit] = unit:get_units(NPCArmyId),
+
+    item:create({?OBJECT_UNIT, Unit#unit.id}, -1, 1036, 100),
 
     %FIXME Remove sleep
     timer:sleep(1000),

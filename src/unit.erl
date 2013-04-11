@@ -289,7 +289,7 @@ tuple_form_items(PlayerId, EntityId) ->
             ItemsTuple = item:tuple_form(Items),
 
             UnitTuple = {Unit#unit.id, 
-                         Unit#unit.recipe_id, 
+                         Unit#unit.template_id,
                          Unit#unit.size,
                          Unit#unit.name,
                          Unit#unit.gear,
@@ -453,6 +453,7 @@ create_gear(UnitId, PlayerId, Amount, GearList) ->
     lists:foldl(F, [], GearList).
 
 process_damage(BattleId, Attacker, Defender) ->
+    ?INFO("Process damage"),
     AtkTemplate = unit:get_template(Attacker),
     DefTemplate = unit:get_template(Defender),
 
@@ -477,6 +478,9 @@ process_damage(BattleId, Attacker, Defender) ->
     %Calculate total defender hp
     DefTotalHp = DefTempHp * (DefSize - 1) + DefCurrentHp,
 
+    ?INFO("TotalDamage: ", TotalDamage),
+    ?INFO("DefTotalHp: ", DefTotalHp),
+    ?INFO("DefTempHp: ", DefTempHp),
     case TotalDamage >= DefTotalHp of
         true ->
             ?INFO("Unit destroyed: ", Defender#unit.id),
@@ -490,14 +494,14 @@ process_damage(BattleId, Attacker, Defender) ->
             end;
         false ->     
             %Calculate number of defenders killed
-            NumKilled = TotalDamage div DefTempHp,
+            NumKilled = erlang:trunc(TotalDamage / DefTempHp),
             ?INFO("Units killed: ", NumKilled),
 
             %Calculate remaining damage
             RemainingDamage = TotalDamage - NumKilled * DefTempHp,
 
             %Set new defender size and current hp
-            NewDefSize = DefSize#unit.size - NumKilled,
+            NewDefSize = DefSize - NumKilled,
             NewDefCurrentHp = DefCurrentHp - RemainingDamage,
 
             %Set new unit variables
