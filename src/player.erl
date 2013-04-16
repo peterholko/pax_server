@@ -22,6 +22,7 @@
 -export([set_socket/2]).
 -export([send_battle_event/4]).
 -export([send_battle_info/4]).
+-export([send_battle_damage/5]).
 -export([get_info_kingdom/1]).
 %%
 %% Records
@@ -36,6 +37,7 @@
                       self
                      }).
 
+-define(PID, global:whereis_name({player, PlayerId})).
 %%
 %% API Functions
 %%
@@ -45,10 +47,13 @@ get_type(PlayerId) ->
     PlayerType#player_type.type.
 
 send_battle_event(PlayerId, BattleEvent, BattleId, ArmyInfo) ->
-    gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_BATTLE_EVENT', BattleEvent, BattleId, ArmyInfo}).
+    gen_server:cast(?PID, {'SEND_BATTLE_EVENT', BattleEvent, BattleId, ArmyInfo}).
 
 send_battle_info(PlayerId, BattleId, Armies, Items) ->
-    gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_BATTLE_INFO', BattleId, Armies, Items}).
+    gen_server:cast(?PID, {'SEND_BATTLE_INFO', BattleId, Armies, Items}).
+
+send_battle_damage(PlayerId, BattleId, Source, Target, Damage) ->
+    gen_server:cast(?PID, {'SEND_BATTLE_DAMAGE', BattleId, Source, Target, Damage}).
 
 set_socket(Pid, Socket) ->
     gen_server:cast(Pid, {'SOCKET', Socket}).
@@ -132,10 +137,10 @@ handle_cast({'SEND_BATTLE_EVENT', BattleEvent, BattleId, ArmyInfo}, Data) ->
     forward_to_client(R, Data),
     {noreply, Data};
 
-handle_cast({'SEND_BATTLE_DAMAGE', BattleId, SourceId, TargetId, Damage}, Data) ->
+handle_cast({'SEND_BATTLE_DAMAGE', BattleId, Source, Target, Damage}, Data) ->
     R = #battle_damage {battle_id = BattleId,
-                        source_id = SourceId,
-                        target_id = TargetId,
+                        source_army_unit = Source,
+                        target_army_unit = Target,
                         damage = Damage},
     
     forward_to_client(R, Data),

@@ -134,8 +134,8 @@
 
 -define (CMD_BATTLE_DAMAGE, 74).
 -record(battle_damage, {battle_id,
-                        source_id,
-                        target_id,
+                        source_army_unit,
+                        target_army_unit,
                         damage}).
 
 -define (CMD_BATTLE_TARGET, 75).

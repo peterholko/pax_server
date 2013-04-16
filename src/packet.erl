@@ -129,9 +129,6 @@ target_army_id() ->
 target_unit_id() ->
     id().
 
-damage() ->
-    int().
-
 claim() ->
     tuple({id(), tile_index(), id(), state(), int()}).
 
@@ -222,6 +219,9 @@ tax() ->
 
 taxes() ->
     list(short(), tax()).
+
+army_unit() ->
+    tuple({id(), id()}).
 
 %
 % packet records
@@ -408,10 +408,10 @@ battle_target() ->
                            target_unit_id()}).
 
 battle_damage() ->
-    record(battle_damage, {battle_id(),
-                           source_id(),
-                           target_id(),
-                           damage()}).
+    record(battle_damage, {id(), %battle_id
+                           army_unit(), %source_army_unit
+                           army_unit(), %target_army_unit
+                           int()}). %damage
 battle_retreat() ->
     record(battle_retreat, {battle_id(),
                             source_id()}).

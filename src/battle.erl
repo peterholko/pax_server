@@ -424,7 +424,7 @@ unit_dps_list([ArmyId | Rest], UnitList) ->
     NewUnitList = lists:foldl(F, [], Units) ++ UnitList,
     unit_dps_list(Rest, NewUnitList).
 
-unit_damage(_ArmyId, Unit, TargetArmyId, TargetUnit, Data) ->
+unit_damage(ArmyId, Unit, TargetArmyId, TargetUnit, Data) ->
     ?INFO("Applying damage to unit: ", TargetUnit#unit.id), 
 
     case unit:damage(Data#data.battle_id, Unit, TargetUnit) of
@@ -439,15 +439,12 @@ unit_damage(_ArmyId, Unit, TargetArmyId, TargetUnit, Data) ->
             %Do not remove player as they will not be able to open the battle 
             %NewPlayers = sets:del_element(TargetPlayerId, Data#data.players),
             
-            broadcast_info(Data#data.battle_id, Data#data.players, NewArmies),
-
             NewData = Data#data {players = Data#data.players,
                                  armies = NewArmies};
         {unit_destroyed, Damage} ->
             ?INFO("Unit destroyed"),
             unit_destroyed(Unit#unit.id),
 
-            broadcast_info(Data#data.battle_id, Data#data.players, Data#data.armies),
             NewData = Data;
         {unit_damaged, Damage} ->
             ?INFO("Unit damaged"),
@@ -455,10 +452,15 @@ unit_damage(_ArmyId, Unit, TargetArmyId, TargetUnit, Data) ->
     end,
 
     broadcast_damage(Data#data.battle_id, 
-                     Data#data.players, 
+                     Data#data.players,
+                     ArmyId,    
                      Unit#unit.id, 
+                     TargetArmyId,
                      TargetUnit#unit.id, 
                      trunc(Damage)),
+
+    %TODO Do not send broadcast_info on unit_damage, only on army and unit destroyed 
+    broadcast_info(Data#data.battle_id, Data#data.players, NewData#data.armies),
     NewData.
 
 send_info(BattleId, PlayerId, Armies) ->
@@ -477,19 +479,23 @@ send_info(BattleId, PlayerId, Armies) ->
             ok
     end.	
 
-send_damage(BattleId, PlayerId, SourceId, TargetId, Damage) ->
+send_damage(BattleId, PlayerId, Source, Target, Damage) ->
     case gen_server:call(global:whereis_name(game_pid), {'IS_PLAYER_ONLINE', PlayerId}) of
         true ->
-            gen_server:cast(global:whereis_name({player, PlayerId}), {'SEND_BATTLE_DAMAGE', BattleId, SourceId, TargetId, Damage});
+            player:send_battle_damage(PlayerId, BattleId, Source, Target, Damage);
         false ->
             ok
     end.
 
-broadcast_damage(BattleId, Players, SourceId, TargetId, Damage) ->
+broadcast_damage(BattleId, Players, SourceArmyId, SourceUnitId, 
+                 TargetArmyId, TargetUnitId, Damage) ->
     PlayersList = sets:to_list(Players),
+
+    Source = {SourceArmyId, SourceUnitId},
+    Target = {TargetArmyId, TargetUnitId},
     
     F = fun(PlayerId) ->
-            send_damage(BattleId, PlayerId, SourceId, TargetId, Damage)
+            send_damage(BattleId, PlayerId, Source, Target, Damage)
         end,
     
     lists:foreach(F, PlayersList).

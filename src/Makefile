@@ -21,7 +21,7 @@ MODS = army battle building city counter db entity event\
        unit util map_test item market reputation \
 	   caste assignment contract claim map_object data \
 	   structure chat city_manager population item_category \
-	   army_manager trigger test t
+	   army_manager trigger
 #BEAMS = $(ERLS:.erl=.beam)
 #MODS = $(BEAMS:.beam=)
 

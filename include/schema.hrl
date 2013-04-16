@@ -84,7 +84,10 @@
                  armies = [],
                  observed_by = [],
                  x,
-                 y}).
+                 y,
+                 soldiers,
+                 killed,
+                 reserve}).
 
 -record(map_object, {id,
                      type,
