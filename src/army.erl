@@ -17,7 +17,7 @@
 %% Exported Functions
 %%
 -export([move/3, attack/2, claim/2, battle_get_info/1, destroyed/1, 
-         unit_transfered/1, combat/2]).
+         unit_transfered/1, combat/2, get_state/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([start/2, stop/1]).
 
@@ -40,9 +40,6 @@ attack(ArmyId, TargetId) ->
 claim(ArmyId, ClaimId) ->
     gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_CLAIM', ClaimId}).
 
-battle_get_info(ArmyId) ->
-    gen_server:call(global:whereis_name({army, ArmyId}), {'BATTLE_GET_INFO'}).
-
 destroyed(ArmyId) ->
     gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_DEAD'}).
 
@@ -51,6 +48,12 @@ unit_transfered(ArmyId) ->
 
 combat(ArmyId, BattleId) ->   
     gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_COMBAT', BattleId}).
+
+get_state(ArmyId) ->
+    gen_server:call(global:whereis_name({army, ArmyId}), {'GET_STATE', ArmyId}).
+
+battle_get_info(ArmyId) ->
+    gen_server:call(global:whereis_name({army, ArmyId}), {'BATTLE_GET_INFO'}).
 
 start(ArmyId, PlayerId) ->
     case db:read(army, ArmyId) of
@@ -389,7 +392,7 @@ handle_call({'GET_STATE', _ArmyId}, _From, Data) ->
                      state = Army#army.state,
                      x = Army#army.x,
                      y = Army#army.y},
-    
+    ?INFO("State: ", State),
     {reply, State, Data};
 
 handle_call({'GET_ID'}, _From, Data) ->

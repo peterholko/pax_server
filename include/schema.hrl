@@ -81,13 +81,17 @@
                 last_update_time}).
 
 -record(battle, {id,
+                 players = sets:new(),
                  armies = [],
                  observed_by = [],
                  x,
                  y,
-                 soldiers,
-                 killed,
-                 reserve}).
+                 targets = [],
+                 events = [],
+                 last_events = sets:new(),
+                 soldiers = [],
+                 killed = [],
+                 reserve = []}).
 
 -record(map_object, {id,
                      type,

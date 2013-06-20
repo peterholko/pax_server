@@ -486,11 +486,13 @@ process_damage(BattleId, Attacker, Defender) ->
             ?INFO("Unit destroyed: ", Defender#unit.id),
             destroy_unit(BattleId, Defender#unit.entity_id, Defender#unit.id),
 
+            NumKilled = DefSize,
+
             case get_num_units(Defender#unit.entity_id) > 0 of
                 true ->
-                    Result = {unit_destroyed, TotalDamage};
+                    Result = {unit_destroyed, TotalDamage, NumKilled};
                 false ->
-                    Result = {army_destroyed, TotalDamage}
+                    Result = {army_destroyed, TotalDamage, NumKilled}
             end;
         false ->     
             %Calculate number of defenders killed
@@ -509,7 +511,7 @@ process_damage(BattleId, Attacker, Defender) ->
                                           current_hp = NewDefCurrentHp},
 
             db:dirty_write(NewDefender),
-            Result = {unit_damaged, TotalDamage}
+            Result = {unit_damaged, TotalDamage, NumKilled}
     end,
     Result.
 

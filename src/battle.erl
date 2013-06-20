@@ -63,7 +63,6 @@ init([BattleId, X, Y])
     process_flag(trap_exit, true),
     ?INFO("Initializing new battle"),
     Players = sets:new(),
-    LastEvents = sets:new(),
     BattlePid = self(),
     Battle = #battle { id = BattleId,
                        x = X,
@@ -80,7 +79,6 @@ init([BattleId, X, Y])
                       x = X, 
                       y = Y, 
                       events = [],
-                      last_events = LastEvents, 
                       self = BattlePid}};	
 
 init([BattleId]) 
@@ -90,14 +88,13 @@ init([BattleId])
     
     Battle = db:read(battle, BattleId),
     Players = sets:new(),
-    LastEvents = sets:new(),
+    ?INFO("BattleId: ", Battle),
 
     {ok, #data{players = Players, 
                       armies = Battle#battle.armies, 
                       targets = [], 
                       battle_id = BattleId, 
                       events = [],
-                      last_events = LastEvents,
                       self = self()}}.
 
 terminate(_Reason, _) ->
@@ -249,12 +246,6 @@ handle_call({'RETREAT', SourceArmyId}, _From, Data) ->
             NewEvents = clear_events(SourceArmyId, Data#data.events, []),
             NewData = Data#data { events = NewEvents},
     
-            %Do not broadcast the retreat state to everyone
-            %broadcast_army_event(NewData#data.battle_id, 
-            %                     NewData#data.players, 
-            %                     SourceArmyId, 
-            %                     ?BATTLE_RETREAT),
-
             RetreatInfo = {battle_retreat, success};
         false ->
             NewData = Data,
@@ -361,13 +352,12 @@ unit_attack(EventTick, EventData, Data) ->
         ArmyResult ->
             if
                 Unit =/= false ->
-                    NewLastEvents = sets:add_element({ArmyId, EventTick}, Data#data.last_events),
-                    LastEventsData = Data#data {last_events = NewLastEvents},
-                    UnitTargetData = unit_target(ArmyId, Unit, LastEventsData),
-                                        
-                    EventTime = UnitSpeed * trunc(1000 / ?GAME_LOOP_TICK),    
+                    EventTime = UnitSpeed * trunc(1000 / ?GAME_LOOP_TICK),
                     EventId = game:add_event_get_id(Data#data.self, ?EVENT_UNIT_ATTACK, EventData, EventTime),
-                    NewEvents = [{ArmyId, EventId, ?EVENT_UNIT_ATTACK} | UnitTargetData#data.events],
+                    NewEvents = [{ArmyId, EventId, ?EVENT_UNIT_ATTACK} | Data#data.events],
+
+                    UnitTargetData = unit_target(ArmyId, Unit, Data#data {events = NewEvents}),
+                                        
                     NewData = UnitTargetData#data {events = NewEvents};
                 true ->
                     NewData = Data
@@ -408,7 +398,7 @@ best_target(TargetArmies) ->
 
 unit_dps_list([], UnitList) ->
     UnitList;
-        
+
 unit_dps_list([ArmyId | Rest], UnitList) ->
     Units = unit:get_units(ArmyId),
     
@@ -426,41 +416,55 @@ unit_dps_list([ArmyId | Rest], UnitList) ->
 
 unit_damage(ArmyId, Unit, TargetArmyId, TargetUnit, Data) ->
     ?INFO("Applying damage to unit: ", TargetUnit#unit.id), 
+    BattleId = Data#data.battle_id,
 
-    case unit:damage(Data#data.battle_id, Unit, TargetUnit) of
-        {army_destroyed, Damage} ->
+    {ArmyUnitState, Damage, NumKilled} = unit:damage(BattleId, Unit, TargetUnit),
+    ?INFO("NumKilled: ", NumKilled),
+
+    SourceArmyUnit = {ArmyId, Unit#unit.id},
+    TargetArmyUnit = {TargetArmyId, TargetUnit#unit.id},
+
+    broadcast_damage(BattleId,
+                     Data#data.players,
+                     SourceArmyUnit,
+                     TargetArmyUnit,
+                     trunc(Damage)),
+
+    case ArmyUnitState of
+         army_destroyed ->
             ?INFO("Army destroyed: ", TargetArmyId),
             unit_destroyed(Unit#unit.id),
-            army:destroyed(TargetArmyId),
-
-            %TargetPlayerId = entity:player_id(TargetArmyId),
+            army_manager:delete(TargetArmyId),
 
             NewArmies = lists:delete(TargetArmyId, Data#data.armies),
-            %Do not remove player as they will not be able to open the battle 
-            %NewPlayers = sets:del_element(TargetPlayerId, Data#data.players),
             
-            NewData = Data#data {players = Data#data.players,
-                                 armies = NewArmies};
-        {unit_destroyed, Damage} ->
+            ?INFO("Armies: ", NewArmies),
+            %Check remaining armies if same player 
+            case check_armies_same_player(NewArmies) of
+                true ->
+                    clear_all_events(Data#data.events),
+                    NewEvents = [];
+                false ->
+                    NewEvents = Data#data.events
+            end,
+
+            %Broadcast new armies and items to players
+            broadcast_info(BattleId, Data#data.players, NewArmies),
+
+            NewData = Data#data {armies = NewArmies, events = NewEvents};
+        unit_destroyed ->
             ?INFO("Unit destroyed"),
             unit_destroyed(Unit#unit.id),
 
+            %Broadcast new armies and items to players
+            broadcast_info(BattleId, Data#data.players, Data#data.armies),
+
             NewData = Data;
-        {unit_damaged, Damage} ->
+        unit_damaged ->
             ?INFO("Unit damaged"),
             NewData = Data
     end,
 
-    broadcast_damage(Data#data.battle_id, 
-                     Data#data.players,
-                     ArmyId,    
-                     Unit#unit.id, 
-                     TargetArmyId,
-                     TargetUnit#unit.id, 
-                     trunc(Damage)),
-
-    %TODO Do not send broadcast_info on unit_damage, only on army and unit destroyed 
-    broadcast_info(Data#data.battle_id, Data#data.players, NewData#data.armies),
     NewData.
 
 send_info(BattleId, PlayerId, Armies) ->
@@ -487,15 +491,11 @@ send_damage(BattleId, PlayerId, Source, Target, Damage) ->
             ok
     end.
 
-broadcast_damage(BattleId, Players, SourceArmyId, SourceUnitId, 
-                 TargetArmyId, TargetUnitId, Damage) ->
+broadcast_damage(BattleId, Players, SourceArmyUnit, TargetArmyUnit, Damage) ->
     PlayersList = sets:to_list(Players),
 
-    Source = {SourceArmyId, SourceUnitId},
-    Target = {TargetArmyId, TargetUnitId},
-    
     F = fun(PlayerId) ->
-            send_damage(BattleId, PlayerId, Source, Target, Damage)
+            send_damage(BattleId, PlayerId, SourceArmyUnit, TargetArmyUnit, Damage)
         end,
     
     lists:foreach(F, PlayersList).
@@ -556,6 +556,16 @@ clear_events(ArmyId, Events, LeftOverEvents) ->
     
     clear_events(ArmyId, Rest, NewLeftOverEvents).
 
+clear_all_events(Events) ->
+    
+    F = fun(Event) ->
+            ?INFO("Event: ", Event),
+            {_EventArmyId, EventId, _EventType} = Event,
+            game:delete_event(EventId)
+        end,
+
+    lists:foreach(F, Events).
+
 retreat_move(ArmyId) ->
     gen_server:cast(global:whereis_name({army, ArmyId}), {'SET_STATE_RETREAT_MOVE'}).
 
@@ -573,3 +583,14 @@ remove_observed_by(BattleId, EntityId, EntityPid) ->
 
 unit_destroyed(UnitId) ->
      game:delete_event(UnitId).
+
+check_armies_same_player(Armies) ->
+    [FirstArmyId | _Rest] = Armies,
+
+    F = fun(ArmyId) ->
+            ArmyId == FirstArmyId
+        end,
+
+    R = lists:all(F, Armies),
+    ?INFO("R: ", R),
+    R.

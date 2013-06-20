@@ -11,10 +11,11 @@
 %% --------------------------------------------------------------------
 -include("schema.hrl").
 -include("packet.hrl").
+-include("game.hrl").
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--export([create/4]).
+-export([create/4, delete/1]).
 
 %% ====================================================================
 %% External functions
@@ -25,6 +26,9 @@ start() ->
 
 create(PlayerId, X, Y, ArmyName) ->
     gen_server:call({global, army_manager_pid}, {'CREATE', PlayerId, X, Y, ArmyName}).
+
+delete(ArmyId) ->
+    gen_server:call({global, army_manager_pid}, {'DELETE', ArmyId}).
 %% ====================================================================
 %% Server functions
 %% ====================================================================
@@ -69,6 +73,32 @@ handle_call({'CREATE', PlayerId, X, Y, ArmyName}, _From, Data) ->
     Result = ArmyId,
 
     {reply, Result, Data};
+
+handle_call({'DELETE', ArmyId}, _From, Data) ->  
+
+    ArmyPid = global:whereis_name({army, ArmyId}),
+
+    army:destroyed(ArmyId),
+    State = army:get_state(ArmyId),
+
+    ?INFO("State: ", State),
+
+    ?INFO("Starting subscription module"),
+    %Subscription update
+    {ok, SubPid} = subscription:start(ArmyId),
+
+    game:delete_army(ArmyId, ArmyPid),
+
+    ?INFO("Updating subscription perception"),
+    subscription:update_perception(SubPid, 
+                                   ArmyId, 
+                                   ArmyPid, 
+                                   State#state.x, 
+                                   State#state.y, 
+                                   [], 
+                                   []),
+
+    {reply, none, Data};
 
 handle_call(Event, From, Data) ->
     error_logger:info_report([{module, ?MODULE}, 
